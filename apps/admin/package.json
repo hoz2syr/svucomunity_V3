@@ -1,0 +1,6 @@
+{
+  "name": "@svu-community/admin",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": { "dev": "vite", "build": "vite build", "lint": "eslint src --ext ts,tsx" }
+}
