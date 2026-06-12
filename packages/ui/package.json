@@ -10,5 +10,19 @@
     },
     "./styles.css": "./src/styles/globals.css"
   },
-  "files": ["src"]
+  "files": ["src"],
+  "peerDependencies": {
+    "@svu-community/types": "*",
+    "@supabase/supabase-js": ">=2.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.8",
+    "vite-tsconfig-paths": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^26.0.0"
+  }
 }

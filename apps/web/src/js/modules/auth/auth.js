@@ -1,4 +1,9 @@
-export function requireAuth() {
-  // TODO: implement auth guard
-  return true;
+import { checkAuth } from './auth-guard.js';
+
+export async function requireAuth(options = {}) {
+  const result = await checkAuth(options);
+  if (!result) {
+    throw new Error('Unauthorized');
+  }
+  return result;
 }

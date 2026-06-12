@@ -1,19 +1,18 @@
 import dagre from 'dagre';
-import type { Node, Edge, Position } from '@xyflow/react';
+import { Node, Edge, Position } from '@xyflow/react';
 import { iteData } from '../data/ite_data';
 import type { SpecializationCourse, Course } from '../types';
+import { NODE_WIDTH, NODE_HEIGHT } from './constants';
+
+const layoutCache = new Map<string, { nodes: Node[]; edges: Edge[] }>();
 
 export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'RL') {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
   dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 100 });
 
-  const nodeWidth = 220;
-  const nodeHeight = 120;
-  // matches CourseNode targetWidth/targetHeight
-
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
   });
 
   edges.forEach((edge) => {
@@ -28,8 +27,8 @@ export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'R
     return {
       ...node,
       position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        x: nodeWithPosition.x - NODE_WIDTH / 2,
+        y: nodeWithPosition.y - NODE_HEIGHT / 2,
       },
       targetPosition: isHorizontal
         ? direction === 'LR'
@@ -52,20 +51,25 @@ export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'R
 }
 
 export function generateInitialElements(selectedSpecialization: string | null) {
+  const cacheKey = selectedSpecialization ?? 'none';
+
+  if (layoutCache.has(cacheKey)) {
+    return layoutCache.get(cacheKey)!;
+  }
+
   const initialNodes: Node[] = [];
   const initialEdges: Edge[] = [];
-
   const seenCodes = new Set<string>();
 
-  const addCourseNode = (code: string, nameAr: string, data: Course | SpecializationCourse) => {
+  const addCourseNode = (code: string, _nameAr: string, data: Course | SpecializationCourse) => {
     if (seenCodes.has(code)) return;
     seenCodes.add(code);
-    initialNodes.push({
+  return {
       id: code,
       type: 'courseNode',
       position: { x: 0, y: 0 },
       data: { course: data },
-    });
+    };
   };
 
   const addPrereqEdges = (prereqs: string[], code: string) => {
@@ -100,5 +104,7 @@ export function generateInitialElements(selectedSpecialization: string | null) {
     }
   }
 
-  return getLayoutedElements(initialNodes, initialEdges, 'RL');
+  const result = getLayoutedElements(initialNodes, initialEdges, 'RL');
+  layoutCache.set(cacheKey, result);
+  return result;
 }

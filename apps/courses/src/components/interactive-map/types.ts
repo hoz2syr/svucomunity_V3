@@ -25,10 +25,26 @@ export interface Track {
 }
 
 export interface Specialization {
-  id: SpecializationId;
+  id?: SpecializationId;
   name_ar: string;
   prereqs_from_core: CourseCode[];
   tracks: Record<TrackId, Track>;
 }
 
 export type CourseState = 'locked' | 'available' | 'passed';
+export type CourseType = 'core' | 'general' | 'english' | 'project';
+
+export function isCourseType(value: unknown): value is CourseType {
+  return value === 'core' || value === 'general' || value === 'english' || value === 'project';
+}
+
+export function isBaseCourse(value: unknown): value is BaseCourse {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { code?: unknown }).code === 'string' &&
+    typeof (value as { name_ar?: unknown }).name_ar === 'string' &&
+    typeof (value as { credits?: unknown }).credits === 'number' &&
+    Array.isArray((value as { prereqs?: unknown }).prereqs)
+  );
+}

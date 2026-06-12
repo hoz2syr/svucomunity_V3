@@ -23,6 +23,27 @@ export const SECURITY_CONFIG = {
   sessionTimeout: 15 * 60 * 1000,
 };
 
+// ════════════════════════════════════════════════════════════════
+// Auth / Theme config (used by core.js)
+// ════════════════════════════════════════════════════════════════
+
+export const AUTH_CONFIG = Object.freeze({
+  STORAGE_KEY: 'svu_session',
+  SESSION_KEY: 'svu_session_token',
+  USER_KEY: 'svu_user',
+  SESSION_TIMEOUT: SECURITY_CONFIG.sessionTimeout,
+});
+
+export const THEME_CONFIG = Object.freeze({
+  STORAGE_KEY: 'svu_theme',
+  LIGHT_ATTR: 'data-theme',
+  DARK_CLASS: 'dark',
+});
+
+// ════════════════════════════════════════════════════════════════
+// Supabase bootstrap
+// ════════════════════════════════════════════════════════════════
+
 let supabaseClient = null;
 
 export function initSupabase() {
@@ -68,7 +89,20 @@ export async function getSessionFromDb() {
   try {
     const { data: { session } } = await db.auth.getSession();
     return session;
-  } catch {
+  } catch (err) {
+    console.warn('[config] getSessionFromDb failed:', err);
     return null;
+  }
+}
+
+export async function verifySessionWithServer(db) {
+  if (!db) db = initSupabase();
+  if (!db) return false;
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    return !!session;
+  } catch {
+    return false;
   }
 }

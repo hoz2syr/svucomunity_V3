@@ -1,15 +1,15 @@
+import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { Course, SpecializationCourse, CourseState } from '../types';
 import { BookOpen, CheckCircle, Lock, Unlock } from 'lucide-react';
 import { useCallback, useState, useRef, useEffect } from 'react';
+import { NODE_WIDTH } from '../lib/constants';
 
 interface CourseNodeProps {
   data: {
     course: Course | SpecializationCourse;
     state: CourseState;
     isSelected: boolean;
-    isPrereq: boolean;
-    isSuccessor: boolean;
     isDimmed: boolean;
     simulatorMode: boolean;
     onClick: (code: string) => void;
@@ -37,8 +37,8 @@ const stateConfig: Record<CourseState, { bg: string; border: string; text: strin
   },
 };
 
-export function CourseNode({ data }: CourseNodeProps) {
-  const { course, state, isSelected, isPrereq, isSuccessor, isDimmed, simulatorMode, onClick } = data;
+export const CourseNode = memo(function CourseNode({ data }: CourseNodeProps) {
+  const { course, state, isSelected, isDimmed, simulatorMode, onClick } = data;
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -50,8 +50,6 @@ export function CourseNode({ data }: CourseNodeProps) {
   const courseLabel = `${course.name_ar} — ${course.code}`;
   const [measuredWidth, setMeasuredWidth] = useState(0);
   const nodeRef = useRef<HTMLDivElement>(null);
-  const targetWidth = 220;
-  const targetHeight = 120;
 
   useEffect(() => {
     if (nodeRef.current) {
@@ -59,7 +57,7 @@ export function CourseNode({ data }: CourseNodeProps) {
     }
   }, [course.code, isSelected, simulatorMode]);
 
-  const dynamicWidth = Math.max(targetWidth, measuredWidth + 20);
+  const dynamicWidth = Math.max(NODE_WIDTH, measuredWidth + 20);
 
   const config = stateConfig[state] ?? stateConfig.locked;
   const Icon = config.Icon;
@@ -68,9 +66,6 @@ export function CourseNode({ data }: CourseNodeProps) {
   const handleOpacity = isDimmed ? 'opacity-25' : '';
   const transform = isSelected ? 'scale-105 shadow-lg' : '';
   const zIndex = isSelected ? 'z-10' : 'z-0';
-
-  const isSpecializationCourse = (course: Course | SpecializationCourse): course is SpecializationCourse =>
-    !('year' in course);
 
   return (
     <div
@@ -105,10 +100,10 @@ export function CourseNode({ data }: CourseNodeProps) {
 
       <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
         <span>{course.credits} ساعات</span>
-        {isSpecializationCourse(course) && <span>سنة {course.year}</span>}
+        {'year' in course ? <span>سنة {(course as Course).year}</span> : null}
       </div>
 
       <Handle type="source" position={Position.Left} className={`w-2 h-2 !bg-gray-400 !border-white ${handleOpacity}`} />
     </div>
   );
-}
+});

@@ -1,7 +1,13 @@
+/**
+ * ════════════════════════════════════════════════════════════════
+ * useCourseResources — جلب الموارد الدراسية لمادة محددة
+ * يتضمن منطق إعادة المحاولة مع تأخير أسى (retry + backoff)
+ * ════════════════════════════════════════════════════════════════
+ */
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@supabase/supabase-client/src/client';
+import { supabase } from '../services/supabase';
 
-export type Resource = {
+export interface Resource {
   id: string;
   course_code: string;
   course_name: string;
@@ -15,14 +21,14 @@ export type Resource = {
   votes: number;
   is_active: boolean;
   created_at: string;
-};
+}
 
 export function useCourseResources(courseCode: string | null) {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchResources = useCallback(async (code: string, retryCount = 0) => {
+  const fetchResources = useCallback(async (code: string, retryCount = 0): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
@@ -60,5 +66,11 @@ export function useCourseResources(courseCode: string | null) {
     fetchResources(courseCode);
   }, [courseCode, fetchResources]);
 
-  return { resources, loading, error, refetch: () => courseCode ? fetchResources(courseCode) : Promise.resolve() };
+  return {
+    resources,
+    loading,
+    error,
+    refetch: (): Promise<void> =>
+      courseCode ? fetchResources(courseCode) : Promise.resolve(),
+  };
 }

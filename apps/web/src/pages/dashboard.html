@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="dashboard">لوحة التحكم - SVU Community</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0f172a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="alternate icon" href="/icon.ico">
+    <link rel="stylesheet" href="vendor/fonts/cairo.css">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="vendor/supabase.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Language & Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50 toggle-bar">
+        <button data-lang-toggle onclick="window.i18n?.toggleLang(); location.reload();"
+            class="lang-toggle-btn" aria-label="Toggle language">
+            <span class="lang-icon">
+                <svg class="lang-globe" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                </svg>
+                EN
+            </span>
+        </button>
+        <div class="toggle-divider"></div>
+        <button id="themeToggleBtn" onclick="window.toggleTheme?.()"
+            class="theme-toggle-btn" aria-label="Toggle theme">
+            <span class="icon-wrapper">
+                <svg class="icon-sun hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <svg class="icon-moon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.0 0 0012 21a9.003 9.0 0 008.354-5.646z"/>
+                </svg>
+                <svg class="icon-system hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z"/>
+                </svg>
+            </span>
+        </button>
+    </div>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-24">
+        <header class="mb-8 flex items-center gap-4">
+            <img src="/icon.svg" alt="SVU Community" class="w-10 h-10 object-contain" width="40" height="40">
+            <div>
+                <h1 data-i18n="dashboard" class="text-3xl font-bold gradient-text">لوحة التحكم</h1>
+                <p id="welcomeUser" data-i18n="welcomeUser" class="text-secondary-400 mt-2"></p>
+            </div>
+        </header>
+
+        <section id="dashboard-content" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass rounded-2xl p-6 shadow-xl border border-secondary-700/50">
+                <h3 class="text-secondary-300 text-sm mb-2">المقررات</h3>
+                <p class="text-3xl font-bold text-white" id="statCourses">-</p>
+            </div>
+            <div class="glass rounded-2xl p-6 shadow-xl border border-secondary-700/50">
+                <h3 class="text-secondary-300 text-sm mb-2">الملاحظات</h3>
+                <p class="text-3xl font-bold text-white" id="statNotes">-</p>
+            </div>
+            <div class="glass rounded-2xl p-6 shadow-xl border border-secondary-700/50">
+                <h3 class="text-secondary-300 text-sm mb-2">الجدول</h3>
+                <p class="text-3xl font-bold text-white" id="statSchedule">-</p>
+            </div>
+        </section>
+    </main>
+
+    <div class="mpb-wrap fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
+        <div class="mpb-badge" id="mpbBadge">
+            <div class="mpb-particles" id="mpbParticles"></div>
+            <div class="mpb-glow"></div>
+            <span class="mpb-dot"></span>
+            <span class="mpb-label">made possible by</span>
+            <span class="mpb-word" id="mpbWord">you</span>
+        </div>
+    </div>
+
+    <script src="env.js"></script>
+    <script src="js/window-shim.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/core.js"></script>
+    <script src="js/shared.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/page-dashboard.js"></script>
+</body>
+</html>

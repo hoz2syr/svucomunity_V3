@@ -5,7 +5,7 @@
  * ════════════════════════════════════════════════════════════════
  */
 
-import { safeStorageGet, safeStorageSet, safeStorageRemove } from './core.js';
+import { safeStorageGet, safeStorageSet, safeStorageRemove, escapeHtml } from './core.js';
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -239,7 +239,7 @@ function submitFeedback(overlay) {
   if (submitted) return;
   submitted = true;
 
-  const feedbackText = overlay.querySelector('#fbText').value.trim();
+  const feedbackText = escapeHtml(overlay.querySelector('#fbText').value.trim());
   const feedbackData = {
     rating,
     feedback: feedbackText,

@@ -34,6 +34,7 @@ export const Button = React.forwardRef<
         className
       )}
       disabled={isLoading || disabled}
+      aria-busy={isLoading || undefined}
       {...props}
     >
       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

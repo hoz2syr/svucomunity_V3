@@ -55,15 +55,15 @@ function FlowApp() {
   const handleCourseClick = useCallback((code: string) => {
     if (simulatorMode) {
       if (passedCourses.includes(code)) {
-        setPassedCourses(prev => {
-          let currentPassed = prev.filter(c => c !== code);
+        setPassedCourses((prev) => {
+          let currentPassed = prev.filter((c) => c !== code);
           let changed = true;
           while (changed) {
             changed = false;
-            const newPassed = currentPassed.filter(c => {
+            const newPassed = currentPassed.filter((c) => {
               const details = getCourseDetails(c);
               if (!details) return true;
-              return details.prereqs.every(p => currentPassed.includes(p));
+              return details.prereqs.every((p) => currentPassed.includes(p));
             });
             if (newPassed.length !== currentPassed.length) {
               currentPassed = newPassed;
@@ -75,13 +75,13 @@ function FlowApp() {
       } else {
         const details = getCourseDetails(code);
         if (availableCourses.includes(code) || (details && details.prereqs.length === 0)) {
-          setPassedCourses(prev => [...prev, code]);
+          setPassedCourses((prev) => [...prev, code]);
         }
       }
     } else {
-      setSelectedCourseId(prev => prev === code ? null : code);
+      setSelectedCourseId((prev) => prev === code ? null : code);
     }
-  }, [simulatorMode, passedCourses, availableCourses]);
+  }, [simulatorMode, availableCourses]);
 
   useEffect(() => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = generateInitialElements(selectedSpecialization);
@@ -101,13 +101,15 @@ function FlowApp() {
   }, [selectedCourseId, getNode, setCenter]);
 
   useEffect(() => {
-    const key = `${selectedCourseId || 'none'}-${passedCourses.join(',')}-${simulatorMode}-${directPrereqs.join(',')}-${successors.join(',')}`;
+    if (typeof window === 'undefined') return;
+
+    const key = `${selectedCourseId ?? 'none'}-${passedCourses.join(',')}-${simulatorMode}-${directPrereqs.join(',')}-${successors.join(',')}`;
     if (key === nodeKeyRef.current) return;
     nodeKeyRef.current = key;
 
     if (nodeRafRef.current) cancelAnimationFrame(nodeRafRef.current);
 
-    const handle = requestAnimationFrame(() => {
+    const handle = window.requestAnimationFrame(() => {
       setNodesRef.current((nds) =>
         nds.map((node) => {
           const code = node.id;
@@ -130,17 +132,23 @@ function FlowApp() {
 
     nodeRafRef.current = handle;
 
-    return () => cancelAnimationFrame(handle);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.cancelAnimationFrame(handle);
+      }
+    };
   }, [selectedCourseId, passedCourses, simulatorMode, directPrereqs, successors, getCourseState, handleCourseClick, isDimmed]);
 
   useEffect(() => {
-    const key = selectedCourseId || 'none';
+    if (typeof window === 'undefined') return;
+
+    const key = selectedCourseId ?? 'none';
     if (key === edgeKeyRef.current) return;
     edgeKeyRef.current = key;
 
     if (edgeRafRef.current) cancelAnimationFrame(edgeRafRef.current);
 
-    const handle = requestAnimationFrame(() => {
+    const handle = window.requestAnimationFrame(() => {
       setEdgesRef.current((eds) =>
         eds.map((edge) => {
           const isIncoming = selectedCourseId ? edge.target === selectedCourseId : false;
@@ -163,17 +171,28 @@ function FlowApp() {
 
     edgeRafRef.current = handle;
 
-    return () => cancelAnimationFrame(handle);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.cancelAnimationFrame(handle);
+      }
+    };
   }, [selectedCourseId]);
 
   useEffect(() => {
     return () => {
-      if (nodeRafRef.current) cancelAnimationFrame(nodeRafRef.current);
-      if (edgeRafRef.current) cancelAnimationFrame(edgeRafRef.current);
+      if (typeof window !== 'undefined') {
+        if (nodeRafRef.current) window.cancelAnimationFrame(nodeRafRef.current);
+        if (edgeRafRef.current) window.cancelAnimationFrame(edgeRafRef.current);
+      }
     };
   }, []);
 
   const selectedCourseDetails = selectedCourseId ? getCourseDetails(selectedCourseId) : null;
+
+  const yearField =
+    selectedCourseDetails && 'year' in selectedCourseDetails
+      ? (selectedCourseDetails as { year: number }).year
+      : null;
 
   return (
     <div className="flex flex-col md:flex-row h-full bg-gray-50 text-gray-900 font-sans" dir="rtl">
@@ -193,11 +212,11 @@ function FlowApp() {
               <select
                 aria-label="اختر الاختصاص"
                 className="bg-gray-50 border border-gray-200 text-gray-900 text-xs md:text-sm rounded-md md:rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-1.5 md:p-2 outline-none w-full"
-                value={selectedSpecialization || ''}
+                value={selectedSpecialization ?? ''}
                 onChange={(e) => setSelectedSpecialization(e.target.value || null)}
               >
                 <option value="">بدون اختصاص (أساسي فقط)</option>
-                {iteData.specializations.map(spec => (
+                {iteData.specializations.map((spec) => (
                   <option key={spec.id} value={spec.id}>{spec.name_ar}</option>
                 ))}
               </select>
@@ -230,7 +249,6 @@ function FlowApp() {
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.1}
           maxZoom={1.5}
-          proOptions={{ hideAttribution: true }}
         >
           <Background color="#e2e8f0" gap={20} size={2} />
           <Controls className="bg-white shadow-md border-gray-100 rounded-lg !end-4 !start-auto hidden md:flex" />
@@ -313,10 +331,10 @@ function FlowApp() {
                     <span className="block text-[10px] md:text-xs font-bold text-gray-500 mb-1">عدد الساعات</span>
                     <span className="text-base md:text-lg font-bold text-gray-900">{selectedCourseDetails.credits}</span>
                   </div>
-                  {'year' in selectedCourseDetails && (
+                  {yearField !== null && (
                     <div className="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-100">
                       <span className="block text-[10px] md:text-xs font-bold text-gray-500 mb-1">السنة الدراسية</span>
-                      <span className="text-base md:text-lg font-bold text-gray-900">{(selectedCourseDetails as { year: number }).year}</span>
+                      <span className="text-base md:text-lg font-bold text-gray-900">{yearField}</span>
                     </div>
                   )}
                 </div>
@@ -329,7 +347,7 @@ function FlowApp() {
                     </h4>
                     {selectedCourseDetails.prereqs.length > 0 ? (
                       <ul className="space-y-1.5 md:space-y-2">
-                        {selectedCourseDetails.prereqs.map(p => {
+                        {selectedCourseDetails.prereqs.map((p) => {
                           const pCourse = getCourseDetails(p);
                           return (
                             <li key={p} className="flex items-center justify-between p-2 bg-yellow-50/50 rounded-lg border border-yellow-100/50">
@@ -353,7 +371,7 @@ function FlowApp() {
                     </h4>
                     {successors.length > 0 ? (
                       <ul className="space-y-1.5 md:space-y-2">
-                        {successors.map(s => {
+                        {successors.map((s) => {
                           const sCourse = getCourseDetails(s);
                           return (
                             <li key={s} className="flex items-center justify-between p-2 bg-cyan-50/50 rounded-lg border border-cyan-100/50">

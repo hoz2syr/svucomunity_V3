@@ -17,11 +17,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["../../packages/ui/src/*"],
-      "@utils/*": ["../../packages/utils/src/*"],
-      "@types/*": ["../../packages/types/src/*"],
-      "@supabase/*": ["../../packages/supabase-client/src/*"]
+      "@/*": ["src/*"],
+      "@shared/*": ["../../packages/ui/src/*"]
     }
   },
   "include": ["src"]

@@ -3,7 +3,7 @@
  * Uses localStorage via core.js wrappers (no direct storage calls here).
  */
 
-import { safeStorageGet, safeStorageSet, safeStorageRemove } from '../core.js';
+import { safeStorageGet, safeStorageSet, safeStorageRemove, escapeHtml } from '../core.js';
 
 export function getSession() {
   const token = safeStorageGet('svu_session_token');

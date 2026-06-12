@@ -16,18 +16,28 @@
     "build:web": "turbo run build --filter=@svu-community/web",
     "build:courses": "turbo run build --filter=@svu-community/courses",
     "build:schedule": "turbo run build --filter=@svu-community/schedule",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "typecheck": "turbo run typecheck",
+    "lint": "eslint . --ext .js,.ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc -b --force",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "@esbuild/win32-x64": "^0.28.1",
+    "@rollup/rollup-win32-x64-msvc": "^4.61.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "globals": "^15.0.0",
     "turbo": "^2.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-  "packageManager": "npm@9.0.0"
+  "packageManager": "npm@10.8.2"
 }

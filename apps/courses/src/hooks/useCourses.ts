@@ -1,16 +1,14 @@
+/**
+ * ════════════════════════════════════════════════════════════════
+ * useCourses — جلب المواد الدراسية النشطة من Supabase
+ * يعيد محاولة الجلب تلقائياً (retry + exponential backoff) عند الفشل
+ * ════════════════════════════════════════════════════════════════
+ */
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@supabase/supabase-client/src/client';
+import { supabase } from '../services/supabase';
+import type { SupabaseCourse } from '../types';
 
-export type SupabaseCourse = {
-  id: string;
-  code: string;
-  name: string;
-  name_ar: string | null;
-  major: string;
-  description: string | null;
-  is_active: boolean;
-  created_at: string;
-};
+export { type SupabaseCourse as Course };
 
 export function useCourses() {
   const [courses, setCourses] = useState<SupabaseCourse[]>([]);
@@ -18,30 +16,32 @@ export function useCourses() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCourses = useCallback(async (retryCount = 0) => {
+  const fetchCourses = useCallback(async (retryCount = 0): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
 
       const { data, error: fetchError } = await supabase
         .from('courses')
-        .select('*')
+        .select('id, code, name, name_ar, major, description, is_active, created_at')
         .eq('is_active', true)
         .order('major', { ascending: true })
         .order('code', { ascending: true });
 
       if (fetchError) throw fetchError;
 
-      const coursesData = data ?? [];
+      const coursesData: SupabaseCourse[] = data ?? [];
+
       setCourses(coursesData);
 
-      const uniqueMajors = [...new Set(coursesData.map((c) => c.major))];
-      setMajors(uniqueMajors);
+      const majorsFromCourses = [...new Set(coursesData.map((c) => c.major))].sort();
+      setMajors(majorsFromCourses);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'فشل تحميل المواد';
       console.error('[useCourses]', message, err);
       if (retryCount < 2) {
-        setTimeout(() => fetchCourses(retryCount + 1), 2000 * (retryCount + 1));
+        const delay = 2000 * (retryCount + 1);
+        setTimeout(() => fetchCourses(retryCount + 1), delay);
         return;
       }
       setError(message);

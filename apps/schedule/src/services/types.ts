@@ -1,12 +1,9 @@
-export interface UserProfile {
-  uid: string;
-  displayName: string;
-  email: string;
-  major?: string;
-  photoURL?: string;
-  createdAt: string;
-}
-
+/**
+ * ════════════════════════════════════════════════════════════════
+ * أنواع البيانات — تطبيق الجدول
+ * يستخدم @svu-community/types للمستخدمين
+ * ════════════════════════════════════════════════════════════════
+ */
 export interface Course {
   code: string;
   name: string;

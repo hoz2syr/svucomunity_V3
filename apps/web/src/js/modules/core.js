@@ -132,6 +132,21 @@ function updateUserData(updates) {
   return updatedUser;
 }
 
+function verifySession() {
+  const token = safeStorageGet(AUTH_CONFIG.SESSION_KEY);
+  const data = safeStorageGet(AUTH_CONFIG.STORAGE_KEY);
+
+  if (!token || !data) return false;
+
+  try {
+    const parsed = JSON.parse(data);
+    if (!parsed.user) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Input validation ────────────────────────────────────────────────────────
 
 /**
@@ -140,7 +155,7 @@ function updateUserData(updates) {
  * @param {string} password
  * @returns {string[]}
  */
-export function validateLoginInput(identifier, password) {
+function validateLoginInput(identifier, password) {
   const errors = [];
   if (!identifier?.trim()) {
     errors.push('identifier_required');
@@ -155,11 +170,38 @@ export function validateLoginInput(identifier, password) {
 }
 
 /**
+ * Map registration error keys to user-facing messages.
+ * @param {Error} error
+ * @returns {string}
+ */
+function handleRegisterError(error) {
+  const msg = error?.message || '';
+
+  if (msg.includes('already registered') || msg.includes('already exists')) {
+    return 'البريد الإلكتروني أو اسم المستخدم مسجّل مسبقاً';
+  }
+  if (msg.includes('Password should be at least')) {
+    return 'كلمة المرور ضعيفة جداً';
+  }
+  if (msg.includes('Invalid email')) {
+    return 'البريد الإلكتروني غير صالح';
+  }
+  if (msg.includes('Network') || msg.includes('network')) {
+    return 'خطأ في الاتصال، يرجى المحاولة مرة أخرى';
+  }
+  if (msg.includes('Email not confirmed')) {
+    return 'يرجى تفعيل بريدك الإلكتروني أولاً';
+  }
+
+  return 'فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.';
+}
+
+/**
  * Map internal error keys to user-facing messages.
  * @param {Error} error
  * @returns {string}
  */
-export function handleLoginError(error) {
+function handleLoginError(error) {
   const msg = error?.message || '';
 
   if (msg.includes('Invalid login credentials') || msg.includes('invalid_grant')) {
@@ -186,7 +228,7 @@ export function handleLoginError(error) {
  * @param {string} text
  * @returns {string}
  */
-export function escapeHtml(text) {
+function escapeHtml(text) {
   if (typeof text !== 'string') return String(text);
 
   const map = {
@@ -205,7 +247,7 @@ export function escapeHtml(text) {
  * @param {string} url
  * @returns {string|null}
  */
-export function validateUrl(url) {
+function validateUrl(url) {
   if (!url || typeof url !== 'string') return null;
   try {
     const parsed = new URL(url);
@@ -224,7 +266,7 @@ function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-export function getStoredTheme() {
+function getStoredTheme() {
   return safeStorageGet(THEME_CONFIG.STORAGE_KEY);
 }
 
@@ -234,7 +276,7 @@ function getCurrentEffectiveTheme() {
   return stored;
 }
 
-export function applyTheme(theme) {
+function applyTheme(theme) {
   const root = document.documentElement;
 
   if (theme === 'system') {
@@ -268,7 +310,7 @@ function updateThemeToggleIcon(theme) {
   );
 }
 
-export function initializeTheme() {
+function initializeTheme() {
   const theme = getStoredTheme() || 'system';
   applyTheme(theme);
 
@@ -280,7 +322,7 @@ export function initializeTheme() {
   });
 }
 
-export function toggleTheme() {
+function toggleTheme() {
   const current = getStoredTheme() || 'system';
   const cycle = { light: 'dark', dark: 'system', system: 'light' };
   const next = cycle[current] || 'light';
@@ -296,7 +338,17 @@ export {
   isLoggedIn,
   clearUserSession,
   updateUserData,
+  verifySession,
   safeStorageGet,
   safeStorageSet,
   safeStorageRemove,
+  escapeHtml,
+  validateUrl,
+  validateLoginInput,
+  handleRegisterError,
+  handleLoginError,
+  initializeTheme,
+  toggleTheme,
+  getStoredTheme,
+  applyTheme,
 };

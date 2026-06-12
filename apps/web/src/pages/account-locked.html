@@ -6,16 +6,26 @@
     <title data-i18n="accountLockedTitle">الحساب مغلق - SVU Community</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#0f172a">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; frame-ancestors 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
 
 
     <script src="../../env.js"></script>
     <script type="module" src="../app.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="alternate icon" href="/icon.ico">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="alternate icon" href="/icon.ico">
     <link rel="stylesheet" href="../vendor/fonts/cairo.css">
     <link rel="stylesheet" href="../styles.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Brand Header -->
+    <div class="max-w-5xl mx-auto px-4 pt-6 pb-2 flex items-center justify-center">
+        <a href="../../index.html" class="flex items-center gap-3 group" aria-label="SVU Community Home">
+                <img src="/icon.svg" alt="SVU Community" class="w-15 h-15 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
+            <span class="text-xl font-bold gradient-text">SVU Community</span>
+        </a>
+    </div>
     <div class="fixed top-4 right-4 z-50 toggle-bar">
         <button data-lang-toggle class="lang-toggle-btn" aria-label="Toggle language">
             <span class="lang-icon">
@@ -37,11 +47,9 @@
 
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-xl shadow-red-500/30">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                </svg>
-            </div>
+            <a href="../../index.html" class="inline-flex items-center gap-3 mb-4 group">
+                <img src="/icon.svg" alt="SVU Community" class="w-15 h-15 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
+            </a>
             <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
         </div>
 
@@ -72,4 +80,4 @@
         </div>
     </div>
 
-    <script type="module" src="../js/modules/page-account-locked.js"></script>
+

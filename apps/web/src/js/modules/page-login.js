@@ -1,8 +1,8 @@
 /**
  * SVU Community — Login Page module
  */
-import { escapeHtml, clearUserSession, saveUserSession, getCurrentUser, AUTH_CONFIG } from './core.js';
-import { verifySessionWithServer } from './config.js';
+import { escapeHtml, clearUserSession, saveUserSession, getCurrentUser, AUTH_CONFIG, handleLoginError } from './core.js';
+import { verifySessionWithServer, getDb } from './config.js';
 import { showToast, openModal, closeModal } from './shared.js';
 
 const EYE_VISIBLE =
@@ -66,7 +66,8 @@ async function checkExistingSession() {
     } else {
       clearUserSession();
     }
-  } catch {
+  } catch (err) {
+    console.error('[login] Session check failed:', err);
     clearUserSession();
   }
 }
@@ -95,8 +96,10 @@ async function handleLoginSubmit(e) {
   }
 
   btn.disabled = true;
-  const spinner = document.getElementById('loginSpinner');
-  const btnText = document.getElementById('loginBtnText');
+  let spinner = null;
+  let btnText = null;
+  spinner = document.getElementById('loginSpinner');
+  btnText = document.getElementById('loginBtnText');
   if (spinner) spinner.classList.remove('hidden');
   if (btnText) btnText.textContent = 'جاري المعالجة...';
 
@@ -105,11 +108,7 @@ async function handleLoginSubmit(e) {
     const identifierLower = identifier.toLowerCase();
 
     if (!identifierLower.includes('@')) {
-      const db = (typeof getDb === 'function'
-        ? getDb()
-        : window.SVU_ENV?.getDb
-          ? window.SVU_ENV.getDb()
-          : null);
+      const db = getDb();
 
       if (!db) throw new Error('تعذر الاتصال بالخادم');
 
@@ -127,11 +126,7 @@ async function handleLoginSubmit(e) {
       userEmail = usernameData.email;
     }
 
-    const db = (typeof getDb === 'function'
-      ? getDb()
-      : window.SVU_ENV?.getDb
-        ? window.SVU_ENV.getDb()
-        : null);
+    const db = getDb();
 
     if (!db) throw new Error('تعذر الاتصال بالخادم');
 
@@ -168,9 +163,7 @@ async function handleLoginSubmit(e) {
       window.location.href = 'dashboard.html';
     }, 1400);
   } catch (error) {
-    const safeMessage = (typeof handleLoginError === 'function'
-      ? handleLoginError(error)
-      : error?.message) || 'An error occurred. Please try again.';
+    const safeMessage = handleLoginError(error);
     showToast(safeMessage, 'error');
   } finally {
     btn.disabled = false;

@@ -1,0 +1,96 @@
+const PASSWORD_MIN = 8;
+const PASSWORD_MAX = 128;
+
+const STR_COLOR = ['', '#ef4444', '#f97316', '#eab308', '#22c55e'];
+const STR_LABEL_KEY = ['', 'passwordVeryWeak', 'passwordWeak', 'passwordMedium', 'passwordStrong'];
+
+function tI18n(key) {
+  return document.documentElement.getAttribute('data-i18n-' + key) || key;
+}
+
+function i18nT(key) {
+  return tI18n(key);
+}
+
+function validateUsername(value) {
+  const username = (value || '').trim();
+  if (!/^[a-zA-Z]+_\d{6}$/.test(username)) {
+    return i18nT('registerUsernameFormat');
+  }
+  return null;
+}
+
+function validateMajor(value) {
+  const major = (value || '').trim();
+  if (!major) return i18nT('registerMajorRequired');
+  return null;
+}
+
+function validatePhone(value, country) {
+  const digits = (value || '').replace(/\D/g, '');
+  if (!digits) {
+    return i18nT('registerPhoneRequired');
+  }
+  if (digits.length < (country?.minLen ?? 0)) {
+    return i18nT('registerPhoneInvalid');
+  }
+  if (country && digits.length > country.maxLen) {
+    return i18nT('registerPhoneInvalid');
+  }
+  return null;
+}
+
+function validatePassword(password, confirm) {
+  if ((password || '').length < PASSWORD_MIN) {
+    return i18nT('registerPasswordWeak');
+  }
+  if ((confirm || '').length < PASSWORD_MIN) {
+    return i18nT('registerPasswordWeak');
+  }
+  if ((password || '') !== (confirm || '')) {
+    return i18nT('registerPasswordMismatch');
+  }
+  return null;
+}
+
+function formatFieldError(field, language) {
+  const isEn = language === 'en';
+  if (field === 'username') {
+    return isEn ? 'Username already registered' : 'اسم المستخدم مسجّل مسبقاً';
+  }
+  return isEn ? 'Email already registered' : 'البريد الإلكتروني مسجّل مسبقاً';
+}
+
+function calcStrength(password) {
+  const value = password || '';
+  let score = 0;
+  if (value.length >= PASSWORD_MIN) score++;
+  if (/[A-Z]/.test(value)) score++;
+  if (/[0-9]/.test(value)) score++;
+  if (/[^A-Za-z0-9]/.test(value)) score++;
+  return score;
+}
+
+function localizeI18n(key, fallback) {
+  const fromAttr = document.documentElement.getAttribute('data-i18n-' + key);
+  if (fromAttr) return fromAttr;
+  const fromWindow = window.i18n?.t?.(key);
+  if (fromWindow) return fromWindow;
+  return fallback || key;
+}
+
+export {
+  PASSWORD_MIN,
+  PASSWORD_MAX,
+  STR_COLOR,
+  STR_LABEL_KEY,
+  tI18n,
+  i18nT,
+  validateUsername,
+  validateMajor,
+  validatePhone,
+  validatePassword,
+  formatFieldError,
+  calcStrength,
+  localizeI18n,
+};

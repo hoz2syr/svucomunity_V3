@@ -52,7 +52,7 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
 
   const filteredResources = useMemo(
     () =>
-      resources.filter((resource) => {
+      resources.filter((resource: Resource) => {
         const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = filterType === 'الكل' || resource.resource_type === filterType;
         return matchesSearch && matchesFilter;
@@ -61,7 +61,7 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
   );
 
   const resourceTypes = useMemo(
-    () => ['الكل', ...new Set(resources.map((r) => r.resource_type))],
+    () => ['الكل', ...new Set(resources.map((r: Resource) => r.resource_type))],
     [resources]
   );
 
@@ -162,10 +162,10 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Filter size={16} className="text-slate-400" aria-hidden="true" />
                     <span className="text-slate-400 text-sm">التصفية:</span>
-                    {resourceTypes.map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setFilterType(type)}
+                      {resourceTypes.map((type: string) => (
+                        <button
+                          key={type}
+                          onClick={() => setFilterType(type)}
                         className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                           filterType === type
                             ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50'

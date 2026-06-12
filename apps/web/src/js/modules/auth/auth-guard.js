@@ -1,69 +1,51 @@
 /**
- * ════════════════════════════════════════════════════════════════
  * SVU Community — Auth Guard (Shared)
- *
- * يوفر دالة مشتركة للتحقق من المصادقة في جميع الصفحات المحمية.
- * ════════════════════════════════════════════════════════════════
  */
 
-/**
- * التحقق من المصادقة وإرجاع بيانات المستخدم
- * @param {Object} options - خيارات التحقق
- * @param {boolean} options.requireAdmin - هل نحتاج صلاحة أدمن
- * @param {boolean} options.silent - عدم التوجيه (للتحقق الصامت)
- * @returns {Promise<{user: Object, db: Object}|null>} - بيانات المستخدم أو null
- */
+import { isLoggedIn, getCurrentUser, clearUserSession } from '../core.js';
+import { initSupabase, getDb, verifySessionWithServer } from '../config.js';
+
 export async function checkAuth(options = {}) {
-    const requireAdmin = options.requireAdmin || false;
-    const silent = options.silent || false;
+  const requireAdmin = options.requireAdmin || false;
+  const silent = options.silent || false;
 
-    // التحقق من تسجيل الدخول
-    if (!window.isLoggedIn?.()) {
-        if (!silent) window.location.href = 'login.html';
+  const db = getDb() || initSupabase();
+  if (!db) {
+    if (!silent) window.location.href = 'login.html';
+    return null;
+  }
+
+  const isValid = await verifySessionWithServer(db);
+  if (!isValid) {
+    if (!silent) window.location.href = 'login.html';
+    return null;
+  }
+
+  const user = getCurrentUser();
+  if (!user || !user.id) {
+    if (!silent) window.location.href = 'login.html';
+    return null;
+  }
+
+  if (requireAdmin) {
+    try {
+      const { data } = await db
+        .from('users')
+        .select('is_admin, is_active')
+        .eq('id', user.id)
+        .single();
+
+      if (!data?.is_admin || !data?.is_active) {
+        if (!silent) window.location.href = 'index.html';
         return null;
+      }
+    } catch (err) {
+      console.error('[auth-guard] Admin check failed:', err);
+      if (!silent) window.location.href = 'login.html';
+      return null;
     }
+  }
 
-    // تهيئة Supabase
-    let db = window.initSupabase?.() ?? window.getDb?.();
-    if (!db) {
-        if (!silent) window.location.href = 'login.html';
-        return null;
-    }
-
-    // التحقق من الجلسة مع الخادم
-    let isValid = await window.verifySessionWithServer?.(db);
-    if (!isValid) {
-        if (!silent) window.location.href = 'login.html';
-        return null;
-    }
-
-    // جلب بيانات المستخدم
-    let user = window.getCurrentUser();
-    if (!user || !user.id) {
-        if (!silent) window.location.href = 'login.html';
-        return null;
-    }
-
-    // التحقق من صلاحيات الأدمن إن لزم
-    if (requireAdmin) {
-        try {
-            const result = await db
-                .from('users')
-                .select('is_admin, is_active')
-                .eq('id', user.id)
-                .single();
-
-            if (!result.data || !result.data.is_admin || !result.data.is_active) {
-                if (!silent) {
-                    window.location.href = 'index.html';
-                }
-                return null;
-            }
-        } catch (e) {
-            if (!silent) window.location.href = 'login.html';
-            return null;
-        }
-    }
-
-    return { user, db };
+  return { user, db };
 }
+

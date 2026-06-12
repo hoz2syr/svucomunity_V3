@@ -1,0 +1,29 @@
+:root {
+  --color-primary: #2563eb;
+  --color-bg: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: var(--color-bg); }
+
+button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.modal {
+  display: none;
+}
+
+.modal.open {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.hidden { display: none; }
