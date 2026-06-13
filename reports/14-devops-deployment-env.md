@@ -49,3 +49,11 @@
 5. **Add `.env.example` to each app** with the minimum required variables.
 6. **Add preview/production split** to deploy workflows.
 7. **Implement actual deploy steps** — replace all `echo` placeholders with real deployment commands.
+
+## Changes Applied (2026-06-12)
+
+| File | Change |
+|------|--------|
+| `.env.example` (root) | `VITE_GEMINI_API_KEY` and `VITE_RESEND_API_KEY` removed — paid API keys no longer bundled into client JS |
+| `.env.example` (root) | `SUPABASE_SERVICE_ROLE_KEY` removed — server-side secret now documented as Edge Function only |
+| `supabase/config.toml` | Fully populated in this session with `project_id` placeholder, `auth`, `cors`, and `functions.*` (see `10-backend-edge-functions.md`) |

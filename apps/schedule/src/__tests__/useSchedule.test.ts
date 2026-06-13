@@ -5,15 +5,17 @@ import { useSchedule } from '../features/schedule/hooks/useSchedule'
 const mockScheduleData = [
   { id: '1', day_of_week: 0, start_time: '08:00', end_time: '09:00', location: 'Room A', groups: { name: 'G1', courses: { title_ar: 'Math' } } },
 ]
-const mockScheduleError = { message: 'Failed to fetch schedule' }
+
+let mockError: { message: string } | null = null
+let mockData: typeof mockScheduleData = []
 
 vi.mock('@svu-community/supabase-client', () => ({
   supabase: {
     from: () => ({
       select: () => ({
-        order: async ({ error }: { error?: { message: string } } = {}) => ({
-          data: error ? null : mockScheduleData,
-          error: error || null,
+        order: async () => ({
+          data: mockData,
+          error: mockError,
         }),
       }),
     }),
@@ -22,37 +24,43 @@ vi.mock('@svu-community/supabase-client', () => ({
 
 describe('useSchedule', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mockError = null
+    mockData = [...mockScheduleData]
   })
 
-  it('returns initial loading state', async () => {
+  it('returns loading=true initially', () => {
     const { result } = renderHook(() => useSchedule())
     expect(result.current.loading).toBe(true)
   })
 
-  it('has refetch function', async () => {
+  it('returns refetch function', async () => {
     const { result } = renderHook(() => useSchedule())
-    await waitFor(() => expect(typeof result.current.refetch).toBe('function'))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(typeof result.current.refetch).toBe('function')
   })
 
-  it('returns error as null initially', async () => {
+  it('returns error as null when fetch succeeds', async () => {
     const { result } = renderHook(() => useSchedule())
-    await waitFor(() => expect(result.current.error).toBeNull())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.error).toBeNull()
   })
 
   it('returns schedule array with required fields', async () => {
     const { result } = renderHook(() => useSchedule())
-    await waitFor(() => expect(Array.isArray(result.current.schedule)).toBe(true))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(Array.isArray(result.current.schedule)).toBe(true)
     if (result.current.schedule.length > 0) {
-      const entry = result.current.schedule[0]
-      expect(entry).toHaveProperty('id')
-      expect(entry).toHaveProperty('day_of_week')
-      expect(entry).toHaveProperty('start_time')
+      expect(result.current.schedule[0]).toHaveProperty('id')
+      expect(result.current.schedule[0]).toHaveProperty('day_of_week')
+      expect(result.current.schedule[0]).toHaveProperty('start_time')
     }
   })
 
   it('sets error message on supabase failure', async () => {
+    mockError = { message: 'Failed to fetch schedule' }
     const { result } = renderHook(() => useSchedule())
-    await waitFor(() => expect(result.current.error?.message || result.current.error).not.toBeNull())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.error).not.toBeNull()
+    expect(result.current.error).toBe('Failed to fetch schedule')
   })
 })

@@ -15,11 +15,24 @@ function showErrorState(message) {
   hideLoadingState();
   const loading = document.getElementById('loadingState');
   if (loading) {
-    loading.innerHTML = '<div class="text-center">'
-      + '<div class="text-5xl mb-4">⚠️</div>'
-      + '<p class="text-red-400 mb-2">' + (message || 'حدث خطأ') + '</p>'
-      + '<a href="login.html" class="text-primary-400 underline">تسجيل الدخول</a>'
-      + '</div>';
+    const title = document.createElement('div');
+    title.className = 'text-center';
+    title.innerHTML = '<div class="text-5xl mb-4">⚠️</div>';
+
+    const errorText = document.createElement('p');
+    errorText.className = 'text-red-400 mb-2';
+    errorText.textContent = message || 'حدث خطأ';
+
+    const loginLink = document.createElement('a');
+    loginLink.href = 'login.html';
+    loginLink.className = 'text-primary-400 underline';
+    loginLink.textContent = 'تسجيل الدخول';
+
+    title.appendChild(errorText);
+    title.appendChild(loginLink);
+
+    loading.innerHTML = '';
+    loading.appendChild(title);
     loading.classList.remove('hidden');
   }
 }

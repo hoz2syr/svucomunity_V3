@@ -100,8 +100,8 @@ export async function verifySessionWithServer(db) {
   if (!db) return false;
 
   try {
-    const { data: { session } } = await db.auth.getSession();
-    return !!session;
+    const { data: { user } } = await db.auth.getUser();
+    return !!user;
   } catch {
     return false;
   }

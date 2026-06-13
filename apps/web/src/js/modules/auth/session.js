@@ -1,20 +1,47 @@
 /**
  * SVU Community — Session helpers
- * Uses localStorage via core.js wrappers (no direct storage calls here).
+ *
+ * IMPORTANT: This module no longer stores tokens in localStorage.
+ * Session persistence is handled by the Supabase JS SDK through
+ * its built-in auth state management (Memory + Session storage).
+ *
+ * For true httpOnly + Secure + SameSite cookie sessions with SSR,
+ * move auth flows to a server-side adapter (e.g. Next.js, Express,
+ * or Supabase SSR middleware) using `@supabase/ssr`. Until then,
+ * this module provides only Supabase-backed session helpers.
  */
 
-import { safeStorageGet, safeStorageSet, safeStorageRemove, escapeHtml } from '../core.js';
+import { supabase } from '@svu-community/supabase-client';
 
-export function getSession() {
-  const token = safeStorageGet('svu_session_token');
-  return token ? String(token).trim() : null;
+export async function getSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error('[session] getSession failed:', error);
+    return null;
+  }
+  return data.session ?? null;
 }
 
-export function setSession(token) {
-  if (!token || typeof token !== 'string') throw new Error('Invalid token');
-  safeStorageSet('svu_session_token', String(token).trim());
+export async function setSession(refreshToken) {
+  if (!refreshToken || typeof refreshToken !== 'string') {
+    throw new Error('Invalid refresh token');
+  }
+
+  const { data, error } = await supabase.auth.setSession({
+    refresh_token: refreshToken,
+  });
+
+  if (error) {
+    console.error('[session] setSession failed:', error);
+    throw new Error('Unable to restore session');
+  }
+  return data.session;
 }
 
-export function clearSession() {
-  safeStorageRemove('svu_session_token');
+export async function clearSession() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('[session] signOut failed:', error);
+    throw new Error('Unable to sign out');
+  }
 }

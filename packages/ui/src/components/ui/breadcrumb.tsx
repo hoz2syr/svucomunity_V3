@@ -71,8 +71,6 @@ const BreadcrumbPage = React.forwardRef<
   return (
     <span
       data-slot="breadcrumb-page"
-      role="link"
-      aria-disabled="true"
       aria-current="page"
       className={cn("text-foreground font-normal", className)}
       ref={ref}

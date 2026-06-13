@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/ui" },
+    { "path": "./packages/types" },
+    { "path": "./packages/utils" },
+    { "path": "./packages/i18n" },
+    { "path": "./packages/supabase-client" },
+    { "path": "./packages/config" },
+    { "path": "./apps/web" },
+    { "path": "./apps/admin" },
+    { "path": "./apps/courses" },
+    { "path": "./apps/schedule" }
+  ]
+}

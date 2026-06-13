@@ -5,6 +5,19 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| 1 | Admin React 18.3.1 vs React 19 | ⏳ Pending | Admin not yet upgraded |
+| 2 | `useSchedule.js` broken `@svu-community/supabase-client` import | ⏳ Pending | Still imports from `@svu-community/supabase-client` (broken alias) |
+| 3 | `admin/App.tsx` references undefined page components | ⏳ Pending | Pages still missing |
+| 4–5 | Empty feature files in admin | ⏳ Pending | Still 0-byte placeholders |
+| 9 | `useGroupActions` stale closure race | ⏳ Pending | Not yet refactored |
+| 13 | Retry logic duplicated in `useCourseResources` | ⏳ Pending | Shared hook not yet extracted |
+
+---
+
 ## Critical Findings
 
 | # | App | File | Line | Issue | Root Cause | Fix |

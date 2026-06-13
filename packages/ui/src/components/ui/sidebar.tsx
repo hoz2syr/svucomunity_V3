@@ -75,7 +75,12 @@ const SidebarProvider = React.forwardRef<
         _setOpen(openState);
       }
 
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      try {
+        const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+      } catch {
+        // Cookies may be disabled (e.g. private browsing)
+      }
     },
     [setOpenProp, open],
   );
@@ -276,6 +281,7 @@ const SidebarRail = React.forwardRef<
   return (
     <button
       ref={ref}
+      type="button"
       data-sidebar="rail"
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
@@ -638,9 +644,17 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean;
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const widths = ["60%", "75%", "50%", "80%", "65%"];
+  const childCount = React.useMemo(() => React.Children.count(props.children), [props.children]);
+  const hash = React.useMemo(() => {
+    let h = 0;
+    for (let i = 0; i < childCount; i++) {
+      h = (h << 5) - h + childCount;
+      h |= 0;
+    }
+    return Math.abs(h);
+  }, [childCount]);
+  const width = widths[hash % widths.length];
 
   return (
     <div

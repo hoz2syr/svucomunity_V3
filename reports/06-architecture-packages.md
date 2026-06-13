@@ -5,6 +5,17 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| 1 | Duplicate primitive components (Badge/Button/Input/Card) alongside shadcn/ui | ⏳ Pending | Both trees still exist; audit not yet done |
+| 2 | `useAuth` hook in UI package | ⏳ Pending | Still in `packages/ui/src/hooks/useAuth.ts` |
+| 3 | No server/middleware separation in `supabase-client` | ⏳ Pending | Still only exports browser client |
+| 9 | `packages/config` possibly unused | ⏳ Pending | Usage not yet audited |
+
+---
+
 ## Critical Findings
 
 | # | Package | File | Issue | Root Cause | Fix |

@@ -23,9 +23,12 @@ vi.mock('../services/supabase', () => ({
       }),
     }),
     channel: () => ({
-      on: () => ({ subscribe: () => ({}) }),
+      on: () => ({
+        subscribe: () => ({
+          unsubscribe: vi.fn(),
+        }),
+      }),
     }),
-    removeChannel: vi.fn(),
   },
 }))
 
@@ -66,7 +69,7 @@ describe('useStudyGroups', () => {
     await waitFor(() => expect(result.current.fetchError).toBeDefined())
   })
 
-  it('calls removeChannel on unmount', async () => {
+  it('calls channel.unsubscribe on unmount', async () => {
     const { unmount } = renderHook(() => useStudyGroups({ courseCodes: ['CS101'], enabled: true }))
     await waitFor(() => expect(typeof result.current.loadMore).toBe('function'))
     unmount()

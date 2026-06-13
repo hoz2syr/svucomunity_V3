@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { useAuth } from '@svu-community/ui';
 import { BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,11 +7,12 @@ import { useStudyGroups } from '@/hooks/useStudyGroups';
 import { useGroupActions } from '@/hooks/useGroupActions';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { LandingPage } from '@/components/LandingPage';
-import { UploadTab } from '@/components/UploadTab';
-import { ResultsTab } from '@/components/ResultsTab';
 import { AppHeader } from '@/components/AppHeader';
 import { AppTabs } from '@/components/AppTabs';
 import { AuthLoader } from '@/components/AuthLoader';
+
+const UploadTab = lazy(() => import('@/components/UploadTab').then(m => ({ default: m.UploadTab })));
+const ResultsTab = lazy(() => import('@/components/ResultsTab').then(m => ({ default: m.ResultsTab })));
 import type { ExtractionResult, Course } from '@/services/types';
 
 export default function App() {
@@ -117,28 +118,32 @@ export default function App() {
                   hasResult={!!extractionResult}
                 />
                 {activeTab === 'upload' ? (
-                  <UploadTab
-                    key="upload"
-                    isUploading={isUploading}
-                    error={error}
-                    onFileUpload={handleFileUpload}
-                  />
+                  <Suspense fallback={<div className="py-20 text-center text-slate-400">Loading...</div>}>
+                    <UploadTab
+                      key="upload"
+                      isUploading={isUploading}
+                      error={error}
+                      onFileUpload={handleFileUpload}
+                    />
+                  </Suspense>
                 ) : (
-                  <ResultsTab
-                    key="results"
-                    extractionResult={extractionResult}
-                    availableGroups={availableGroups}
-                    user={user}
-                    error={displayError}
-                    isActionLoading={isAnyLoading}
-                    onJoinGroup={handleJoinGroup}
-                    onLeaveGroup={handleLeaveGroup}
-                    onCreateGroup={handleCreateGroup}
-                    onReupload={handleReupload}
-                    hasMore={hasMore}
-                    isLoadingMore={isLoadingMore}
-                    onLoadMore={loadMore}
-                  />
+                  <Suspense fallback={<div className="py-20 text-center text-slate-400">Loading...</div>}>
+                    <ResultsTab
+                      key="results"
+                      extractionResult={extractionResult}
+                      availableGroups={availableGroups}
+                      user={user}
+                      error={displayError}
+                      isActionLoading={isAnyLoading}
+                      onJoinGroup={handleJoinGroup}
+                      onLeaveGroup={handleLeaveGroup}
+                      onCreateGroup={handleCreateGroup}
+                      onReupload={handleReupload}
+                      hasMore={hasMore}
+                      isLoadingMore={isLoadingMore}
+                      onLoadMore={loadMore}
+                    />
+                  </Suspense>
                 )}
               </motion.div>
             )}

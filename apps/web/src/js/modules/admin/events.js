@@ -1,7 +1,10 @@
-import { makeAdmin } from './actions.js';
-import { revokeAdmin } from './actions.js';
-import { toggleActive } from './actions.js';
-import { deleteGroup } from './actions.js';
+import {
+  makeAdmin,
+  revokeAdmin,
+  toggleActive,
+  deleteGroup,
+  sendAdminEmail,
+} from './adminApi.js';
 import { filterUsers } from './users.js';
 import { filterGroups } from './groups.js';
 
@@ -16,18 +19,18 @@ export function onActionClick(action, btn) {
 
   switch (action) {
     case 'makeAdmin':
-      makeAdmin(db, id);
+      makeAdmin(id);
       break;
     case 'revokeAdmin':
-      revokeAdmin(db, id);
+      revokeAdmin(id);
       break;
     case 'toggleActive': {
       const active = btn.dataset.active === 'true';
-      toggleActive(db, id, active);
+      toggleActive(id, active);
       break;
     }
     case 'deleteGroup':
-      deleteGroup(db, id);
+      deleteGroup(id);
       break;
   }
 }
@@ -88,69 +91,33 @@ export function setupEmailListeners() {
 }
 
 export function previewEmail() {
-  const html = document.getElementById('emailBody')?.value || '';
+  const raw = document.getElementById('emailBody')?.value || '';
   const preview = document.getElementById('emailPreview');
-  if (!html.trim()) {
-    preview?.classList.add('hidden');
+  if (!preview) return;
+
+  if (!raw.trim()) {
+    preview.classList.add('hidden');
     return;
   }
-  preview.innerHTML = html;
-  preview?.classList.remove('hidden');
+
+  preview.classList.remove('hidden');
+  preview.textContent = raw;
 }
 
-export async function sendAdminEmail() {
+export async function sendAdminEmailFromForm() {
   const subject = document.getElementById('emailSubject')?.value.trim() || '';
   const body = document.getElementById('emailBody')?.value.trim() || '';
   const recipientsType = document.getElementById('emailRecipients')?.value || '';
   const customEmails = document.getElementById('customEmails')?.value.trim() || '';
-  const statusEl = document.getElementById('emailStatus');
   const sendBtn = document.getElementById('sendEmailBtn');
-
-  if (!subject) {
-    showToast('أدخل عنوان الإيميل', 'error');
-    return;
-  }
-  if (!body) {
-    showToast('أدخل محتوى الإيميل', 'error');
-    return;
-  }
-  if (recipientsType === 'custom' && !customEmails) {
-    showToast('أدخل عناوين الإيميل المخصصة', 'error');
-    return;
-  }
-  if (!confirm('هل أنت متأكد من إرسال هذا الإيميل؟')) return;
+  const statusEl = document.getElementById('emailStatus');
 
   sendBtn.disabled = true;
   sendBtn.textContent = 'جاري الإرسال...';
   if (statusEl) statusEl.textContent = '';
 
-  try {
-    let result;
-    if (recipientsType === 'all') {
-      result = await window.emailService?.sendToAll(subject, body);
-    } else {
-      const emails = customEmails.split(',').map(e => e.trim()).filter(Boolean);
-      result = await window.emailService?.sendBulk(emails, subject, body);
-    }
+  await sendAdminEmail(recipientsType, subject, body, customEmails);
 
-    if (result && result.sent > 0) {
-      showToast('تم إرسال الإيميل بنجاح', 'success');
-      if (statusEl) {
-        statusEl.textContent = 'تم الإرسال: ' + result.sent + ' | فشل: ' + result.failed;
-        if (result.total) statusEl.textContent += ' (إجمالي: ' + result.total + ')';
-      }
-    } else {
-      const errors = (result?.errors || []).map((err) => {
-        return window.emailService?.getErrorMessage?.(err) || err;
-      });
-      showToast(errors[0] || 'فشل إرسال الإيميل', 'error');
-      if (statusEl) statusEl.textContent = 'فشل: ' + errors.join(', ');
-    }
-  } catch (e) {
-    showToast('خطأ: ' + (e.message || ''), 'error');
-    if (statusEl) statusEl.textContent = 'خطأ: ' + (e.message || '');
-  } finally {
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'إرسال الإيميل';
-  }
+  sendBtn.disabled = false;
+  sendBtn.textContent = 'إرسال الإيميل';
 }

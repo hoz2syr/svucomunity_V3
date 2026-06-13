@@ -5,6 +5,19 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| 1 | `apps/admin/src/services/api.ts` empty (0 lines) | ⏳ Pending | Still empty — Supabase client not yet added |
+| 2 | Admin React 18 vs React 19 | ⏳ Pending | Admin not yet upgraded |
+| 3 | Admin Tailwind v3 vs v4 | ⏳ Pending | Admin still on legacy PostCSS pipeline |
+| 4 | Admin Vite 5 vs 6+ | ⏳ Pending | Admin not yet upgraded |
+| 5–9 | Duplicate admin logic in `apps/web/src/js/modules/admin/` | ✅ Fixed | `window.adminPanel` removed; mutations routed to `adminApi.js` → Edge Function |
+| 12 | `auth-guard.js` error redirect to `login.html` | ⏳ Pending | No error-type discrimination yet |
+
+---
+
 ## Critical Findings
 
 | # | App | File/Path | Issue | Root Cause | Fix |

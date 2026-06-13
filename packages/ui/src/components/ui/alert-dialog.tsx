@@ -10,7 +10,7 @@ const AlertDialog = React.forwardRef<
   React.ComponentRef<typeof AlertDialogPrimitive.Root>,
   React.ComponentProps<typeof AlertDialogPrimitive.Root>
 >((props, ref) => {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" ref={ref} {...props} />;
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} ref={ref} />;
 });
 AlertDialog.displayName = "AlertDialog";
 
@@ -24,14 +24,16 @@ const AlertDialogTrigger = React.forwardRef<
 });
 AlertDialogTrigger.displayName = "AlertDialogTrigger";
 
-const AlertDialogPortal = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Portal>,
-  React.ComponentProps<typeof AlertDialogPrimitive.Portal>
->((props, ref) => {
+const AlertDialogPortal = ({
+  children,
+  ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) => {
   return (
-    <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" ref={ref} {...props} />
+    <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props}>
+      {children}
+    </AlertDialogPrimitive.Portal>
   );
-});
+};
 AlertDialogPortal.displayName = "AlertDialogPortal";
 
 const AlertDialogOverlay = React.forwardRef<
@@ -42,7 +44,7 @@ const AlertDialogOverlay = React.forwardRef<
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 dark:bg-black/70",
         className,
       )}
       ref={ref}

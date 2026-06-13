@@ -22,12 +22,16 @@ TooltipProvider.displayName = "TooltipProvider";
 
 const Tooltip = React.forwardRef<
   React.ComponentRef<typeof TooltipPrimitive.Root>,
-  React.ComponentProps<typeof TooltipPrimitive.Root>
+  React.ComponentProps<typeof TooltipPrimitive.Root> & { delayDuration?: number }
 >((props, ref) => {
+  const { delayDuration, ...rest } = props;
   return (
-    <TooltipProvider>
-      <TooltipPrimitive.Root ref={ref} data-slot="tooltip" {...props} />
-    </TooltipProvider>
+    <TooltipPrimitive.Root
+      ref={ref}
+      data-slot="tooltip"
+      delayDuration={delayDuration}
+      {...rest}
+    />
   );
 });
 Tooltip.displayName = "Tooltip";

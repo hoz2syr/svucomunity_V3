@@ -5,6 +5,19 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| 1–3 | `feedback.js` unhandled promise, `core.js` missing id guard, `initializeTheme` memory leak | ⏳ Pending | None yet addressed |
+| 4 | `config.js` empty-string fallbacks | ⏳ Pending | Still `|| ''` fallbacks present |
+| 5 | `shared.js` `enrichCreators` silent error swallowing | ⏳ Pending | Empty catch still present |
+| 9 | Hardcoded `30 * 60 * 1000` auth timeout | ⏳ Pending | Diverges from `SECURITY_CONFIG.sessionTimeout` |
+| 11–13 | `helpers.js` duplicates `shared.js` utilities | ⏳ Pending | No consolidation yet |
+| 14 | `constants.js` hardcoded localhost fallback | ⏳ Pending | Production env guard not added |
+
+---
+
 ## Critical Findings
 
 | # | File | Line | Issue | Root Cause | Fix |

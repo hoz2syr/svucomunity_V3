@@ -92,7 +92,6 @@ function setupForgotPasswordModal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initializeTheme();
   initLang();
   setupThemeToggle();
   setupLangToggle();
@@ -108,4 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (moon) moon.classList.toggle('hidden', stored !== 'dark');
     if (system) system.classList.toggle('hidden', stored !== 'system');
   }
+});
+
+window.addEventListener('svu-theme-change', (e) => {
+  applyTheme(e.detail.theme);
 });

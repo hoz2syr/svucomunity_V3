@@ -5,26 +5,21 @@
 
 ---
 
-## Critical Findings
+## Fix Status (2026-06-12)
 
-| # | File | Line | Issue | Root Cause | Fix |
-|---|------|------|-------|-----------|-----|
-| C1 | `.github/workflows/ci.yml` | 17–19 | **CI matrix only covers `apps/web`** — `courses`, `schedule`, `admin` are never linted/typechecked/tested | Matrix scoped to single app during initial setup, never expanded | Expand matrix to include all 4 apps |
-| C2 | `.github/workflows/ci.yml` | 13 | `fail-fast: true` aborts remaining matrix jobs on first failure | Default/over-eager flag | Set `fail-fast: false` |
-| C3 | `.github/workflows/ci.yml` | 42–48 | **Coverage artifact path wrong** — `path: ${{ matrix.package }}/coverage/` creates nested `apps/web/apps/web/coverage/` since working dir is already the app | Path constructed relative to repo root while job cwd is the app directory | Change to `path: coverage/` (relative to current working-directory) |
-| C4 | `.github/workflows/deploy-courses.yml` | 17–18 | **Entire workflow is a placeholder** — no install, build, or deploy step | Scaffolded but never implemented | Add `npm ci`, `npm run build`, real deploy step |
-| C5 | `.github/workflows/deploy-schedule.yml` | 17–18 | Same placeholder issue as deploy-courses.yml | Same | Same fix |
-
-## High Findings
-
-| # | File | Line | Issue | Root Cause | Fix |
-|---|------|------|-------|-----------|-----|
-| H1 | `.github/workflows/ci.yml` | 36–42 | **CI does not use `turbo run`** — runs raw `npm run lint`/`test`/`typecheck`, bypassing turbo pipeline, caching, dependency ordering | Workflow written with plain npm | Replace with `npx turbo run lint test typecheck --continue` + TURBO_TOKEN |
-| H2 | `.github/workflows/ci.yml` | 29 | Node.js version is `20` (major-only) — not pinned to specific patch | Inconsistent version pinning | Pin to `20.11.0` or `~20.11.0` |
-| H3 | `.github/workflows/deploy-web.yml` | 32–33 | Deploy step is a placeholder (`echo`) — no hosting provider integration | Deploy target not configured | Add Vercel/Netlify/Render action with secrets |
-| H4 | `.github/workflows/deploy-*.yml` | All | **No preview/production split** — all deploy to `main` without staging | Environments not defined | Add `environment: production` to main deploys; add preview deploys on PRs |
-| H5 | turbo.json | 7–9 | `lint` task depends on `^build` — linting should not require dependencies built first | Incorrect turbo dependency declaration | Change to `"dependsOn": []` |
-| H6 | `.github/workflows/ci.yml` | — | **No security scanning** — no Snyk, CodeQL, dependency audit, or secret scanning | Security deprioritized | Add separate `security` job |
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| C1 | CI matrix only covers `apps/web` | ⏳ Pending | Still needs expansion |
+| C2 | `fail-fast: true` aborts remaining jobs | ⏳ Pending | Not yet changed to `false` |
+| C3 | Coverage artifact path wrong — nested `apps/web/apps/web/coverage/` | ⏳ Pending | Not yet fixed |
+| C4–C5 | `deploy-courses.yml` / `deploy-schedule.yml` placeholders | ⏳ Pending | No install/build/deploy steps added |
+| C6 | No Turbo remote cache configured (no `TURBO_TOKEN`) | ⏳ Pending | Still missing |
+| H1 | CI does not use `turbo run` — bypasses pipeline + caching | ⏳ Pending | Still running raw npm |
+| H2 | Node.js version pinned to major only (`20`) | ⏳ Pending | Should pin to `~20.11.0` |
+| H3 | `deploy-web.yml` deploy step is a placeholder (`echo`) | ⏳ Pending | No hosting provider configured |
+| H4 | No preview/production split in deploy workflows | ⏳ Pending | All deploy to `main` without staging |
+| H5 | `turbo.json` `lint` depends on `^build` — lint should be independent | ⏳ Pending | Not yet changed |
+| H6 | No security scanning workflow (Snyk, CodeQL, npm audit) | ⏳ Pending | Not yet added |
 
 ## Medium Findings
 
@@ -47,3 +42,12 @@
 5. **Add Dependabot**: Weekly updates for npm ecosystems
 6. **Standardize Node versions**: Pin to exact patch versions
 7. **Add `.env.example` files** to `apps/courses/`, `apps/schedule/`, `apps/admin/`
+
+## Changes Applied (2026-06-12)
+
+| File | Change |
+|------|--------|
+| `.github/workflows/ci.yml` | Not modified — CI re-architecture (Turbo, matrix expansion, security job) requires explicit design approval |
+| `.github/workflows/deploy-*.yml` | Not modified — deploy steps remain placeholders; deployment target (Vercel/Netlify/Render) not yet selected |
+| `turbo.json` | Not modified — `lint dependsOn: ["^build"]` and `test dependsOn: ["^build"]` reordering pending |
+| `packages/supabase-client/src/` | Auth config corrected — `persistSession`/`autoRefreshToken` confirmed (`see 10-backend-edge-functions.md`) |

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '../services/supabase';
 import type { StudyGroup } from '../services/types';
 
@@ -23,6 +23,7 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
   const [hasMore, setHasMore] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState<Record<string, boolean>>({});
 
+  const isFetchingRef = useRef(false);
   const uniqueCourseCodes = useMemo(
     () => Array.from(new Set(courseCodes)),
     [courseCodes]
@@ -31,6 +32,7 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
   const loadMore = useCallback(async (courseCode: string) => {
     if (isLoadingMore[courseCode] || !hasMore[courseCode]) return;
     setIsLoadingMore((prev) => ({ ...prev, [courseCode]: true }));
+    setFetchError(null);
 
     try {
       const offset = offsets[courseCode] || 0;
@@ -43,6 +45,7 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
 
       if (fetchError) {
         console.error('[Supabase] Error loading more groups:', fetchError);
+        setFetchError('Failed to load more groups. Please try again.');
         return;
       }
 
@@ -67,6 +70,7 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
       setHasMore((prev) => ({ ...prev, [courseCode]: newGroups.length === PAGE_SIZE }));
     } catch (err) {
       console.error('[Supabase] Unexpected error loading more groups:', err);
+      setFetchError('An unexpected error occurred while loading more groups.');
     } finally {
       setIsLoadingMore((prev) => ({ ...prev, [courseCode]: false }));
     }
@@ -86,6 +90,9 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
     let isMounted = true;
 
     const fetchGroups = async () => {
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+
       try {
         const { data, error: fetchError } = await supabase
           .from('study_groups')
@@ -141,38 +148,44 @@ export function useStudyGroups({ courseCodes, enabled }: UseStudyGroupsOptions):
         if (isMounted) {
           setFetchError('An unexpected error occurred while loading groups.');
         }
+      } finally {
+        isFetchingRef.current = false;
       }
     };
 
     fetchGroups();
 
-    channel = supabase
-      .channel(`study_groups_${uniqueCourseCodes.join(',')}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'study_groups',
-          filter: `course_code=in.(${uniqueCourseCodes.map((c) => `"${c}"`).join(',')})`,
-        },
-        () => {
-          if (isMounted) {
-            fetchGroups();
+    const safeCourseCodes = uniqueCourseCodes.filter((code) => /^[A-Z0-9-]+$/i.test(code));
+
+    if (safeCourseCodes.length > 0) {
+      channel = supabase
+        .channel(`study_groups_${safeCourseCodes.join(',')}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'study_groups',
+            filter: `course_code=in.(${safeCourseCodes.map((c) => `"${c}"`).join(',')})`,
+          },
+          (payload) => {
+            if (!isMounted) return;
+            if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+              fetchGroups();
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    }
 
     return () => {
       isMounted = false;
+      isFetchingRef.current = false;
       if (channel) {
-        supabase.removeChannel(channel);
+        channel.unsubscribe();
       }
     };
-  }, [uniqueCourseCodes, enabled]);
+  }, [uniqueCourseCodes, enabled, PAGE_SIZE]);
 
   return { availableGroups, fetchError, hasMore, isLoadingMore, loadMore };
 }
-
-

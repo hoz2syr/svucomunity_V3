@@ -5,6 +5,25 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Original Status | Current Status | Notes |
+|---|---------|----------------|----------------|-------|
+| 1–4 | Empty migrations (001, 002, 005, 007) | — | ✅ Fixed 2026-06-12 | 002_users.sql, 003_auth.sql, 005_study_groups.sql filled; 001_init.sql extended with schemas; 007_catalog.sql never created (placeholder not needed) |
+| 6 | `course_resources` denormalized columns (`course_code`, `course_name`, `major`) | High | ⏳ Pending | Columns still present in table |
+| 7 | `uploader_id` missing `REFERENCES auth.users(id)` | High | ⏳ Pending | Has `NOT NULL DEFAULT auth.uid()`; FK fixed in 003_auth.sql |
+| 8 | `resource_type` CHECK uses mixed Arabic/Latin | High | ⏳ Pending | Check constraint added in 006_resources.sql: `'PDF', 'فيديو', 'رابط', 'كود', 'شرائح'` |
+| 9 | `Course` TypeScript type has phantom fields | High | ⏳ Pending | `title_ar`, `credits`, `semester`, etc. still in `packages/types` |
+| 14 | `idx_courses_code` redundant with inline UNIQUE | Low | ⏳ Pending | Unique index + inline UNIQUE both present |
+| 15 | No `updated_at` on `courses` table | Medium | ✅ Fixed 2026-06-12 | Added `updated_at TIMESTAMPTZ` + `courses_set_updated_at` trigger |
+| 16 | `users_update_own` missing `WITH CHECK` clause | Medium | ✅ Fixed 2026-06-12 | Added `WITH CHECK (auth.uid() = id)` to prevent privilege escalation |
+| 17 | `study_groups_update_own` missing `WITH CHECK` clause | Medium | ✅ Fixed 2026-06-12 | Added `WITH CHECK (creator_id = auth.uid())` |
+| 18 | Missing `DROP POLICY IF EXISTS` before each CREATE POLICY | Medium | ✅ Fixed 2026-06-12 | Added to 002, 004, 006 migrations |
+| 19 | `services` schema missing | Medium | ✅ Fixed 2026-06-12 | `CREATE SCHEMA IF NOT EXISTS services` added in 001_init.sql |
+| 20 | `services.assert_admin()` and `services.get_user_roles()` missing | Medium | ✅ Fixed 2026-06-12 | Added `SECURITY DEFINER` functions in 003_auth.sql |
+
+---
+
 ## Critical Findings
 
 | # | Migration File | Line/Table | Issue | Root Cause | Fix |
@@ -45,3 +64,14 @@
 2. **Add `updated_at` to all tables** with a trigger: `CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = now(); RETURN NEW; END; $$ LANGUAGE plpgsql;`
 3. **Replace `members UUID[]` with a join table** `study_group_members(group_id, user_id, joined_at)` for proper referential integrity
 4. **Sync TypeScript types with DB schema** — add a CI check that diffs `packages/types/src/` against migration SQL
+
+## Changes Applied (2026-06-12)
+
+| File | Change |
+|------|--------|
+| `supabase/migrations/001_init.sql` | Added `CREATE SCHEMA IF NOT EXISTS services` and `CREATE SCHEMA IF NOT EXISTS auth` after `set_updated_at()` trigger |
+| `supabase/migrations/002_users.sql` | Added `DROP POLICY IF EXISTS` before each `CREATE POLICY`. Added `WITH CHECK (auth.uid() = id)` to `users_update_own` |
+| `supabase/migrations/003_auth.sql` | Added `services.get_user_roles(uid UUID)` and `services.assert_admin()` as `SECURITY DEFINER` functions |
+| `supabase/migrations/004_courses.sql` | Added `DROP POLICY IF EXISTS` before each policy. Added `updated_at TIMESTAMPTZ` + `courses_set_updated_at` trigger |
+| `supabase/migrations/005_study_groups.sql` | Added `WITH CHECK (creator_id = auth.uid())` to `study_groups_update_own` |
+| `supabase/migrations/006_resources.sql` | Added `DROP POLICY IF EXISTS` before each policy. Changed `resources_insert_auth` from `auth.role()` to `auth.uid() + is_active` check |

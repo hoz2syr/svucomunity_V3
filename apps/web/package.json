@@ -17,6 +17,7 @@
   "author": "SVU Community Team",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {

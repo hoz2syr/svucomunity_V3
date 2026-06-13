@@ -86,10 +86,17 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(key)) return null;
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    if (
+      !color ||
+      !/^(#([0-9a-f]{3,8})|hsl\(|rgb\(|var\()/i.test(color)
+    ) {
+      return null;
+    }
+    return `  --color-${key}: ${color};`;
   })
   .join("\n")}
 }
@@ -189,7 +196,7 @@ const ChartTooltipContent = React.forwardRef<
 
           return (
             <div
-              key={item.dataKey}
+              key={item.dataKey ?? item.name ?? index}
               className={cn(
                 "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                 indicator === "dot" && "items-center",

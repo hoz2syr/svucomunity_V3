@@ -49,7 +49,10 @@ const InputOTPSlot = React.forwardRef<
   }
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext);
-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
+  if (!inputOTPContext) {
+    throw new Error("InputOTPSlot must be used within an InputOTP component");
+  }
+  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index] ?? {};
 
   return (
     <div
@@ -78,7 +81,7 @@ const InputOTPSeparator = React.forwardRef<
   React.ComponentProps<"div">
 >(({ ...props }, ref) => {
   return (
-    <div data-slot="input-otp-separator" role="separator" ref={ref} {...props}>
+    <div data-slot="input-otp-separator" role="separator" aria-orientation="horizontal" ref={ref} {...props}>
       <MinusIcon />
     </div>
   );

@@ -5,6 +5,19 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| C-1 | `useStudyGroups`: `loadMore` stale closure | ⏳ Pending | No functional-update refactor yet |
+| C-2 | `useGroupActions` stale closure race | ⏳ Pending | No `useRef` for action flags yet |
+| C-3 | `useCourses` retry `setTimeout` no cancel on unmount | ⏳ Pending | No `cancelled` flag added |
+| C-4 | `shared.js` `coursesData` singleton with zero invalidation | ⏳ Pending | No TTL or `invalidateCoursesCache()` |
+| H-1 | `useCourseResources` `select('*')` over-fetching | ⏳ Pending | No explicit column list |
+| H-3 | Realtime handler full re-fetch on any table change | ⏳ Pending | No debounce added to callback |
+
+---
+
 ## Critical Findings
 
 | # | File | Line | Issue | Root Cause | Fix |

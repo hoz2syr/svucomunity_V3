@@ -5,6 +5,21 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Original Status | Current Status | Notes |
+|---|---------|----------------|----------------|-------|
+| 1 | `chart.tsx` — CSS injection via `dangerouslySetInnerHTML` | Critical | ✅ Fixed | Added `/^[a-zA-Z0-9_-]+$/` key validation before interpolation |
+| 2 | `admin/events.js` — `preview.innerHTML = html` Stored XSS | Critical | ✅ Fixed | Replaced HTML preview with plain-text assignment using `textContent` |
+| 3 | `core.js` — PII in localStorage | Critical | ⏳ Pending | Partial — session token localStorage usage remains; full remediation requires cookie migration |
+| 4 | `page-dashboard.js` — Reflected XSS via `innerHTML` | High | ✅ Fixed | `showErrorState()` now builds DOM via `createElement` and `textContent` |
+| 5 | `admin/actions.js` — client-side authZ bypass | High | ✅ Fixed | Admin mutations moved to `adminApi.js` → `db.functions.invoke('admin-actions')` |
+| 6 | `feedback.js` / i18n — DOM-based XSS | High | ✅ Fixed | Modal now built with `createElement` + `textContent`; no untrusted innerHTML insertion |
+| 7 | `SUPABASE_SERVICE_ROLE_KEY` in `.env.example` | High | ✅ Fixed | Removed from `.env.example`; server-only |
+| 8 | `email.js` — `sendToAllUsers` no role check | High | ✅ Fixed | Bulk email now routed through Edge Function |
+
+---
+
 ## Critical Findings
 
 | # | File | Line | Issue | Root Cause | Fix |

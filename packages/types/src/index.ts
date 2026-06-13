@@ -1,6 +1,7 @@
 export * from './user';
 export * from './course';
 export * from './group';
+export * from './resource';
 
 export interface Schedule {
   id: string

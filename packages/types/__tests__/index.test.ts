@@ -3,18 +3,16 @@ import type { User, Course, Group, Schedule, AuthState } from '../src/index';
 describe('types', () => {
   it('User type is exported', () => {
     const user: User = {
-      id: '1', email: 'a@b.com', username: 'u', first_name: 'F',
-      last_name: 'L', major: 'CS', phone: '123', country: 'SA',
-      is_admin: false, created_at: '2024-01-01',
+      id: '1', email: 'a@b.com', username: 'u',
+      is_admin: false, is_active: true, created_at: '2024-01-01', updated_at: '2024-01-01',
     };
     expect(user.id).toBe('1');
   });
 
   it('User type works without optional fields', () => {
     const user: User = {
-      id: '1', email: 'a@b.com', username: 'u', first_name: 'F',
-      last_name: 'L', major: 'CS', phone: '123', country: 'SA',
-      is_admin: false, created_at: '2024-01-01',
+      id: '1', email: 'a@b.com', username: 'u',
+      is_admin: false, is_active: true, created_at: '2024-01-01', updated_at: '2024-01-01',
     };
     expect(user.id).toBe('1');
   });
@@ -37,10 +35,11 @@ describe('types', () => {
 
   it('Group type is exported', () => {
     const group: Group = {
-      id: '1', name: 'G1', course_id: 'c1', admin_id: 'a1',
-      description: '', created_at: '2024-01-01',
+      id: '1', course_code: 'CS101', creator_id: 'u1',
+      members: [], is_private: false,
+      created_at: '2024-01-01', updated_at: '2024-01-01',
     };
-    expect(group.name).toBe('G1');
+    expect(group.id).toBe('1');
   });
 
   it('Schedule type is exported', () => {
@@ -58,9 +57,8 @@ describe('types', () => {
 
   it('AuthState type works with real User object', () => {
     const user: User = {
-      id: '1', email: 'a@b.com', username: 'u', first_name: 'F',
-      last_name: 'L', major: 'CS', phone: '123', country: 'SA',
-      is_admin: false, created_at: '2024-01-01',
+      id: '1', email: 'a@b.com', username: 'u',
+      is_admin: false, is_active: true, created_at: '2024-01-01', updated_at: '2024-01-01',
     };
     const auth: AuthState = { user, loading: false };
     expect(auth.user?.id).toBe('1');

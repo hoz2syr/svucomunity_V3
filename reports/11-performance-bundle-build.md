@@ -5,6 +5,17 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| C1–C3 | Courses app: no build optimizations, `@xyflow/react` statically imported | ⏳ Pending | `vite.config.ts` still bare-minimum; no `manualChunks` |
+| H1–H2 | Admin React 18 + Tailwind v3 | ⏳ Pending | Admin not yet upgraded |
+| H3 | `packages/ui/src/index.ts` barrel export pattern | ⏳ Pending | No subpath exports added |
+| H4 | 40+ shadcn components not audited for usage | ⏳ Pending | No pruning audit yet |
+
+---
+
 ## Critical Findings
 
 | # | App/File | Issue | Root Cause | Fix |

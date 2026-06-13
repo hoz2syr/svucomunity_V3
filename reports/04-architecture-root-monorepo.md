@@ -5,6 +5,19 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Status | Notes |
+|---|---------|--------|-------|
+| 1 | Root `tsconfig.json` missing | ⏳ Pending | Not yet created — requires monorepo-wide project references design |
+| 2 | CI matrix only covers `apps/web` | ⏳ Pending | Needs expansion to all 4 apps |
+| 3–5 | Empty `tsconfig.json` files in packages | ⏳ Pending | types/ui/utils placeholders still empty |
+| 9 | `turbo.json` `test` depends on `^build` | ⏳ Pending | Dependency ordering not yet fixed |
+| 16 | `packages/supabase-client/src/server.ts` in wrong package scope | ⏳ Pending | Server client still co-located with browser client |
+| 17 | `superbase-setup.sql` aggregate migration present alongside numbered migrations | ⏳ Pending | Not harmful but can confuse migration runner — keep or remove |
+
+---
+
 ## Critical Findings
 
 | # | File | Issue | Root Cause | Fix |

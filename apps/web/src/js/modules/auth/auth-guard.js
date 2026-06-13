@@ -40,7 +40,9 @@ export async function checkAuth(options = {}) {
         return null;
       }
     } catch (err) {
-      console.error('[auth-guard] Admin check failed:', err);
+      if (import.meta.env?.DEV) {
+        console.error('[auth-guard] Admin check failed:', err);
+      }
       if (!silent) window.location.href = 'login.html';
       return null;
     }

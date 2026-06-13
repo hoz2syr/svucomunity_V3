@@ -148,13 +148,14 @@ const contents = {
     }
   }, null, 2),
 
-  '.env.example': `NODE_ENV=development
-NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-GEMINI_API_KEY=
-RESEND_API_KEY=
+  '.env.example': `# Client-side (VITE_ prefix → bundled into browser JS)
+VITE_API_URL=http://localhost:3001
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+
+# Server-side ONLY:
+# Store SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY as Supabase secrets
+# or a local .env file that is .gitignore'd. Never commit them here.
 `,
 
   '.gitignore': `node_modules

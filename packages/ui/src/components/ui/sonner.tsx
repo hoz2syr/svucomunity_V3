@@ -1,6 +1,7 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import * as React from "react";
+import { useTheme } from "../../hooks/useTheme";
 import { Toaster as Sonner, ToasterProps } from "sonner";
 
 const Toaster = React.forwardRef<

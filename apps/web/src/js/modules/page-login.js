@@ -104,31 +104,10 @@ async function handleLoginSubmit(e) {
   if (btnText) btnText.textContent = 'جاري المعالجة...';
 
   try {
-    let userEmail = identifier;
-    const identifierLower = identifier.toLowerCase();
-
-    if (!identifierLower.includes('@')) {
-      const db = getDb();
-
-      if (!db) throw new Error('تعذر الاتصال بالخادم');
-
-      const { data: usernameData } = await db
-        .from('users')
-        .select('email')
-        .eq('username', identifierLower)
-        .maybeSingle();
-
-      if (!usernameData?.email) {
-        showToast('المستخدم غير موجود', 'error');
-        return;
-      }
-
-      userEmail = usernameData.email;
-    }
-
     const db = getDb();
-
     if (!db) throw new Error('تعذر الاتصال بالخادم');
+
+    const userEmail = identifier;
 
     const { data: authData, error: authError } = await db.auth.signInWithPassword({
       email: userEmail,

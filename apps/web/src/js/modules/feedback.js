@@ -1,11 +1,9 @@
 /**
- * ════════════════════════════════════════════════════════════════
  * SVU Community — Feedback & Rating System v1
  * 📝 تقييم إلزامي بعد الجولة — لغة فصحى ودية
- * ════════════════════════════════════════════════════════════════
  */
 
-import { safeStorageGet, safeStorageSet, safeStorageRemove, escapeHtml } from './core.js';
+import { safeStorageGet, safeStorageSet, safeStorageRemove } from './core.js';
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -25,12 +23,26 @@ let submitted = false;
 
 // ── Helpers ──────────────────────────────────────────────────────
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function t(k) {
   return window.i18n?.t?.(k) || k;
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+// ── DOM helpers ──────────────────────────────────────────────────
+
+function createElement(tag, attrs = {}, text = '') {
+  const el = document.createElement(tag);
+  if (attrs.className) el.className = attrs.className;
+  if (attrs.id) el.id = attrs.id;
+  if (attrs.placeholder) el.placeholder = attrs.placeholder;
+  if (attrs.disabled) el.disabled = true;
+  if (attrs.style) el.style.cssText = attrs.style;
+  if (attrs.dataset) Object.entries(attrs.dataset).forEach(([k, v]) => el.dataset[k] = v);
+  if (text) el.textContent = text;
+  return el;
 }
 
 // ── CSS ──────────────────────────────────────────────────────────
@@ -133,32 +145,86 @@ function buildModal() {
   overlay.id = MODAL_ID;
   overlay.className = 'fb-overlay';
 
-  overlay.innerHTML = `
-    <div class="fb-modal">
-      <div id="fbForm">
-        <div class="fb-emoji">💬</div>
-        <h2 class="fb-title">${t('fbTitle')}</h2>
-        <p class="fb-sub">${t('fbSubtitle')}</p>
+  const modal = document.createElement('div');
+  modal.className = 'fb-modal';
 
-        <div class="fb-stars" id="fbStars">
-          ${[1,2,3,4,5].map(n => `<span class="fb-star" data-v="${n}">⭐</span>`).join('')}
-        </div>
-        <div class="fb-rating-label" id="fbRatingLabel">${t('fbPickRating')}</div>
+  const form = document.createElement('div');
+  form.id = 'fbForm';
+  form.appendChild(createElement('div', { className: 'fb-emoji' }, '💬'));
 
-        <label class="fb-label">${t('fbFeedbackLabel')}</label>
-        <textarea class="fb-textarea" id="fbText" placeholder="${t('fbPlaceholder')}"></textarea>
+  const title = document.createElement('h2');
+  title.className = 'fb-title';
+  title.textContent = t('fbTitle');
+  form.appendChild(title);
 
-        <button class="fb-submit" id="fbSubmit" disabled>${t('fbSubmit')}</button>
-        <button class="fb-skip" id="fbSkip">${t('fbSkip')}</button>
-      </div>
+  const subtitle = document.createElement('p');
+  subtitle.className = 'fb-sub';
+  subtitle.textContent = t('fbSubtitle');
+  form.appendChild(subtitle);
 
-      <div id="fbSuccess" class="fb-success" style="display:none">
-        <div class="fb-success-emoji">🎉</div>
-        <h2 class="fb-success-title">${t('fbSuccessTitle')}</h2>
-        <p class="fb-success-text">${t('fbSuccessText')}</p>
-      </div>
-    </div>
-  `;
+  const starsContainer = document.createElement('div');
+  starsContainer.className = 'fb-stars';
+  starsContainer.id = 'fbStars';
+  [1, 2, 3, 4, 5].forEach(n => {
+    const star = document.createElement('span');
+    star.className = 'fb-star';
+    star.dataset.v = String(n);
+    star.textContent = '⭐';
+    starsContainer.appendChild(star);
+  });
+  form.appendChild(starsContainer);
+
+  const ratingLabel = document.createElement('div');
+  ratingLabel.className = 'fb-rating-label';
+  ratingLabel.id = 'fbRatingLabel';
+  ratingLabel.textContent = t('fbPickRating');
+  form.appendChild(ratingLabel);
+
+  const label = document.createElement('label');
+  label.className = 'fb-label';
+  label.textContent = t('fbFeedbackLabel');
+  form.appendChild(label);
+
+  const textarea = document.createElement('textarea');
+  textarea.className = 'fb-textarea';
+  textarea.id = 'fbText';
+  textarea.placeholder = t('fbPlaceholder');
+  form.appendChild(textarea);
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'fb-submit';
+  submitBtn.id = 'fbSubmit';
+  submitBtn.disabled = true;
+  submitBtn.textContent = t('fbSubmit');
+  form.appendChild(submitBtn);
+
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'fb-skip';
+  skipBtn.id = 'fbSkip';
+  skipBtn.textContent = t('fbSkip');
+  form.appendChild(skipBtn);
+
+  modal.appendChild(form);
+
+  const success = document.createElement('div');
+  success.id = 'fbSuccess';
+  success.className = 'fb-success';
+  success.style.display = 'none';
+
+  success.appendChild(createElement('div', { className: 'fb-success-emoji' }, '🎉'));
+
+  const successTitle = document.createElement('h2');
+  successTitle.className = 'fb-success-title';
+  successTitle.textContent = t('fbSuccessTitle');
+  success.appendChild(successTitle);
+
+  const successText = document.createElement('p');
+  successText.className = 'fb-success-text';
+  successText.textContent = t('fbSuccessText');
+  success.appendChild(successText);
+
+  modal.appendChild(success);
+  overlay.appendChild(modal);
 
   document.body.appendChild(overlay);
   bindEvents(overlay);
@@ -239,7 +305,7 @@ function submitFeedback(overlay) {
   if (submitted) return;
   submitted = true;
 
-  const feedbackText = escapeHtml(overlay.querySelector('#fbText').value.trim());
+  const feedbackText = overlay.querySelector('#fbText').value.trim();
   const feedbackData = {
     rating,
     feedback: feedbackText,

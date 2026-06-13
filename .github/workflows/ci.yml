@@ -8,9 +8,21 @@ on:
     branches: [main, develop]
 
 jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard against client-exposed secrets
+        run: |
+          if grep -R --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' --include='*.env*' -nE 'VITE_SUPABASE_SERVICE_ROLE_KEY|VITE_GEMINI_API_KEY|VITE_RESEND_API_KEY' .; then
+            echo '::error::Client-exposed secret detected in tracked files. Remove any VITE_-prefixed SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY, or RESEND_API_KEY before building.'
+            exit 1
+          fi
+
   test:
     runs-on: ubuntu-latest
-    fail-fast: true
+    fail-fast: false
 
     strategy:
       matrix:
@@ -46,4 +58,4 @@ jobs:
         with:
           name: coverage-${{ matrix.package }}
           path: ${{ matrix.package }}/coverage/
-          retention-days: 7
+          retention-days: 30

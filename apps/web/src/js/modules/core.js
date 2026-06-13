@@ -13,7 +13,70 @@ import {
 export const AUTH_CONFIG = Object.freeze({ ..._AUTH_CONFIG });
 export const THEME_CONFIG = Object.freeze({ ..._THEME_CONFIG });
 
-// ─── Safe storage wrappers ───────────────────────────────────────────────────
+let cachedUser = null;
+
+export function getCurrentUser() {
+  return cachedUser;
+}
+
+export function cacheUser(userData) {
+  cachedUser = userData || null;
+}
+
+export async function loadCurrentUser(db) {
+  if (!db) db = window.getDb?.();
+  if (!db) return null;
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return null;
+    const { data: profileData } = await db
+      .from('users')
+      .select('id, username, email, first_name, middle_name, last_name, major, avatar_url, is_admin, is_active')
+      .eq('id', user.id)
+      .maybeSingle();
+    cachedUser = {
+      id: user.id,
+      username: profileData?.username || user.email?.split('@')[0] || '',
+      email: profileData?.email || user.email || '',
+      first_name: profileData?.first_name || '',
+      middle_name: profileData?.middle_name || '',
+      last_name: profileData?.last_name || '',
+      major: profileData?.major || '',
+      avatar_url: profileData?.avatar_url || '',
+      is_admin: profileData?.is_admin || false,
+      is_active: profileData?.is_active ?? true,
+    };
+    return cachedUser;
+  } catch {
+    return null;
+  }
+}
+
+export function saveUserSession(userData, rememberMe = false) {
+  cacheUser(userData);
+}
+
+export function clearUserSession() {
+  cachedUser = null;
+}
+
+export async function isLoggedIn(db) {
+  if (!db) db = window.getDb?.();
+  if (!db) return false;
+  const { data: { user } } = await db.auth.getUser();
+  return !!user;
+}
+
+export async function refreshUserState(db) {
+  if (!db) db = window.getDb?.();
+  if (!db) return null;
+  const isValid = await verifySessionWithServer(db);
+  if (!isValid) {
+    clearUserSession();
+    return null;
+  }
+  return loadCurrentUser(db);
+}
 
 function safeStorageGet(key) {
   try {
@@ -26,125 +89,32 @@ function safeStorageGet(key) {
 function safeStorageSet(key, value) {
   try {
     localStorage.setItem(key, value);
-    return true;
   } catch {
-    return false;
+    // storage unavailable
   }
 }
 
 function safeStorageRemove(key) {
   try {
     localStorage.removeItem(key);
-    return true;
   } catch {
-    return false;
+    // storage unavailable
   }
 }
 
-// ─── Session management ──────────────────────────────────────────────────────
-
-function getCurrentUser() {
-  try {
-    const str = safeStorageGet(AUTH_CONFIG.USER_KEY);
-    return str ? JSON.parse(str) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveUserSession(userData, rememberMe = false) {
-  const payload = {
-    user: userData,
-    timestamp: Date.now(),
-    rememberMe,
-  };
-  safeStorageSet(AUTH_CONFIG.STORAGE_KEY, JSON.stringify(payload));
-  safeStorageSet(AUTH_CONFIG.SESSION_KEY, userData.id);
-  safeStorageSet(AUTH_CONFIG.USER_KEY, JSON.stringify(userData));
-
-  if (rememberMe) {
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 30);
-    safeStorageSet('session_expires', expires.getTime().toString());
-  } else {
-    safeStorageRemove('session_expires');
-  }
-}
-
-function isLoggedIn() {
-  const token = safeStorageGet(AUTH_CONFIG.SESSION_KEY);
-  const data = safeStorageGet(AUTH_CONFIG.STORAGE_KEY);
-  if (!token || !data) return false;
-
-  try {
-    const parsed = JSON.parse(data);
-    if (!parsed.user) return false;
-
-    const timeout = 30 * 60 * 1000;
-    const rememberMe = !!parsed.rememberMe;
-
-    if (rememberMe) {
-      const expiresStr = safeStorageGet('session_expires');
-      if (expiresStr && Date.now() > parseInt(expiresStr, 10)) {
-        clearUserSession();
-        return false;
-      }
-    } else {
-      const ts = typeof parsed.timestamp === 'number' ? parsed.timestamp : 0;
-      if (!ts || Date.now() - ts > timeout) {
-        clearUserSession();
-        return false;
-      }
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function clearUserSession() {
-  safeStorageRemove(AUTH_CONFIG.STORAGE_KEY);
-  safeStorageRemove(AUTH_CONFIG.SESSION_KEY);
-  safeStorageRemove(AUTH_CONFIG.USER_KEY);
-  safeStorageRemove('session_expires');
-}
-
-function updateUserData(updates) {
+export function updateUserData(updates) {
   const user = getCurrentUser();
   if (!user) return null;
-
   const updatedUser = { ...user, ...updates };
-  safeStorageSet(AUTH_CONFIG.USER_KEY, JSON.stringify(updatedUser));
-
-  const raw = safeStorageGet(AUTH_CONFIG.STORAGE_KEY);
-  let sessionData = {};
-  if (raw) {
-    try {
-      sessionData = JSON.parse(raw);
-    } catch {
-      // keep empty
-    }
-  }
-  sessionData.user = updatedUser;
-  safeStorageSet(AUTH_CONFIG.STORAGE_KEY, JSON.stringify(sessionData));
-
+  cacheUser(updatedUser);
   return updatedUser;
 }
 
-function verifySession() {
-  const token = safeStorageGet(AUTH_CONFIG.SESSION_KEY);
-  const data = safeStorageGet(AUTH_CONFIG.STORAGE_KEY);
-
-  if (!token || !data) return false;
-
-  try {
-    const parsed = JSON.parse(data);
-    if (!parsed.user) return false;
-    return true;
-  } catch {
-    return false;
-  }
+export async function verifySession(db) {
+  if (!db) db = window.getDb?.();
+  if (!db) return false;
+  const { data: { user } } = await db.auth.getUser();
+  return !!user;
 }
 
 // ─── Input validation ────────────────────────────────────────────────────────
@@ -290,6 +260,7 @@ function applyTheme(theme) {
 
   safeStorageSet(THEME_CONFIG.STORAGE_KEY, theme);
   updateThemeToggleIcon(theme);
+  dispatchEvent(new CustomEvent('svu-theme-change', { detail: { theme } }));
 }
 
 function updateThemeToggleIcon(theme) {
@@ -324,8 +295,8 @@ function initializeTheme() {
 
 function toggleTheme() {
   const current = getStoredTheme() || 'system';
-  const cycle = { light: 'dark', dark: 'system', system: 'light' };
-  const next = cycle[current] || 'light';
+  const cycle = { dark: 'light', light: 'system', system: 'dark' };
+  const next = cycle[current] || 'dark';
   applyTheme(next);
   return next;
 }

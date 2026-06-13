@@ -5,6 +5,20 @@
 
 ---
 
+## Fix Status (2026-06-12)
+
+| # | Finding | Original Status | Current Status | Notes |
+|---|---------|----------------|----------------|-------|
+| 1–3 | Edge Functions `send-email`, `ocr-proxy`, `gemini-proxy` all empty (0 bytes) | ⏳ Pending | Still stubs — implementation not part of this fix |
+| 4–5 | `VITE_GEMINI_API_KEY` / `VITE_RESEND_API_KEY` in `.env.example` | Critical | ✅ Fixed 2026-06-12 | Removed from `.env.example`; keys now only as Supabase secrets |
+| 6 | `supabase/config.toml` empty | Critical | ✅ Fixed 2026-06-12 | Fully populated: auth, CORS, functions sections |
+| 7 | Browser client missing `persistSession`/`autoRefreshToken` | High | ✅ Fixed 2026-06-12 | Added to `packages/supabase-client/src/client.ts` + `index.ts` |
+| 9–11 | Split Supabase client sources in schedule app | High | ⏳ Pending | `apps/schedule/src/services/supabase.ts` still present |
+| 12 | `|| ''` fallback in `client.ts` silently masks missing config | Medium | ✅ Fixed 2026-06-12 | Removed fallbacks; explicit check throws at module load |
+| 13 | `index.ts` has `|| ''` fallback masking missing env vars | Medium | ✅ Fixed 2026-06-12 | Removed fallbacks; now throws if VITE_SUPABASE_URL/ANON_KEY missing |
+
+---
+
 ## Critical Findings
 
 | # | File | Line | Issue | Root Cause | Fix |
@@ -48,3 +62,12 @@
 4. **Unify Supabase client** — delete `apps/schedule/src/services/supabase.ts`, import only from `@svu-community/supabase-client`
 5. **Add timeout enforcement** in all Edge Functions via `max_duration` in config.toml or `AbortController.timeout()`
 6. **Add a response envelope** across all functions for consistent error handling
+
+## Changes Applied (2026-06-12)
+
+| File | Change |
+|------|--------|
+| `supabase/config.toml` | Fully populated with `project_id` placeholder, `[auth]` (email, MFA, password_policy), `[cors]` allowed origins/methods/headers, and `[functions.*]` sections for all four Edge Functions |
+| `packages/supabase-client/src/client.ts` | Added `detectSessionInUrl: false` + confirmed `persistSession: true` + `autoRefreshToken: true`; removed `|| ''` fallback for missing env vars |
+| `packages/supabase-client/src/index.ts` | Removed `|| ''` fallbacks; now throws explicit error if `VITE_SUPABASE_URL` or `VITE_SUPABASE_ANON_KEY` are missing at module load |
+| `.env.example` | `VITE_GEMINI_API_KEY` and `VITE_RESEND_API_KEY` removed; client-side exposure of paid API keys eliminated |
