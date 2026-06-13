@@ -4,7 +4,11 @@ import { iteData } from '../data/ite_data';
 import type { SpecializationCourse, Course } from '../types';
 import { NODE_WIDTH, NODE_HEIGHT } from './constants';
 
+// Memory guard: layout cache is unbounded without limits. Large ITE datasets
+// can create many unique specialization combinations. Enforce a FIFO cap so
+// old entries are evicted before memory grows without bound.
 const layoutCache = new Map<string, { nodes: Node[]; edges: Edge[] }>();
+const MAX_LAYOUT_CACHE_SIZE = 50;
 
 export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'RL') {
   const dagreGraph = new dagre.graphlib.Graph();
@@ -106,5 +110,9 @@ export function generateInitialElements(selectedSpecialization: string | null) {
 
   const result = getLayoutedElements(initialNodes, initialEdges, 'RL');
   layoutCache.set(cacheKey, result);
+  if (layoutCache.size > MAX_LAYOUT_CACHE_SIZE) {
+    const oldestKey = layoutCache.keys().next().value;
+    if (oldestKey) layoutCache.delete(oldestKey);
+  }
   return result;
 }

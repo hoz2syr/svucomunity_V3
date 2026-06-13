@@ -1,8 +1,9 @@
 /**
  * SVU Community — Shared utilities and cross-page helpers
  */
+import { getCsrfToken, getCsrfHeaderName } from './csrf.js';
 import { getDb } from './config.js';
-import { escapeHtml } from './core.js';
+import { escapeHtml, encryptedGet } from './core.js';
 
 let coursesData = null;
 let coursesFailed = false;
@@ -21,6 +22,12 @@ const log = {
 
 const MAX_JSON_SIZE = 10 * 1024 * 1024;
 
+function getCsrfHeaders() {
+  return {
+    'X-CSRF-Token': getCsrfToken(),
+  };
+}
+
 async function loadSVUCourses() {
   if (coursesData) return coursesData;
   if (coursesFailed) return {};
@@ -28,7 +35,9 @@ async function loadSVUCourses() {
   const paths = ['./svu_courses.json', 'svu_courses.json'];
   for (const path of paths) {
     try {
-      const res = await fetch(path);
+      const res = await fetch(path, {
+        headers: getCsrfHeaders(),
+      });
       if (!res.ok) continue;
 
       const contentLength = res.headers.get('content-length');
@@ -150,7 +159,7 @@ function timeAgo(dateStr) {
 }
 
 function getCurrentLang() {
-  return document.documentElement.lang || localStorage.getItem('svu_lang') || 'ar';
+  return document.documentElement.lang || encryptedGet('svu_lang') || 'ar';
 }
 
 async function enrichCreators(groups, db) {

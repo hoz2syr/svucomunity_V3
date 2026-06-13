@@ -44,10 +44,15 @@ export const THEME_CONFIG = Object.freeze({
 // Supabase bootstrap
 // ════════════════════════════════════════════════════════════════
 
+import { applyCsrfToSupabase, getCsrfToken } from './csrf.js';
+
 let supabaseClient = null;
 
 export function initSupabase() {
-  if (supabaseClient) return supabaseClient;
+  if (supabaseClient) {
+    applyCsrfToSupabase(supabaseClient);
+    return supabaseClient;
+  }
 
   try {
     if (typeof window.supabase === 'undefined' || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -59,6 +64,7 @@ export function initSupabase() {
         headers: {
           'Accept': 'application/json',
           'X-Client-Info': 'svu-community-web-v2',
+          'X-CSRF-Token': getCsrfToken(),
         },
       },
       auth: {
@@ -67,6 +73,8 @@ export function initSupabase() {
         detectSessionInUrl: true,
       },
     });
+
+    applyCsrfToSupabase(supabaseClient);
 
     return supabaseClient;
   } catch (e) {

@@ -6,6 +6,80 @@ import { escapeHtml } from './js/modules/core.js';
 
 export { initializeTheme, applyTheme, getStoredTheme, toggleTheme, initLang, applyLanguage, log, getDb };
 
+function getPageName() {
+  const path = window.location.pathname;
+  if (path.includes('dashboard')) return 'dashboard';
+  if (path.includes('courses')) return 'courses';
+  return null;
+}
+
+function getPageModuleName(page) {
+  const map = {
+    dashboard: './js/modules/page-dashboard.js',
+    courses: './js/modules/page-courses.js',
+  };
+  return map[page] || null;
+}
+
+async function loadPageModule(page) {
+  const moduleName = getPageModuleName(page);
+  if (!moduleName) return;
+  try {
+    await import(moduleName);
+  } catch (err) {
+    log.error('Failed to load page module:', err);
+  }
+}
+
+function setupIntersectionObserver() {
+  if (!('IntersectionObserver' in window)) return;
+  const lazyEls = document.querySelectorAll('[data-lazy-init]');
+  if (!lazyEls.length) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        if (el.dataset.lazyInit) {
+          el.dispatchEvent(new CustomEvent('lazy-content-visible'));
+          observer.unobserve(el);
+        }
+      }
+    });
+  }, { rootMargin: '200px 0px' });
+  lazyEls.forEach(el => observer.observe(el));
+}
+
+function lazyLoadImages() {
+  document.querySelectorAll('img:not([loading])').forEach(img => {
+    img.setAttribute('loading', 'lazy');
+  });
+}
+
+function applyThemeIconState() {
+  const stored = getStoredTheme?.() || 'system';
+  const btn = document.getElementById('themeToggleBtn');
+  if (!btn) return;
+  const sun = btn.querySelector('.icon-sun');
+  const moon = btn.querySelector('.icon-moon');
+  const system = btn.querySelector('.icon-system');
+  if (sun) sun.classList.toggle('hidden', stored !== 'light');
+  if (moon) moon.classList.toggle('hidden', stored !== 'dark');
+  if (system) system.classList.toggle('hidden', stored !== 'system');
+}
+
+function deferNonCriticalInit() {
+  const run = () => {
+    applyThemeIconState();
+    setupIntersectionObserver();
+    lazyLoadImages();
+  };
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(run);
+  } else {
+    setTimeout(run, 1);
+  }
+}
+
 function updateWelcomeText(name) {
   const welcomeName = escapeHtml(name);
   const existing = document.getElementById('welcomeText');
@@ -97,16 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLangToggle();
   setupForgotPasswordModal();
 
-  const stored = getStoredTheme?.() || 'system';
-  const btn = document.getElementById('themeToggleBtn');
-  if (btn) {
-    const sun = btn.querySelector('.icon-sun');
-    const moon = btn.querySelector('.icon-moon');
-    const system = btn.querySelector('.icon-system');
-    if (sun) sun.classList.toggle('hidden', stored !== 'light');
-    if (moon) moon.classList.toggle('hidden', stored !== 'dark');
-    if (system) system.classList.toggle('hidden', stored !== 'system');
+  const page = getPageName();
+  if (page) {
+    loadPageModule(page);
   }
+
+  deferNonCriticalInit();
 });
 
 window.addEventListener('svu-theme-change', (e) => {

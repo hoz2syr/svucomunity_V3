@@ -1,25 +1,211 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="لوحة تحكم مجتمع جامعة UUID الافتراضية" />
-    <meta name="theme-color" content="#0f3d8c" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="SVU Community - لوحة التحكم" />
-    <meta property="og:description" content="لوحة تحكم مجتمع جامعة UUID الافتراضية" />
-    <meta property="og:locale" content="ar_AR" />
-    <meta name="keywords" content="SVU Community، مجتمع جامعة UUID الافتراضية، تقنية المعلومات، جامعة عربية" />
-    <meta name="author" content="SVU Community" />
-    <meta property="og:image" content="/icon.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="SVU Community - لوحة التحكم" />
-    <meta name="twitter:description" content="لوحة تحكم مجتمع جامعة UUID الافتراضية" />
-    <title>SVU Community - لوحة التحكم</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/app.js"></script>
-  </body>
-</html>
+    <title>لوحة التحكم - SVU Community</title>
+    <meta name="description" content="لوحة التحكم الشخصية لمجتمع تقنية المعلومات" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
 
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="stylesheet" href="../../vendor/fonts/cairo.css" />
+    <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body class="min-h-screen bg-background text-white">
+    <a href="#dashboardContent" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl">تخطي إلى المحتوى الرئيسي</a>
+
+    <div id="loadingState" class="min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-secondary-400" data-i18n="loading">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <div id="dashboardContent" class="hidden">
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-surface/80 backdrop-blur-xl border-l border-white/10 z-40 transform transition-transform duration-300 translate-x-0" role="navigation" aria-label="القائمة الرئيسية">
+        <div class="p-6 flex items-center gap-3">
+            <img src="/icon.svg" alt="" class="w-10 h-10" aria-hidden="true" />
+            <span class="text-xl font-bold gradient-text">SVU Community</span>
+        </div>
+        <nav class="px-4 space-y-1">
+            <a href="#dashboard" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl text-white bg-primary-500/20" data-page="dashboard">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m7-7l4 4 4-4M5 10h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10z"/></svg>
+                <span data-i18n="dashboard">لوحة التحكم</span>
+            </a>
+            <a href="#courses" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-secondary-300 hover:bg-white/5" data-page="courses">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 4 6.253v13C4.832 18.477 6.418 18 8 18s3.168.477 4 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span data-i18n="courses">المقررات</span>
+            </a>
+            <a href="#schedule" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-secondary-300 hover:bg-white/5" data-page="schedule">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span data-i18n="schedule">الجدول</span>
+            </a>
+            <a href="#groups" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-secondary-300 hover:bg-white/5" data-page="groups">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span data-i18n="studyGroups">المجموعات</span>
+            </a>
+            <a href="#resources" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-secondary-300 hover:bg-white/5" data-page="resources">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                <span data-i18n="resources">الموارد</span>
+            </a>
+        </nav>
+        <div class="absolute bottom-4 left-4 right-4 space-y-1">
+            <a href="#" id="adminLink" class="hidden nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-secondary-300 hover:bg-white/5">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span data-i18n="adminPanel">لوحة الإدارة</span>
+            </a>
+            <button id="logoutBtn" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition">
+                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span data-i18n="logout">تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="mr-64 p-8">
+        <!-- Header / User Info -->
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold" data-i18n="welcomeBack">مرحباً بعودتك</h1>
+                <p class="text-secondary-400 mt-1" id="headerUserEmail">user@example.com</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="themeToggleBtn" class="p-2 rounded-xl glass hover:bg-white/10 transition" aria-label="Toggle theme">
+                    <svg aria-hidden="true" class="icon-sun w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg aria-hidden="true" class="icon-moon w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    <svg aria-hidden="true" class="icon-system w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z"/></svg>
+                </button>
+                <button id="langToggleBtn" class="p-2 rounded-xl glass hover:bg-white/10 transition font-bold text-sm" aria-label="Switch language">EN</button>
+            </div>
+        </header>
+
+        <!-- User Info Card -->
+        <section class="glass rounded-2xl p-6 border border-white/10 mb-8" id="userInfoCard">
+            <div class="flex items-center gap-5">
+                <div class="w-14 h-14 rounded-full bg-primary-500/20 flex items-center justify-center">
+                    <span id="userInitial" class="text-2xl font-bold text-primary-400">م</span>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold" id="userFirstName">مستخدم</h2>
+                    <p class="text-secondary-400 text-sm" id="userEmail">user@example.com</p>
+                    <p class="text-secondary-500 text-xs mt-0.5" id="userUsername">@username</p>
+                    <p class="text-secondary-500 text-xs" id="userMajor"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="statsGrid">
+            <div class="stat-card glass rounded-2xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-500/20 flex items-center justify-center">
+                        <svg aria-hidden="true" class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 4 6.253v13C4.832 18.477 6.418 18 8 18s3.168.477 4 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <span class="text-xs text-secondary-400" data-i18n="enrolledCourses">المقررات المسجلة</span>
+                </div>
+                <p class="text-3xl font-bold" id="statCourses">--</p>
+            </div>
+            <div class="stat-card glass rounded-2xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <svg aria-hidden="true" class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <span class="text-xs text-secondary-400" data-i18n="weeklySchedule">جدول الأسبوع</span>
+                </div>
+                <p class="text-3xl font-bold" id="statSchedule">--</p>
+            </div>
+            <div class="stat-card glass rounded-2xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                        <svg aria-hidden="true" class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <span class="text-xs text-secondary-400" data-i18n="studyGroups">مجموعات دراسية</span>
+                </div>
+                <p class="text-3xl font-bold" id="statGroups">--</p>
+            </div>
+            <div class="stat-card glass rounded-2xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                        <svg aria-hidden="true" class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <span class="text-xs text-secondary-400" data-i18n="resourcesShared">موارد مشتركة</span>
+                </div>
+                <p class="text-3xl font-bold" id="statResources">--</p>
+            </div>
+        </section>
+
+        <!-- Welcome Card -->
+        <section class="glass rounded-2xl p-8 border border-white/10 mb-8">
+            <h2 class="text-2xl font-bold mb-2" data-i18n="readyToLearn">جاهز للتعلم؟</h2>
+            <p class="text-secondary-400 mb-6" data-i18n="dashboardSubtitle">تابع مقرراتك، جدول محاضراتك، وتعاون مع زملائك في مكان واحد.</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="#courses" class="px-6 py-3 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-semibold transition inline-flex items-center gap-2">
+                    <span data-i18n="browseCourses">تصفح المقررات</span>
+                    <svg aria-hidden="true" class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </a>
+                <a href="#schedule" class="px-6 py-3 glass hover:bg-white/10 text-white rounded-xl font-semibold transition border border-white/20 inline-flex items-center gap-2">
+                    <span data-i18n="viewSchedule">عرض الجدول</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="glass rounded-2xl p-8 border border-white/10 mb-8" id="recentActivity">
+            <h2 class="text-2xl font-bold mb-6" data-i18n="recentActivity">النشاط الأخير</h2>
+            <div class="space-y-4" id="activityList">
+                <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg aria-hidden="true" class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 4 6.253v13C4.832 18.477 6.418 18 8 18s3.168.477 4 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium" data-i18n="activityWelcome">مرحباً بك في لوحة التحكم</p>
+                        <p class="text-secondary-400 text-sm mt-1" data-i18n="activityWelcomeDesc">ابدي استكشاف المقررات والموارد المتاحة</p>
+                    </div>
+                    <span class="text-xs text-secondary-500 whitespace-nowrap">الآن</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6" id="quickLinks">
+            <a href="#courses" class="quick-link glass rounded-2xl p-6 border border-white/10 hover:border-primary-500/50 transition group">
+                <div class="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <svg aria-hidden="true" class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 4 6.253v13C4.832 18.477 6.418 18 8 18s3.168.477 4 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <h3 class="font-bold text-lg mb-1" data-i18n="coursesTitle">المقررات</h3>
+                <p class="text-secondary-400 text-sm" data-i18n="coursesDesc">عرض جميع المقررات المتاحة والمواد الدراسية</p>
+            </a>
+            <a href="#groups" class="quick-link glass rounded-2xl p-6 border border-white/10 hover:border-green-500/50 transition group">
+                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <svg aria-hidden="true" class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <h3 class="font-bold text-lg mb-1" data-i18n="groupsTitle">المجموعات الدراسية</h3>
+                <p class="text-secondary-400 text-sm" data-i18n="groupsDesc">انضم إلى مجموعات دراسية وتعاون مع زملائك</p>
+            </a>
+            <a href="#resources" class="quick-link glass rounded-2xl p-6 border border-white/10 hover:border-yellow-500/50 transition group">
+                <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <svg aria-hidden="true" class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="font-bold text-lg mb-1" data-i18n="resourcesTitle">الموارد</h3>
+                <p class="text-secondary-400 text-sm" data-i18n="resourcesDesc">ملخصات، امتحانات، وملاحظات مشتركة</p>
+            </a>
+        </section>
+    </main>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4"
+         style="min-width: 250px;" role="status" aria-live="polite" aria-atomic="true">
+        <div id="toastContent" class="text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium"></div>
+    </div>
+
+    <script type="module" src="../../env.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/module/index.js"></script>
+    <script type="module" src="../js/modules/window-shim.js"></script>
+    <script type="module" src="../js/modules/config.js"></script>
+    <script type="module" src="../js/modules/core.js"></script>
+    <script type="module" src="../js/modules/shared.js"></script>
+    <script type="module" src="../js/modules/i18n.js"></script>
+    <script type="module" src="../js/modules/page-dashboard.js"></script>
+</body>
+</html>

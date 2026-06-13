@@ -2,7 +2,12 @@ import { iteData } from '../data/ite_data';
 import type { Course, SpecializationCourse, SpecializationId, CourseCode } from '../types';
 import { MAX_AVAILABLE_DEPTH } from './constants';
 
+// Memory guard: course cache is rebuilt once at startup, but the cache object
+// itself remains allocated for the app lifetime. With large ITE datasets and
+// future runtime growth, cap its size and evict oldest entries to prevent
+// unbounded memory consumption.
 const courseCache = new Map<CourseCode, Course | SpecializationCourse>();
+const MAX_COURSE_CACHE_SIZE = 100;
 const coursesByPrereq = new Map<CourseCode, CourseCode[]>();
 
 const addPrereqEntry = (code: CourseCode, prereq: CourseCode) => {
@@ -27,6 +32,16 @@ const populateCourseCache = (): void => {
             });
         });
     });
+
+    if (courseCache.size > MAX_COURSE_CACHE_SIZE) {
+        const excess = courseCache.size - MAX_COURSE_CACHE_SIZE;
+        let removed = 0;
+        for (const key of courseCache.keys()) {
+            courseCache.delete(key);
+            removed++;
+            if (removed >= excess) break;
+        }
+    }
 };
 
 const buildSupportingIndexes = (): void => {

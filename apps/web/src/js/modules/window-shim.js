@@ -1,7 +1,7 @@
 import { isLoggedIn, getCurrentUser, saveUserSession, clearUserSession, updateUserData } from './core.js';
 import { initSupabase, getDb, verifySessionWithServer } from './config.js';
 import { showToast, openModal, closeModal, logout, getCategoryLabel, getYearLabel, getCurrentLang, COUNTRIES } from './shared.js';
-import { applyLanguage, initLang } from './i18n.js';
+import { applyLanguage, initLang, t } from './i18n.js';
 
 window.isLoggedIn = isLoggedIn;
 window.getCurrentUser = getCurrentUser;
@@ -20,7 +20,7 @@ window.getYearLabel = getYearLabel;
 window.getCurrentLang = getCurrentLang;
 window.COUNTRIES = COUNTRIES;
 window.i18n = {
-  t: (key) => document.documentElement.getAttribute('data-i18n-' + key) || key,
+  t,
   getLang: getCurrentLang,
   toggleLang: applyLanguage,
   initLang,

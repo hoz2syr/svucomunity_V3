@@ -1,0 +1,374 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Settings as SettingsIcon,
+  Save,
+  RotateCcw,
+  Globe,
+  Shield,
+  Wrench,
+  Sparkles,
+} from 'lucide-react';
+import type {
+  AppSettings,
+  SettingsUpdatePayload,
+  ConnectionTestResult,
+} from '@/services/api';
+import {
+  fetchSettings,
+  updateSettings,
+  testSupabaseConnection,
+  DEFAULT_SETTINGS,
+} from '@/services/api';
+
+export function SettingsPanel() {
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [dirty, setDirty] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastTest, setLastTest] = useState<ConnectionTestResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchSettings()
+      .then((s) => {
+        if (!cancelled) {
+          setSettings(s);
+          setDirty(false);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load settings');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleChange = useCallback(
+    <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+      setSettings((prev) => ({ ...prev, [key]: value }));
+      setDirty(true);
+      setError(null);
+    },
+    [],
+  );
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await updateSettings(settings);
+      setSettings(updated);
+      setDirty(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  }, [settings]);
+
+  const handleReset = useCallback(async () => {
+    if (!window.confirm('Reset all settings to defaults?')) {
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const reset = await updateSettings(DEFAULT_SETTINGS);
+      setSettings(reset);
+      setDirty(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to reset settings');
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
+  const handleTestConnection = useCallback(async () => {
+    setTesting(true);
+    setError(null);
+    try {
+      const result = await testSupabaseConnection();
+      setLastTest(result);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Connection test failed');
+    } finally {
+      setTesting(false);
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+          <p className="text-sm text-slate-400">Loading settings…</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="settings-panel mx-auto max-w-3xl">
+      <div className="mb-8 flex items-center gap-3">
+        <div className="rounded-xl bg-indigo-600/10 p-2.5">
+          <SettingsIcon className="h-6 w-6 text-indigo-400" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <p className="text-sm text-slate-400">
+            Manage application configuration and preferences
+          </p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-6">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <Globe className="h-5 w-5 text-indigo-400" />
+            <h2 className="text-lg font-semibold text-white">
+              Application Info
+            </h2>
+          </div>
+          <div className="space-y-4">
+            <Field label="Site Title" required>
+              <input
+                type="text"
+                value={settings.siteName}
+                onChange={(e) => handleChange('siteName', e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
+                placeholder="Enter site title"
+              />
+            </Field>
+            <Field label="Description">
+              <textarea
+                value={settings.siteDescription}
+                onChange={(e) => handleChange('siteDescription', e.target.value)}
+                rows={3}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
+                placeholder="Describe your application"
+              />
+            </Field>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <Sparkles className="h-5 w-5 text-indigo-400" />
+            <h2 className="text-lg font-semibold text-white">Theme</h2>
+          </div>
+          <Field label="Default Theme">
+            <div className="flex gap-3">
+              {(['light', 'dark', 'system'] as const).map((theme) => (
+                <button
+                  key={theme}
+                  type="button"
+                  onClick={() => handleChange('defaultTheme', theme)}
+                  className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+                    settings.defaultTheme === theme
+                      ? 'border-indigo-500 bg-indigo-600/20 text-indigo-200'
+                      : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                </button>
+              ))}
+            </div>
+          </Field>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <Shield className="h-5 w-5 text-indigo-400" />
+            <h2 className="text-lg font-semibold text-white">Registration</h2>
+          </div>
+          <ToggleField
+            label="Allow New Registrations"
+            description="Users can create new accounts when enabled"
+            checked={settings.allowNewRegistrations}
+            onChange={(checked) => handleChange('allowNewRegistrations', checked)}
+          />
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <Wrench className="h-5 w-5 text-amber-400" />
+            <h2 className="text-lg font-semibold text-white">Maintenance</h2>
+          </div>
+          <ToggleField
+            label="Maintenance Mode"
+            description="Site will show a maintenance page to visitors"
+            checked={settings.maintenanceMode}
+            warning
+            onChange={(checked) => handleChange('maintenanceMode', checked)}
+          />
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <SettingsIcon className="h-5 w-5 text-indigo-400" />
+            <h2 className="text-lg font-semibold text-white">
+              Supabase Connection
+            </h2>
+          </div>
+          <p className="mb-4 text-sm text-slate-400">
+            Verify that the application can reach your Supabase instance.
+          </p>
+          <button
+            type="button"
+            onClick={handleTestConnection}
+            disabled={testing}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+          >
+            {testing ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Testing…
+              </>
+            ) : (
+              <>
+                <Wrench className="h-4 w-4" />
+                Test Connection
+              </>
+            )}
+          </button>
+          {lastTest && (
+            <ConnectionResult result={lastTest} />
+          )}
+        </section>
+      </div>
+
+      <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-6">
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={saving || !dirty}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-slate-300 hover:text-white disabled:opacity-50"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reset
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || !dirty}
+          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+        >
+          {saving ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Saving…
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4" />
+              Save Changes
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-medium text-slate-300">
+        {label}
+        {required && <span className="ml-1 text-indigo-400">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function ToggleField({
+  label,
+  description,
+  checked,
+  onChange,
+  warning,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  warning?: boolean;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p
+          className={`text-sm font-medium ${
+            warning && checked ? 'text-amber-300' : 'text-white'
+          }`}
+        >
+          {label}
+        </p>
+        {description && (
+          <p className="mt-0.5 text-sm text-slate-400">{description}</p>
+        )}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-8 min-w-[3rem] shrink-0 items-center rounded-full px-0.5 transition-colors ${
+          checked ? 'bg-indigo-600' : 'bg-white/10'
+        }`}
+      >
+        <span
+          className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
+            checked ? 'translate-x-4' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
+function ConnectionResult({ result }: { result: ConnectionTestResult }) {
+  return (
+    <div
+      className={`mt-4 flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${
+        result.success
+          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+          : 'border-red-500/30 bg-red-500/10 text-red-300'
+      }`}
+    >
+      <span>
+        {result.success ? 'Connection successful' : 'Connection failed'}
+      </span>
+      <span className="text-slate-400">
+        {result.latency}ms · {new Date(result.timestamp).toLocaleTimeString()}
+      </span>
+    </div>
+  );
+}

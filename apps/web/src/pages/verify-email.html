@@ -18,9 +18,7 @@
     <meta name="theme-color" content="#0f172a">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
     
-    <script src="../../vendor/supabase.min.js"></script>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="alternate icon" href="/icon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link rel="alternate icon" href="/icon.ico">
     <link rel="stylesheet" href="../../vendor/fonts/cairo.css">
@@ -68,9 +66,6 @@
             <a href="../../index.html" class="inline-flex items-center gap-3 mb-4 group">
                 <img src="/icon.svg" alt="SVU Community" class="w-15 h-15 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
             </a>
-            <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
-            <p class="text-secondary-400 text-sm mt-2" data-i18n="verifyEmailTitle">تفعيل البريد الإلكتروني</p>
-        </div>
             <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
             <p class="text-secondary-400 text-sm mt-2" data-i18n="verifyEmailTitle">تفعيل البريد الإلكتروني</p>
         </div>
@@ -134,12 +129,12 @@
         <div id="toastContent" class="text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium"></div>
     </div>
 
-    <script src="../../env.js"></script>
-    <script src="../../js/window-shim.js"></script>
-    <script src="../../js/config.js"></script>
-    <script src="../../js/core.js"></script>
-    <script src="../../js/shared.js"></script>
-    <script src="../../js/i18n.js"></script>
-    <script src="../../js/page-verify-email.js"></script>
+    <script type="module" src="../../env.js"></script>
+    <script type="module" src="../js/modules/window-shim.js"></script>
+    <script type="module" src="../js/modules/config.js"></script>
+    <script type="module" src="../js/modules/core.js"></script>
+    <script type="module" src="../js/modules/shared.js"></script>
+    <script type="module" src="../js/modules/i18n.js"></script>
+    <script type="module" src="../js/modules/page-verify-email.js"></script>
 </body>
 </html>

@@ -107,7 +107,19 @@ async function handleLoginSubmit(e) {
     const db = getDb();
     if (!db) throw new Error('تعذر الاتصال بالخادم');
 
-    const userEmail = identifier;
+    let userEmail = identifier;
+    if (!identifier.includes('@')) {
+      const { data: profile, error: profileError } = await db
+        .from('profiles')
+        .select('email')
+        .eq('username', identifier)
+        .single();
+      if (profileError || !profile?.email) {
+        showToast('المستخدم غير موجود', 'error');
+        return;
+      }
+      userEmail = profile.email;
+    }
 
     const { data: authData, error: authError } = await db.auth.signInWithPassword({
       email: userEmail,

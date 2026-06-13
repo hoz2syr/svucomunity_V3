@@ -28,7 +28,17 @@ const resourceTypeColors: Record<string, string> = {
 };
 
 function isValidUrl(value: string): boolean {
+  // Block javascript: URLs — execute arbitrary script in the page context (XSS)
   if (/^\s*javascript\s*:/i.test(value)) return false;
+  // Block data: URLs — can embed HTML/script content directly (XSS via data:text/html,...)
+  if (/^\s*data\s*:/i.test(value)) return false;
+  // Block blob: URLs — can reference blob objects that execute script (potential XSS)
+  if (/^\s*blob\s*:/i.test(value)) return false;
+  // Block file: URLs — allows access to local filesystem (information disclosure / SSRF)
+  if (/^\s*file\s*:/i.test(value)) return false;
+  // Block vbscript: URLs — executes VBScript code in legacy browsers (XSS)
+  if (/^\s*vbscript\s*:/i.test(value)) return false;
+
   try {
     const parsed = new URL(value);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:';

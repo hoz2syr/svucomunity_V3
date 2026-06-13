@@ -1,34 +1,30 @@
 import { LayoutDashboard, Users, BookOpen, Settings } from 'lucide-react';
-
-interface SidebarProps {
-  activePage: string;
-  onNavigate: (page: string) => void;
-}
+import { Link, isActive } from '../shared/routing';
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
-  { id: 'users', label: 'المستخدمون', icon: Users },
-  { id: 'courses', label: 'المقررات', icon: BookOpen },
-  { id: 'settings', label: 'الإعدادات', icon: Settings },
+  { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard, path: '/dashboard' },
+  { id: 'users', label: 'المستخدمون', icon: Users, path: '/users' },
+  { id: 'courses', label: 'المقررات', icon: BookOpen, path: '/courses' },
+  { id: 'settings', label: 'الإعدادات', icon: Settings, path: '/settings' },
 ] as const;
 
-export function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export function Sidebar() {
   return (
     <aside className="sidebar">
       <nav className="flex flex-col gap-1 p-4">
-        {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-          <button
+        {NAV_ITEMS.map(({ id, label, icon: Icon, path }) => (
+          <Link
             key={id}
-            onClick={() => onNavigate(id)}
+            to={path}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-              activePage === id
+              isActive(path)
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
                 : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
             <Icon className="w-5 h-5" />
             {label}
-          </button>
+          </Link>
         ))}
       </nav>
     </aside>

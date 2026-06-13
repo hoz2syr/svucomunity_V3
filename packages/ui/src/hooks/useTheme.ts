@@ -25,11 +25,10 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => readStoredTheme());
   setThemeRef = setTheme;
 
-  useEffect(() => {
-    const resolved = theme === 'system' ? resolveSystemTheme() : theme;
-    applyResolvedTheme(resolved);
-  }, [theme]);
-
+  // useTheme depends on applyTheme for both localStorage and DOM sync.
+  // Removed the duplicate applyResolvedTheme effect: applyTheme (below) already
+  // resolves the theme value and calls applyResolvedTheme internally, so a
+  // second effect on [theme] caused redundant document writes and storage I/O.
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);

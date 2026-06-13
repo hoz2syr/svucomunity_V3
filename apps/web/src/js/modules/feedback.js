@@ -326,7 +326,14 @@ function saveToSupabase(data) {
     if (!db) return;
 
     const currentUser = safeStorageGet('svu_user_data');
-    const userId = currentUser ? JSON.parse(currentUser).id : null;
+    let userId = null;
+    if (currentUser) {
+      try {
+        userId = JSON.parse(currentUser).id;
+      } catch {
+        userId = null;
+      }
+    }
 
     db.from('feedback')
       .insert([{

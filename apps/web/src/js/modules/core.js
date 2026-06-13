@@ -8,8 +8,69 @@ import {
   AUTH_CONFIG as _AUTH_CONFIG,
   THEME_CONFIG as _THEME_CONFIG,
 } from './config.js';
+import { encryptedSet, encryptedGet, encryptedRemove } from './encrypted-storage.js';
+import { getCsrfToken, getCsrfHeaderName, applyCsrfToSupabase, validateCsrfFromEvent } from './csrf.js';
 
-// Freeze configs to prevent accidental mutation
+let Sentry = null;
+try {
+  Sentry = await import('@sentry/browser');
+} catch {
+  // @sentry/browser not installed; using fallback error handler
+}
+
+if (Sentry) {
+  Sentry.init({
+    dsn: 'https://examplePublicKey@o12345.ingest.sentry.io/12345',
+    environment: import.meta.env?.VITE_SVU_DEBUG ? 'development' : 'production',
+    tracesSampleRate: 0.1,
+    beforeSend(event, hint) {
+      const sensitive = ['email', 'password', 'csrf_token', 'token', 'secret'];
+      const walk = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        for (const key of Object.keys(obj)) {
+          if (sensitive.includes(key)) {
+            obj[key] = '[REDACTED]';
+          } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+            walk(obj[key]);
+          }
+        }
+      };
+      walk(event.request?.data);
+      walk(event.extra);
+      if (event.user && typeof event.user === 'object') {
+        delete event.user.email;
+        delete event.user.ip_address;
+      }
+      return event;
+    },
+  });
+}
+
+window.__svuSentryAvailable = !!Sentry;
+
+window.onerror = function (message, source, lineno, colno, error) {
+  if (!window.__svuSentryAvailable) {
+    console.error('[GlobalError]', message, source, lineno, colno, error);
+  }
+  if (typeof showToast === 'function') {
+    showToast('An unexpected error occurred', 'error');
+  }
+};
+
+window.addEventListener('unhandledrejection', function (event) {
+  if (!window.__svuSentryAvailable) {
+    console.error('[UnhandledRejection]', event.reason);
+  }
+});
+
+export { encryptedSet, encryptedGet, encryptedRemove };
+
+// Initialize CSRF protection for the current session
+export function initializeCsrf(db) {
+  getCsrfToken();
+  if (db) applyCsrfToSupabase(db);
+}
+
 export const AUTH_CONFIG = Object.freeze({ ..._AUTH_CONFIG });
 export const THEME_CONFIG = Object.freeze({ ..._THEME_CONFIG });
 
@@ -80,7 +141,7 @@ export async function refreshUserState(db) {
 
 function safeStorageGet(key) {
   try {
-    return localStorage.getItem(key);
+    return encryptedGet(key);
   } catch {
     return null;
   }
@@ -88,7 +149,7 @@ function safeStorageGet(key) {
 
 function safeStorageSet(key, value) {
   try {
-    localStorage.setItem(key, value);
+    encryptedSet(key, value);
   } catch {
     // storage unavailable
   }
@@ -96,7 +157,7 @@ function safeStorageSet(key, value) {
 
 function safeStorageRemove(key) {
   try {
-    localStorage.removeItem(key);
+    encryptedRemove(key);
   } catch {
     // storage unavailable
   }
@@ -304,12 +365,6 @@ function toggleTheme() {
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 export {
-  getCurrentUser,
-  saveUserSession,
-  isLoggedIn,
-  clearUserSession,
-  updateUserData,
-  verifySession,
   safeStorageGet,
   safeStorageSet,
   safeStorageRemove,
@@ -322,4 +377,7 @@ export {
   toggleTheme,
   getStoredTheme,
   applyTheme,
+  getCsrfToken,
+  getCsrfHeaderName,
+  validateCsrfFromEvent,
 };

@@ -1,5 +1,5 @@
 {
-  "extends": "@svu-community/config/tsconfig/react",
+  "extends": "./tsconfig.base.json",
   "include": ["."],
   "exclude": ["node_modules", "dist"]
 }

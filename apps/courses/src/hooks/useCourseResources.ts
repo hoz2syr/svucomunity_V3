@@ -4,7 +4,7 @@
  * يتضمن منطق إعادة المحاولة مع تأخير أسى (retry + backoff)
  * ════════════════════════════════════════════════════════════════
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../services/supabase';
 
 export interface Resource {
@@ -27,8 +27,10 @@ export function useCourseResources(courseCode: string | null) {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const retryTimer = useRef<number | null>(null);
 
   const fetchResources = useCallback(async (code: string, retryCount = 0): Promise<void> => {
+    const controller = new AbortController();
     try {
       setLoading(true);
       setError(null);
@@ -41,13 +43,15 @@ export function useCourseResources(courseCode: string | null) {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
+      if (controller.signal.aborted) return;
 
       setResources(data ?? []);
     } catch (err) {
+      if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : 'فشل تحميل الموارد';
       console.error('[useCourseResources]', message, err);
       if (retryCount < 2) {
-        setTimeout(() => fetchResources(code, retryCount + 1), 2000 * (retryCount + 1));
+        retryTimer.current = window.setTimeout(() => fetchResources(code, retryCount + 1), 2000 * (retryCount + 1));
       } else {
         setError(message);
       }
@@ -57,6 +61,7 @@ export function useCourseResources(courseCode: string | null) {
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     if (!courseCode) {
       setResources([]);
       setError(null);
@@ -64,6 +69,11 @@ export function useCourseResources(courseCode: string | null) {
     }
 
     fetchResources(courseCode);
+    // AbortController cleanup prevents state updates after unmount
+    return () => {
+      controller.abort();
+      if (retryTimer.current) window.clearTimeout(retryTimer.current);
+    };
   }, [courseCode, fetchResources]);
 
   return {

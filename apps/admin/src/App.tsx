@@ -2,14 +2,22 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from './shared/layout/AdminLayout';
 import { Sidebar } from './shared/components/Sidebar';
 import { useTheme } from '@svu-community/ui';
+import DashboardPage from './features/dashboard/DashboardPage';
+import UsersPage from './features/users/UsersPage';
+import CoursesPage from './features/courses/CoursesPage';
+import SettingsPage from './features/settings/SettingsPage';
+import { useRoute, registerRoute } from './shared/routing';
 
-type AdminPage = 'dashboard' | 'users' | 'courses' | 'settings';
+registerRoute('/dashboard', DashboardPage);
+registerRoute('/users', UsersPage);
+registerRoute('/courses', CoursesPage);
+registerRoute('/settings', SettingsPage);
 
 function App() {
-  const [activePage, setActivePage] = useState<AdminPage>('dashboard');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { theme, setLight, setDark, setSystem } = useTheme();
+  const { isActive, navigate } = useRoute();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -68,65 +76,16 @@ function App() {
     );
   }
 
-  const renderPage = () => {
-    switch (activePage) {
-      case 'dashboard':
-        return <DashboardPage />;
-      case 'users':
-        return <UsersPage />;
-      case 'courses':
-        return <CoursesPage />;
-      case 'settings':
-        return <SettingsPage />;
-      default:
-        return <DashboardPage />;
-    }
-  };
+  const CurrentPage = useRoute().Component;
 
   return (
     <AdminLayout>
-      <Sidebar activePage={activePage} onNavigate={setActivePage} />
+      <Sidebar />
       <main className="content">
-        {renderPage()}
+        <CurrentPage />
       </main>
     </AdminLayout>
   );
 }
 
 export default App;
-
-function DashboardPage() {
-  return (
-    <div className="p-8" dir="rtl">
-      <h1 className="text-2xl font-bold text-white mb-6">لوحة التحكم</h1>
-      <p className="text-slate-400">مرحباً بك في لوحة تحكم الإدارة</p>
-    </div>
-  );
-}
-
-function UsersPage() {
-  return (
-    <div className="p-8" dir="rtl">
-      <h1 className="text-2xl font-bold text-white mb-6">إدارة المستخدمين</h1>
-      <p className="text-slate-400">قائمة المستخدمين المسجلين في المنصة</p>
-    </div>
-  );
-}
-
-function CoursesPage() {
-  return (
-    <div className="p-8" dir="rtl">
-      <h1 className="text-2xl font-bold text-white mb-6">إدارة المقررات</h1>
-      <p className="text-slate-400">إضافة وتعديل وحذف المقررات الدراسية</p>
-    </div>
-  );
-}
-
-function SettingsPage() {
-  return (
-    <div className="p-8" dir="rtl">
-      <h1 className="text-2xl font-bold text-white mb-6">الإعدادات</h1>
-      <p className="text-slate-400">إعدادات التطبيق والنظام</p>
-    </div>
-  );
-}

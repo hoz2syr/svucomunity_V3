@@ -1,10 +1,10 @@
 /**
  * Dashboard Page Logic
  */
-import { initializeTheme, isLoggedIn, getCurrentUser, getDb, verifySessionWithServer } from '../core.js';
-import { initSupabase } from '../config.js';
-import { showToast, logout } from '../shared.js';
-import { initLang } from '../i18n.js';
+import { initializeTheme, isLoggedIn, getCurrentUser } from './core.js';
+import { initSupabase, getDb, verifySessionWithServer } from './config.js';
+import { showToast, logout } from './shared.js';
+import { initLang } from './i18n.js';
 
 function hideLoadingState() {
   const el = document.getElementById('loadingState');

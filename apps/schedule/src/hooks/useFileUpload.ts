@@ -86,6 +86,12 @@ export function useFileUpload(
     try {
       const base64 = await fileToBase64(file);
 
+      // Prevent state update after unmount
+      if (controller.signal.aborted) {
+        onError('GEMINI_TIMEOUT: تجاوز الوقت المسموح لمعالجة الصورة.');
+        return;
+      }
+
       const result = await extractScheduleFromImage(base64, file.type, supabase, controller.signal);
       clearTimeout(timeoutId);
       onSuccess(result);
