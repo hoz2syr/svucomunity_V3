@@ -14,6 +14,8 @@ export type SupabaseCourse = {
   name_ar:     string | null;
   major:       string;
   description: string | null;
+  credits:     number;   // الساعات المعتمدة
+  semester:    number;   // رقم الفصل الدراسي
   is_active:   boolean;
   created_at:  string;   // ISO 8601
 };

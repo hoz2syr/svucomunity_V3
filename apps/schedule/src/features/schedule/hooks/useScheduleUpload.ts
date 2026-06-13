@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import type { ExtractionResult } from '@/schedule/services/types';
-import { extractScheduleFromImage } from '@/schedule/services/gemini';
-import { supabase } from '@/schedule/services/supabase';
+import type { ExtractionResult } from '../../../services/types';
+import { extractScheduleFromImage } from '../../../services/gemini';
+import { supabase } from '../../../services/supabase';
 
 interface UseScheduleUploadReturn {
   isUploading: boolean;

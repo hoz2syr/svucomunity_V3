@@ -5,7 +5,7 @@
  * ════════════════════════════════════════════════════════════════
  */
 import { useState, useCallback, useMemo } from 'react';
-import { useCourses, type SupabaseCourse } from './useCourses';
+import { useCourses, type Course } from './useCourses';
 
 const ALL_MAJORS = 'جميع التخصصات';
 
@@ -14,21 +14,21 @@ type ActiveTab = 'courses' | 'map';
 export interface CoursesAppState {
   activeTab: ActiveTab;
   selectedMajor: string;
-  selectedCourse: SupabaseCourse | null;
+  selectedCourse: Course | null;
 }
 
 export interface CoursesAppActions {
   setActiveTab: (tab: ActiveTab) => void;
   setSelectedMajor: (major: string) => void;
-  setSelectedCourse: (course: SupabaseCourse | null) => void;
+  setSelectedCourse: (course: Course | null) => void;
   refetchCourses: () => void;
 }
 
 export interface CoursesAppResult {
   state: CoursesAppState;
   actions: CoursesAppActions;
-  filteredCourses: SupabaseCourse[];
-  courses: SupabaseCourse[];
+  filteredCourses: Course[];
+  courses: Course[];
   majors: string[];
   loading: boolean;
   error: string | null;
@@ -40,7 +40,7 @@ export function useCoursesApp(): CoursesAppResult {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('courses');
   const [selectedMajor, setSelectedMajor] = useState(ALL_MAJORS);
-  const [selectedCourse, setSelectedCourse] = useState<SupabaseCourse | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const filteredCourses = useMemo(
     () =>

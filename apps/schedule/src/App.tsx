@@ -10,13 +10,22 @@ import { LandingPage } from '@/components/LandingPage';
 import { AppHeader } from '@/components/AppHeader';
 import { AppTabs } from '@/components/AppTabs';
 import { AuthLoader } from '@/components/AuthLoader';
+import type { User, Profile } from '@svu-community/types';
 
 const UploadTab = lazy(() => import('@/components/UploadTab').then(m => ({ default: m.UploadTab })));
 const ResultsTab = lazy(() => import('@/components/ResultsTab').then(m => ({ default: m.ResultsTab })));
 import type { ExtractionResult, Course } from '@/services/types';
 
+type AppUser = (User | Profile) & {
+  display_name?: string | null;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string | null;
+};
+
 export default function App() {
   const { user, isAuthReady, error, setError, signInWithGoogle, logout: authLogout } = useAuth();
+  const typedUser = (user as AppUser | null);
   const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null);
   const [activeTab, setActiveTab] = useState<'upload' | 'results'>('upload');
 
@@ -62,33 +71,33 @@ export default function App() {
   }, []);
 
   const handleJoinGroup = useCallback((groupId: string, currentMembers: string[]) => {
-    if (!user) return;
+    if (!typedUser) return;
     joinGroup({
       groupId,
-      userId: user.id,
+      userId: typedUser.id,
       currentMembers,
-      onError: (message) => setError(message),
+      onError: (message: string) => setError(message),
     });
-  }, [user, joinGroup, setError]);
+  }, [typedUser, joinGroup, setError]);
 
   const handleLeaveGroup = useCallback((groupId: string, currentMembers: string[]) => {
-    if (!user) return;
+    if (!typedUser) return;
     leaveGroup({
       groupId,
-      userId: user.id,
+      userId: typedUser.id,
       currentMembers,
-      onError: (message) => setError(message),
+      onError: (message: string) => setError(message),
     });
-  }, [user, leaveGroup, setError]);
+  }, [typedUser, leaveGroup, setError]);
 
   const handleCreateGroup = useCallback((course: Course) => {
-    if (!user) return;
+    if (!typedUser) return;
     createGroup({
       course,
-      userId: user.id,
-      onError: (message) => setError(message),
+      userId: typedUser.id,
+      onError: (message: string) => setError(message),
     });
-  }, [user, createGroup, setError]);
+  }, [typedUser, createGroup, setError]);
 
   const displayError = useMemo(() => error || fetchError, [error, fetchError]);
 
@@ -99,7 +108,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-        <AppHeader user={user} onLogin={handleLogin} onLogout={handleLogout} />
+        <AppHeader user={typedUser} onLogin={handleLogin} onLogout={handleLogout} />
 
         <main className="max-w-4xl mx-auto px-4 py-12">
           <AnimatePresence mode="wait">
@@ -132,7 +141,7 @@ export default function App() {
                       key="results"
                       extractionResult={extractionResult}
                       availableGroups={availableGroups}
-                      user={user}
+                       user={typedUser}
                       error={displayError}
                       isActionLoading={isAnyLoading}
                       onJoinGroup={handleJoinGroup}

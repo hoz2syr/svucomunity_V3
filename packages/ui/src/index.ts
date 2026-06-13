@@ -3,3 +3,4 @@ export {
 } from './utils';
 export { useTheme, applyTheme, getStoredTheme, toggleTheme } from './hooks/useTheme';
 export { useAuth } from './hooks/useAuth';
+export * from './components/ui';

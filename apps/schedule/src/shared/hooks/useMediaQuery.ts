@@ -14,8 +14,8 @@ export function useMediaQuery(): {
 } {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => {
     if (typeof window === 'undefined') return 'desktop';
-    if (window.innerWidth < BREAKPOINTS.tablet) return 'tablet';
     if (window.innerWidth < BREAKPOINTS.mobile) return 'mobile';
+    if (window.innerWidth < BREAKPOINTS.tablet) return 'tablet';
     return 'desktop';
   });
 

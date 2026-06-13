@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../services/supabase';
 import type { SupabaseCourse } from '../types';
 
-export { type SupabaseCourse as Course };
+export { type SupabaseCourse as Course } from '../types';
 
 interface UseCoursesResult {
   courses: SupabaseCourse[];

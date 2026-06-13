@@ -15,19 +15,19 @@ export default defineConfig({
     }),
   },
 
-  root: '.',
+  root: './apps/web',
   build: {
     outDir: 'dist',
     rollupOptions: {
       input: {
         main: './index.html',
         login: './src/pages/login.html',
-        'account-locked': './src/pages/account-locked.html',
         register: './src/pages/register.html',
         dashboard: './src/pages/dashboard.html',
         'verify-email': './src/pages/verify-email.html',
         'reset-password': './src/pages/reset-password.html',
       },
+      external: ['@sentry/browser'],
     },
     minify: 'esbuild',
     sourcemap: false,

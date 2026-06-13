@@ -1,5 +1,5 @@
 import { LayoutDashboard, Users, BookOpen, Settings } from 'lucide-react';
-import { Link, isActive } from '../shared/routing';
+import { Link, isActive } from '../routing';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard, path: '/dashboard' },

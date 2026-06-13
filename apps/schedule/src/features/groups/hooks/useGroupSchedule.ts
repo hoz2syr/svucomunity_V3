@@ -17,13 +17,13 @@ const PAGE_SIZE = 30;
 
 const toStudyGroup = (row: GroupRow): StudyGroup => ({
   id: row.id,
-  courseCode: row.course_code,
-  courseName: row.course_name,
+  course_code: row.course_code,
+  course_name: row.course_name,
   name: row.name,
   description: row.description ?? undefined,
-  creatorId: row.creator_id,
+  creator_id: row.creator_id,
   members: row.members,
-  createdAt: row.created_at,
+  created_at: row.created_at,
 });
 
 interface UseGroupScheduleReturn {
@@ -53,7 +53,7 @@ export function useStudyGroups(): UseGroupScheduleReturn {
 
       try {
         const { data, error: fetchError } = await supabase
-          .from('groups')
+          .from('study_groups')
           .select('id,name,description,members,created_at,course_code,course_name,creator_id')
           .order('created_at', { ascending: false })
           .range(currentOffset, currentOffset + pageSize - 1);

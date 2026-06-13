@@ -1,9 +1,10 @@
+import React, { useCallback } from 'react';
 import { useCoursesApp } from './hooks/useCoursesApp';
 import { CourseGrid } from './components/course-grid';
 import { MajorSelector } from './components/major-selector';
 import { CourseModal } from './components/course-modal';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import SkeletonGrid from './components/course-grid/SkeletonGrid';
+import { SkeletonGrid } from './components/course-grid/SkeletonGrid';
 import InteractiveMap from './components/interactive-map/InteractiveMap';
 import { Header, FilterBar } from './components/layout';
 import { GitBranch, BookOpen } from 'lucide-react';
@@ -11,7 +12,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 
 const ALL_MAJORS = 'جميع التخصصات';
 
-export { type SupabaseCourse } from './hooks/useCourses';
+export type { SupabaseCourse } from './types';
 
 export default function App() {
   const {
@@ -26,6 +27,10 @@ export default function App() {
 
   const { activeTab, selectedMajor, selectedCourse } = state;
   const { setActiveTab, setSelectedMajor, setSelectedCourse, refetchCourses } = actions;
+
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value as 'courses' | 'map');
+  }, [setActiveTab]);
 
   const getTabTriggerClass = (tabValue: string) =>
     `flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${
@@ -45,7 +50,7 @@ export default function App() {
         <div className="relative">
           <Header />
 
-          <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="max-w-7xl mx-auto">
+          <Tabs.Root value={activeTab} onValueChange={handleTabChange} className="max-w-7xl mx-auto">
             <Tabs.List aria-describedby="tabs-desc" className="flex gap-1 px-6 pt-6">
               <span id="tabs-desc" className="sr-only">
                 تنقل بين المقررات الدراسية والمخطط التفاعلي

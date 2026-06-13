@@ -1,41 +1,13 @@
 /// <reference types="vite/client" />
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import type { Profile } from '@svu-community/types';
+import type { Session, User as SupabaseUser, SupabaseClient } from '@supabase/supabase-js';
+import type { Profile, User } from '@svu-community/types';
 
-interface SupabaseClient {
-  auth: {
-    getSession: () => Promise<{ data: { session: Session | null } }>;
-    onAuthStateChange: (callback: (event: string, session: Session | null) => void) => {
-      data: { subscription: { unsubscribe: () => void } };
-    };
-    signInWithPassword: (credentials: { email: string; password: string }) => Promise<{
-      data: { user: User; session: Session };
-      error: Error | null;
-    }>;
-    signInWithOAuth: (credentials: { provider: string; options: { redirectTo: string } }) => Promise<{
-      data: { url: string | null };
-      error: Error | null;
-    }>;
-    signOut: () => Promise<{ error: Error | null }>;
-    signUp: (credentials: { email: string; password: string }) => Promise<{
-      data: { user: User; session: Session | null };
-      error: Error | null;
-    }>;
-    resetPasswordForEmail: (email: string) => Promise<{ data: {}; error: Error | null }>;
-  };
-  from: (table: string) => {
-    select: (columns: string) => {
-      eq: (column: string, value: string) => {
-        single: () => Promise<{ data: Profile | null; error: Error | null }>;
-      };
-    };
-  };
-}
+type AuthUser = Profile | SupabaseUser;
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

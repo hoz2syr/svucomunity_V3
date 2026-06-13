@@ -12,7 +12,7 @@ const ARABIC_MONTHS = [
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
 
-const ARABIC_DAYS = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+const ARABIC_DAYS = ['سبت', 'أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة'];
 
 export function Calendar({ events, currentMonth, onMonthChange }: CalendarProps) {
   const year = currentMonth.getFullYear();
@@ -21,7 +21,8 @@ export function Calendar({ events, currentMonth, onMonthChange }: CalendarProps)
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const daysInMonth = lastDayOfMonth.getDate();
-  const startDayOfWeek = firstDayOfMonth.getDay();
+  const jsDayOfWeek = firstDayOfMonth.getDay();
+  const startDayOfWeek = (jsDayOfWeek + 1) % 7;
 
   const prevMonth = () => {
     onMonthChange(new Date(year, month - 1, 1));

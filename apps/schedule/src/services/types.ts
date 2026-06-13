@@ -105,3 +105,46 @@ export type Database = {
     };
   };
 };
+
+export interface UseGroupsOptions {
+  courseCodes: string[];
+  enabled: boolean;
+}
+
+export interface UseGroupsReturn {
+  availableGroups: Record<string, StudyGroup[]>;
+  fetchError: string | null;
+  hasMore: Record<string, boolean>;
+  isLoadingMore: Record<string, boolean>;
+  loadMore: (courseCode: string) => Promise<void>;
+}
+
+export interface JoinGroupOptions {
+  groupId: string;
+  userId: string;
+  currentMembers: string[];
+  onError: (message: string) => void;
+}
+
+export interface LeaveGroupOptions {
+  groupId: string;
+  userId: string;
+  currentMembers: string[];
+  onError: (message: string) => void;
+}
+
+export interface CreateGroupOptions {
+  course: Course;
+  userId: string;
+  onError: (message: string) => void;
+}
+
+export interface UseGroupActionsReturn {
+  joinGroup: (options: JoinGroupOptions) => Promise<void>;
+  leaveGroup: (options: LeaveGroupOptions) => Promise<void>;
+  createGroup: (options: CreateGroupOptions) => Promise<void>;
+  isAnyLoading: boolean;
+  isJoining: boolean;
+  isLeaving: boolean;
+  isCreating: boolean;
+}

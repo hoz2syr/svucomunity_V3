@@ -3,7 +3,7 @@
  */
 import { escapeHtml, clearUserSession, saveUserSession, getCurrentUser, AUTH_CONFIG, handleLoginError } from './core.js';
 import { verifySessionWithServer, getDb } from './config.js';
-import { showToast, openModal, closeModal } from './shared.js';
+import { showToast } from './shared.js';
 
 const EYE_VISIBLE =
   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
@@ -26,14 +26,6 @@ function togglePassword() {
   passwordVisible = !passwordVisible;
   input.type = passwordVisible ? 'text' : 'password';
   updatePasswordIcon();
-}
-
-function hideForgotPassword() {
-  const modal = document.getElementById('forgotPasswordModal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
 }
 
 async function checkExistingSession() {
@@ -76,16 +68,16 @@ async function handleLoginSubmit(e) {
   e.preventDefault();
 
   const btn = document.getElementById('loginBtn');
-  const identifierField = document.getElementById('loginIdentifier');
+  const loginEmailField = document.getElementById('loginIdentifier');
   const passwordField = document.getElementById('loginPassword');
   const rememberMe = document.getElementById('rememberMe')?.checked || false;
 
-  if (!btn || !identifierField || !passwordField) return;
+  if (!btn || !loginEmailField || !passwordField) return;
 
-  const identifier = (identifierField.value || '').trim();
+  const loginEmail = (loginEmailField.value || '').trim();
   const password = passwordField.value || '';
 
-  if (!identifier || !password) {
+  if (!loginEmail || !password) {
     showToast('أدخل البريد وكلمة المرور', 'error');
     return;
   }
@@ -107,42 +99,25 @@ async function handleLoginSubmit(e) {
     const db = getDb();
     if (!db) throw new Error('تعذر الاتصال بالخادم');
 
-    let userEmail = identifier;
-    if (!identifier.includes('@')) {
-      const { data: profile, error: profileError } = await db
-        .from('profiles')
-        .select('email')
-        .eq('username', identifier)
-        .single();
-      if (profileError || !profile?.email) {
-        showToast('المستخدم غير موجود', 'error');
-        return;
-      }
-      userEmail = profile.email;
-    }
-
     const { data: authData, error: authError } = await db.auth.signInWithPassword({
-      email: userEmail,
+      email: loginEmail,
       password,
     });
 
     if (authError) throw authError;
 
-    const { data: profileData } = await db
-      .from('users')
-      .select('*')
-      .eq('id', authData.user.id)
-      .maybeSingle();
-
+    const user = authData.user;
+    const meta = user.user_metadata || {};
     const userData = {
-      id: authData.user.id,
-      username: profileData?.username || authData.user.email?.split('@')[0] || '',
-      email: profileData?.email || authData.user.email || '',
-      first_name: profileData?.first_name || '',
-      middle_name: profileData?.middle_name || '',
-      last_name: profileData?.last_name || '',
-      major: profileData?.major || '',
-      avatar_url: profileData?.avatar_url || '',
+      id: user.id,
+      username: meta.username || user.email?.split('@')[0] || '',
+      email: user.email || '',
+      first_name: meta.first_name || '',
+      middle_name: meta.middle_name || '',
+      last_name: meta.last_name || '',
+      major: meta.major || '',
+      phone: meta.phone || '',
+      avatar_url: meta.avatar_url || '',
     };
 
     saveUserSession(userData, rememberMe);
@@ -174,12 +149,4 @@ function setupLoginForm() {
 document.addEventListener('DOMContentLoaded', () => {
   setupLoginForm();
   checkExistingSession();
-
-  document.getElementById('forgotPasswordModal')?.addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideForgotPassword();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') hideForgotPassword();
-  });
 });

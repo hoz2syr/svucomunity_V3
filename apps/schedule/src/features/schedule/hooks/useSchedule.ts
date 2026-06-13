@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@svu-community/supabase-client';
+import { supabase } from '../../../services/supabase';
 
 export interface GroupSchedule {
   id: string

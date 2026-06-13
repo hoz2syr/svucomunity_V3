@@ -37,6 +37,47 @@ function showErrorState(message) {
   }
 }
 
+function setStat(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+async function loadStats(db, userId) {
+  const uid = userId;
+
+  try {
+    const { data } = await db
+      .from('study_groups')
+      .select('course_code')
+      .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
+    const uniqueCourses = new Set((data || []).map((r) => r.course_code));
+    setStat('statCourses', uniqueCourses.size);
+  } catch {
+    setStat('statCourses', '--');
+  }
+
+  setStat('statSchedule', '0');
+
+  try {
+    const { count } = await db
+      .from('study_groups')
+      .select('*', { count: 'exact', head: true })
+      .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
+    setStat('statGroups', count ?? '--');
+  } catch {
+    setStat('statGroups', '--');
+  }
+
+  try {
+    const { count } = await db
+      .from('course_resources')
+      .select('*', { count: 'exact', head: true });
+    setStat('statResources', count ?? '--');
+  } catch {
+    setStat('statResources', '--');
+  }
+}
+
 async function init() {
   const db = getDb() || initSupabase();
   if (!db) {
@@ -84,6 +125,8 @@ async function init() {
   hideLoadingState();
   const content = document.getElementById('dashboardContent');
   if (content) content.classList.remove('hidden');
+
+  loadStats(db, user.id).catch(() => {});
 }
 
 window.handleLogout = function(event) {

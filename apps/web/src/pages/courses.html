@@ -85,11 +85,10 @@
 
     <script src="../../env.js"></script>
     <script src="../../vendor/supabase.min.js"></script>
-    <script src="../../js/window-shim.js"></script>
-    <script src="../../js/config.js"></script>
-    <script src="../../js/core.js"></script>
-    <script src="../../js/shared.js"></script>
-    <script src="../../js/i18n.js"></script>
-    <script type="module" src="../../js/page-courses.js"></script>
+    <script type="module">
+      import { initSupabase } from '../js/modules/config.js';
+      window.supabase = initSupabase();
+    </script>
+    <script type="module" src="../js/modules/page-courses.js"></script>
 </body>
 </html>

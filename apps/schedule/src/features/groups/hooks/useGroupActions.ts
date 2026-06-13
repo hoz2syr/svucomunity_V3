@@ -1,11 +1,18 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '../../services/supabase';
+import { supabase } from '@/services/supabase';
 import type {
   UseGroupActionsReturn,
   JoinGroupOptions,
   LeaveGroupOptions,
   CreateGroupOptions,
-} from '../types';
+} from '@/services/types';
+
+export type {
+  UseGroupActionsReturn,
+  JoinGroupOptions,
+  LeaveGroupOptions,
+  CreateGroupOptions,
+} from '@/services/types';
 
 export function useGroupActions(): UseGroupActionsReturn {
   const [isJoining, setIsJoining] = useState(false);
@@ -36,7 +43,7 @@ export function useGroupActions(): UseGroupActionsReturn {
     if (isLeaving) return;
     setIsLeaving(true);
     try {
-      const updatedMembers = currentMembers.filter(id => id !== userId);
+      const updatedMembers = currentMembers.filter((id: string) => id !== userId);
       const { error: updateError } = await supabase
         .from('study_groups')
         .update({ members: updatedMembers })

@@ -1,18 +1,28 @@
 import { BookOpen, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import type { User, Profile } from '@svu-community/types';
+
+type DisplayUser = (User | Profile) & {
+  display_name?: string | null;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string | null;
+};
 
 interface AppHeaderProps {
-  user: {
-    display_name?: string | null;
-    first_name?: string;
-    last_name?: string;
-    username?: string;
-    email: string;
-    avatar_url?: string | null;
-    id: string;
-  } | null;
+  user: DisplayUser | null;
   onLogin: () => void;
   onLogout: () => void;
+}
+
+function isSafeAvatarUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
 }
 
 export function AppHeader({ user, onLogin, onLogout }: AppHeaderProps) {
@@ -34,12 +44,13 @@ export function AppHeader({ user, onLogin, onLogout }: AppHeaderProps) {
               </p>
               <p className="text-xs text-slate-500">{user.email}</p>
             </div>
-            {user.avatar_url && (
+             {isSafeAvatarUrl(user.avatar_url) && (
               <img
-                src={user.avatar_url}
-                alt={`${user.display_name ?? user.username} profile`}
+                src={user.avatar_url ?? ''}
+                alt={`${user.display_name ?? user.username ?? ''} profile`}
                 className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                 referrerPolicy="no-referrer"
+                rel="noopener noreferrer"
               />
             )}
             <Button variant="ghost" size="sm" onClick={onLogout} aria-label="Sign out">

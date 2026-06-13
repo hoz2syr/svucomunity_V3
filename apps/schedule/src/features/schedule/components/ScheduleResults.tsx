@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AlertCircle, Users, UserPlus, UserMinus, Plus } from 'lucide-react';
-import type { ExtractionResult, StudyGroup } from '@/schedule/services/types';
+import type { ExtractionResult, StudyGroup } from '@/services/types';
 import type { User } from '@svu-community/types';
 
 interface ScheduleResultsProps {

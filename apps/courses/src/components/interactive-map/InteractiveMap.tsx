@@ -10,7 +10,7 @@ import { generateInitialElements } from './lib/layoutUtils';
 import { BookOpen, GraduationCap, Settings, Info, RefreshCw } from 'lucide-react';
 
 const nodeTypes = {
-  courseNode: CourseNode,
+  courseNode: CourseNode as React.ComponentType<any>,
 };
 
 function FlowApp() {
@@ -110,8 +110,8 @@ function FlowApp() {
     if (nodeRafRef.current) cancelAnimationFrame(nodeRafRef.current);
 
     const handle = window.requestAnimationFrame(() => {
-      setNodesRef.current((nds) =>
-        nds.map((node) => {
+      setNodesRef.current((nds: Node[]) =>
+        nds.map((node: Node) => {
           const code = node.id;
           return {
             ...node,
@@ -149,8 +149,8 @@ function FlowApp() {
     if (edgeRafRef.current) cancelAnimationFrame(edgeRafRef.current);
 
     const handle = window.requestAnimationFrame(() => {
-      setEdgesRef.current((eds) =>
-        eds.map((edge) => {
+      setEdgesRef.current((eds: Edge[]) =>
+        eds.map((edge: Edge) => {
           const isIncoming = selectedCourseId ? edge.target === selectedCourseId : false;
           const isOutgoing = selectedCourseId ? edge.source === selectedCourseId : false;
           const hasSelection = !!selectedCourseId;

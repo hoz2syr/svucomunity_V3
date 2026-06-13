@@ -1,6 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { supabase } from '../../services/supabase';
-import type { StudyGroup, UseGroupsOptions, UseGroupsReturn } from '../types';
+import { supabase } from '@/services/supabase';
+import type {
+  StudyGroup,
+  UseGroupsOptions,
+  UseGroupsReturn,
+} from '@/services/types';
+
+export type { UseGroupsOptions, UseGroupsReturn } from '@/services/types';
 
 const PAGE_SIZE = 30;
 
@@ -37,16 +43,7 @@ export function useGroups({ courseCodes, enabled }: UseGroupsOptions): UseGroups
         return;
       }
 
-      const newGroups = (data || []).map((row) => ({
-        id: row.id,
-        courseCode: row.course_code,
-        courseName: row.course_name,
-        name: row.name,
-        description: row.description,
-        creatorId: row.creator_id,
-        members: row.members || [],
-        createdAt: row.created_at,
-      })) as StudyGroup[];
+      const newGroups = (data || []) as StudyGroup[];
 
       setAvailableGroups((prev) => ({
         ...prev,
@@ -75,7 +72,6 @@ export function useGroups({ courseCodes, enabled }: UseGroupsOptions): UseGroups
     }
 
     let channel: ReturnType<typeof supabase.channel> | null = null;
-    let isMounted = true;
 
     const fetchGroups = async () => {
       if (isFetchingRef.current) return;
@@ -91,28 +87,25 @@ export function useGroups({ courseCodes, enabled }: UseGroupsOptions): UseGroups
 
         if (fetchError) {
           console.error('[Supabase] Error fetching study groups:', fetchError);
-          if (isMounted) {
-            setFetchError('Failed to load study groups. Please try again.');
-          }
+          setFetchError('Failed to load study groups. Please try again.');
           return;
         }
 
-        if (!isMounted) return;
-
         const groups: Record<string, StudyGroup[]> = {};
-        (data || []).forEach((row) => {
+        (data || []).forEach((row: Record<string, unknown>) => {
           const group: StudyGroup = {
-            id: row.id,
-            courseCode: row.course_code,
-            courseName: row.course_name,
-            name: row.name,
-            description: row.description,
-            creatorId: row.creator_id,
-            members: row.members || [],
-            createdAt: row.created_at,
+            id: String(row.id),
+            course_code: String(row.course_code),
+            course_name: String(row.course_name),
+            name: String(row.name),
+            description: row.description != null ? String(row.description) : undefined,
+            creator_id: String(row.creator_id),
+            members: Array.isArray(row.members) ? row.members.map(String) : [],
+            created_at: String(row.created_at),
           };
-          if (!groups[group.courseCode]) groups[group.courseCode] = [];
-          groups[group.courseCode].push(group);
+          const code = group.course_code;
+          if (!groups[code]) groups[code] = [];
+          groups[code].push(group);
         });
 
         setAvailableGroups(groups);
@@ -133,9 +126,7 @@ export function useGroups({ courseCodes, enabled }: UseGroupsOptions): UseGroups
         });
       } catch (err) {
         console.error('[Supabase] Unexpected error fetching study groups:', err);
-        if (isMounted) {
-          setFetchError('An unexpected error occurred while loading groups.');
-        }
+        setFetchError('An unexpected error occurred while loading groups.');
       } finally {
         isFetchingRef.current = false;
       }
@@ -156,19 +147,14 @@ export function useGroups({ courseCodes, enabled }: UseGroupsOptions): UseGroups
             table: 'study_groups',
             filter: `course_code=in.(${safeCourseCodes.map((c) => `"${c}"`).join(',')})`,
           },
-          (payload) => {
-            if (!isMounted) return;
-            if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
-              fetchGroups();
-            }
+          () => {
+            fetchGroups();
           }
         )
         .subscribe();
     }
 
     return () => {
-      isMounted = false;
-      isFetchingRef.current = false;
       if (channel) {
         channel.unsubscribe();
       }

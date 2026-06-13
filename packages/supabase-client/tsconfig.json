@@ -1,5 +1,12 @@
 {
   "extends": "@svu-community/config/tsconfig/node",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist"
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

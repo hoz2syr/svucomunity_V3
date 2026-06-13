@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CourseModal } from '../components/course-modal';
 
@@ -9,6 +9,8 @@ const mockCourse = {
   name_ar: 'مقدمة في الحاسوب',
   major: 'CS',
   description: 'A foundational course',
+  credits: 3,
+  semester: 1,
   is_active: true,
   created_at: '',
 };

@@ -11,7 +11,6 @@ const TooltipProvider = React.forwardRef<
 >(({ delayDuration = 0, ...props }, ref) => {
   return (
     <TooltipPrimitive.Provider
-      ref={ref}
       data-slot="tooltip-provider"
       delayDuration={delayDuration}
       {...props}
@@ -27,7 +26,6 @@ const Tooltip = React.forwardRef<
   const { delayDuration, ...rest } = props;
   return (
     <TooltipPrimitive.Root
-      ref={ref}
       data-slot="tooltip"
       delayDuration={delayDuration}
       {...rest}

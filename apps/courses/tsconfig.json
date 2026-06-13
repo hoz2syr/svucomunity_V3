@@ -3,9 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../../packages/ui/src/*"]
-    }
+      "@shared/*": ["../../packages/ui/src/*"],
+      "@/*": ["./src/*"]
+    },
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["."],
+  "include": ["src", "vite.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -8,14 +8,36 @@ async function init() {
   const container = document.getElementById('courses-grid');
   if (!container) return;
 
-  try {
-    const courses = await loadSVUCourses();
+  const searchInput = document.getElementById('courseSearch');
+  const semesterSelect = document.getElementById('semesterFilter');
+
+  let courses = {};
+
+  async function load() {
+    courses = await loadSVUCourses();
     if (!Object.keys(courses).length) {
       container.innerHTML = '<p data-i18n="noCourses">لا توجد مقررات متاحة حالياً</p>';
       return;
     }
+    render();
+  }
 
-    container.innerHTML = Object.values(courses).map(c => `
+  function render() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const semester = semesterSelect?.value || 'all';
+
+    const filtered = Object.values(courses).filter(c => {
+      const matchesSearch = !query || (c.name || '').toLowerCase().includes(query);
+      const matchesSemester = semester === 'all' || String(c.semester) === semester;
+      return matchesSearch && matchesSemester;
+    });
+
+    if (!filtered.length) {
+      container.innerHTML = '<p class="text-secondary-400" data-i18n="noCourses">لا توجد مقررات متاحة حالياً</p>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(c => `
       <article class="course-card">
         <header>
           <h3>${escapeHtml(c.name || 'مقرر')}</h3>
@@ -24,9 +46,12 @@ async function init() {
         <a href="index.html#course/${encodeURIComponent(c.path || c.id)}" data-i18n="openCourse">فتح المقرر</a>
       </article>
     `).join('');
-  } catch {
-    container.innerHTML = '<p class="error-text" data-i18n="loadError">تعذر تحميل المقررات</p>';
   }
+
+  if (searchInput) searchInput.addEventListener('input', render);
+  if (semesterSelect) semesterSelect.addEventListener('change', render);
+
+  await load();
 }
 
 document.addEventListener('DOMContentLoaded', init);

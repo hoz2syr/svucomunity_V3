@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { ChevronUp, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
-import type { SupabaseCourse as Course } from '@/hooks/useCourses';
+import type { Course } from '@/hooks/useCourses';
 import { useState, useMemo } from 'react';
 
 type CourseGridProps = {
@@ -85,14 +85,14 @@ export function CourseGrid({ courses, onCourseClick }: CourseGridProps) {
             type="text"
             placeholder="البحث عن مقرر..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="pr-10 bg-slate-800/50 backdrop-blur-xl border-white/10 text-white rounded-xl h-12 hover:bg-slate-800/70 transition-all"
           />
         </div>
 
         <Select
           value={sortKey}
-          onValueChange={(val) => setSortKey(val as SortKey)}
+          onValueChange={(val: string) => setSortKey(val as SortKey)}
         >
           <SelectTrigger className="w-[220px] bg-slate-800/50 backdrop-blur-xl border-white/10 text-white rounded-xl h-12 px-4 hover:bg-slate-800/70 transition-all">
             <ArrowUpDown className="ml-2 h-4 w-4 text-slate-400" />

@@ -39,7 +39,7 @@ describe('useCoursesApp', () => {
 
   it('selects a course', () => {
     const { result } = renderHook(() => useCoursesApp());
-    const course = { id: '00000000-0000-0000-0000-000000000001', code: 'CS101', name: 'Test', name_ar: null, major: 'CS', description: '', is_active: true, created_at: '' };
+    const course = { id: '00000000-0000-0000-0000-000000000001', code: 'CS101', name: 'Test', name_ar: null, major: 'CS', description: '', credits: 3, semester: 1, is_active: true, created_at: '' };
     act(() => result.current.actions.setSelectedCourse(course));
     expect(result.current.state.selectedCourse).toEqual(course);
   });

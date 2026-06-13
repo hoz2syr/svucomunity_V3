@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { supabase } from '@/schedule/services/supabase';
-import type { StudyGroup } from '@/schedule/services/types';
+import { supabase } from '../../../services/supabase';
+import type { StudyGroup } from '../../../services/types';
 
 interface UseScheduleParseOptions {
   courseCodes: string[];
@@ -51,13 +51,13 @@ export function useScheduleParse({ courseCodes, enabled }: UseScheduleParseOptio
 
       const newGroups = (data || []).map((row) => ({
         id: row.id,
-        courseCode: row.course_code,
-        courseName: row.course_name,
+        course_code: row.course_code,
+        course_name: row.course_name,
         name: row.name,
         description: row.description,
-        creatorId: row.creator_id,
+        creator_id: row.creator_id,
         members: row.members || [],
-        createdAt: row.created_at,
+        created_at: row.created_at,
       })) as StudyGroup[];
 
       setAvailableGroups((prev) => ({
@@ -115,16 +115,16 @@ export function useScheduleParse({ courseCodes, enabled }: UseScheduleParseOptio
         (data || []).forEach((row) => {
           const group: StudyGroup = {
             id: row.id,
-            courseCode: row.course_code,
-            courseName: row.course_name,
+            course_code: row.course_code,
+            course_name: row.course_name,
             name: row.name,
             description: row.description,
-            creatorId: row.creator_id,
+            creator_id: row.creator_id,
             members: row.members || [],
-            createdAt: row.created_at,
+            created_at: row.created_at,
           };
-          if (!groups[group.courseCode]) groups[group.courseCode] = [];
-          groups[group.courseCode].push(group);
+          if (!groups[group.course_code]) groups[group.course_code] = [];
+          groups[group.course_code].push(group);
         });
 
         setAvailableGroups(groups);

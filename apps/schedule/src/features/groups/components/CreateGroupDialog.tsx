@@ -21,7 +21,11 @@ export function CreateGroupDialog({ course, userId, trigger, onError, onSuccess 
 
   const handleCreate = async () => {
     try {
-      await groupActions.createGroup({ course, userId, onError });
+      await groupActions.createGroup({
+        course: { ...course, name: course.name },
+        userId,
+        onError,
+      });
       setOpen(false);
       onSuccess?.();
     } catch {

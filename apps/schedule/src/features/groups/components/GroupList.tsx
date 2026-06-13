@@ -1,13 +1,10 @@
-import useGroups, { UseGroupActionsReturn } from '../hooks/useGroupActions';
+import { useGroupActions } from '../hooks/useGroupActions';
+import { useGroups } from '../hooks/useGroups';
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@svu-community/ui';
-import { Button } from '@svu-community/ui';
-import { Badge } from '@svu-community/ui';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@svu-community/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@svu-community/ui';
 import type { StudyGroup, Course } from '../types';
 
-import { useGroups } from './useGroups';
-import CreateGroupDialog from './CreateGroupDialog';
+import { CreateGroupDialog } from './CreateGroupDialog';
 
 interface GroupListProps {
   courseCodes: string[];
@@ -25,7 +22,7 @@ export function GroupList({ courseCodes, userId, enabled, onError }: GroupListPr
       {Object.entries(availableGroups).map(([courseCode, groups]) => (
         <Card key={courseCode}>
           <CardHeader>
-            <CardTitle>{groups[0]?.courseName || courseCode}</CardTitle>
+            <CardTitle>{groups[0]?.course_name || courseCode}</CardTitle>
             <CardDescription>{groups.length} study group{groups.length === 1 ? '' : 's'} available</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

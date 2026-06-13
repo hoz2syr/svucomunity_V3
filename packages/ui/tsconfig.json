@@ -6,11 +6,12 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@svu-community/supabase-client": ["../../packages/supabase-client/src/index.ts"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
+  "references": [
+    { "path": "../../packages/supabase-client" },
+    { "path": "../../packages/types" }
+  ],
   "exclude": ["node_modules", "dist"]
 }
