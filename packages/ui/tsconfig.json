@@ -5,10 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@radix-ui/*": ["../../node_modules/@radix-ui/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "references": [

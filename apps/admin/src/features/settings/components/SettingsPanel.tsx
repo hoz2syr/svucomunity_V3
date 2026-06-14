@@ -42,7 +42,7 @@ export function SettingsPanel() {
       })
       .catch((e) => {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load settings');
+          setError(e instanceof Error ? e.message : 'فشل تحميل الإعدادات');
         }
       })
       .finally(() => {
@@ -72,14 +72,14 @@ export function SettingsPanel() {
       setSettings(updated);
       setDirty(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save settings');
+      setError(e instanceof Error ? e.message : 'فشل حفظ الإعدادات');
     } finally {
       setSaving(false);
     }
   }, [settings]);
 
   const handleReset = useCallback(async () => {
-    if (!window.confirm('Reset all settings to defaults?')) {
+    if (!window.confirm('هل تريد إعادة تعيين جميع الإعدادات للقيم الافتراضية؟')) {
       return;
     }
     setSaving(true);
@@ -89,7 +89,7 @@ export function SettingsPanel() {
       setSettings(reset);
       setDirty(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to reset settings');
+      setError(e instanceof Error ? e.message : 'فشل إعادة تعيين الإعدادات');
     } finally {
       setSaving(false);
     }
@@ -102,7 +102,7 @@ export function SettingsPanel() {
       const result = await testSupabaseConnection();
       setLastTest(result);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Connection test failed');
+      setError(e instanceof Error ? e.message : 'فشل اختبار الاتصال');
     } finally {
       setTesting(false);
     }
@@ -113,22 +113,22 @@ export function SettingsPanel() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
-          <p className="text-sm text-slate-400">Loading settings…</p>
+          <p className="text-sm text-slate-400">جاري تحميل الإعدادات…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="settings-panel mx-auto max-w-3xl">
+    <div className="settings-panel mx-auto max-w-3xl" dir="rtl">
       <div className="mb-8 flex items-center gap-3">
         <div className="rounded-xl bg-indigo-600/10 p-2.5">
           <SettingsIcon className="h-6 w-6 text-indigo-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <h1 className="text-2xl font-bold text-white">الإعدادات</h1>
           <p className="text-sm text-slate-400">
-            Manage application configuration and preferences
+            إدارة إعدادات وتفضيلات التطبيق
           </p>
         </div>
       </div>
@@ -144,26 +144,26 @@ export function SettingsPanel() {
           <div className="mb-4 flex items-center gap-3">
             <Globe className="h-5 w-5 text-indigo-400" />
             <h2 className="text-lg font-semibold text-white">
-              Application Info
+              معلومات التطبيق
             </h2>
           </div>
           <div className="space-y-4">
-            <Field label="Site Title" required>
+            <Field label="عنوان الموقع" required>
               <input
                 type="text"
                 value={settings.siteName}
                 onChange={(e) => handleChange('siteName', e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
-                placeholder="Enter site title"
+                placeholder="أدخل عنوان الموقع"
               />
             </Field>
-            <Field label="Description">
+            <Field label="الوصف">
               <textarea
                 value={settings.siteDescription}
                 onChange={(e) => handleChange('siteDescription', e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
-                placeholder="Describe your application"
+                placeholder="صف تطبيقك"
               />
             </Field>
           </div>
@@ -172,9 +172,9 @@ export function SettingsPanel() {
         <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
           <div className="mb-4 flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-lg font-semibold text-white">Theme</h2>
+            <h2 className="text-lg font-semibold text-white">المظهر</h2>
           </div>
-          <Field label="Default Theme">
+          <Field label="المظهر الافتراضي">
             <div className="flex gap-3">
               {(['light', 'dark', 'system'] as const).map((theme) => (
                 <button
@@ -187,7 +187,7 @@ export function SettingsPanel() {
                       : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
                   }`}
                 >
-                  {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                  {theme === 'light' ? 'فاتح' : theme === 'dark' ? 'داكن' : 'تلقائي'}
                 </button>
               ))}
             </div>
@@ -197,11 +197,11 @@ export function SettingsPanel() {
         <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
           <div className="mb-4 flex items-center gap-3">
             <Shield className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-lg font-semibold text-white">Registration</h2>
+            <h2 className="text-lg font-semibold text-white">التسجيل</h2>
           </div>
           <ToggleField
-            label="Allow New Registrations"
-            description="Users can create new accounts when enabled"
+            label="السماح بتسجيلات جديدة"
+            description="يمكن للمستخدمين إنشاء حسابات جديدة عند التفعيل"
             checked={settings.allowNewRegistrations}
             onChange={(checked) => handleChange('allowNewRegistrations', checked)}
           />
@@ -210,11 +210,11 @@ export function SettingsPanel() {
         <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
           <div className="mb-4 flex items-center gap-3">
             <Wrench className="h-5 w-5 text-amber-400" />
-            <h2 className="text-lg font-semibold text-white">Maintenance</h2>
+            <h2 className="text-lg font-semibold text-white">الصيانة</h2>
           </div>
           <ToggleField
-            label="Maintenance Mode"
-            description="Site will show a maintenance page to visitors"
+            label="وضع الصيانة"
+            description="سيظهر للزوار صفحة صيانة عند التفعيل"
             checked={settings.maintenanceMode}
             warning
             onChange={(checked) => handleChange('maintenanceMode', checked)}
@@ -225,11 +225,11 @@ export function SettingsPanel() {
           <div className="mb-4 flex items-center gap-3">
             <SettingsIcon className="h-5 w-5 text-indigo-400" />
             <h2 className="text-lg font-semibold text-white">
-              Supabase Connection
+              اتصال Supabase
             </h2>
           </div>
           <p className="mb-4 text-sm text-slate-400">
-            Verify that the application can reach your Supabase instance.
+            تأكد من أن التطبيق يمكنه الاتصال بقاعدة بيانات Supabase.
           </p>
           <button
             type="button"
@@ -240,12 +240,12 @@ export function SettingsPanel() {
             {testing ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Testing…
+                جاري الاختبار…
               </>
             ) : (
               <>
                 <Wrench className="h-4 w-4" />
-                Test Connection
+                اختبار الاتصال
               </>
             )}
           </button>
@@ -263,7 +263,7 @@ export function SettingsPanel() {
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-slate-300 hover:text-white disabled:opacity-50"
         >
           <RotateCcw className="h-4 w-4" />
-          Reset
+          إعادة تعيين
         </button>
         <button
           type="button"
@@ -274,12 +274,12 @@ export function SettingsPanel() {
           {saving ? (
             <>
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Saving…
+              جاري الحفظ…
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              Save Changes
+              حفظ التعديلات
             </>
           )}
         </button>
@@ -301,7 +301,7 @@ function Field({
     <div>
       <label className="mb-1.5 block text-sm font-medium text-slate-300">
         {label}
-        {required && <span className="ml-1 text-indigo-400">*</span>}
+        {required && <span className="mr-1 text-indigo-400">*</span>}
       </label>
       {children}
     </div>
@@ -364,10 +364,10 @@ function ConnectionResult({ result }: { result: ConnectionTestResult }) {
       }`}
     >
       <span>
-        {result.success ? 'Connection successful' : 'Connection failed'}
+        {result.success ? 'الاتصال ناجح' : 'فشل الاتصال'}
       </span>
       <span className="text-slate-400">
-        {result.latency}ms · {new Date(result.timestamp).toLocaleTimeString()}
+        {result.latency}ms · {new Date(result.timestamp).toLocaleTimeString('ar-SA')}
       </span>
     </div>
   );

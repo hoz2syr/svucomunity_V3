@@ -1,5 +1,9 @@
 {
   "extends": "@svu-community/config/tsconfig/node",
+  "compilerOptions": {
+    "lib": ["es2020", "dom", "dom.iterable"],
+    "types": ["node", "dompurify"]
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

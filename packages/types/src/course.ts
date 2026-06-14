@@ -5,6 +5,8 @@ export interface Course {
   name_ar: string | null
   major: string
   description: string | null
+  credits: number
+  semester: number
   is_active: boolean
   created_at: string
   updated_at: string

@@ -1198,9 +1198,9 @@ jobs:
         env:
           VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull --yes --environment=production --token=\$VERCEL_TOKEN
-          vercel build --prod --token=\$VERCEL_TOKEN
-          vercel deploy --prebuilt --prod --token=\$VERCEL_TOKEN
+          vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          vercel build --prod --token= $VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
         working-directory: apps/courses
 `,
 
@@ -1230,9 +1230,9 @@ jobs:
         env:
           VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull --yes --environment=production --token=\$VERCEL_TOKEN
-          vercel build --prod --token=\$VERCEL_TOKEN
-          vercel deploy --prebuilt --prod --token=\$VERCEL_TOKEN
+          vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          vercel build --prod --token=$VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
         working-directory: apps/schedule
 `,
 

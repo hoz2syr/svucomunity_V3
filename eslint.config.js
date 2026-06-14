@@ -17,10 +17,6 @@ module.exports = [
       },
       globals: globals.browser
     },
-    plugins: {
-      "@typescript-eslint": tsEslint,
-      react
-    },
     rules: {
       "no-unused-vars": "error",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
@@ -37,9 +33,6 @@ module.exports = [
         sourceType: "module"
       },
       globals: globals.browser
-    },
-    plugins: {
-      "@typescript-eslint": tsEslint
     },
     rules: {
       "no-unused-vars": "error",

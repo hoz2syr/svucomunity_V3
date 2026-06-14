@@ -6,12 +6,9 @@ import { XIcon } from "lucide-react";
 
 import { cn } from "./utils";
 
-const Sheet = React.forwardRef<
-  React.ComponentRef<typeof SheetPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>
->((props, ref) => {
-  return <SheetPrimitive.Root data-slot="sheet" {...(props as any)} ref={ref as any} />;
-});
+function Sheet(props) {
+  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+}
 Sheet.displayName = "Sheet";
 
 const SheetTrigger = React.forwardRef<
@@ -88,7 +85,7 @@ const SheetContent = React.forwardRef<
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-[2px] opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>

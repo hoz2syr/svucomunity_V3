@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, createContext, useContext, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import type { Language, I18nState, I18nAPI } from './types';
 
 const STORAGE_KEY = 'svu_lang';

@@ -1,6 +1,36 @@
 import { supabase } from '@svu-community/supabase-client';
 import type { User, Course } from '@svu-community/types';
 
+export interface AppSettings {
+  siteName: string;
+  siteDescription: string;
+  defaultTheme: 'light' | 'dark' | 'system';
+  allowNewRegistrations: boolean;
+  maintenanceMode: boolean;
+}
+
+export interface SettingsUpdatePayload {
+  siteName?: string;
+  siteDescription?: string;
+  defaultTheme?: 'light' | 'dark' | 'system';
+  allowNewRegistrations?: boolean;
+  maintenanceMode?: boolean;
+}
+
+export interface ConnectionTestResult {
+  success: boolean;
+  latency: number;
+  timestamp: string;
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  siteName: 'SVU Community',
+  siteDescription: 'University Student Platform',
+  defaultTheme: 'system',
+  allowNewRegistrations: true,
+  maintenanceMode: false,
+};
+
 /**
  * Fetch all users from the profiles table
  * @returns Array of user objects
@@ -163,37 +193,121 @@ export interface DashboardStats {
  * @throws Error if any count query fails
  */
 export async function getStats(): Promise<DashboardStats> {
-  const [usersResult, coursesResult, groupsResult, newUsersResult] = await Promise.all([
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    usersResult,
+    coursesResult,
+    groupsResult,
+    newUsersResult,
+    prevUsersResult,
+    prevCoursesResult,
+    prevGroupsResult,
+    prevNewUsersResult,
+  ] = await Promise.all([
     supabase.from('users').select('*', { count: 'exact', head: true }),
     supabase.from('courses').select('*', { count: 'exact', head: true }),
     supabase.from('study_groups').select('*', { count: 'exact', head: true }),
-    supabase
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+    supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
+    supabase.from('users').select('*', { count: 'exact', head: true }).lt('created_at', weekAgo).gte('created_at', twoWeeksAgo),
+    supabase.from('courses').select('*', { count: 'exact', head: true }).lt('created_at', weekAgo).gte('created_at', twoWeeksAgo),
+    supabase.from('study_groups').select('*', { count: 'exact', head: true }).lt('created_at', weekAgo).gte('created_at', twoWeeksAgo),
+    supabase.from('users').select('*', { count: 'exact', head: true }).lt('created_at', weekAgo).gte('created_at', twoWeeksAgo),
   ]);
 
-  if (usersResult.error) {
-    throw new Error(`Failed to fetch user count: ${usersResult.error.message}`);
+  if (usersResult.error) throw new Error(`Failed to fetch user count: ${usersResult.error.message}`);
+  if (coursesResult.error) throw new Error(`Failed to fetch course count: ${coursesResult.error.message}`);
+  if (groupsResult.error) throw new Error(`Failed to fetch group count: ${groupsResult.error.message}`);
+  if (newUsersResult.error) throw new Error(`Failed to fetch new registrations: ${newUsersResult.error.message}`);
+
+  const currentUsers = usersResult.count ?? 0;
+  const prevUsers = prevUsersResult.count ?? 0;
+  const currentCourses = coursesResult.count ?? 0;
+  const prevCourses = prevCoursesResult.count ?? 0;
+  const currentGroups = groupsResult.count ?? 0;
+  const prevGroups = prevGroupsResult.count ?? 0;
+  const currentRegistrations = newUsersResult.count ?? 0;
+  const prevRegistrations = prevNewUsersResult.count ?? 0;
+
+  const calcGrowth = (current: number, prev: number) =>
+    prev === 0 ? (current > 0 ? 100 : 0) : Number(((current - prev) / prev * 100).toFixed(1));
+
+  return {
+    users: currentUsers,
+    courses: currentCourses,
+    groups: currentGroups,
+    newRegistrationsThisWeek: currentRegistrations,
+    usersGrowth: calcGrowth(currentUsers, prevUsers),
+    coursesGrowth: calcGrowth(currentCourses, prevCourses),
+    groupsGrowth: calcGrowth(currentGroups, prevGroups),
+    registrationsGrowth: calcGrowth(currentRegistrations, prevRegistrations),
+  };
+}
+
+export async function fetchSettings(): Promise<AppSettings> {
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('*')
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch settings: ${error.message}`);
   }
-  if (coursesResult.error) {
-    throw new Error(`Failed to fetch course count: ${coursesResult.error.message}`);
-  }
-  if (groupsResult.error) {
-    throw new Error(`Failed to fetch group count: ${groupsResult.error.message}`);
-  }
-  if (newUsersResult.error) {
-    throw new Error(`Failed to fetch new registrations: ${newUsersResult.error.message}`);
+
+  if (!data) {
+    return DEFAULT_SETTINGS;
   }
 
   return {
-    users: usersResult.count ?? 0,
-    courses: coursesResult.count ?? 0,
-    groups: groupsResult.count ?? 0,
-    newRegistrationsThisWeek: newUsersResult.count ?? 0,
-    usersGrowth: Number(((Math.random() * 30 - 5)).toFixed(1)),
-    coursesGrowth: Number(((Math.random() * 25 - 3)).toFixed(1)),
-    groupsGrowth: Number(((Math.random() * 40 - 8)).toFixed(1)),
-    registrationsGrowth: Number(((Math.random() * 20 - 10)).toFixed(1)),
+    siteName: data.site_name ?? DEFAULT_SETTINGS.siteName,
+    siteDescription: data.site_description ?? DEFAULT_SETTINGS.siteDescription,
+    defaultTheme: data.default_theme ?? DEFAULT_SETTINGS.defaultTheme,
+    allowNewRegistrations: data.allow_new_registrations ?? DEFAULT_SETTINGS.allowNewRegistrations,
+    maintenanceMode: data.maintenance_mode ?? DEFAULT_SETTINGS.maintenanceMode,
   };
+}
+
+export async function updateSettings(payload: SettingsUpdatePayload): Promise<AppSettings> {
+  const { data, error } = await supabase
+    .from('app_settings')
+    .upsert({
+      id: 'global',
+      site_name: payload.siteName,
+      site_description: payload.siteDescription,
+      default_theme: payload.defaultTheme,
+      allow_new_registrations: payload.allowNewRegistrations,
+      maintenance_mode: payload.maintenanceMode,
+      updated_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update settings: ${error.message}`);
+  }
+
+  return {
+    siteName: data.site_name ?? DEFAULT_SETTINGS.siteName,
+    siteDescription: data.site_description ?? DEFAULT_SETTINGS.siteDescription,
+    defaultTheme: data.default_theme ?? DEFAULT_SETTINGS.defaultTheme,
+    allowNewRegistrations: data.allow_new_registrations ?? DEFAULT_SETTINGS.allowNewRegistrations,
+    maintenanceMode: data.maintenance_mode ?? DEFAULT_SETTINGS.maintenanceMode,
+  };
+}
+
+export async function testSupabaseConnection(): Promise<ConnectionTestResult> {
+  const start = performance.now();
+  try {
+    const { error } = await supabase.from('users').select('id').limit(1);
+    const latency = Math.round(performance.now() - start);
+    if (error) {
+      return { success: false, latency, timestamp: new Date().toISOString() };
+    }
+    return { success: true, latency, timestamp: new Date().toISOString() };
+  } catch {
+    const latency = Math.round(performance.now() - start);
+    return { success: false, latency, timestamp: new Date().toISOString() };
+  }
 }

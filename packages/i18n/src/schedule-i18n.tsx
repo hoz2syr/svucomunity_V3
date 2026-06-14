@@ -2,16 +2,15 @@ import { useState, useEffect, useCallback, createContext, useContext, useMemo } 
 import type { Language, I18nContextValue, TranslationDictionary } from './types';
 import { scheduleTranslations } from './schedule';
 
-type ScheduleTranslations = typeof scheduleTranslations.ar;
-type Translations = Record<string, TranslationDictionary>;
-
 const STORAGE_KEY = 'svu_lang';
 
 function getInitialLang(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'ar' || stored === 'en') return stored;
-  } catch {}
+  } catch {
+    // ignore storage errors
+  }
   return 'ar';
 }
 
@@ -38,7 +37,11 @@ export function t(key: string, fallback = ''): string {
 }
 
 export function setLang(lang: Language, dir: 'rtl' | 'ltr' = lang === 'ar' ? 'rtl' : 'ltr'): void {
-  try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch {
+    // ignore storage errors
+  }
   if (typeof window !== 'undefined') {
     document.documentElement.setAttribute('dir', dir);
     document.documentElement.setAttribute('lang', lang);
@@ -50,7 +53,9 @@ export function getLang(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'ar' || stored === 'en') return stored;
-  } catch {}
+  } catch {
+    // ignore storage errors
+  }
   return 'ar';
 }
 
@@ -75,10 +80,7 @@ export function I18nProvider({ children, defaultLang }: { children: React.ReactN
   }, [lang]);
 
   const toggle = useCallback(() => {
-    setLangState((prev) => {
-      const next: Language = prev === 'ar' ? 'en' : 'ar';
-      return next;
-    });
+    setLangState((prev) => (prev === 'ar' ? 'en' : 'ar') as Language);
   }, []);
 
   const value = useMemo<I18nContextValue>(() => ({
@@ -90,7 +92,7 @@ export function I18nProvider({ children, defaultLang }: { children: React.ReactN
     isRTL: lang === 'ar',
   }), [lang, tKey, toggle]);
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return <I18nContext.Provider value={value}>{children as React.ReactNode}</I18nContext.Provider>;
 }
 
 export function useI18n(): I18nContextValue {

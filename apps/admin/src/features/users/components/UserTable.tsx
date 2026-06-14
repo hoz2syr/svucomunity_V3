@@ -14,14 +14,14 @@ import {
   View,
 } from "lucide-react";
 import {
-  type Row,
-  type Table as UiTable,
-  type TableBody as UiTableBody,
-  type TableCell as UiTableCell,
-  type TableFooter as UiTableFooter,
-  type TableHead as UiTableHead,
-  type TableHeader as UiTableHeader,
-  type TableRow as UiTableRow,
+  Row,
+  Table as UiTable,
+  TableBody as UiTableBody,
+  TableCell as UiTableCell,
+  TableFooter as UiTableFooter,
+  TableHead as UiTableHead,
+  TableHeader as UiTableHeader,
+  TableRow as UiTableRow,
 } from "@svu-community/ui/components/ui/table";
 
 export type UserStatus = "active" | "inactive";

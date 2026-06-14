@@ -37,7 +37,7 @@ import {
   PaginationPrevious,
 } from "@svu-community/ui/components/ui/pagination";
 import type { Course } from "@svu-community/types";
-import { getCourses, createCourse, updateCourse, deleteCourse } from "../../services/api";
+import { getCourses, createCourse, updateCourse, deleteCourse } from "../../../services/api";
 
 const PAGE_SIZE = 10;
 
@@ -135,8 +135,8 @@ export default function CourseManager() {
       name_ar: course.name_ar ?? "",
       major: course.major,
       description: course.description ?? "",
-      credits: "",
-      semester: "",
+      credits: String(course.credits ?? ""),
+      semester: String(course.semester ?? ""),
       is_active: course.is_active,
     });
     setDialogOpen(true);
