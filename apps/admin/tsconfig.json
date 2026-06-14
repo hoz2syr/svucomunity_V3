@@ -1,6 +1,8 @@
 {
   "extends": "@svu-community/config/tsconfig/react",
   "compilerOptions": {
+    "allowJs": true,
+    "types": ["vitest/globals"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -8,5 +10,5 @@
     }
   },
   "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

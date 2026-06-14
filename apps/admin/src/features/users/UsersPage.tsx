@@ -101,7 +101,6 @@ function UsersPage() {
       )}
       <UserTable
         users={users}
-        totalItems={users.length}
         onBulkExport={handleBulkExport}
         onToggleAdmin={handleToggleAdmin}
         onToggleStatus={handleToggleStatus}

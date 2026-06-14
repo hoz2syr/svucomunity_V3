@@ -1,11 +1,11 @@
-import { LayoutDashboard, Users, BookOpen, Users2, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, UsersRound, Settings } from 'lucide-react';
 import { Link, isActive } from '../routing';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'users', label: 'المستخدمون', icon: Users, path: '/users' },
   { id: 'courses', label: 'المقررات', icon: BookOpen, path: '/courses' },
-  { id: 'groups', label: 'المجموعات', icon: Users2, path: '/groups' },
+  { id: 'groups', label: 'المجموعات', icon: UsersRound, path: '/groups' },
   { id: 'settings', label: 'الإعدادات', icon: Settings, path: '/settings' },
 ] as const;
 

@@ -1,81 +1,118 @@
-import { vi } from 'vitest';
-vi.mock('@svu-community/supabase-client', () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
+import { describe, it, expect, vi } from 'vitest';
 
-import { getStats } from '../services/api';
-import { supabase } from '@svu-community/supabase-client';
-
-const mockSupabase = supabase as unknown as {
-  from: ReturnType<typeof vi.fn>;
+const mockSupabase = {
+  from: vi.fn(),
 };
 
-describe('api.getStats', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+vi.mock('@svu-community/supabase-client', () => ({
+  supabase: mockSupabase,
+}));
 
-  it('returns aggregated stats with growth calculations', async () => {
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+import { fetchSettings, updateSettings, testSupabaseConnection } from '../services/api';
+import { DEFAULT_SETTINGS } from '../services/api';
 
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'users') {
-        return {
-          select: (column: string, opts?: Record<string, unknown>) => {
-            if (column === '*' && opts?.head) {
-              return Promise.resolve({ count: 100, error: null });
-            }
-            if (opts?.gte && opts?.lt) {
-              return Promise.resolve({ count: 80, error: null });
-            }
-            return Promise.resolve({ count: 100, error: null });
-          },
-        };
-      }
-      if (table === 'courses') {
-        return {
-          select: (column: string, opts?: Record<string, unknown>) => {
-            if (opts?.head) return Promise.resolve({ count: 30, error: null });
-            if (opts?.gte) return Promise.resolve({ count: 10, error: null });
-            if (opts?.lt) return Promise.resolve({ count: 20, error: null });
-            return Promise.resolve({ count: 30, error: null });
-          },
-        };
-      }
-      if (table === 'study_groups') {
-        return {
-          select: (column: string, opts?: Record<string, unknown>) => {
-            if (opts?.head) return Promise.resolve({ count: 50, error: null });
-            if (opts?.gte) return Promise.resolve({ count: 15, error: null });
-            if (opts?.lt) return Promise.resolve({ count: 35, error: null });
-            return Promise.resolve({ count: 50, error: null });
-          },
-        };
-      }
-      return { select: () => Promise.resolve({ count: 0, error: null }) };
+describe('api.fetchSettings', () => {
+  it('returns defaults when no row exists', async () => {
+    mockSupabase.from.mockReturnValue({
+      select: () => ({
+        maybeSingle: () => Promise.resolve({ data: null, error: null }),
+      }),
     });
 
-    const stats = await getStats();
+    const result = await fetchSettings();
+    expect(result).toEqual(DEFAULT_SETTINGS);
+  });
 
-    expect(stats.users).toBe(100);
-    expect(stats.courses).toBe(30);
-    expect(stats.groups).toBe(50);
-    expect(stats.newRegistrationsThisWeek).toBe(100);
-    expect(typeof stats.usersGrowth).toBe('number');
-    expect(typeof stats.coursesGrowth).toBe('number');
-    expect(typeof stats.groupsGrowth).toBe('number');
-    expect(typeof stats.registrationsGrowth).toBe('number');
+  it('returns stored settings', async () => {
+    mockSupabase.from.mockReturnValue({
+      select: () => ({
+        maybeSingle: () =>
+          Promise.resolve({
+            data: {
+              site_name: 'My App',
+              site_description: 'Desc',
+              default_theme: 'dark',
+              allow_new_registrations: false,
+              maintenance_mode: true,
+            },
+            error: null,
+          }),
+      }),
+    });
+
+    const result = await fetchSettings();
+    expect(result.siteName).toBe('My App');
+    expect(result.defaultTheme).toBe('dark');
+    expect(result.allowNewRegistrations).toBe(false);
+    expect(result.maintenanceMode).toBe(true);
   });
 
   it('throws on database error', async () => {
     mockSupabase.from.mockReturnValue({
-      select: () => Promise.resolve({ count: null, error: { message: 'DB error' } }),
+      select: () => ({
+        maybeSingle: () => Promise.resolve({ data: null, error: { message: 'DB error' } }),
+      }),
     });
 
-    await expect(getStats()).rejects.toThrow('Failed to fetch dashboard stats');
+    await expect(fetchSettings()).rejects.toThrow('Failed to fetch settings');
   });
 });
+
+describe('api.updateSettings', () => {
+  it('upserts and returns updated settings', async () => {
+    const savedData = {
+      site_name: 'New Name',
+      site_description: 'New Desc',
+      default_theme: 'light',
+      allow_new_registrations: true,
+      maintenance_mode: false,
+    };
+    mockSupabase.from.mockReturnValue({
+      upsert: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: savedData, error: null }),
+        }),
+      }),
+    });
+
+    const result = await updateSettings({ siteName: 'New Name' });
+    expect(result.siteName).toBe('New Name');
+  });
+
+  it('throws on database error', async () => {
+    mockSupabase.from.mockReturnValue({
+      upsert: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: null, error: { message: 'upsert error' } }),
+        }),
+      }),
+    });
+
+    await expect(updateSettings({ siteName: 'X' })).rejects.toThrow('Failed to update settings');
+  });
+});
+
+describe('api.testSupabaseConnection', () => {
+  it('returns success with latency on successful query', async () => {
+    mockSupabase.from.mockReturnValue({
+      select: () => ({ limit: () => Promise.resolve({ error: null }) }),
+    });
+
+    const result = await testSupabaseConnection();
+    expect(result.success).toBe(true);
+    expect(typeof result.latency).toBe('number');
+    expect(result.latency).toBeGreaterThanOrEqual(0);
+    expect(result.timestamp).toBeTruthy();
+  });
+
+  it('returns success false on database error', async () => {
+    mockSupabase.from.mockReturnValue({
+      select: () => ({ limit: () => Promise.resolve({ error: { message: 'timeout' } }) }),
+    });
+
+    const result = await testSupabaseConnection();
+    expect(result.success).toBe(false);
+    expect(typeof result.latency).toBe('number');
+  });
+});
+
