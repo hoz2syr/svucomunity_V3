@@ -12,9 +12,9 @@ import { cn } from "./utils";
 
 const Select = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Root>,
-  React.ComponentProps<typeof SelectPrimitive.Root>
+  Omit<React.ComponentProps<typeof SelectPrimitive.Root>, "ref">
 >((props, ref) => {
-  return <SelectPrimitive.Root data-slot="select" ref={ref} {...props} />;
+  return <SelectPrimitive.Root data-slot="select" {...props} ref={ref} />;
 });
 Select.displayName = "Select";
 

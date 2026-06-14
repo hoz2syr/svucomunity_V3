@@ -9,7 +9,7 @@ const Popover = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Root>,
   React.ComponentProps<typeof PopoverPrimitive.Root>
 >((props, ref) => {
-  return <PopoverPrimitive.Root data-slot="popover" ref={ref} {...props} />;
+  return <PopoverPrimitive.Root data-slot="popover" {...props} ref={ref as any} />;
 });
 Popover.displayName = "Popover";
 

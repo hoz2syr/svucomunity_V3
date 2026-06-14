@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
+import type { User } from '@svu-community/types';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { StudyGroup } from '../services/types';
 import { ResultsTab } from '../components/ResultsTab';
 
 vi.mock('motion/react', () => ({
@@ -24,14 +26,23 @@ vi.mock('lucide-react', () => ({
   Plus: (props: any) => <span data-testid="plus-icon" {...props} />,
 }));
 
-const user = { id: 'user-1' };
+const baseUser: User = {
+  id: 'user-1',
+  email: 'u@test.com',
+  username: 'u1',
+  is_admin: false,
+  is_active: true,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
 const extractionResult = {
   major: 'Computer Science',
   courses: [
     { code: 'CS101', name: 'Intro to CS', section: 'A' } as any,
   ],
 };
-const availableGroups: Record<string, any[]> = {};
+const baseAvailableGroups: Record<string, StudyGroup[]> = {};
 const onJoinGroup = vi.fn();
 const onLeaveGroup = vi.fn();
 const onCreateGroup = vi.fn();
@@ -40,8 +51,8 @@ const onLoadMore = vi.fn();
 
 const baseProps = {
   extractionResult,
-  availableGroups,
-  user,
+  availableGroups: baseAvailableGroups,
+  user: baseUser,
   error: null,
   isActionLoading: false,
   hasMore: {} as Record<string, boolean>,
@@ -100,27 +111,63 @@ describe('ResultsTab', () => {
   });
 
   it('shows Join button when groups exist', () => {
-    const groups = [{ id: 'g1', name: 'Study A', members: [] }];
+    const groups: StudyGroup[] = [{
+      id: 'g1',
+      course_code: 'CS101',
+      course_name: 'Intro to CS',
+      name: 'Study A',
+      description: '',
+      creator_id: 'c1',
+      members: [],
+      created_at: new Date().toISOString(),
+    }];
     render(<ResultsTab {...baseProps} availableGroups={{ 'CS101': groups }} />);
     expect(screen.getByText('Study A')).toBeDefined();
     expect(screen.getByText('Join')).toBeDefined();
   });
 
   it('calls onJoinGroup when Join button clicked', () => {
-    const groups = [{ id: 'g1', name: 'Study A', members: [] }];
+    const groups: StudyGroup[] = [{
+      id: 'g1',
+      course_code: 'CS101',
+      course_name: 'Intro to CS',
+      name: 'Study A',
+      description: '',
+      creator_id: 'c1',
+      members: [],
+      created_at: new Date().toISOString(),
+    }];
     render(<ResultsTab {...baseProps} availableGroups={{ 'CS101': groups }} />);
     fireEvent.click(screen.getByText('Join'));
     expect(onJoinGroup).toHaveBeenCalledWith('g1', []);
   });
 
   it('shows Leave button when user is member', () => {
-    const groups = [{ id: 'g1', name: 'Study A', members: ['user-1'] }];
+    const groups: StudyGroup[] = [{
+      id: 'g1',
+      course_code: 'CS101',
+      course_name: 'Intro to CS',
+      name: 'Study A',
+      description: '',
+      creator_id: 'c1',
+      members: ['user-1'],
+      created_at: new Date().toISOString(),
+    }];
     render(<ResultsTab {...baseProps} availableGroups={{ 'CS101': groups }} />);
     expect(screen.getByText('Leave')).toBeDefined();
   });
 
   it('calls onLeaveGroup when Leave clicked', () => {
-    const groups = [{ id: 'g1', name: 'Study A', members: ['user-1'] }];
+    const groups: StudyGroup[] = [{
+      id: 'g1',
+      course_code: 'CS101',
+      course_name: 'Intro to CS',
+      name: 'Study A',
+      description: '',
+      creator_id: 'c1',
+      members: ['user-1'],
+      created_at: new Date().toISOString(),
+    }];
     render(<ResultsTab {...baseProps} availableGroups={{ 'CS101': groups }} />);
     fireEvent.click(screen.getByText('Leave'));
     expect(onLeaveGroup).toHaveBeenCalledWith('g1', ['user-1']);
@@ -133,7 +180,16 @@ describe('ResultsTab', () => {
   });
 
   it('disables action buttons when isActionLoading is true', () => {
-    const groups = [{ id: 'g1', name: 'Study A', members: [] }];
+    const groups: StudyGroup[] = [{
+      id: 'g1',
+      course_code: 'CS101',
+      course_name: 'Intro to CS',
+      name: 'Study A',
+      description: '',
+      creator_id: 'c1',
+      members: [],
+      created_at: new Date().toISOString(),
+    }];
     render(<ResultsTab {...baseProps} availableGroups={{ 'CS101': groups }} isActionLoading={true} />);
     expect(screen.getByText('Join').closest('button')?.hasAttribute('disabled')).toBe(true)
     expect(screen.getByText('Leave').closest('button')?.hasAttribute('disabled')).toBe(true)

@@ -10,7 +10,7 @@ const Dialog = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Root>,
   React.ComponentProps<typeof DialogPrimitive.Root>
 >((props, ref) => {
-  return <DialogPrimitive.Root data-slot="dialog" ref={ref} {...props} />;
+  return <DialogPrimitive.Root data-slot="dialog" {...props} ref={ref as any} />;
 });
 Dialog.displayName = "Dialog";
 
@@ -29,7 +29,7 @@ const DialogPortal = React.forwardRef<
   React.ComponentProps<typeof DialogPrimitive.Portal>
 >((props, ref) => {
   return (
-    <DialogPrimitive.Portal data-slot="dialog-portal" ref={ref} {...props} />
+    <DialogPrimitive.Portal data-slot="dialog-portal" {...props} ref={ref as any} />
   );
 });
 DialogPortal.displayName = "DialogPortal";

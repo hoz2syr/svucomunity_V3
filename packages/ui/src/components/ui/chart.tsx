@@ -38,9 +38,7 @@ const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     config: ChartConfig;
-    children: React.ComponentProps<
-      typeof RechartsPrimitive.ResponsiveContainer
-    >["children"];
+    children: React.ReactElement | React.ReactElement[];
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId();
@@ -108,18 +106,30 @@ ${colorConfig
   );
 };
 
-const ChartTooltip = RechartsPrimitive.Tooltip;
+type PayloadItem = {
+  name?: string;
+  dataKey?: string;
+  value?: unknown;
+  payload?: Record<string, unknown>;
+  color?: string;
+};
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<"div"> & {
-      hideLabel?: boolean;
-      hideIndicator?: boolean;
-      indicator?: "line" | "dot" | "dashed";
-      nameKey?: string;
-      labelKey?: string;
-    }
+  React.ComponentProps<"div"> & {
+    active?: boolean;
+    payload?: PayloadItem[];
+    hideLabel?: boolean;
+    hideIndicator?: boolean;
+    indicator?: "line" | "dot" | "dashed";
+    nameKey?: string;
+    labelKey?: string;
+    label?: React.ReactNode;
+    labelFormatter?: (value: React.ReactNode, payload: PayloadItem[]) => React.ReactNode;
+    className?: string;
+    formatter?: (value: unknown, name: string, item: PayloadItem, index: number, payload: PayloadItem[]) => React.ReactNode;
+    color?: string;
+  }
 >(({
   active,
   payload,
@@ -192,7 +202,7 @@ const ChartTooltipContent = React.forwardRef<
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
-          const indicatorColor = color || item.payload.fill || item.color;
+          const indicatorColor = color || item.payload?.fill || item.color;
 
           return (
             <div
@@ -203,7 +213,7 @@ const ChartTooltipContent = React.forwardRef<
               )}
             >
               {formatter && item?.value !== undefined && item.name ? (
-                formatter(item.value, item.name, item, index, item.payload)
+                <>{formatter(item.value, item.name, item, index, payload)}</>
               ) : (
                 <>
                   {itemConfig?.icon ? (
@@ -244,7 +254,7 @@ const ChartTooltipContent = React.forwardRef<
                     </div>
                     {item.value && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                        {String(item.value).toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -257,21 +267,29 @@ const ChartTooltipContent = React.forwardRef<
     </div>
   );
 });
+const ChartTooltip = ChartTooltipContent;
 ChartTooltipContent.displayName = "ChartTooltipContent";
 
-const ChartLegend = RechartsPrimitive.Legend;
+type LegendItem = {
+  dataKey?: string;
+  value?: string;
+  color?: string;
+  payload?: PayloadItem[];
+};
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-      hideIcon?: boolean;
-      nameKey?: string;
-    }
+  React.ComponentProps<"div"> & {
+    payload?: LegendItem[];
+    verticalAlign?: "top" | "bottom";
+    hideIcon?: boolean;
+    nameKey?: string;
+    className?: string;
+  }
 >(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
   const { config } = useChart();
 
-  if (!payload?.length) {
+  if (!payload || payload.length === 0) {
     return null;
   }
 
@@ -314,6 +332,8 @@ const ChartLegendContent = React.forwardRef<
 });
 ChartLegendContent.displayName = "ChartLegendContent";
 
+const ChartLegend = ChartLegendContent;
+
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
@@ -326,30 +346,28 @@ function getPayloadConfigFromPayload(
 
   const payloadPayload =
     "payload" in payload &&
-    typeof payload.payload === "object" &&
-    payload.payload !== null
-      ? payload.payload
+    typeof (payload as Record<string, unknown>).payload === "object" &&
+    (payload as Record<string, unknown>).payload !== null
+      ? (payload as Record<string, { [k: string]: unknown }>).payload
       : undefined;
 
   let configLabelKey: string = key;
 
   if (
     key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
+    typeof (payload as Record<string, unknown>)[key as string] === "string"
   ) {
-    configLabelKey = payload[key as keyof typeof payload] as string;
+    configLabelKey = (payload as Record<string, string>)[key];
   } else if (
     payloadPayload &&
     key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
+    typeof payloadPayload[key] === "string"
   ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string;
+    configLabelKey = payloadPayload[key as string];
   }
 
   return configLabelKey in config
-    ? config[configLabelKey]
+    ? config[configLabelKey as keyof typeof config]
     : config[key as keyof typeof config];
 }
 

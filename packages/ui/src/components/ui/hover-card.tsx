@@ -9,7 +9,7 @@ const HoverCard = React.forwardRef<
   React.ComponentRef<typeof HoverCardPrimitive.Root>,
   React.ComponentProps<typeof HoverCardPrimitive.Root>
 >((props, ref) => {
-  return <HoverCardPrimitive.Root data-slot="hover-card" ref={ref} {...props} />;
+  return <HoverCardPrimitive.Root data-slot="hover-card" {...props} ref={ref as any} />;
 });
 HoverCard.displayName = "HoverCard";
 

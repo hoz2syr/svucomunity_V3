@@ -1,6 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AppHeader } from '../components/AppHeader';
+import type { User, Profile } from '@svu-community/types';
+
+type DisplayUser = (User | Profile) & {
+  display_name?: string | null;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string | null;
+};
 
 vi.mock('@/components/ui/Button', () => ({
   Button: ({ children, onClick, ...props }: any) => (
@@ -32,9 +40,14 @@ describe('AppHeader', () => {
   });
 
   it('shows user info and logout when logged in', () => {
-    const user = {
+    const user: DisplayUser = {
       id: '1',
       email: 'test@example.com',
+      username: 'testuser',
+      is_admin: false,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       first_name: 'Test',
       last_name: 'User',
       display_name: 'Test User',
@@ -45,13 +58,31 @@ describe('AppHeader', () => {
   });
 
   it('renders username when display_name and first/last name are absent', () => {
-    const user = { id: '1', email: 'test@example.com', username: 'testuser' };
+    const user: DisplayUser = {
+      id: '1',
+      email: 'test@example.com',
+      username: 'testuser',
+      is_admin: false,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
     render(<AppHeader user={user} onLogin={() => {}} onLogout={() => {}} />);
     expect(screen.getByText('testuser')).toBeDefined();
   });
 
   it('renders avatar image when avatar_url is set', () => {
-    const user = { id: '1', email: 'test@example.com', display_name: 'T', avatar_url: 'https://example.com/avatar.png' };
+    const user: DisplayUser = {
+      id: '1',
+      email: 'test@example.com',
+      username: 'testuser',
+      is_admin: false,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      display_name: 'T',
+      avatar_url: 'https://example.com/avatar.png',
+    };
     render(<AppHeader user={user} onLogin={() => {}} onLogout={() => {}} />);
     const img = screen.getByRole('img');
     expect(img).toBeDefined();
@@ -60,7 +91,17 @@ describe('AppHeader', () => {
 
   it('calls onLogout when logout clicked', () => {
     const onLogout = vi.fn();
-    const user = { id: '1', email: 'test@example.com', first_name: 'Test', last_name: 'User' };
+    const user: DisplayUser = {
+      id: '1',
+      email: 'test@example.com',
+      username: 'testuser',
+      is_admin: false,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      first_name: 'Test',
+      last_name: 'User',
+    };
     render(<AppHeader user={user} onLogin={() => {}} onLogout={onLogout} />);
     fireEvent.click(screen.getByLabelText('Sign out'));
     expect(onLogout).toHaveBeenCalledOnce();

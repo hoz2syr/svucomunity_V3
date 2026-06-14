@@ -10,7 +10,7 @@ const ContextMenu = React.forwardRef<
   React.ComponentRef<typeof ContextMenuPrimitive.Root>,
   React.ComponentProps<typeof ContextMenuPrimitive.Root>
 >((props, ref) => {
-  return <ContextMenuPrimitive.Root data-slot="context-menu" ref={ref} {...props} />;
+  return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} ref={ref as any} />;
 });
 ContextMenu.displayName = "ContextMenu";
 
@@ -39,7 +39,7 @@ const ContextMenuPortal = React.forwardRef<
   React.ComponentProps<typeof ContextMenuPrimitive.Portal>
 >((props, ref) => {
   return (
-    <ContextMenuPrimitive.Portal data-slot="context-menu-portal" ref={ref} {...props} />
+    <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} ref={ref as any} />
   );
 });
 ContextMenuPortal.displayName = "ContextMenuPortal";
@@ -49,7 +49,7 @@ const ContextMenuSub = React.forwardRef<
   React.ComponentProps<typeof ContextMenuPrimitive.Sub>
 >((props, ref) => {
   return (
-    <ContextMenuPrimitive.Sub data-slot="context-menu-sub" ref={ref} {...props} />
+    <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...props} ref={ref as any} />
   );
 });
 ContextMenuSub.displayName = "ContextMenuSub";

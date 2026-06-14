@@ -8,9 +8,9 @@ import { cn } from "./utils";
 
 const Sheet = React.forwardRef<
   React.ComponentRef<typeof SheetPrimitive.Root>,
-  React.ComponentProps<typeof SheetPrimitive.Root>
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>
 >((props, ref) => {
-  return <SheetPrimitive.Root data-slot="sheet" ref={ref} {...props} />;
+  return <SheetPrimitive.Root data-slot="sheet" {...(props as any)} ref={ref as any} />;
 });
 Sheet.displayName = "Sheet";
 
@@ -34,14 +34,13 @@ const SheetClose = React.forwardRef<
 });
 SheetClose.displayName = "SheetClose";
 
-const SheetPortal = React.forwardRef<
-  React.ComponentRef<typeof SheetPrimitive.Portal>,
-  React.ComponentProps<typeof SheetPrimitive.Portal>
->((props, ref) => {
+const SheetPortal = ({ children, ...props }: React.ComponentProps<typeof SheetPrimitive.Portal>) => {
   return (
-    <SheetPrimitive.Portal data-slot="sheet-portal" ref={ref} {...props} />
+    <SheetPrimitive.Portal data-slot="sheet-portal" {...props}>
+      {children}
+    </SheetPrimitive.Portal>
   );
-});
+};
 SheetPortal.displayName = "SheetPortal";
 
 const SheetOverlay = React.forwardRef<

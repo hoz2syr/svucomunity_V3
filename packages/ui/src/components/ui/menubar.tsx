@@ -17,8 +17,8 @@ const Menubar = React.forwardRef<
         "bg-background flex h-9 items-center gap-1 rounded-md border p-1 shadow-xs",
         className,
       )}
-      ref={ref}
       {...props}
+      ref={ref as any}
     />
   );
 });
@@ -29,7 +29,7 @@ const MenubarMenu = React.forwardRef<
   React.ComponentProps<typeof MenubarPrimitive.Menu>
 >((props, ref) => {
   return (
-    <MenubarPrimitive.Menu data-slot="menubar-menu" ref={ref} {...props} />
+    <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} ref={ref as any} />
   );
 });
 MenubarMenu.displayName = "MenubarMenu";
@@ -49,7 +49,7 @@ const MenubarPortal = React.forwardRef<
   React.ComponentProps<typeof MenubarPrimitive.Portal>
 >((props, ref) => {
   return (
-    <MenubarPrimitive.Portal data-slot="menubar-portal" ref={ref} {...props} />
+    <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} ref={ref as any} />
   );
 });
 MenubarPortal.displayName = "MenubarPortal";
@@ -242,7 +242,7 @@ const MenubarSub = React.forwardRef<
   React.ComponentProps<typeof MenubarPrimitive.Sub>
 >((props, ref) => {
   return (
-    <MenubarPrimitive.Sub data-slot="menubar-sub" ref={ref} {...props} />
+    <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} ref={ref as any} />
   );
 });
 MenubarSub.displayName = "MenubarSub";

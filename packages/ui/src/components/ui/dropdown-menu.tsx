@@ -10,7 +10,7 @@ const DropdownMenu = React.forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Root>,
   React.ComponentProps<typeof DropdownMenuPrimitive.Root>
 >((props, ref) => {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" ref={ref} {...props} />;
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} ref={ref as any} />;
 });
 DropdownMenu.displayName = "DropdownMenu";
 
@@ -19,7 +19,7 @@ const DropdownMenuPortal = React.forwardRef<
   React.ComponentProps<typeof DropdownMenuPrimitive.Portal>
 >((props, ref) => {
   return (
-    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" ref={ref} {...props} />
+    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} ref={ref as any} />
   );
 });
 DropdownMenuPortal.displayName = "DropdownMenuPortal";
@@ -216,7 +216,7 @@ const DropdownMenuSub = React.forwardRef<
   React.ComponentProps<typeof DropdownMenuPrimitive.Sub>
 >((props, ref) => {
   return (
-    <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" ref={ref} {...props} />
+    <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} ref={ref as any} />
   );
 });
 DropdownMenuSub.displayName = "DropdownMenuSub";

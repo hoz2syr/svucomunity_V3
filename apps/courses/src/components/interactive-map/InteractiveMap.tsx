@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, ReactFlowProvider, useReactFlow, type Node, type Edge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, ReactFlowProvider, useReactFlow, type Node, type Edge, type NodeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { iteData } from './data/ite_data';
@@ -9,8 +9,8 @@ import { getCourseDetails, getDirectPrereqs, getSuccessors, getAvailableCourses,
 import { generateInitialElements } from './lib/layoutUtils';
 import { BookOpen, GraduationCap, Settings, Info, RefreshCw } from 'lucide-react';
 
-const nodeTypes = {
-  courseNode: CourseNode as React.ComponentType<any>,
+const nodeTypes: NodeTypes = {
+  courseNode: CourseNode,
 };
 
 function FlowApp() {

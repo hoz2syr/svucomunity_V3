@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useGroupActions } from '../hooks/useGroupActions'
 
-const mockSupabaseUpdate = vi.fn(async () => ({ error: null }))
+const mockSupabaseUpdate = vi.fn(async () => ({ error: null } as { error: null | { message: string } }))
 const mockSupabaseInsert = vi.fn(async () => ({ error: null }))
 
 vi.mock('../services/supabase', () => ({
