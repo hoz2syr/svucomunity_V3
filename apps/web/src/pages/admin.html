@@ -106,13 +106,17 @@
                                 <tr class="border-b border-white/10 text-secondary-400 text-right">
                                     <th class="px-6 py-4 font-medium" data-i18n="colName">الاسم</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colEmail">البريد</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colUsername">المستخدم</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colMajor">التخصص</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colRole">الدور</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colStatus">الحالة</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colDate">تاريخ التسجيل</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colActions">إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
-                                <tr><td colspan="5" class="px-6 py-8 text-center text-secondary-400" data-i18n="loadingUsers">جاري التحميل...</td></tr>
+                                <tr id="usersEmpty" class="hidden"><td colspan="8" class="px-6 py-8 text-center text-secondary-400" data-i18n="noUsers">لا يوجد مستخدمين</td></tr>
+                                <tr><td colspan="8" class="px-6 py-8 text-center text-secondary-400" data-i18n="loadingUsers">جاري التحميل...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -140,14 +144,18 @@
                             <thead>
                                 <tr class="border-b border-white/10 text-secondary-400 text-right">
                                     <th class="px-6 py-4 font-medium" data-i18n="colGroupName">اسم المجموعة</th>
+                                    <th class="px-6 py-4 font-medium">المقرر</th>
+                                    <th class="px-6 py-4 font-medium">رمز المقرر</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colMajor">التخصص</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colMembers">الأعضاء</th>
-                                    <th class="px-6 py-4 font-medium" data-i18n="colCreatedBy">أنشأها</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colStatus">الحالة</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colCreatedBy">أنشأها</th>
+                                    <th class="px-6 py-4 font-medium" data-i18n="colDate">تاريخ الإنشاء</th>
                                     <th class="px-6 py-4 font-medium" data-i18n="colActions">إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="groupsTableBody">
-                                <tr><td colspan="5" class="px-6 py-8 text-center text-secondary-400" data-i18n="loadingGroups">جاري التحميل...</td></tr>
+                                <tr><td colspan="9" class="px-6 py-8 text-center text-secondary-400" data-i18n="loadingGroups">جاري التحميل...</td></tr>
                             </tbody>
                         </table>
                     </div>

@@ -7,11 +7,13 @@ import {
 } from './adminApi.js';
 import { filterUsers } from './users.js';
 import { filterGroups } from './groups.js';
+import { filterCourses } from './courses.js';
 
 export const db = null;
 export let allUsers = [];
 export let allGroups = [];
-export let currentTab = 'users';
+export let allCourses = [];
+export let currentTab = 'overview';
 
 export function onActionClick(action, btn) {
   const id = btn.closest('[data-id]')?.dataset.id;
@@ -32,6 +34,9 @@ export function onActionClick(action, btn) {
     case 'deleteGroup':
       deleteGroup(id);
       break;
+    case 'deleteCourse':
+      if (window.adminDeleteCourse) window.adminDeleteCourse(id);
+      break;
   }
 }
 
@@ -47,47 +52,60 @@ export function setupActionDelegation() {
 }
 
 export function setupTabs() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
+  document.querySelectorAll('.admin-tab').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const tab = btn.dataset.tab;
+      const tab = btn.dataset.adminTab;
       currentTab = tab;
 
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active');
-        b.classList.add('text-secondary-400');
+      document.querySelectorAll('.admin-tab').forEach(b => {
+        b.classList.remove('active', 'bg-primary-500/20', 'text-white');
+        b.classList.add('text-secondary-300');
       });
-      btn.classList.add('active');
-      btn.classList.remove('text-secondary-400');
+      btn.classList.add('active', 'bg-primary-500/20', 'text-white');
+      btn.classList.remove('text-secondary-300');
 
-      document.getElementById('tab-users')?.classList.toggle('hidden', tab !== 'users');
-      document.getElementById('tab-groups')?.classList.toggle('hidden', tab !== 'groups');
-      document.getElementById('tab-email')?.classList.toggle('hidden', tab !== 'email');
+      const panels = ['overview', 'users', 'courses-admin', 'groups-admin', 'settings'];
+      panels.forEach(p => {
+        const el = document.getElementById('tab-' + p);
+        if (el) el.classList.toggle('hidden', p !== tab);
+      });
 
-      if (tab === 'groups' && !allGroups.length && db) {
-        const groups = await window.loadGroups?.(db);
-        if (groups) allGroups = groups;
+      if ((tab === 'groups-admin' || tab === 'courses-admin') && db) {
+        if (tab === 'groups-admin' && !allGroups.length) {
+          const groups = await window.loadGroups?.(db);
+          if (groups) allGroups = groups;
+        }
+        if (tab === 'courses-admin' && !allCourses.length) {
+          const courses = await window.loadCourses?.(db);
+          if (courses) allCourses = courses;
+        }
       }
     });
   });
 }
 
 export function setupSearchFilters() {
-  document.getElementById('searchUsers')?.addEventListener('input', () => filterUsers(allUsers));
-  document.getElementById('filterAdmin')?.addEventListener('change', () => filterUsers(allUsers));
-  document.getElementById('filterActive')?.addEventListener('change', () => filterUsers(allUsers));
+  const userSearchEl = document.getElementById('userSearchInput');
+  const userRoleEl = document.getElementById('userRoleFilter');
+  if (userSearchEl) userSearchEl.addEventListener('input', () => filterUsers(allUsers));
+  if (userRoleEl) userRoleEl.addEventListener('change', () => filterUsers(allUsers));
 
-  document.getElementById('searchGroups')?.addEventListener('input', () => filterGroups(allGroups));
-  document.getElementById('filterFull')?.addEventListener('change', () => filterGroups(allGroups));
+  const groupSearchEl = document.getElementById('searchGroups');
+  const groupFilterEl = document.getElementById('filterFull');
+  if (groupSearchEl) groupSearchEl.addEventListener('input', () => filterGroups(allGroups));
+  if (groupFilterEl) groupFilterEl.addEventListener('change', () => filterGroups(allGroups));
+
+  const courseSearchEl = document.getElementById('adminCourseSearch');
+  if (courseSearchEl) courseSearchEl.addEventListener('input', () => filterCourses(allCourses));
 }
 
 export function setupEmailListeners() {
   const emailRecipientsEl = document.getElementById('emailRecipients');
-  if (emailRecipientsEl) {
-    emailRecipientsEl.addEventListener('change', () => {
-      const wrapper = document.getElementById('customEmailsWrapper');
-      wrapper?.classList.toggle('hidden', emailRecipientsEl.value !== 'custom');
-    });
-  }
+  if (!emailRecipientsEl) return;
+  emailRecipientsEl.addEventListener('change', () => {
+    const wrapper = document.getElementById('customEmailsWrapper');
+    wrapper?.classList.toggle('hidden', emailRecipientsEl.value !== 'custom');
+  });
 }
 
 export function previewEmail() {

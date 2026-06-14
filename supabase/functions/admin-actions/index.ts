@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     return jsonResponse(400, { error: 'missing_action' });
   }
 
-  const validActions = ['makeAdmin', 'revokeAdmin', 'toggleActive', 'deleteGroup', 'sendEmail'];
+  const validActions = ['makeAdmin', 'revokeAdmin', 'toggleActive', 'deleteGroup', 'sendEmail', 'createCourse', 'deleteCourse', 'saveSettings', 'resetAllData'];
   if (!validActions.includes(action)) {
     return jsonResponse(400, { error: 'unsupported_action', action });
   }
@@ -180,6 +180,90 @@ Deno.serve(async (req) => {
           failed: 0,
           messageId: emailData?.id ?? null,
         });
+      }
+
+      case 'createCourse': {
+        const { courseData } = args ?? {};
+        if (!courseData?.name || !courseData?.code) {
+          return jsonResponse(400, { error: 'course_name_and_code_required' });
+        }
+        const { error } = await supabase
+          .from('courses')
+          .insert({
+            name: courseData.name,
+            code: courseData.code,
+            major: courseData.major ?? null,
+            instructor: courseData.instructor ?? null,
+            max_members: courseData.max_members ?? null,
+            description: courseData.description ?? null,
+          });
+        if (error) throw error;
+        return jsonResponse(200, { ok: true });
+      }
+
+      case 'deleteCourse': {
+        const { courseId } = args ?? {};
+        if (!courseId) return jsonResponse(400, { error: 'courseId_required' });
+        const { error } = await supabase
+          .from('courses')
+          .delete()
+          .eq('id', courseId);
+        if (error) throw error;
+        return jsonResponse(200, { ok: true });
+      }
+
+      case 'saveSettings': {
+        const { siteName, defaultLang, requireEmail, allowRegistration } = args ?? {};
+        const settingsRow = {
+          site_name: siteName ?? 'SVU Community',
+          default_lang: defaultLang ?? 'ar',
+          require_email: typeof requireEmail === 'boolean' ? requireEmail : true,
+          allow_registration: typeof allowRegistration === 'boolean' ? allowRegistration : true,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { data: existing } = await supabase
+          .from('settings')
+          .select('key')
+          .eq('key', 'app_config')
+          .maybeSingle();
+
+        if (existing) {
+          const { error: updateErr } = await supabase
+            .from('settings')
+            .update({ value: settingsRow })
+            .eq('key', 'app_config');
+          if (updateErr) throw updateErr;
+        } else {
+          const { error: insertErr } = await supabase
+            .from('settings')
+            .insert({ key: 'app_config', value: settingsRow });
+          if (insertErr) throw insertErr;
+        }
+
+        return jsonResponse(200, { ok: true });
+      }
+
+      case 'resetAllData': {
+        const { error: membersErr } = await supabase
+          .from('group_members')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
+        if (membersErr) throw membersErr;
+
+        const { error: groupsErr } = await supabase
+          .from('groups')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
+        if (groupsErr) throw groupsErr;
+
+        const { error: coursesErr } = await supabase
+          .from('courses')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
+        if (coursesErr) throw coursesErr;
+
+        return jsonResponse(200, { ok: true });
       }
 
       default:

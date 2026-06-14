@@ -6,12 +6,12 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "./utils";
 
-function DropdownMenu(props) {
+function DropdownMenu(props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 DropdownMenu.displayName = "DropdownMenu";
 
-function DropdownMenuPortal(props) {
+function DropdownMenuPortal(props: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
   return <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />;
 }
 DropdownMenuPortal.displayName = "DropdownMenuPortal";
@@ -203,7 +203,7 @@ const DropdownMenuShortcut = React.forwardRef<
 });
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
-function DropdownMenuSub(props) {
+function DropdownMenuSub(props: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
   return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />;
 }
 DropdownMenuSub.displayName = "DropdownMenuSub";

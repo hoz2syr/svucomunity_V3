@@ -7,23 +7,17 @@ import { Root, Portal, Overlay, Content } from "vaul";
 
 const DrawerRoot = Root;
 
-const DrawerPortal = React.forwardRef<
-  React.ComponentRef<typeof Portal>,
-  React.ComponentPropsWithoutRef<typeof Portal>
->((props, ref) => {
-  return <Portal data-slot="drawer-portal" {...props} ref={ref} />;
-});
+function Drawer(props: React.ComponentPropsWithoutRef<typeof DrawerRoot>) {
+  return <DrawerRoot data-slot="drawer" {...props} />;
+}
+Drawer.displayName = "Drawer";
+
+function DrawerPortal(props: React.ComponentPropsWithoutRef<typeof Portal>) {
+  return <Portal data-slot="drawer-portal" {...props} />;
+}
 DrawerPortal.displayName = "DrawerPortal";
 
-const DrawerComponent = React.forwardRef<
-  React.ComponentRef<typeof DrawerRoot>,
-  React.ComponentPropsWithoutRef<typeof DrawerRoot>
->((props, ref) => {
-  return <DrawerRoot data-slot="drawer" {...props} ref={ref} />;
-});
-DrawerComponent.displayName = "Drawer";
-
-const DrawerOverlayWrapped = React.forwardRef<
+const DrawerOverlay = React.forwardRef<
   React.ComponentRef<typeof Overlay>,
   React.ComponentPropsWithoutRef<typeof Overlay>
 >(({ className, ...props }, ref) => {
@@ -39,15 +33,15 @@ const DrawerOverlayWrapped = React.forwardRef<
     />
   );
 });
-DrawerOverlayWrapped.displayName = "DrawerOverlay";
+DrawerOverlay.displayName = "DrawerOverlay";
 
-const DrawerContentWrapped = React.forwardRef<
+const DrawerContent = React.forwardRef<
   React.ComponentRef<typeof Content>,
   React.ComponentPropsWithoutRef<typeof Content>
 >(({ className, children, ...props }, ref) => {
   return (
     <DrawerPortal>
-      <DrawerOverlayWrapped />
+      <DrawerOverlay />
       <Content
         data-slot="drawer-content"
         className={cn(
@@ -67,7 +61,7 @@ const DrawerContentWrapped = React.forwardRef<
     </DrawerPortal>
   );
 });
-DrawerContentWrapped.displayName = "DrawerContent";
+DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = React.forwardRef<
   HTMLDivElement,
@@ -99,11 +93,47 @@ const DrawerFooter = React.forwardRef<
 });
 DrawerFooter.displayName = "DrawerFooter";
 
+function DrawerTitle({ className, ...props }: React.ComponentProps<"div"> & { className?: string }) {
+  return (
+    <div
+      data-slot="drawer-title"
+      className={cn("text-lg font-semibold", className)}
+      {...props}
+    />
+  );
+}
+DrawerTitle.displayName = "DrawerTitle";
+
+function DrawerDescription({ className, ...props }: React.ComponentProps<"div"> & { className?: string }) {
+  return (
+    <div
+      data-slot="drawer-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  );
+}
+DrawerDescription.displayName = "DrawerDescription";
+
+function DrawerTrigger(props: React.ComponentProps<typeof Content>) {
+  return <Content data-slot="drawer-trigger" {...props} />;
+}
+DrawerTrigger.displayName = "DrawerTrigger";
+
+function DrawerClose(props: React.ComponentProps<typeof Content>) {
+  return <Content data-slot="drawer-close" {...props} />;
+}
+DrawerClose.displayName = "DrawerClose";
+
 export {
-  DrawerComponent as Drawer,
+  Drawer,
   DrawerPortal,
-  DrawerOverlayWrapped as DrawerOverlay,
-  DrawerContentWrapped as DrawerContent,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerOverlay,
+  DrawerContent,
   DrawerHeader,
   DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
 };

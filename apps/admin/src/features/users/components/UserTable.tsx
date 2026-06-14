@@ -1,20 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
-  ChevronDown,
   Download,
   Loader2,
   ShieldCheck,
   ShieldOff,
-  UserCircle2,
   UserRound,
   UserRoundCheck,
   UserRoundX,
   View,
 } from "lucide-react";
 import {
-  Row,
   Table as UiTable,
   TableBody as UiTableBody,
   TableCell as UiTableCell,
@@ -25,7 +22,6 @@ import {
 } from "@svu-community/ui/components/ui/table";
 
 export type UserStatus = "active" | "inactive";
-
 export type UserRole = "admin" | "user";
 
 export interface UserRecord {
@@ -38,25 +34,8 @@ export interface UserRecord {
   createdAt: string;
 }
 
-export interface UsersFilters {
-  search: string;
-  role: UserRole | "all";
-  status: UserStatus | "all";
-}
-
-export interface UsersPagination {
-  page: number;
-  pageSize: number;
-}
-
-export interface UsersQuery extends UsersFilters, UsersPagination {}
-
 export interface UsersTableProps {
   users: UserRecord[];
-  pagination: UsersPagination;
-  totalItems: number;
-  onPaginationChange: (next: UsersPagination) => void;
-  onFiltersChange: (next: UsersFilters) => void;
   onBulkExport: (selectedIds: string[]) => void;
   onToggleAdmin: (user: UserRecord, admin: boolean) => void;
   onToggleStatus: (user: UserRecord, status: UserStatus) => void;
@@ -85,7 +64,7 @@ const isRecordSelected = (id: string, selectedIds: string[]) =>
   selectedIds.includes(id);
 
 const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("en", {
+  new Intl.DateTimeFormat("ar-SA", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -119,12 +98,8 @@ function SkeletonRow() {
   );
 }
 
-function UsersTableComponent({
+export function UserTable({
   users,
-  pagination,
-  totalItems,
-  onPaginationChange,
-  onFiltersChange,
   onBulkExport,
   onToggleAdmin,
   onToggleStatus,
@@ -133,22 +108,15 @@ function UsersTableComponent({
   onSelectedIdsChange,
   isLoading = false,
 }: UsersTableProps) {
-  const [filters, setFilters] = useState<UsersFilters>({
-    search: "",
-    role: "all",
-    status: "all",
-  });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const startIndex = (pagination.page - 1) * pagination.pageSize;
-  const paginatedUsers = useMemo(
-    () => users.slice(startIndex, startIndex + pagination.pageSize),
-    [users, startIndex, pagination.pageSize],
-  );
+  const paginatedUsers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return users.slice(start, start + pageSize);
+  }, [users, page, pageSize]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(Math.max(totalItems, users.length) / pagination.pageSize),
-  );
+  const totalPages = Math.max(1, Math.ceil(users.length / pageSize));
 
   const allOnPageSelected =
     paginatedUsers.length > 0 &&
@@ -163,23 +131,10 @@ function UsersTableComponent({
     [selectedIds, users],
   );
 
-  const handleFiltersChange = useCallback(
-    (update: Partial<UsersFilters>) => {
-      const next = { ...filters, ...update };
-      setFilters(next);
-      onFiltersChange(next);
-      onPaginationChange({ ...pagination, page: 1 });
-    },
-    [filters, onFiltersChange, onPaginationChange, pagination],
-  );
-
-  const handlePaginationChange = useCallback(
-    (update: Partial<UsersPagination>) => {
-      const next = { ...pagination, ...update };
-      onPaginationChange(next);
-    },
-    [onPaginationChange, pagination],
-  );
+  const handlePageSizeChange = (nextSize: number) => {
+    setPageSize(nextSize);
+    setPage(1);
+  };
 
   const handleToggleAllOnPage = useCallback(() => {
     if (allOnPageSelected) {
@@ -213,83 +168,9 @@ function UsersTableComponent({
     onBulkExport(selectedUsers.map((user) => user.id));
   }, [onBulkExport, selectedIds, users]);
 
-  const handleToggleAdmin = useCallback(
-    (user: UserRecord) => {
-      onToggleAdmin(user, user.role !== "admin");
-    },
-    [onToggleAdmin],
-  );
-
-  const handleToggleStatus = useCallback(
-    (user: UserRecord) => {
-      onToggleStatus(user, user.status === "active" ? "inactive" : "active");
-    },
-    [onToggleStatus],
-  );
-
-  useEffect(() => {
-    setFilters({
-      search: "",
-      role: "all",
-      status: "all",
-    });
-  }, [users]);
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex min-w-[220px] flex-1 flex-col gap-1 text-sm text-slate-300">
-          Search
-          <input
-            className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-400"
-            placeholder="Email or username"
-            value={filters.search}
-            onChange={(event) =>
-              handleFiltersChange({ search: event.target.value })
-            }
-          />
-        </label>
-
-        <label className="flex min-w-[160px] flex-col gap-1 text-sm text-slate-300">
-          Role
-          <div className="relative">
-            <select
-              className="h-full w-full appearance-none rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-              value={filters.role}
-              onChange={(event) =>
-                handleFiltersChange({
-                  role: event.target.value as UsersFilters["role"],
-                })
-              }
-            >
-              <option value="all">All roles</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-        </label>
-
-        <label className="flex min-w-[160px] flex-col gap-1 text-sm text-slate-300">
-          Status
-          <div className="relative">
-            <select
-              className="h-full w-full appearance-none rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-              value={filters.status}
-              onChange={(event) =>
-                handleFiltersChange({
-                  status: event.target.value as UsersFilters["status"],
-                })
-              }
-            >
-              <option value="all">All statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-        </label>
-
+      <div className="flex items-center justify-end">
         <button
           className="inline-flex items-center gap-2 self-end rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
           disabled={filteredSelectedCount === 0 || isLoading}
@@ -315,24 +196,24 @@ function UsersTableComponent({
                 type="checkbox"
               />
             </UiTableHead>
-            <UiTableHead>Email</UiTableHead>
-            <UiTableHead>Username</UiTableHead>
-            <UiTableHead>Full name</UiTableHead>
-            <UiTableHead>Role</UiTableHead>
-            <UiTableHead>Status</UiTableHead>
-            <UiTableHead>Created</UiTableHead>
-            <UiTableHead className="text-right">Actions</UiTableHead>
+            <UiTableHead>البريد الإلكتروني</UiTableHead>
+            <UiTableHead>اسم المستخدم</UiTableHead>
+            <UiTableHead>الاسم الكامل</UiTableHead>
+            <UiTableHead>الصلاحية</UiTableHead>
+            <UiTableHead>الحالة</UiTableHead>
+            <UiTableHead>تاريخ الإنشاء</UiTableHead>
+            <UiTableHead className="text-right">الإجراءات</UiTableHead>
           </UiTableRow>
         </UiTableHeader>
         <UiTableBody>
           {isLoading ? (
-            Array.from({ length: pagination.pageSize }).map((_, index) => (
+            Array.from({ length: pageSize }).map((_, index) => (
               <SkeletonRow key={`skeleton-${index}`} />
             ))
           ) : paginatedUsers.length === 0 ? (
             <UiTableRow>
               <UiTableCell colSpan={8} className="h-40 text-center text-sm text-slate-400">
-                No users match the current filters.
+                لا يوجد مستخدمون مطابقون.
               </UiTableCell>
             </UiTableRow>
           ) : (
@@ -381,45 +262,45 @@ function UsersTableComponent({
                       <button
                         className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white transition-colors hover:bg-white/10"
                         onClick={() => onViewDetails(user)}
-                        title="View details"
+                        title="عرض التفاصيل"
                         type="button"
                       >
                         <View className="size-3.5" />
-                        View
+                        عرض
                       </button>
                       <button
                         className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white transition-colors hover:bg-white/10"
-                        onClick={() => handleToggleAdmin(user)}
-                        title={admin ? "Revoke admin access" : "Promote to admin"}
+                        onClick={() => onToggleAdmin(user, !admin)}
+                        title={admin ? "إزالة صلاحية الأدمن" : "منح صلاحية الأدمن"}
                         type="button"
                       >
                         {admin ? (
                           <>
                             <ShieldOff className="size-3.5" />
-                            Revoke admin
+                            إزالة أدمن
                           </>
                         ) : (
                           <>
                             <ShieldCheck className="size-3.5" />
-                            Make admin
+                            منح أدمن
                           </>
                         )}
                       </button>
                       <button
                         className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white transition-colors hover:bg-white/10"
-                        onClick={() => handleToggleStatus(user)}
-                        title={active ? "Deactivate user" : "Activate user"}
+                        onClick={() => onToggleStatus(user, active ? "inactive" : "active")}
+                        title={active ? "تعطيل المستخدم" : "تفعيل المستخدم"}
                         type="button"
                       >
                         {active ? (
                           <>
                             <UserRoundX className="size-3.5" />
-                            Deactivate
+                            تعطيل
                           </>
                         ) : (
                           <>
                             <UserRoundCheck className="size-3.5" />
-                            Activate
+                            تفعيل
                           </>
                         )}
                       </button>
@@ -430,68 +311,58 @@ function UsersTableComponent({
             })
           )}
         </UiTableBody>
-        <UiTableFooter>
-          <UiTableRow>
-            <UiTableCell colSpan={8} className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-300">
-              <span>
-                Showing {isLoading ? "..." : `${startIndex + 1}-${Math.min(startIndex + pagination.pageSize, users.length)}`} of{" "}
-                {users.length} users
-                {filteredSelectedCount > 0
-                  ? ` • ${filteredSelectedCount} selected`
-                  : ""}
-              </span>
-              <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 text-xs text-slate-300">
-                  Rows per page
-                  <select
-                    className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white"
-                    value={pagination.pageSize}
-                    onChange={(event) =>
-                      handlePaginationChange({
-                        pageSize: Number(event.target.value),
-                        page: 1,
-                      })
-                    }
-                  >
-                    {PAGE_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <div className="flex items-center gap-1">
-                  <button
-                    className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled={pagination.page <= 1 || isLoading}
-                    onClick={() =>
-                      handlePaginationChange({ page: pagination.page - 1 })
-                    }
-                    type="button"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-2 text-xs text-slate-300">
-                    {isLoading ? "..." : `${pagination.page} / ${totalPages}`}
-                  </span>
-                  <button
-                    className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled={pagination.page >= totalPages || isLoading}
-                    onClick={() =>
-                      handlePaginationChange({ page: pagination.page + 1 })
-                    }
-                    type="button"
-                  >
-                    Next
-                  </button>
+        {!isLoading && users.length > pageSize && (
+          <UiTableFooter>
+            <UiTableRow>
+              <UiTableCell colSpan={8} className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-300">
+                <span>
+                  {`عرض ${(page - 1) * pageSize + 1}-${Math.min(page * pageSize, users.length)} من ${users.length} مستخدم`}
+                  {filteredSelectedCount > 0
+                    ? ` • ${filteredSelectedCount} محدد`
+                    : ""}
+                </span>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 text-xs text-slate-300">
+                    صفوف في الصفحة
+                    <select
+                      className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white"
+                      value={pageSize}
+                      onChange={(event) => handlePageSizeChange(Number(event.target.value))}
+                    >
+                      {PAGE_SIZES.map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                      disabled={page <= 1 || isLoading}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      type="button"
+                    >
+                      السابق
+                    </button>
+                    <span className="px-2 text-xs text-slate-300">
+                      {isLoading ? "..." : `${page} / ${totalPages}`}
+                    </span>
+                    <button
+                      className="rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                      disabled={page >= totalPages || isLoading}
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      type="button"
+                    >
+                      التالي
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </UiTableCell>
-          </UiTableRow>
-        </UiTableFooter>
+              </UiTableCell>
+            </UiTableRow>
+          </UiTableFooter>
+        )}
       </UiTable>
     </div>
   );
 }
-
-export const UserTable = UsersTableComponent;

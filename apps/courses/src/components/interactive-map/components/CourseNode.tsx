@@ -74,7 +74,7 @@ export const CourseNode = memo(function CourseNode({ data }: CourseNodeProps) {
       tabIndex={0}
       role="button"
       aria-label={courseLabel}
-      aria-pressed={simulatorMode ? (state === 'passed' ? 'true' : 'false') : undefined}
+      aria-pressed={simulatorMode ? state === 'passed' : undefined}
       onKeyDown={handleKeyDown}
       onClick={() => onClick(course.code)}
       style={{ minWidth: dynamicWidth }}

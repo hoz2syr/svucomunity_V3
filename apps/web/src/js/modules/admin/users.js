@@ -23,10 +23,16 @@ export function renderUsers(users) {
 
   if (!users.length) {
     tbody.innerHTML = '';
-    empty?.classList.add('hidden');
+    const row = document.createElement('tr');
+    row.id = 'usersEmpty';
+    row.className = 'hidden';
+    row.innerHTML = '<td colspan="8" class="px-6 py-8 text-center text-secondary-400" data-i18n="noUsers">لا يوجد مستخدمين</td>';
+    tbody.appendChild(row);
     return;
   }
-  empty?.classList.remove('hidden');
+
+  const toRemove = tbody.querySelectorAll('tr');
+  toRemove.forEach(r => r.remove());
 
   tbody.innerHTML = users.map(u => {
     const fullName = ((u.first_name || '') + ' ' + (u.middle_name || '') + ' ' + (u.last_name || '')).trim() || '-';
@@ -43,8 +49,8 @@ export function renderUsers(users) {
       + '<td class="text-secondary-300 text-sm">' + escapeHtml(u.email || '-') + '</td>'
       + '<td class="text-secondary-400 text-sm">@' + escapeHtml(u.username || '-') + '</td>'
       + '<td class="text-secondary-400 text-sm">' + escapeHtml(u.major || '-') + '</td>'
-      + '<td>' + statusBadge + '</td>'
       + '<td>' + adminBadge + '</td>'
+      + '<td>' + statusBadge + '</td>'
       + '<td class="text-secondary-500 text-sm">' + date + '</td>'
       + '<td class="flex gap-1 flex-wrap" data-actions="user" data-id="' + escapeHtml(u.id) + '">'
       + (u.is_admin
@@ -58,19 +64,18 @@ export function renderUsers(users) {
 }
 
 export function filterUsers(allUsers) {
-  const search = (document.getElementById('searchUsers')?.value || '').toLowerCase();
-  const adminFilter = document.getElementById('filterAdmin')?.value || '';
-  const activeFilter = document.getElementById('filterActive')?.value || '';
+  const search = (document.getElementById('userSearchInput')?.value || '').toLowerCase();
+  const roleFilter = document.getElementById('userRoleFilter')?.value || '';
 
   const filtered = allUsers.filter(u => {
-    const fullName = ((u.first_name || '') + ' ' + (u.last_name || '')).toLowerCase();
-    if (search && !fullName.includes(search) && !(u.email || '').toLowerCase().includes(search) && !(u.username || '').toLowerCase().includes(search)) {
-      return false;
+    if (search) {
+      const fullName = ((u.first_name || '') + ' ' + (u.middle_name || '') + ' ' + (u.last_name || '')).toLowerCase();
+      if (!fullName.includes(search) && !(u.email || '').toLowerCase().includes(search) && !(u.username || '').toLowerCase().includes(search)) {
+        return false;
+      }
     }
-    if (adminFilter === 'admin' && !u.is_admin) return false;
-    if (adminFilter === 'user' && u.is_admin) return false;
-    if (activeFilter === 'active' && !u.is_active) return false;
-    if (activeFilter === 'inactive' && u.is_active) return false;
+    if (roleFilter === 'admin' && !u.is_admin) return false;
+    if (roleFilter !== 'admin' && roleFilter !== 'all' && u.is_admin) return false;
     return true;
   });
   renderUsers(filtered);

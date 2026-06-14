@@ -32,15 +32,32 @@ export function useCourses(page = 1, pageSize = 20): UseCoursesResult {
   const [currentPageSize, setCurrentPageSize] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
   const retryTimer = useRef<number | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Refs to avoid stale closure — always read latest page/pageSize
+  const currentPageRef = useRef(currentPage);
+  const currentPageSizeRef = useRef(currentPageSize);
+  useEffect(() => { currentPageRef.current = currentPage; }, [currentPage]);
+  useEffect(() => { currentPageSizeRef.current = currentPageSize; }, [currentPageSize]);
 
   const fetchCourses = useCallback(async (retryCount = 0): Promise<void> => {
     const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    // Cancel any pending retry before starting a new fetch
+    if (retryTimer.current !== null) {
+      clearTimeout(retryTimer.current);
+      retryTimer.current = null;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      const from = (currentPage - 1) * currentPageSize;
-      const to = currentPage * currentPageSize - 1;
+      const latestPage = currentPageRef.current;
+      const latestPageSize = currentPageSizeRef.current;
+      const from = (latestPage - 1) * latestPageSize;
+      const to = latestPage * latestPageSize - 1;
 
       const { data, error: fetchError, count } = await supabase
         .from('courses')
@@ -65,26 +82,34 @@ export function useCourses(page = 1, pageSize = 20): UseCoursesResult {
       if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : 'فشل تحميل المواد';
       console.error('[useCourses]', message, err);
-      if (retryCount < 2) {
-        const delay = 2000 * (retryCount + 1);
-        retryTimer.current = window.setTimeout(() => fetchCourses(retryCount + 1), delay);
+      if (retryCount < 2 && typeof window !== 'undefined') {
+        retryTimer.current = window.setTimeout(() => fetchCourses(retryCount + 1), 2000 * (retryCount + 1));
         return;
       }
       setError(message);
     } finally {
-      setLoading(false);
+      if (abortControllerRef.current === controller) {
+        setLoading(false);
+      }
     }
-  }, [currentPage, currentPageSize]);
+  }, []);
 
+  // Fetch on mount and when page/pageSize changes
   useEffect(() => {
     const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     fetchCourses();
-    // AbortController cleanup prevents state updates after unmount
+
     return () => {
       controller.abort();
-      if (retryTimer.current) window.clearTimeout(retryTimer.current);
+      abortControllerRef.current = null;
+      if (retryTimer.current !== null) {
+        clearTimeout(retryTimer.current);
+        retryTimer.current = null;
+      }
     };
-  }, [fetchCourses]);
+  }, [fetchCourses, currentPage, currentPageSize]);
 
   const loadMore = useCallback(() => {
     setCurrentPage((prev) => prev + 1);

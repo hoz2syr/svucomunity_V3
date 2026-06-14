@@ -134,7 +134,7 @@ export function SettingsPanel() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert">
           {error}
         </div>
       )}
@@ -148,8 +148,9 @@ export function SettingsPanel() {
             </h2>
           </div>
           <div className="space-y-4">
-            <Field label="عنوان الموقع" required>
+            <Field label="عنوان الموقع" required htmlFor="siteName">
               <input
+                id="siteName"
                 type="text"
                 value={settings.siteName}
                 onChange={(e) => handleChange('siteName', e.target.value)}
@@ -157,8 +158,9 @@ export function SettingsPanel() {
                 placeholder="أدخل عنوان الموقع"
               />
             </Field>
-            <Field label="الوصف">
+            <Field label="الوصف" htmlFor="siteDescription">
               <textarea
+                id="siteDescription"
                 value={settings.siteDescription}
                 onChange={(e) => handleChange('siteDescription', e.target.value)}
                 rows={3}
@@ -174,12 +176,13 @@ export function SettingsPanel() {
             <Sparkles className="h-5 w-5 text-indigo-400" />
             <h2 className="text-lg font-semibold text-white">المظهر</h2>
           </div>
-          <Field label="المظهر الافتراضي">
+          <Field label="المظهر الافتراضي" htmlFor="theme-light">
             <div className="flex gap-3">
               {(['light', 'dark', 'system'] as const).map((theme) => (
                 <button
                   key={theme}
                   type="button"
+                  id={`theme-${theme}`}
                   onClick={() => handleChange('defaultTheme', theme)}
                   className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
                     settings.defaultTheme === theme
@@ -204,6 +207,7 @@ export function SettingsPanel() {
             description="يمكن للمستخدمين إنشاء حسابات جديدة عند التفعيل"
             checked={settings.allowNewRegistrations}
             onChange={(checked) => handleChange('allowNewRegistrations', checked)}
+            htmlFor="allowNewRegistrations"
           />
         </section>
 
@@ -218,6 +222,7 @@ export function SettingsPanel() {
             checked={settings.maintenanceMode}
             warning
             onChange={(checked) => handleChange('maintenanceMode', checked)}
+            htmlFor="maintenanceMode"
           />
         </section>
 
@@ -291,15 +296,17 @@ export function SettingsPanel() {
 function Field({
   label,
   required,
+  htmlFor,
   children,
 }: {
   label: string;
   required?: boolean;
+  htmlFor?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium text-slate-300">
+      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-slate-300">
         {label}
         {required && <span className="mr-1 text-indigo-400">*</span>}
       </label>
@@ -314,12 +321,14 @@ function ToggleField({
   checked,
   onChange,
   warning,
+  htmlFor,
 }: {
   label: string;
   description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   warning?: boolean;
+  htmlFor?: string;
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -329,16 +338,23 @@ function ToggleField({
             warning && checked ? 'text-amber-300' : 'text-white'
           }`}
         >
-          {label}
+          <label htmlFor={htmlFor} className="cursor-pointer">{label}</label>
         </p>
         {description && (
           <p className="mt-0.5 text-sm text-slate-400">{description}</p>
         )}
       </div>
-      <button
-        type="button"
+      <input
+        id={htmlFor}
+        type="checkbox"
         role="switch"
         aria-checked={checked}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      <button
+        type="button"
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-8 min-w-[3rem] shrink-0 items-center rounded-full px-0.5 transition-colors ${
           checked ? 'bg-indigo-600' : 'bg-white/10'

@@ -1,14 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
-import { UserTable, type UserRecord, type UsersFilters, type UsersPagination } from './components/UserTable';
-import { getUsers, updateUserRole, toggleUserActive } from '../../services/api';
+import { UserTable, type UserRecord } from './components/UserTable';
+import { getUsers, updateUserRole, setUserActive } from '../../services/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@svu-community/ui/components/ui/dialog';
 
 function UsersPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<UsersPagination>({ page: 1, pageSize: 10 });
-  const [filters, setFilters] = useState<UsersFilters>({ search: '', role: 'all', status: 'all' });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [detailsUser, setDetailsUser] = useState<UserRecord | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -19,7 +25,7 @@ function UsersPage() {
         id: u.id,
         email: u.email,
         username: u.username,
-        fullName: u.username,
+        fullName: (u as unknown as import('@svu-community/types').Profile).display_name || u.username,
         role: u.is_admin ? 'admin' : 'user',
         status: u.is_active ? 'active' : 'inactive',
         createdAt: u.created_at,
@@ -49,11 +55,11 @@ function UsersPage() {
     }
   }, []);
 
-  const handleToggleStatus = useCallback(async (user: UserRecord, status: 'active' | 'inactive') => {
+  const handleToggleStatus = useCallback(async (user: UserRecord, nextStatus: 'active' | 'inactive') => {
     try {
-      await toggleUserActive(user.id);
+      await setUserActive(user.id, nextStatus === 'active');
       setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, status } : u)),
+        prev.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u)),
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : 'فشل تحديث الحالة';
@@ -62,7 +68,7 @@ function UsersPage() {
   }, []);
 
   const handleViewDetails = useCallback((user: UserRecord) => {
-    alert(`تفاصيل المستخدم:\nالبريد: ${user.email}\nاسم المستخدم: ${user.username}\nالحالة: ${user.status}`);
+    setDetailsUser(user);
   }, []);
 
   const handleBulkExport = useCallback((_selectedIds: string[]) => {
@@ -89,16 +95,13 @@ function UsersPage() {
         <p className="text-slate-400">قائمة المستخدمين المسجلين في المنصة</p>
       </div>
       {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
           {error}
         </div>
       )}
       <UserTable
         users={users}
-        pagination={pagination}
         totalItems={users.length}
-        onPaginationChange={setPagination}
-        onFiltersChange={setFilters}
         onBulkExport={handleBulkExport}
         onToggleAdmin={handleToggleAdmin}
         onToggleStatus={handleToggleStatus}
@@ -107,6 +110,43 @@ function UsersPage() {
         onSelectedIdsChange={setSelectedIds}
         isLoading={loading}
       />
+
+      <Dialog open={!!detailsUser} onOpenChange={(open) => !open && setDetailsUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>تفاصيل المستخدم</DialogTitle>
+            <DialogDescription>معلومات حساب المستخدم في المنصة</DialogDescription>
+          </DialogHeader>
+          {detailsUser && (
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-400">البريد الإلكتروني</span>
+                <span className="font-medium text-white">{detailsUser.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">اسم المستخدم</span>
+                <span className="font-medium text-white">{detailsUser.username}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">الاسم الكامل</span>
+                <span className="font-medium text-white">{detailsUser.fullName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">الصلاحية</span>
+                <span className={`font-medium ${detailsUser.role === 'admin' ? 'text-indigo-400' : 'text-white'}`}>{detailsUser.role === 'admin' ? 'مدير' : 'مستخدم'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">الحالة</span>
+                <span className={`font-medium ${detailsUser.status === 'active' ? 'text-emerald-400' : 'text-rose-400'}`}>{detailsUser.status === 'active' ? 'نشط' : 'معطل'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">تاريخ التسجيل</span>
+                <span className="font-medium text-white">{new Date(detailsUser.createdAt).toLocaleDateString('ar-SA')}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

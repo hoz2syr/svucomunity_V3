@@ -2,7 +2,7 @@ import { X, FileText, Video, Link as LinkIcon, Code, Presentation, Search, Filte
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useCourseResources, type Resource } from '@/hooks/useCourseResources';
 import type { Course } from '@/hooks/useCourses';
 
@@ -28,17 +28,19 @@ const resourceTypeColors: Record<string, string> = {
 };
 
 function isValidUrl(value: string): boolean {
-  // Block javascript: URLs — execute arbitrary script in the page context (XSS)
   if (/^\s*javascript\s*:/i.test(value)) return false;
-  // Block data: URLs — can embed HTML/script content directly (XSS via data:text/html,...)
   if (/^\s*data\s*:/i.test(value)) return false;
-  // Block blob: URLs — can reference blob objects that execute script (potential XSS)
   if (/^\s*blob\s*:/i.test(value)) return false;
-  // Block file: URLs — allows access to local filesystem (information disclosure / SSRF)
   if (/^\s*file\s*:/i.test(value)) return false;
-  // Block vbscript: URLs — executes VBScript code in legacy browsers (XSS)
   if (/^\s*vbscript\s*:/i.test(value)) return false;
-
+  if (/@/.test(value) && /:\/\//.test(value)) {
+    const atIndex = value.indexOf('@');
+    const protocolEnd = value.indexOf('://');
+    if (protocolEnd !== -1 && atIndex > protocolEnd) {
+      const beforeAt = value.slice(protocolEnd + 3, atIndex);
+      if (beforeAt.includes(':')) return false;
+    }
+  }
   try {
     const parsed = new URL(value);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:';
@@ -51,14 +53,71 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
   const { resources, loading, error } = useCourseResources(course.code);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('الكل');
-
   const [activeTab, setActiveTab] = useState('info');
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSearchQuery('');
     setFilterType('الكل');
     setActiveTab('info');
   }, [course.code]);
+
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      onClose();
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscape, true);
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEscape, true);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+    };
+  }, [handleEscape]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+  }, [course.code, activeTab]);
+
+  const handleTabKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab') return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first || document.activeElement === dialog) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   const filteredResources = useMemo(
     () =>
@@ -78,13 +137,15 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent
+        ref={dialogRef}
         dir="rtl"
         className="max-w-3xl bg-slate-900/95 backdrop-blur-2xl border-white/10 text-white rounded-2xl p-0 overflow-hidden max-h-[85vh]"
         aria-label={`تفاصيل مقرر ${course.name_ar ?? course.name}`}
+        onKeyDown={handleTabKeyDown}
       >
-        {/* Header */}
         <div className="relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border-b border-white/10 p-6">
           <button
+            type="button"
             onClick={onClose}
             className="absolute top-6 start-6 text-slate-400 hover:text-white transition-colors"
             aria-label="إغلاق"
@@ -103,7 +164,6 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
           </div>
         </div>
 
-        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col" dir="rtl">
           <TabsList className="w-full bg-slate-800/30 border-b border-white/10 rounded-none px-6 pt-4 justify-start gap-2">
             <TabsTrigger
@@ -168,14 +228,14 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
                 </div>
               ) : (
                 <div className="mb-4 space-y-4 px-6 pt-4">
-                  {/* Filter */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <Filter size={16} className="text-slate-400" aria-hidden="true" />
                     <span className="text-slate-400 text-sm">التصفية:</span>
-                      {resourceTypes.map((type: string) => (
-                        <button
-                          key={type}
-                          onClick={() => setFilterType(type)}
+                    {resourceTypes.map((type: string) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setFilterType(type)}
                         className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                           filterType === type
                             ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50'
@@ -187,7 +247,6 @@ export function CourseModal({ course, onClose }: CourseModalProps) {
                     ))}
                   </div>
 
-                  {/* Search */}
                   <div className="relative">
                     <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} aria-hidden="true" />
                     <input
@@ -252,7 +311,7 @@ function ResourceItem({ resource }: { resource: Resource }) {
             {resource.description && (
               <span className="truncate">{resource.description}</span>
             )}
-            <span>•</span>
+            <span aria-hidden="true">•</span>
             <span>{resource.uploader_name}</span>
           </div>
           {!urlValid && (

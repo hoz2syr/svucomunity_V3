@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import * as RechartsPrimitive from "recharts";
+import { ResponsiveContainer } from "recharts";
 
 import { cn } from "./utils";
 
@@ -57,9 +57,9 @@ const ChartContainer = React.forwardRef<
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>
+        <ResponsiveContainer>
           {children}
-        </RechartsPrimitive.ResponsiveContainer>
+        </ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   );
@@ -139,7 +139,6 @@ const ChartTooltipContent = React.forwardRef<
   hideIndicator = false,
   label,
   labelFormatter,
-  labelClassName,
   formatter,
   color,
   nameKey,
@@ -162,7 +161,7 @@ const ChartTooltipContent = React.forwardRef<
 
     if (labelFormatter) {
       return (
-        <div className={cn("font-medium", labelClassName)}>
+        <div className="font-medium">
           {labelFormatter(value, payload)}
         </div>
       );
@@ -172,13 +171,12 @@ const ChartTooltipContent = React.forwardRef<
       return null;
     }
 
-    return <div className={cn("font-medium", labelClassName)}>{value}</div>;
+    return <div className="font-medium">{value}</div>;
   }, [
     label,
     labelFormatter,
     payload,
     hideLabel,
-    labelClassName,
     config,
     labelKey,
   ]);

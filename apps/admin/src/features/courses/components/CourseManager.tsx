@@ -53,18 +53,54 @@ interface CourseFormData {
 }
 
 const emptyForm: CourseFormData = {
-  code: "",
-  name: "",
-  name_ar: "",
-  major: "",
-  description: "",
-  credits: "",
-  semester: "",
+  code: '',
+  name: '',
+  name_ar: '',
+  major: '',
+  description: '',
+  credits: '',
+  semester: '',
   is_active: true,
 };
 
-function isRecord(value: Partial<Course> | CourseFormData): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+const MAX_CODE_LENGTH = 20;
+const MAX_NAME_LENGTH = 200;
+const MAX_AR_NAME_LENGTH = 200;
+const MAX_MAJOR_LENGTH = 100;
+const MAX_DESC_LENGTH = 1000;
+const MIN_CREDITS = 1;
+const MAX_CREDITS = 10;
+const MIN_SEMESTER = 1;
+const MAX_SEMESTER = 12;
+
+function validateForm(form: CourseFormData): string | null {
+  const trimmedCode = form.code.trim();
+  const trimmedName = form.name.trim();
+  const trimmedMajor = form.major.trim();
+
+  if (!trimmedCode) return 'رمز المقرر مطلوب';
+  if (trimmedCode.length > MAX_CODE_LENGTH) return `رمز المقرر يجب ألا يتجاوز ${MAX_CODE_LENGTH} حرفاً`;
+  if (!trimmedName) return 'اسم المقرر بالإنجليزية مطلوب';
+  if (trimmedName.length > MAX_NAME_LENGTH) return `الاسم بالإنجليزية يجب ألا يتجاوز ${MAX_NAME_LENGTH} حرفاً`;
+  if (form.name_ar.length > MAX_AR_NAME_LENGTH) return `الاسم بالعربية يجب ألا يتجاوز ${MAX_AR_NAME_LENGTH} حرفاً`;
+  if (!trimmedMajor) return 'التخصص مطلوب';
+  if (trimmedMajor.length > MAX_MAJOR_LENGTH) return `التخصص يجب ألا يتجاوز ${MAX_MAJOR_LENGTH} حرفاً`;
+  if (form.description.length > MAX_DESC_LENGTH) return `الوصف يجب ألا يتجاوز ${MAX_DESC_LENGTH} حرفاً`;
+
+  if (form.credits !== '') {
+    const credits = Number(form.credits);
+    if (!Number.isInteger(credits) || credits < MIN_CREDITS || credits > MAX_CREDITS) {
+      return `الساعات يجب أن تكون رقماً صحيحاً بين ${MIN_CREDITS} و ${MAX_CREDITS}`;
+    }
+  }
+  if (form.semester !== '') {
+    const semester = Number(form.semester);
+    if (!Number.isInteger(semester) || semester < MIN_SEMESTER || semester > MAX_SEMESTER) {
+      return `الفصل يجب أن يكون رقماً صحيحاً بين ${MIN_SEMESTER} و ${MAX_SEMESTER}`;
+    }
+  }
+
+  return null;
 }
 
 export default function CourseManager() {
@@ -143,20 +179,24 @@ export default function CourseManager() {
   };
 
   const handleSave = async () => {
-    if (!form.code || !form.name || !form.major) {
-      toast.error("يرجى ملء الحقول المطلوبة: رمز المقرر، الاسم، والتخصص");
+    const validationError = validateForm(form);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
+
     setSaving(true);
     try {
       const payload: Partial<Course> = {
-        code: form.code,
-        name: form.name,
-        name_ar: form.name_ar || null,
-        major: form.major,
-        description: form.description || null,
+        code: form.code.trim(),
+        name: form.name.trim(),
+        name_ar: form.name_ar.trim() || null,
+        major: form.major.trim(),
+        description: form.description.trim() || null,
         is_active: form.is_active,
       };
+      if (form.credits !== '') payload.credits = Number(form.credits);
+      if (form.semester !== '') payload.semester = Number(form.semester);
       if (editingId) {
         const updated = await updateCourse(editingId, payload);
         setCourses((prev) => prev.map((c) => (c.id === editingId ? updated : c)));

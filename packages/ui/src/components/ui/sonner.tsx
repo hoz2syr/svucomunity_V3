@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { useTheme } from "../../hooks/useTheme";
-import { Toaster as Sonner, ToasterProps } from "sonner";
+import { Toaster as Sonner } from "sonner";
 
 const Toaster = React.forwardRef<
   React.ComponentRef<typeof Sonner>,
-  ToasterProps
+  React.ComponentProps<typeof Sonner>
 >((props, ref) => {
   const { theme = "system" } = useTheme();
 

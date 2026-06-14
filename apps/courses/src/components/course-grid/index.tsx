@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { ChevronUp, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import type { Course } from '@/hooks/useCourses';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 
 type CourseGridProps = {
   courses: Course[];
@@ -21,14 +21,32 @@ type SortKey = 'name_ar' | 'code' | 'credits' | 'semester';
 
 export function CourseGrid({ courses, onCourseClick }: CourseGridProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('name_ar');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const debounceTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (debounceTimer.current !== null && typeof window !== 'undefined') {
+      clearTimeout(debounceTimer.current);
+    }
+    debounceTimer.current = window.setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => {
+      if (debounceTimer.current !== null && typeof window !== 'undefined') {
+        clearTimeout(debounceTimer.current);
+      }
+      debounceTimer.current = null;
+    };
+  }, [searchQuery]);
 
   const filteredAndSortedCourses = useMemo(() => {
     let result = [...courses];
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
+    if (debouncedQuery.trim()) {
+      const query = debouncedQuery.toLowerCase().trim();
       result = result.filter(
         (course) =>
           (course.name_ar ?? course.name).toLowerCase().includes(query) ||
@@ -74,7 +92,7 @@ export function CourseGrid({ courses, onCourseClick }: CourseGridProps) {
     });
 
     return result;
-  }, [courses, searchQuery, sortKey, sortDirection]);
+  }, [courses, debouncedQuery, sortKey, sortDirection]);
 
   return (
     <div className="space-y-6">

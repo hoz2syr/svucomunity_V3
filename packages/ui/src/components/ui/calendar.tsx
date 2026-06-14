@@ -56,7 +56,7 @@ const Calendar = React.forwardRef<
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
-      }}
+      } as any}
       components={{
         IconLeft: ({ className, ...props }: React.ComponentProps<"svg">) => (
           <ChevronLeft className={cn("size-4", className)} {...props} />
@@ -64,7 +64,7 @@ const Calendar = React.forwardRef<
         IconRight: ({ className, ...props }: React.ComponentProps<"svg">) => (
           <ChevronRight className={cn("size-4", className)} {...props} />
         ),
-      }}
+      } as any}
       ref={ref}
       {...props}
     />

@@ -8,6 +8,46 @@ function generateErrorId(): string {
   return `err_${Date.now()}_${Array.from(crypto.getRandomValues(new Uint8Array(4))).map((b) => b.toString(36).padStart(2, '0')).join('')}`;
 }
 
+function redactStack(stack: string | null | undefined): string | null | undefined {
+  if (!stack) return stack;
+  return stack
+    .split('\n')
+    .filter((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return true;
+      if (trimmed.includes('node_modules')) return false;
+      if (trimmed.includes('node:internal')) return false;
+      return true;
+    })
+    .join('\n');
+}
+
+function sanitizeErrorPayload(error: Error, errorInfo: ErrorInfo) {
+  return {
+    id: generateErrorId(),
+    message: error.message,
+    name: error.name,
+    stack: redactStack(error.stack),
+    componentStack: redactStack(errorInfo.componentStack),
+  };
+}
+
+function isReportingOriginAllowed(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (!/^https?:$/.test(parsed.protocol)) return false;
+    try {
+      if (typeof window !== 'undefined' && parsed.hostname === window.location.hostname) return true;
+    } catch {
+      // SSR guard
+    }
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -37,20 +77,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private async reportError(error: Error, errorInfo: ErrorInfo): Promise<void> {
-    const payload = {
-      id: this.state.errorId,
-      message: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-    };
+    const url = this.props.errorReportUrl;
+    if (!url || !isReportingOriginAllowed(url)) return;
+    const payload = sanitizeErrorPayload(error, errorInfo);
     try {
-      if (this.props.errorReportUrl) {
-        await fetch(this.props.errorReportUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      }
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
     } catch {
       // العبء الأمني: عدم كشف أخطاء reporting للمستخدم
     }

@@ -103,11 +103,7 @@ function FlowApp() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const key = `${selectedCourseId ?? 'none'}-${passedCourses.join(',')}-${simulatorMode}-${directPrereqs.join(',')}-${successors.join(',')}`;
-    if (key === nodeKeyRef.current) return;
-    nodeKeyRef.current = key;
-
-    if (nodeRafRef.current) cancelAnimationFrame(nodeRafRef.current);
+    if (nodeRafRef.current) window.cancelAnimationFrame(nodeRafRef.current);
 
     const handle = window.requestAnimationFrame(() => {
       setNodesRef.current((nds: Node[]) =>
@@ -134,7 +130,10 @@ function FlowApp() {
 
     return () => {
       if (typeof window !== 'undefined') {
-        window.cancelAnimationFrame(handle);
+        if (nodeRafRef.current === handle) {
+          window.cancelAnimationFrame(handle);
+          nodeRafRef.current = 0;
+        }
       }
     };
   }, [selectedCourseId, passedCourses, simulatorMode, directPrereqs, successors, getCourseState, handleCourseClick, isDimmed]);

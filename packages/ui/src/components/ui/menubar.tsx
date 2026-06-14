@@ -6,7 +6,7 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "./utils";
 
-function Menubar({ className, ...props }, ref) {
+function Menubar({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.Root>) {
   return (
     <MenubarPrimitive.Root
       data-slot="menubar"
@@ -15,20 +15,14 @@ function Menubar({ className, ...props }, ref) {
         className,
       )}
       {...props}
-      ref={ref}
     />
   );
 }
 Menubar.displayName = "Menubar";
 
-const MenubarMenu = React.forwardRef<
-  React.ComponentRef<typeof MenubarPrimitive.Menu>,
-  React.ComponentProps<typeof MenubarPrimitive.Menu>
->((props, ref) => {
-  return (
-    <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} ref={ref} />
-  );
-});
+function MenubarMenu(props: React.ComponentProps<typeof MenubarPrimitive.Menu>) {
+  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} />;
+}
 MenubarMenu.displayName = "MenubarMenu";
 
 const MenubarGroup = React.forwardRef<
@@ -41,14 +35,9 @@ const MenubarGroup = React.forwardRef<
 });
 MenubarGroup.displayName = "MenubarGroup";
 
-const MenubarPortal = React.forwardRef<
-  React.ComponentRef<typeof MenubarPrimitive.Portal>,
-  React.ComponentProps<typeof MenubarPrimitive.Portal>
->((props, ref) => {
-  return (
-    <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} ref={ref} />
-  );
-});
+function MenubarPortal(props: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
+  return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />;
+}
 MenubarPortal.displayName = "MenubarPortal";
 
 const MenubarRadioGroup = React.forwardRef<
@@ -234,14 +223,9 @@ const MenubarShortcut = React.forwardRef<
 });
 MenubarShortcut.displayName = "MenubarShortcut";
 
-const MenubarSub = React.forwardRef<
-  React.ComponentRef<typeof MenubarPrimitive.Sub>,
-  React.ComponentProps<typeof MenubarPrimitive.Sub>
->((props, ref) => {
-  return (
-    <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} ref={ref} />
-  );
-});
+function MenubarSub(props: React.ComponentProps<typeof MenubarPrimitive.Sub>) {
+  return <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} />;
+}
 MenubarSub.displayName = "MenubarSub";
 
 const MenubarSubTrigger = React.forwardRef<

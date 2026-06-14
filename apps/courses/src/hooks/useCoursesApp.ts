@@ -55,7 +55,7 @@ export function useCoursesApp(): CoursesAppResult {
       total: courses.length,
       filtered: filteredCourses.length,
     }),
-    [courses.length, filteredCourses.length]
+    [courses, filteredCourses]
   );
 
   const state: CoursesAppState = {
