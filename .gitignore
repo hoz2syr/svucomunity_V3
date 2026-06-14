@@ -33,3 +33,9 @@ coverage/
 
 # Turborepo
 .turbo/
+
+# Temporary / local reports
+security_review_files_*.md
+apps/web/security_review_files_*.md
+apps/web/APPLICATION_REPORT.md
+packages/config/RE-ESTABLISHMENT-REPORT.md
