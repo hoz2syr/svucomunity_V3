@@ -5,36 +5,26 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "./utils";
 
-const AlertDialog = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>
->((props, ref) => {
-  return <AlertDialogPrimitive.Root {...props} ref={ref as any} />;
-});
+const AlertDialog = AlertDialogPrimitive.Root;
 AlertDialog.displayName = "AlertDialog";
 
-const AlertDialogTrigger = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Trigger>
->((props, ref) => {
-  return <AlertDialogPrimitive.Trigger {...props} ref={ref} />;
-});
+const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 AlertDialogTrigger.displayName = "AlertDialogTrigger";
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 AlertDialogPortal.displayName = "AlertDialogPortal";
 
 const AlertDialogOverlay = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay> & { className?: string }
->(({ className = "", ...props }, ref) => {
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>((props, ref) => {
   return (
     <AlertDialogPrimitive.Overlay
       {...props}
-      ref={ref as any}
+      ref={ref}
       className={cn(
         "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        className,
+        props.className,
       )}
     />
   );
@@ -42,8 +32,8 @@ const AlertDialogOverlay = React.forwardRef<
 AlertDialogOverlay.displayName = "AlertDialogOverlay";
 
 const AlertDialogContent = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
   return (
     <AlertDialogPortal>
@@ -94,13 +84,13 @@ const AlertDialogFooter = React.forwardRef<
 AlertDialogFooter.displayName = "AlertDialogFooter";
 
 const AlertDialogTitle = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title> & { className?: string }
->(({ className = "", ...props }, ref) => {
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => {
   return (
     <AlertDialogPrimitive.Title
       {...props}
-      ref={ref as any}
+      ref={ref}
       className={cn("text-lg font-semibold", className)}
     />
   );
@@ -108,43 +98,23 @@ const AlertDialogTitle = React.forwardRef<
 AlertDialogTitle.displayName = "AlertDialogTitle";
 
 const AlertDialogDescription = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description> & { className?: string }
->(({ className = "", ...props }, ref) => {
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => {
   return (
     <AlertDialogPrimitive.Description
       {...props}
-      ref={ref as any}
+      ref={ref}
       className={cn("text-sm text-muted-foreground", className)}
     />
   );
 });
 AlertDialogDescription.displayName = "AlertDialogDescription";
 
-const AlertDialogAction = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Action>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
->((props, ref) => {
-  return (
-    <AlertDialogPrimitive.Action
-      {...props}
-      ref={ref}
-    />
-  );
-});
+const AlertDialogAction = AlertDialogPrimitive.Action;
 AlertDialogAction.displayName = "AlertDialogAction";
 
-const AlertDialogCancel = React.forwardRef<
-  React.ComponentRef<typeof AlertDialogPrimitive.Cancel>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
->((props, ref) => {
-  return (
-    <AlertDialogPrimitive.Cancel
-      {...props}
-      ref={ref}
-    />
-  );
-});
+const AlertDialogCancel = AlertDialogPrimitive.Cancel;
 AlertDialogCancel.displayName = "AlertDialogCancel";
 
 export {
