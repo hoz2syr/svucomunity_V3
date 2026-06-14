@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ResponsiveContainer } from "recharts";
+import * as Recharts from "recharts";
 
 import { cn } from "./utils";
 
@@ -57,9 +57,9 @@ const ChartContainer = React.forwardRef<
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <ResponsiveContainer>
-          {children}
-        </ResponsiveContainer>
+        <Recharts.ResponsiveContainer>
+          {React.isValidElement(children) ? children : <>{children}</>}
+        </Recharts.ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   );
@@ -250,7 +250,7 @@ const ChartTooltipContent = React.forwardRef<
                         {itemConfig?.label || item.name}
                       </span>
                     </div>
-                    {item.value && (
+                    {item.value != null && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
                         {String(item.value).toLocaleString()}
                       </span>
@@ -359,9 +359,9 @@ function getPayloadConfigFromPayload(
   } else if (
     payloadPayload &&
     key in payloadPayload &&
-    typeof payloadPayload[key] === "string"
+    typeof payloadPayload[key as string] === "string"
   ) {
-    configLabelKey = payloadPayload[key as string];
+    configLabelKey = payloadPayload[key as string] as string;
   }
 
   return configLabelKey in config

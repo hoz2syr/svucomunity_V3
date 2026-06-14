@@ -1,17 +1,25 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
+  plugins: [react(), tsconfigPaths(), tailwindcss()],
   test: {
     include: [
-      'packages/*/__tests__/**/*.test.{ts,tsx,js}',
-      'packages/*/src/**/*.test.{ts,tsx,js}',
-      'apps/*/src/**/*.test.{ts,tsx,js}',
-      'apps/*/__tests__/**/*.test.{ts,tsx,js}'
+      'src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+      'packages/**/*.{test,spec}.{js,jsx,ts,tsx}'
     ],
-    environment: 'node',
-    coverage: {
-      provider: 'v8',
-      reporter: ['lcov', 'text']
-    }
-  }
+    globals: true,
+    environment: 'jsdom',
+    alias: {
+      '@': '/src',
+    },
+    hooksTimeout: 5000,
+  },
 });

@@ -1,1 +1,1 @@
-import 'vitest';
+import 'vitest'

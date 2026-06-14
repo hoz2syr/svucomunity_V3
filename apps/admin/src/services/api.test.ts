@@ -1,19 +1,22 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { vi } from 'vitest';
 
-const mockSupabase = {
-  from: vi.fn(),
-};
+let mockFrom = vi.fn();
 
 vi.mock('@svu-community/supabase-client', () => ({
-  supabase: mockSupabase,
+  supabase: { from: (...args: unknown[]) => mockFrom(...args) },
 }));
 
-import { fetchSettings, updateSettings, testSupabaseConnection } from '../services/api';
-import { DEFAULT_SETTINGS } from '../services/api';
+import { fetchSettings, updateSettings, testSupabaseConnection, DEFAULT_SETTINGS } from '../services/api';
 
 describe('api.fetchSettings', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockFrom = vi.fn();
+  });
+
   it('returns defaults when no row exists', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       select: () => ({
         maybeSingle: () => Promise.resolve({ data: null, error: null }),
       }),
@@ -24,7 +27,7 @@ describe('api.fetchSettings', () => {
   });
 
   it('returns stored settings', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       select: () => ({
         maybeSingle: () =>
           Promise.resolve({
@@ -48,7 +51,7 @@ describe('api.fetchSettings', () => {
   });
 
   it('throws on database error', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       select: () => ({
         maybeSingle: () => Promise.resolve({ data: null, error: { message: 'DB error' } }),
       }),
@@ -59,6 +62,11 @@ describe('api.fetchSettings', () => {
 });
 
 describe('api.updateSettings', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockFrom = vi.fn();
+  });
+
   it('upserts and returns updated settings', async () => {
     const savedData = {
       site_name: 'New Name',
@@ -67,7 +75,7 @@ describe('api.updateSettings', () => {
       allow_new_registrations: true,
       maintenance_mode: false,
     };
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       upsert: () => ({
         select: () => ({
           single: () => Promise.resolve({ data: savedData, error: null }),
@@ -80,7 +88,7 @@ describe('api.updateSettings', () => {
   });
 
   it('throws on database error', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       upsert: () => ({
         select: () => ({
           single: () => Promise.resolve({ data: null, error: { message: 'upsert error' } }),
@@ -93,8 +101,13 @@ describe('api.updateSettings', () => {
 });
 
 describe('api.testSupabaseConnection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockFrom = vi.fn();
+  });
+
   it('returns success with latency on successful query', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       select: () => ({ limit: () => Promise.resolve({ error: null }) }),
     });
 
@@ -106,7 +119,7 @@ describe('api.testSupabaseConnection', () => {
   });
 
   it('returns success false on database error', async () => {
-    mockSupabase.from.mockReturnValue({
+    mockFrom.mockReturnValue({
       select: () => ({ limit: () => Promise.resolve({ error: { message: 'timeout' } }) }),
     });
 
@@ -115,4 +128,3 @@ describe('api.testSupabaseConnection', () => {
     expect(typeof result.latency).toBe('number');
   });
 });
-

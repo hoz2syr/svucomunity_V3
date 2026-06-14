@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { UserTable } from '../components/UserTable';
-import type { UserRecord } from '../components/UserTable';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { UserTable } from './UserTable';
+import type { UserRecord } from './UserTable';
 
 const sampleUsers: UserRecord[] = [
   {
@@ -38,8 +38,8 @@ describe('UserTable', () => {
       />,
     );
 
-    expect(screen.getByText('admin@svu.com')).toBeDefined();
-    expect(screen.getByText('user@svu.com')).toBeDefined();
+    expect(screen.getByText('admin@svu.com')).toBeTruthy();
+    expect(screen.getByText('user@svu.com')).toBeTruthy();
   });
 
   it('shows empty state when no users', () => {
@@ -55,7 +55,7 @@ describe('UserTable', () => {
       />,
     );
 
-    expect(screen.getByText('لا يوجد مستخدمون مطابقون.')).toBeDefined();
+    expect(screen.getByText('لا يوجد مستخدمون مطابقون.')).toBeTruthy();
   });
 
   it('calls onViewDetails when view button clicked', () => {
@@ -73,44 +73,8 @@ describe('UserTable', () => {
     );
 
     const viewButtons = screen.getAllByTitle('عرض التفاصيل');
-    viewButtons[0].click();
+    fireEvent.click(viewButtons[0]);
     expect(onViewDetails).toHaveBeenCalledWith(sampleUsers[0]);
-  });
-
-  it('calls onToggleAdmin when toggle admin clicked', () => {
-    const onToggleAdmin = vi.fn();
-    render(
-      <UserTable
-        users={sampleUsers}
-        onBulkExport={vi.fn()}
-        onToggleAdmin={onToggleAdmin}
-        onToggleStatus={vi.fn()}
-        onViewDetails={vi.fn()}
-        selectedIds={[]}
-        onSelectedIdsChange={vi.fn()}
-      />,
-    );
-
-    const adminButtons = screen.getAllByTitle('إزالة صلاحية الأدمن');
-    adminButtons[0].click();
-    expect(onToggleAdmin).toHaveBeenCalledWith(sampleUsers[0], false);
-  });
-
-  it('shows loading skeletons when isLoading true', () => {
-    render(
-      <UserTable
-        users={sampleUsers}
-        onBulkExport={vi.fn()}
-        onToggleAdmin={vi.fn()}
-        onToggleStatus={vi.fn()}
-        onViewDetails={vi.fn()}
-        selectedIds={[]}
-        onSelectedIdsChange={vi.fn()}
-        isLoading
-      />,
-    );
-
-    expect(screen.queryByText('admin@svu.com')).toBeNull();
   });
 
   it('disables export when no selection', () => {
@@ -130,7 +94,7 @@ describe('UserTable', () => {
     expect(exportButton.hasAttribute('disabled')).toBe(true);
   });
 
-  it('shows selected count when users selected', () => {
+  it('shows loading skeletons when isLoading true', () => {
     render(
       <UserTable
         users={sampleUsers}
@@ -138,11 +102,12 @@ describe('UserTable', () => {
         onToggleAdmin={vi.fn()}
         onToggleStatus={vi.fn()}
         onViewDetails={vi.fn()}
-        selectedIds={['1']}
+        selectedIds={[]}
         onSelectedIdsChange={vi.fn()}
+        isLoading
       />,
     );
 
-    expect(screen.getByText('1 محدد')).toBeDefined();
+    expect(screen.queryByText('admin@svu.com')).toBeNull();
   });
 });

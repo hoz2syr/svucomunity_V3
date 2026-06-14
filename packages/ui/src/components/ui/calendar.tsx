@@ -2,18 +2,25 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type DayPickerProps } from "react-day-picker";
 
 import { cn } from "./utils";
 import { buttonVariants } from "./button";
 
 const Calendar = React.forwardRef<
-  React.ComponentRef<typeof DayPicker>,
-  React.ComponentProps<typeof DayPicker>
->(({ className, classNames, showOutsideDays = true, ...props }, ref) => {
+  HTMLDivElement,
+  Omit<React.ComponentPropsWithoutRef<"div">, "children"> & {
+    mode?: DayPickerProps["mode"];
+    classNames?: Record<string, string>;
+    showOutsideDays?: boolean;
+    components?: Record<string, React.ComponentType<React.ComponentProps<"svg">>>;
+  }
+>(({ className, classNames, showOutsideDays = true, mode = "single", ...props }, ref) => {
   return (
     <DayPicker
+      {...(props as any)}
       showOutsideDays={showOutsideDays}
+      mode={mode}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",
@@ -34,7 +41,7 @@ const Calendar = React.forwardRef<
         row: "flex w-full mt-2",
         cell: cn(
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
-          props.mode === "range"
+          mode === "range"
             ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
             : "[&:has([aria-selected])]:rounded-md",
         ),
@@ -56,7 +63,7 @@ const Calendar = React.forwardRef<
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
-      } as any}
+      } as Record<string, string>}
       components={{
         IconLeft: ({ className, ...props }: React.ComponentProps<"svg">) => (
           <ChevronLeft className={cn("size-4", className)} {...props} />
@@ -64,8 +71,7 @@ const Calendar = React.forwardRef<
         IconRight: ({ className, ...props }: React.ComponentProps<"svg">) => (
           <ChevronRight className={cn("size-4", className)} {...props} />
         ),
-      } as any}
-      ref={ref}
+      } as Record<string, React.ComponentType<React.ComponentProps<"svg">>>}
       {...props}
     />
   );

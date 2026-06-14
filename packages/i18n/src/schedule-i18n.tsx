@@ -65,7 +65,7 @@ export function toggleLang(): Language {
   return next;
 }
 
-const I18nContext = createContext<I18nContextValue | null>(null);
+const I18nScheduleContext = createContext<I18nContextValue | null>(null);
 
 export function I18nProvider({ children, defaultLang }: { children: React.ReactNode; defaultLang?: Language }) {
   const [lang, setLangState] = useState<Language>(() => defaultLang ?? getInitialLang());
@@ -74,14 +74,19 @@ export function I18nProvider({ children, defaultLang }: { children: React.ReactN
     setLang(lang, lang === 'ar' ? 'rtl' : 'ltr');
   }, [lang]);
 
+  const toggle = useCallback((): Language => {
+    setLangState((prev) => {
+      const next = prev === 'ar' ? 'en' : 'ar';
+      setLang(next);
+      return next;
+    });
+    return lang === 'ar' ? 'en' : 'ar';
+  }, [lang]);
+
   const tKey = useCallback((key: string, fallback?: string) => {
     const dict = lang === 'en' ? SCHEDULE_EN : SCHEDULE_AR;
     return dict[key] ?? fallback ?? key;
   }, [lang]);
-
-  const toggle = useCallback(() => {
-    setLangState((prev) => (prev === 'ar' ? 'en' : 'ar') as Language);
-  }, []);
 
   const value = useMemo<I18nContextValue>(() => ({
     lang,
@@ -90,13 +95,13 @@ export function I18nProvider({ children, defaultLang }: { children: React.ReactN
     t: tKey,
     dir: lang === 'ar' ? 'rtl' : 'ltr',
     isRTL: lang === 'ar',
-  }), [lang, tKey, toggle]);
+  }), [lang, setLangState, toggle, tKey]);
 
-  return <I18nContext.Provider value={value}>{children as React.ReactNode}</I18nContext.Provider>;
+  return <I18nScheduleContext.Provider value={value}>{children as React.ReactNode}</I18nScheduleContext.Provider>;
 }
 
 export function useI18n(): I18nContextValue {
-  const ctx = useContext(I18nContext);
+  const ctx = useContext(I18nScheduleContext);
   if (!ctx) throw new Error('useI18n must be used within <I18nProvider>');
   return ctx;
 }

@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test'
 
-test('homepage loads', async ({ page }) => {
+test('homepage loads', async ({ page }: { page: any }) => {
   await page.goto('/')
 
   await expect(page).toHaveTitle(/SVU/i)
   await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible()
 })
 
-test('login page is accessible', async ({ page }) => {
+test('login page is accessible', async ({ page }: { page: any }) => {
   await page.goto('/login')
 
   await expect(page.getByRole('heading', { name: /login|sign in|تسجيل الدخول/i })).toBeVisible()
@@ -16,7 +16,7 @@ test('login page is accessible', async ({ page }) => {
   await expect(page.getByRole('button', { name: /login|sign in|تسجيل/i })).toBeVisible()
 })
 
-test('navigation links work', async ({ page }) => {
+test('navigation links work', async ({ page }: { page: any }) => {
   await page.goto('/')
 
   const navLink = page.getByRole('link', { name: /schedule|courses|courses| جدول|دورات/i }).first()

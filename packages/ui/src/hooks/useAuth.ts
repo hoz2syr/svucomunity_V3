@@ -1,8 +1,9 @@
 /// <reference types="vite/client" />
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Session, User as SupabaseUser, SupabaseClient } from '@supabase/supabase-js';
+import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import type { Profile, User } from '@svu-community/types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 type AuthUser = Profile | SupabaseUser;
 
@@ -14,10 +15,10 @@ export function useAuth() {
 
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
 
-  const fetchProfile = useCallback(async (
-    supabase: SupabaseClient,
-    userId: string
-  ): Promise<Profile | null> => {
+   const fetchProfile = useCallback(async (
+     supabase: SupabaseClient,
+     userId: string
+   ): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
         .from('users')
@@ -60,7 +61,7 @@ export function useAuth() {
 
         if (currentSession) {
           setSession(currentSession);
-          const profile = await fetchProfile(supabase, currentSession.user.id);
+          const profile = await fetchProfile(supabase as unknown as SupabaseClient, currentSession.user.id);
           setUser(profile ?? currentSession.user);
         } else {
           setUser(null);
@@ -74,7 +75,7 @@ export function useAuth() {
             setSession(newSession);
 
             if (newSession?.user) {
-              fetchProfile(supabase, newSession.user.id).then((profile) => {
+              fetchProfile(supabase as unknown as SupabaseClient, newSession.user.id).then((profile) => {
                 if (!isMounted) return;
                 setUser(profile ?? newSession.user);
               });
@@ -121,7 +122,7 @@ export function useAuth() {
       if (authError) throw authError;
       if (!data.user) throw new Error('No user returned from authentication');
 
-      const profile = await fetchProfile(supabase, data.user.id);
+      const profile = await fetchProfile(supabase as unknown as SupabaseClient, data.user.id);
       const userData = profile ?? data.user;
 
       setUser(userData);
@@ -196,7 +197,7 @@ export function useAuth() {
 
       if (currentSession) {
         setSession(currentSession);
-        const profile = await fetchProfile(supabase, currentSession.user.id);
+        const profile = await fetchProfile(supabase as unknown as SupabaseClient, currentSession.user.id);
         setUser(profile ?? currentSession.user);
       }
 

@@ -1,19 +1,22 @@
 "use client";
 
 import * as React from "react";
+import { Toaster } from "sonner";
 import { useTheme } from "../../hooks/useTheme";
-import { Toaster as Sonner } from "sonner";
 
-const Toaster = React.forwardRef<
-  React.ComponentRef<typeof Sonner>,
-  React.ComponentProps<typeof Sonner>
+type SonnerTheme = "light" | "dark" | "system";
+
+const ToasterComponent = React.forwardRef<
+  React.ComponentRef<typeof Toaster>,
+  React.ComponentPropsWithoutRef<typeof Toaster>
 >((props, ref) => {
   const { theme = "system" } = useTheme();
 
   return (
-    <Sonner
+    <Toaster
+      {...props}
       ref={ref}
-      theme={theme as ToasterProps["theme"]}
+      theme={theme as SonnerTheme}
       className="toaster group"
       style={
         {
@@ -22,10 +25,9 @@ const Toaster = React.forwardRef<
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
-      {...props}
     />
   );
 });
-Toaster.displayName = "Toaster";
+ToasterComponent.displayName = "ToasterComponent";
 
-export { Toaster };
+export { ToasterComponent as Toaster };
