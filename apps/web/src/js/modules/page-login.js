@@ -3,7 +3,11 @@
  */
 import { escapeHtml, clearUserSession, saveUserSession, getCurrentUser, AUTH_CONFIG, handleLoginError } from './core.js';
 import { verifySessionWithServer, getDb } from './config.js';
-import { showToast } from './shared.js';
+import { showToast, getCurrentLang } from './shared.js';
+
+function i18nT(key, fallback) {
+  return document.documentElement.getAttribute('data-i18n-' + key) || window.i18n?.t?.(key) || fallback || key;
+}
 
 const EYE_VISIBLE =
   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
@@ -26,6 +30,7 @@ function togglePassword() {
   passwordVisible = !passwordVisible;
   input.type = passwordVisible ? 'text' : 'password';
   updatePasswordIcon();
+  updatePasswordToggleLabel();
 }
 
 async function checkExistingSession() {
@@ -82,8 +87,13 @@ async function handleLoginSubmit(e) {
     return;
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail)) {
+    showToast('صيغة البريد الإلكتروني غير صحيحة', 'error');
+    return;
+  }
+
   if (password.length < 8) {
-    showToast('كلمة المرور قصيرة جداً (8 أحرف على الأقل)', 'error');
+    showToast(i18nT('loginPasswordTooShort') || 'كلمة المرور قصيرة جداً (8 أحرف على الأقل)', 'error');
     return;
   }
 
@@ -142,11 +152,28 @@ function setupLoginForm() {
   const form = document.getElementById('loginForm');
   if (!form) return;
 
+  const loginEmailField = document.getElementById('loginIdentifier');
+  const passwordField = document.getElementById('loginPassword');
+  if (loginEmailField) loginEmailField.setAttribute('autocomplete', 'email');
+  if (passwordField) passwordField.setAttribute('autocomplete', 'current-password');
+
   form.addEventListener('submit', handleLoginSubmit);
+
   document.getElementById('togglePasswordBtn')?.addEventListener('click', togglePassword);
+}
+
+function updatePasswordToggleLabel() {
+  const btn = document.getElementById('toggleLoginPassword');
+  if (!btn) return;
+  const isAr = getCurrentLang().startsWith('ar');
+  btn.setAttribute('aria-label', passwordVisible 
+    ? (isAr ? 'إخفاء كلمة المرور' : 'Hide password') 
+    : (isAr ? 'إظهار كلمة المرور' : 'Show password'));
+  btn.setAttribute('aria-pressed', String(passwordVisible));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   setupLoginForm();
+  updatePasswordToggleLabel();
   checkExistingSession();
 });

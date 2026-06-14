@@ -144,6 +144,9 @@ function buildModal() {
   const overlay = document.createElement('div');
   overlay.id = MODAL_ID;
   overlay.className = 'fb-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'fbModalTitle');
 
   const modal = document.createElement('div');
   modal.className = 'fb-modal';
@@ -152,10 +155,13 @@ function buildModal() {
   form.id = 'fbForm';
   form.appendChild(createElement('div', { className: 'fb-emoji' }, '💬'));
 
-  const title = document.createElement('h2');
-  title.className = 'fb-title';
-  title.textContent = t('fbTitle');
-  form.appendChild(title);
+  const titleEl = document.createElement('h2');
+  titleEl.className = 'fb-title';
+  titleEl.id = 'fbModalTitle';
+  titleEl.textContent = t('fbTitle');
+  titleEl.setAttribute('role', 'heading');
+  titleEl.setAttribute('aria-level', '2');
+  form.appendChild(titleEl);
 
   const subtitle = document.createElement('p');
   subtitle.className = 'fb-sub';
@@ -170,6 +176,10 @@ function buildModal() {
     star.className = 'fb-star';
     star.dataset.v = String(n);
     star.textContent = '⭐';
+    star.setAttribute('tabindex', '0');
+    star.setAttribute('role', 'radio');
+    star.setAttribute('aria-checked', 'false');
+    star.setAttribute('aria-label', `${n} ${t('fbRate' + n) || ''}`.trim());
     starsContainer.appendChild(star);
   });
   form.appendChild(starsContainer);
@@ -189,6 +199,7 @@ function buildModal() {
   textarea.className = 'fb-textarea';
   textarea.id = 'fbText';
   textarea.placeholder = t('fbPlaceholder');
+  textarea.setAttribute('aria-describedby', 'fbRatingLabel');
   form.appendChild(textarea);
 
   const submitBtn = document.createElement('button');
@@ -263,6 +274,13 @@ function bindEvents(overlay) {
 
       star.style.transform = 'scale(1.4)';
       setTimeout(() => { star.style.transform = ''; }, 200);
+    });
+
+    star.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        star.click();
+      }
     });
   });
 

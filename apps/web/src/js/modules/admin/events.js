@@ -15,6 +15,14 @@ export let allGroups = [];
 export let allCourses = [];
 export let currentTab = 'overview';
 
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
 export function onActionClick(action, btn) {
   const id = btn.closest('[data-id]')?.dataset.id;
   if (!id) return;
@@ -84,19 +92,23 @@ export function setupTabs() {
   });
 }
 
+const debouncedFilterUsers = debounce(() => filterUsers(allUsers), 250);
+const debouncedFilterGroups = debounce(() => filterGroups(allGroups), 250);
+const debouncedFilterCourses = debounce(() => filterCourses(allCourses), 250);
+
 export function setupSearchFilters() {
   const userSearchEl = document.getElementById('userSearchInput');
   const userRoleEl = document.getElementById('userRoleFilter');
-  if (userSearchEl) userSearchEl.addEventListener('input', () => filterUsers(allUsers));
+  if (userSearchEl) userSearchEl.addEventListener('input', debouncedFilterUsers);
   if (userRoleEl) userRoleEl.addEventListener('change', () => filterUsers(allUsers));
 
   const groupSearchEl = document.getElementById('searchGroups');
   const groupFilterEl = document.getElementById('filterFull');
-  if (groupSearchEl) groupSearchEl.addEventListener('input', () => filterGroups(allGroups));
+  if (groupSearchEl) groupSearchEl.addEventListener('input', debouncedFilterGroups);
   if (groupFilterEl) groupFilterEl.addEventListener('change', () => filterGroups(allGroups));
 
   const courseSearchEl = document.getElementById('adminCourseSearch');
-  if (courseSearchEl) courseSearchEl.addEventListener('input', () => filterCourses(allCourses));
+  if (courseSearchEl) courseSearchEl.addEventListener('input', debouncedFilterCourses);
 }
 
 export function setupEmailListeners() {

@@ -12,6 +12,7 @@
  */
 
 import { initSupabase } from '../config.js';
+import { clearUserSession } from '../core.js';
 
 function getSupabase() {
   return initSupabase();
@@ -32,7 +33,7 @@ export async function getSession() {
 }
 
 export async function setSession(refreshToken) {
-  if (!refreshToken || typeof refreshToken !== 'string') {
+  if (!refreshToken || typeof refreshToken !== 'string' || refreshToken.length < 50) {
     throw new Error('Invalid refresh token');
   }
 

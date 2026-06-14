@@ -21,5 +21,6 @@ export default defineConfig({
       '@': '/src',
     },
     hooksTimeout: 5000,
+    setupFiles: ['packages/ui/src/test-setup.ts'],
   },
 });

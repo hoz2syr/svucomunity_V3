@@ -1,88 +1,54 @@
 /**
- * SVU Community — Encrypted localStorage wrapper
+ * SVU Community — Non-sensitive UI state storage (plain localStorage)
  *
- * Uses an XOR cipher keyed by a random salt stored in the same localStorage
- * namespace. Prevents casual plain-text inspection without WebCrypto overhead.
+ * WARNING: This module stores values in plain localStorage.
+ * It does NOT encrypt, authenticate, or integrity-protect data.
+ *
+ * ONLY store non-sensitive data here:
+ *   theme preference, language selection, tour flags, onboarding state
+ *
+ * NEVER store through this module:
+ *   auth tokens, session identifiers, passwords, API keys,
+ *   refresh tokens, CSRF tokens, personal data (PII), or any
+ *   value whose confidentiality or integrity matters.
+ *
+ * Reason: localStorage is readable by any script on the origin.
+ * A single XSS vulnerability or malicious browser extension can
+ * read everything stored here. There is no safe substitute for
+ * keeping secrets server-side or in HttpOnly cookies.
+ *
+ * Note: This module does not perform encryption despite its historic
+ * reference name. Use `sessionStorage` or server-side storage for
+ * anything sensitive.
  */
 
-const ENCRYPT_PREFIX = 'enc:';
-const SALT_KEY = 'svu_enc_salt';
-
-var salt = null;
-
-function getSalt() {
-  if (salt) return salt;
-  var stored = localStorage.getItem(SALT_KEY);
-  if (stored) {
-    salt = stored;
-    return salt;
-  }
-  salt = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) {
-    return b.toString(36);
-  }).join('');
+export function storageSet(key, value) {
   try {
-    localStorage.setItem(SALT_KEY, salt);
-  } catch (_) {
-    // storage unavailable
+    const toStore = typeof value === 'string' ? value : JSON.stringify(value);
+    localStorage.setItem(key, toStore);
+  } catch {
+    // storage unavailable (private mode, quota exceeded)
   }
-  return salt;
 }
 
-function xorsum(key) {
-  var h = 0;
-  for (var i = 0; i < key.length; i++) {
-    h = ((h << 5) - h + key.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function encrypt(plain, key) {
-  var ks = xorsum(key);
-  var bytes = Array.from(new TextEncoder().encode(plain));
-  var out = bytes.map(function (b, i) {
-    return b ^ ((ks >> (i % 8)) & 0xff);
-  });
-  return ENCRYPT_PREFIX + btoa(String.fromCharCode.apply(null, out));
-}
-
-function decrypt(cipher, key) {
-  if (!cipher.startsWith(ENCRYPT_PREFIX)) return cipher;
-  var raw = atob(cipher.slice(ENCRYPT_PREFIX.length));
-  var bytes = Array.from(raw, function (c) { return c.charCodeAt(0); });
-  var ks = xorsum(key);
-  var decoded = bytes.map(function (b, i) {
-    return b ^ ((ks >> (i % 8)) & 0xff);
-  });
+export function storageGet(key) {
   try {
-    return new TextDecoder().decode(new Uint8Array(decoded));
-  } catch (_) {
-    return '';
-  }
-}
-
-export function encryptedSet(key, value) {
-  try {
-    var cipher = encrypt(value, getSalt());
-    localStorage.setItem(key, cipher);
-  } catch (_) {
-    // storage unavailable
-  }
-}
-
-export function encryptedGet(key) {
-  try {
-    var raw = localStorage.getItem(key);
-    if (!raw) return null;
-    return raw.startsWith(ENCRYPT_PREFIX) ? decrypt(raw, getSalt()) : raw;
-  } catch (_) {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return raw;
+    }
+  } catch {
     return null;
   }
 }
 
-export function encryptedRemove(key) {
+export function storageRemove(key) {
   try {
     localStorage.removeItem(key);
-  } catch (_) {
+  } catch {
     // storage unavailable
   }
 }

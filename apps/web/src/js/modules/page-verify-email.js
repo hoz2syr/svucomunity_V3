@@ -4,6 +4,8 @@
  * ════════════════════════════════════════════════════════════════
  */
 
+import { escapeHtml } from './core.js';
+
 let db = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const errorDescription = hashParams.get('error_description');
 
   if (errorParam) {
-    showError(errorDescription || errorParam);
+    showError(window.i18n?.t('verifyEmailError') || 'حدث خطأ أثناء التفعيل');
     return;
   }
 
@@ -51,11 +53,17 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (!accessToken) {
     loadingDiv.classList.add('hidden');
     errorDiv.classList.remove('hidden');
-    document.querySelector('#verifyError h3').textContent =
-      window.i18n?.t('verifyEmailNoToken') || 'لم يتم العثور على رابط التفعيل';
-    errorMsg.textContent =
-      window.i18n?.t('verifyEmailCheckInbox') || 'تحقق من بريدك الإلكتروني واضغط على رابط التفعيل.';
-    document.getElementById('resendBtn').classList.remove('hidden');
+    const errorTitle = document.querySelector('#verifyError h3');
+    if (errorTitle) {
+      errorTitle.textContent =
+        window.i18n?.t('verifyEmailNoToken') || 'لم يتم العثور على رابط التفعيل';
+    }
+    if (errorMsg) {
+      errorMsg.textContent =
+        window.i18n?.t('verifyEmailCheckInbox') || 'تحقق من بريدك الإلكتروني واضغط على رابط التفعيل.';
+    }
+    const resendBtn = document.getElementById('resendBtn');
+    if (resendBtn) resendBtn.classList.remove('hidden');
   } else {
     showError(window.i18n?.t('verifyEmailUnknown') || 'نوع الرابط غير معروف');
   }

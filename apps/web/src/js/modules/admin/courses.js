@@ -6,7 +6,7 @@ export async function loadCourses(db) {
   try {
     const result = await db
       .from('courses')
-      .select('*')
+      .select('id, name, code, major, description, instructor, max_members, created_at')
       .order('created_at', { ascending: false });
 
     if (result.error) throw result.error;

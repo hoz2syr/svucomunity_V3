@@ -50,31 +50,28 @@ async function loadStats(db, userId) {
       .from('study_groups')
       .select('course_code')
       .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
-    const uniqueCourses = new Set((data || []).map((r) => r.course_code));
-    setStat('statCourses', uniqueCourses.size);
+    setStat('statCourses', new Set((data || []).map((r) => r.course_code)).size);
   } catch {
     setStat('statCourses', '--');
   }
-
-  setStat('statSchedule', '0');
 
   try {
     const { count } = await db
       .from('study_groups')
       .select('*', { count: 'exact', head: true })
       .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
-    setStat('statGroups', count ?? '--');
+    setStat('statGroups', count ?? 'N/A');
   } catch {
-    setStat('statGroups', '--');
+    setStat('statGroups', 'N/A');
   }
 
   try {
     const { count } = await db
       .from('course_resources')
       .select('*', { count: 'exact', head: true });
-    setStat('statResources', count ?? '--');
+    setStat('statResources', count ?? 'N/A');
   } catch {
-    setStat('statResources', '--');
+    setStat('statResources', 'N/A');
   }
 }
 

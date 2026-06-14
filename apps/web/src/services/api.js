@@ -1,4 +1,17 @@
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const DEFAULT_TIMEOUT_MS = 10_000;
+const MAX_RETRIES = 2;
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
+
+class ApiError extends Error {
+  constructor(message, status, code, body) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+    this.body = body;
+  }
+}
 
 function isValidUrl(value) {
   try {
@@ -9,56 +22,79 @@ function isValidUrl(value) {
   }
 }
 
-async function withTimeout(promise, ms = 10000) {
+function buildUrl(path) {
+  const url = new URL(path, BASE);
+  if (!isValidUrl(url.toString())) {
+    throw new Error('Bad API base URL');
+  }
+  return url.toString();
+}
+
+function baseHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+}
+
+async function withTimeout(promise, ms) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), ms);
   try {
-    const result = await promise;
-    return result;
+    return await promise;
   } finally {
     clearTimeout(timeout);
   }
 }
 
-export async function api(path, opts = {}) {
-  const timeoutMs = opts.timeout ?? 10000;
-  if (!isValidUrl(BASE)) {
-    throw new Error('Bad API base URL');
-  }
+function safeUserMessage(body, fallback) {
+  if (!body) return fallback;
+  if (typeof body.message === 'string' && body.message.trim().length < 120) return body.message;
+  if (typeof body.error === 'string' && body.error.trim().length < 120) return body.error;
+  return fallback;
+}
 
-  const url = new URL(path, BASE).toString();
+async function request(url, opts, attempt) {
+  const { signal, ...fetchOpts } = opts;
+  const response = await withTimeout(fetch(url, { ...fetchOpts, signal }), opts.timeout || DEFAULT_TIMEOUT_MS);
 
-  let res;
-  try {
-    res = await withTimeout(fetch(url, {
-      headers: { 'Content-Type': 'application/json', ...opts.headers },
-      ...opts,
-      signal: opts.signal,
-    }), timeoutMs);
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      throw new Error('Request timed out');
-    }
-    throw err;
-  }
-
-  const contentType = res.headers.get('content-type') || '';
+  const contentType = response.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
 
-  if (!res.ok) {
-    let message = 'HTTP error';
-    try {
-      const body = isJson ? await res.json() : await res.text();
-      message = body?.message || body?.error || message;
-    } catch {
-      // leave default message
+  if (!response.ok) {
+    let parsedBody = null;
+    if (isJson) {
+      try { parsedBody = await response.json(); } catch { /* leave null */ }
+    } else {
+      try { parsedBody = { message: await response.text() }; } catch { /* leave null */ }
     }
-    throw new Error(message);
+
+    const shouldRetry = attempt < MAX_RETRIES && RETRYABLE_STATUSES.has(response.status);
+    if (shouldRetry) {
+      await new Promise((resolve) => setTimeout(resolve, 300 * attempt));
+      return request(url, opts, attempt + 1);
+    }
+
+    const message = safeUserMessage(parsedBody, 'HTTP error');
+    throw new ApiError(message, response.status, parsedBody?.code ?? response.statusText, parsedBody);
   }
 
-  if (isJson) {
-    return res.json();
-  }
-
-  return res.text();
+  return isJson ? response.json() : response.text();
 }
+
+export async function api(path, opts = {}) {
+  const url = buildUrl(path);
+
+  const fetchOpts = {
+    ...opts,
+    headers: { ...baseHeaders(), ...(opts.headers ?? {}) },
+  };
+
+  if (fetchOpts.signal && fetchOpts.signal === opts.signal) {
+    /* pass through */
+  }
+
+  return request(url, fetchOpts, 0);
+}
+
+export { ApiError };

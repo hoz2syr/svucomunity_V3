@@ -15,26 +15,28 @@ export async function loadStats(db) {
       return;
     }
   } catch (e) {
-    // fallback below
+    console.warn('[admin-stats] Primary RPC failed, using fallback queries', e);
   }
 
   try {
-    const usersCount = await db.from('users').select('*', { count: 'exact', head: true });
-    const groupsCount = await db.from('groups').select('*', { count: 'exact', head: true });
-    const coursesCount = await db.from('courses').select('*', { count: 'exact', head: true });
+    const usersCount = await db.from('users').select('id', { count: 'exact', head: true });
+    const groupsCount = await db.from('groups').select('id', { count: 'exact', head: true });
+    const coursesCount = await db.from('courses').select('id', { count: 'exact', head: true });
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
+    const isoDate = todayStart.toISOString();
     const activeResult = await db
       .from('users')
-      .select('*', { count: 'exact', head: true })
-      .or(`last_login.gte.${todayStart.toISOString()},is_active.eq.true`);
+      .select('id', { count: 'exact', head: true })
+      .or(`last_login.gte.${isoDate},is_active.eq.true`);
 
     setText('adminTotalUsers', usersCount.count ?? 0);
     setText('adminTotalCourses', coursesCount.count ?? 0);
     setText('adminTotalGroups', groupsCount.count ?? 0);
     setText('adminActiveToday', activeResult.count ?? '-');
   } catch (e) {
+    console.error('[admin-stats] Fallback queries failed:', e);
     setText('adminTotalUsers', '-');
     setText('adminTotalCourses', '-');
     setText('adminTotalGroups', '-');

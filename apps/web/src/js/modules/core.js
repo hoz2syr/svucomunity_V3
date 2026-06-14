@@ -8,7 +8,7 @@ import {
   AUTH_CONFIG as _AUTH_CONFIG,
   THEME_CONFIG as _THEME_CONFIG,
 } from './config.js';
-import { encryptedSet, encryptedGet, encryptedRemove } from './encrypted-storage.js';
+import { storageSet, storageGet, storageRemove } from './encrypted-storage.js';
 import { getCsrfToken, getCsrfHeaderName, applyCsrfToSupabase, validateCsrfFromEvent } from './csrf.js';
 
 let Sentry = null;
@@ -18,35 +18,56 @@ try {
   // @sentry/browser not installed; using fallback error handler
 }
 
-if (Sentry) {
-  Sentry.init({
-    dsn: 'https://examplePublicKey@o12345.ingest.sentry.io/12345',
-    environment: import.meta.env?.VITE_SVU_DEBUG ? 'development' : 'production',
-    tracesSampleRate: 0.1,
-    beforeSend(event, hint) {
-      const sensitive = ['email', 'password', 'csrf_token', 'token', 'secret'];
-      const walk = (obj) => {
-        if (!obj || typeof obj !== 'object') return;
-        for (const key of Object.keys(obj)) {
-          if (sensitive.includes(key)) {
-            obj[key] = '[REDACTED]';
-          } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-            walk(obj[key]);
-          }
-        }
-      };
-      walk(event.request?.data);
-      walk(event.extra);
-      if (event.user && typeof event.user === 'object') {
-        delete event.user.email;
-        delete event.user.ip_address;
-      }
-      return event;
-    },
-  });
-}
+const SENSITIVE_HEADER_KEYS = new Set([
+  'email',
+  'password',
+  'csrf_token',
+  'token',
+  'secret',
+  'apikey',
+  'authorization',
+  'set-cookie',
+  'cookie',
+]);
 
-window.__svuSentryAvailable = !!Sentry;
+if (Sentry) {
+  const SENTRY_DSN = import.meta.env?.VITE_SENTRY_DSN;
+  if (SENTRY_DSN) {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: import.meta.env?.VITE_SVU_DEBUG ? 'development' : 'production',
+      tracesSampleRate: 0.1,
+      beforeSend(event, hint) {
+        const walk = (obj) => {
+          if (!obj || typeof obj !== 'object') return;
+          for (const key of Object.keys(obj)) {
+            if (SENSITIVE_HEADER_KEYS.has(key.toLowerCase())) {
+              obj[key] = '[REDACTED]';
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+              walk(obj[key]);
+            }
+          }
+        };
+        walk(event);
+        walk(event.request);
+        walk(event.request?.body);
+        walk(event.request?.headers);
+        walk(event.extra);
+        if (event.user && typeof event.user === 'object') {
+          delete event.user.email;
+          delete event.user.ip_address;
+          delete event.user.id;
+        }
+        return event;
+      },
+    });
+    window.__svuSentryAvailable = true;
+  } else {
+    window.__svuSentryAvailable = false;
+  }
+} else {
+  window.__svuSentryAvailable = false;
+}
 
 window.onerror = function (message, source, lineno, colno, error) {
   if (!window.__svuSentryAvailable) {
@@ -63,7 +84,7 @@ window.addEventListener('unhandledrejection', function (event) {
   }
 });
 
-export { encryptedSet, encryptedGet, encryptedRemove };
+export { storageSet, storageGet, storageRemove };
 
 // Initialize CSRF protection for the current session
 export function initializeCsrf(db) {
@@ -90,22 +111,31 @@ export async function loadCurrentUser(db) {
   try {
     const { data: { user } } = await db.auth.getUser();
     if (!user) return null;
-    const { data: profileData } = await db
+    const { data: profileData, error } = await db
       .from('users')
       .select('id, username, email, first_name, middle_name, last_name, major, avatar_url, is_admin, is_active')
       .eq('id', user.id)
-      .maybeSingle();
+      .single();
+
+    if (error || !profileData) {
+      return null;
+    }
+
+    if (profileData.is_active === false) {
+      return null;
+    }
+
     cachedUser = {
       id: user.id,
-      username: profileData?.username || user.email?.split('@')[0] || '',
-      email: profileData?.email || user.email || '',
-      first_name: profileData?.first_name || '',
-      middle_name: profileData?.middle_name || '',
-      last_name: profileData?.last_name || '',
-      major: profileData?.major || '',
-      avatar_url: profileData?.avatar_url || '',
-      is_admin: profileData?.is_admin || false,
-      is_active: profileData?.is_active ?? true,
+      username: profileData.username || user.email?.split('@')[0] || '',
+      email: profileData.email || user.email || '',
+      first_name: profileData.first_name || '',
+      middle_name: profileData.middle_name || '',
+      last_name: profileData.last_name || '',
+      major: profileData.major || '',
+      avatar_url: profileData.avatar_url || '',
+      is_admin: profileData.is_admin || false,
+      is_active: profileData.is_active ?? true,
     };
     return cachedUser;
   } catch {
@@ -113,7 +143,7 @@ export async function loadCurrentUser(db) {
   }
 }
 
-export function saveUserSession(userData, rememberMe = false) {
+export function saveUserSession(userData) {
   cacheUser(userData);
 }
 
@@ -141,7 +171,7 @@ export async function refreshUserState(db) {
 
 function safeStorageGet(key) {
   try {
-    return encryptedGet(key);
+    return storageGet(key);
   } catch {
     return null;
   }
@@ -149,7 +179,7 @@ function safeStorageGet(key) {
 
 function safeStorageSet(key, value) {
   try {
-    encryptedSet(key, value);
+    storageSet(key, value);
   } catch {
     // storage unavailable
   }
@@ -157,7 +187,7 @@ function safeStorageSet(key, value) {
 
 function safeStorageRemove(key) {
   try {
-    encryptedRemove(key);
+    storageRemove(key);
   } catch {
     // storage unavailable
   }
@@ -206,29 +236,11 @@ function validateLoginInput(identifier, password) {
  * @returns {string}
  */
 function handleRegisterError(error) {
-  const msg = error?.message || '';
-
-  if (msg.includes('already registered') || msg.includes('already exists')) {
-    return 'البريد الإلكتروني أو اسم المستخدم مسجّل مسبقاً';
-  }
-  if (msg.includes('Password should be at least')) {
-    return 'كلمة المرور ضعيفة جداً';
-  }
-  if (msg.includes('Invalid email')) {
-    return 'البريد الإلكتروني غير صالح';
-  }
-  if (msg.includes('Network') || msg.includes('network')) {
-    return 'خطأ في الاتصال، يرجى المحاولة مرة أخرى';
-  }
-  if (msg.includes('Email not confirmed')) {
-    return 'يرجى تفعيل بريدك الإلكتروني أولاً';
-  }
-
-  return 'فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.';
+  return 'فشل إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى.';
 }
 
 /**
- * Map internal error keys to user-facing messages.
+ * Map login error keys to user-facing messages.
  * @param {Error} error
  * @returns {string}
  */

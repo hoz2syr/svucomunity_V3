@@ -14,27 +14,35 @@ export function registerRoute(path, handler) {
 }
 
 export function navigate(path) {
-  window.location.hash = '#' + path;
+  const normalized = normalizePath(path);
+  window.location.hash = '#' + normalized;
 }
 
 export function getCurrentPath() {
   var hash = window.location.hash || '';
-  return hash.replace(/^#/, '') || DEFAULT_ROUTE;
+  return normalizePath(hash.replace(/^#/, '')) || DEFAULT_ROUTE;
+}
+
+function normalizePath(path) {
+  if (!path.startsWith('/')) path = '/' + path;
+  return path.replace(/\/+/g, '/');
 }
 
 export function resolveRoute(path) {
-  // Exact match
-  if (routes.has(path)) return routes.get(path);
+  if (!path || typeof path !== 'string') return routes.get(DEFAULT_ROUTE);
 
-  // Prefix match (e.g. /courses/123)
+  const decoded = decodeURIComponent(path).replace(/[\x00-\x20]/g, '');
+
+  if (routes.has(decoded)) return routes.get(decoded);
+
   for (const [prefix, handler] of routes.entries()) {
-    if (prefix !== '/' && path.startsWith(prefix)) return handler;
-    if (prefix === path) return handler;
+    if (!prefix || prefix === '/') continue;
+    if (decoded === prefix || decoded.startsWith(prefix + '/')) {
+      return handler;
+    }
   }
 
-  // 404 fallback
-  var fallback = routes.get('/404') || routes.get(DEFAULT_ROUTE);
-  return fallback;
+  return routes.get('/404') || routes.get(DEFAULT_ROUTE);
 }
 
 export function startRouter() {

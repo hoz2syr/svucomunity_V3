@@ -43,15 +43,25 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('toggleNewPwd')?.addEventListener('click', function() {
     const inp = document.getElementById('newPassword');
     const svg = this.querySelector('svg');
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-    svg.innerHTML = inp.type === 'text' ? EYE_VISIBLE : EYE_HIDDEN;
+    const showing = inp.type === 'password';
+    inp.type = showing ? 'text' : 'password';
+    svg.innerHTML = showing ? EYE_VISIBLE : EYE_HIDDEN;
+    this.setAttribute('aria-pressed', String(showing));
+    this.setAttribute('aria-label', showing
+      ? (window.i18n?.t('hidePassword') || 'Hide password')
+      : (window.i18n?.t('showPassword') || 'Show password'));
   });
 
   document.getElementById('toggleConfirmPwd')?.addEventListener('click', function() {
     const inp = document.getElementById('confirmPassword');
     const svg = this.querySelector('svg');
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-    svg.innerHTML = inp.type === 'text' ? EYE_VISIBLE : EYE_HIDDEN;
+    const showing = inp.type === 'password';
+    inp.type = showing ? 'text' : 'password';
+    svg.innerHTML = showing ? EYE_VISIBLE : EYE_HIDDEN;
+    this.setAttribute('aria-pressed', String(showing));
+    this.setAttribute('aria-label', showing
+      ? (window.i18n?.t('hidePassword') || 'Hide password')
+      : (window.i18n?.t('showPassword') || 'Show password'));
   });
 
   form?.addEventListener('submit', async function(e) {

@@ -1,6 +1,21 @@
+import { escapeHtml } from '../core.js';
 import { showToast } from '../shared.js';
 
 const ADMIN_FN = 'admin-actions';
+const EMAIL_SEPARATOR = /[,;\s]+/;
+
+function isEmailAddress(value) {
+  return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function safeError(message) {
+  if (!message || typeof message !== 'string') return 'فشلت العملية';
+  const normalized = message.toLowerCase();
+  if (/(pgrst|supabase|postgres|connect|timeout|unauthorized|forbidden)/.test(normalized)) {
+    return 'فشلت العملية';
+  }
+  return message;
+}
 
 async function callAdmin(action, payload = {}) {
   const db = window.getDb?.();
@@ -17,23 +32,42 @@ async function callAdmin(action, payload = {}) {
 
   try {
     const { data, error } = await db.functions.invoke(ADMIN_FN, {
-      body: { action, payload, caller_id: user.id },
+      body: { action, payload },
     });
     if (error) throw error;
     return { ok: true, data };
   } catch (e) {
-    showToast('فشل: ' + (e.message || ''), 'error');
+    showToast('فشل: ' + safeError(e?.message || ''), 'error');
+    console.error('[adminApi]', action, e);
     return { ok: false, error: e };
   }
 }
 
+function validateUserId(userId) {
+  if (!userId || typeof userId !== 'string' || userId.length < 8 || userId.length > 36) return false;
+  return /^[a-zA-Z0-9-]+$/.test(userId);
+}
+
+function validateGroupId(groupId) {
+  if (!groupId || typeof groupId !== 'string' || groupId.length < 8 || groupId.length > 36) return false;
+  return /^[a-zA-Z0-9-]+$/.test(groupId);
+}
+
 export async function makeAdmin(userId) {
+  if (!validateUserId(userId)) {
+    showToast('معرف المستخدم غير صالح', 'error');
+    return;
+  }
   if (!confirm('هل تريد تعيين هذا المستخدم كمشرف؟')) return;
   const result = await callAdmin('makeAdmin', { userId });
   if (result.ok) showToast('تم تعيين المشرف بنجاح', 'success');
 }
 
 export async function revokeAdmin(userId) {
+  if (!validateUserId(userId)) {
+    showToast('معرف المستخدم غير صالح', 'error');
+    return;
+  }
   const currentUser = window.getCurrentUser?.();
   if (currentUser?.id === userId) {
     showToast('لا يمكنك إلغاء صلاحياتك الخاصة', 'error');
@@ -45,6 +79,10 @@ export async function revokeAdmin(userId) {
 }
 
 export async function toggleActive(userId, active) {
+  if (!validateUserId(userId)) {
+    showToast('معرف المستخدم غير صالح', 'error');
+    return;
+  }
   const currentUser = window.getCurrentUser?.();
   if (currentUser?.id === userId && !active) {
     showToast('لا يمكنك تعطيل حسابك الخاص', 'error');
@@ -57,27 +95,37 @@ export async function toggleActive(userId, active) {
 }
 
 export async function deleteGroup(groupId) {
+  if (!validateGroupId(groupId)) {
+    showToast('معرف المجموعة غير صالح', 'error');
+    return;
+  }
   if (!confirm('هل أنت متأكد من حذف هذه المجموعة؟ سيتم حذف جميع الأعضاء أيضاً.')) return;
   const result = await callAdmin('deleteGroup', { groupId });
   if (result.ok) showToast('تم حذف المجموعة بنجاح', 'success');
 }
 
 export async function sendAdminEmail(recipientsType, subject, body, customEmails) {
-  if (!subject || !body) {
+  if (!subject?.trim() || !body?.trim()) {
     showToast('أدخل عنوان ومحتوى الإيميل', 'error');
     return;
   }
-  if (recipientsType === 'custom' && !customEmails?.trim()) {
-    showToast('أدخل عناوين الإيميل المخصصة', 'error');
-    return;
+  if (recipientsType === 'custom') {
+    const emails = (customEmails || '')
+      .split(EMAIL_SEPARATOR)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+    if (!emails.length || !emails.every(isEmailAddress)) {
+      showToast('أدخل عناوين إيميل صالحة مفصولة بفواصل', 'error');
+      return;
+    }
   }
   if (!confirm('هل أنت متأكد من إرسال هذا الإيميل؟')) return;
 
   const result = await callAdmin('sendEmail', {
     recipientsType,
-    subject,
-    body,
-    customEmails: customEmails?.trim() || '',
+    subject: subject.trim(),
+    body: body.trim(),
+    customEmails: (customEmails || '').trim(),
   });
 
   if (result.ok) showToast('تم إرسال الإيميل بنجاح', 'success');

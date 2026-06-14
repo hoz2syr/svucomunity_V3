@@ -1,5 +1,19 @@
 import { showToast } from '../shared.js';
+import { escapeHtml } from '../core.js';
 import { callAdmin } from './adminApi.js';
+
+const SITE_NAME_MAX_LENGTH = 100;
+
+function isPlainText(value) {
+  return typeof value === 'string' && !/<[^>]*>/i.test(value);
+}
+
+function validateSiteName(value) {
+  const trimmed = (value || '').trim();
+  if (trimmed.length > SITE_NAME_MAX_LENGTH) return false;
+  if (!isPlainText(trimmed)) return false;
+  return true;
+}
 
 export function setupSettingsListeners(db) {
   const resetBtn = document.getElementById('resetDataBtn');
@@ -17,6 +31,10 @@ export function setupSettingsListeners(db) {
 
   const doSave = async () => {
     const siteName = document.getElementById('settingSiteName')?.value || '';
+    if (!validateSiteName(siteName)) {
+      showToast('اسم الموقع غير صالح', 'error');
+      return;
+    }
     const defaultLang = document.getElementById('settingDefaultLang')?.value || 'ar';
     const requireEmail = document.getElementById('settingRequireEmail')?.checked ?? true;
     const allowRegistration = document.getElementById('settingAllowRegistration')?.checked ?? true;

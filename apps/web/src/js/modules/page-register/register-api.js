@@ -8,10 +8,17 @@ function buildPhone(raw) {
   const trimmed = (raw || '').trim();
   const digits = trimmed.replace(/\D/g, '');
   const dial = state.selected.dial;
+  const localPfx = state.selected.localPfx || [];
+
   if (trimmed.startsWith('+') || trimmed.startsWith('00')) {
     return dial + digits.slice(dial.slice(1).length);
   }
-  if (trimmed.startsWith('0')) return dial + digits.slice(1);
+
+  if (trimmed.startsWith('0') && localPfx.length > 0) {
+    const prefixLen = localPfx[0].length;
+    return dial + digits.slice(prefixLen);
+  }
+
   return dial + digits;
 }
 
@@ -86,13 +93,27 @@ async function submitRegisterForm() {
     const { data: duplicateCheck, error: duplicateError } = await state.db
       .from('users')
       .select('username,email')
-      .or(`username.eq.${payload.username},email.eq.${payload.email}`)
+      .eq('username', payload.username)
       .maybeSingle();
 
     if (duplicateError && duplicateError.code !== 'PGRST116') throw duplicateError;
-    if (duplicateCheck) {
+
+    let usernameTaken = !!duplicateCheck;
+
+    if (!usernameTaken) {
+      const { data: emailCheck, error: emailErr } = await state.db
+        .from('users')
+        .select('username,email')
+        .eq('email', payload.email)
+        .maybeSingle();
+
+      if (emailErr && emailErr.code !== 'PGRST116') throw emailErr;
+      if (emailCheck) usernameTaken = true;
+    }
+
+    if (usernameTaken) {
       const language = getCurrentLang();
-      const field = duplicateCheck.username === payload.username ? 'username' : 'email';
+      const field = duplicateCheck?.username === payload.username ? 'username' : 'email';
       const error = new Error(formatFieldError(field, language));
       showToast(handleRegisterError(error), 'error');
       setFormLoading('registerBtn', false);

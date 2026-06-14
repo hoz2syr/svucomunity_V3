@@ -1,7 +1,7 @@
 /**
  * SVU Community — Courses listing page
  */
-import { loadSVUCourses } from '../shared.js';
+import { loadSVUCourses, debounce } from '../shared.js';
 import { escapeHtml } from '../core.js';
 
 async function init() {
@@ -28,7 +28,7 @@ async function init() {
 
     const filtered = Object.values(courses).filter(c => {
       const matchesSearch = !query || (c.name || '').toLowerCase().includes(query);
-      const matchesSemester = semester === 'all' || String(c.semester) === semester;
+      const matchesSemester = semester === 'all' || (c.semester != null && String(c.semester) === semester);
       return matchesSearch && matchesSemester;
     });
 
@@ -48,7 +48,7 @@ async function init() {
     `).join('');
   }
 
-  if (searchInput) searchInput.addEventListener('input', render);
+  if (searchInput) searchInput.addEventListener('input', debounce(render, 250));
   if (semesterSelect) semesterSelect.addEventListener('change', render);
 
   await load();

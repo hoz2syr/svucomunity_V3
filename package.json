@@ -24,6 +24,8 @@
     "build:schedule": "turbo run build --filter=@svu-community/schedule",
     "lint": "eslint . --ext .js,.ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "npx tsc -b --force",
+    "audit": "npm audit --audit-level=moderate",
+    "audit:fix": "npm audit fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

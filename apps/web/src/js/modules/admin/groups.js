@@ -5,7 +5,7 @@ export async function loadGroups(db) {
   try {
     const result = await db
       .from('groups')
-      .select('*')
+      .select('id, name, course_name, course_code, major, current_members, max_members, created_at')
       .order('created_at', { ascending: false });
 
     if (result.error) throw result.error;

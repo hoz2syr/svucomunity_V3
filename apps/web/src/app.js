@@ -1,15 +1,16 @@
 import { initializeTheme, applyTheme, getStoredTheme, toggleTheme } from './js/modules/core.js';
-import { initLang, applyLanguage } from './js/modules/i18n.js';
-import { log, openModal, closeModal } from './js/modules/shared.js';
+import { initLang, toggleLang } from './js/modules/i18n.js';
+import { log, openModal, closeModal, logout } from './js/modules/shared.js';
 import { getDb } from './js/modules/config.js';
 import { escapeHtml } from './js/modules/core.js';
 
-export { initializeTheme, applyTheme, getStoredTheme, toggleTheme, initLang, applyLanguage, log, getDb };
+export { initializeTheme, applyTheme, getStoredTheme, toggleTheme, initLang, toggleLang, log, getDb };
 
 function getPageName() {
   const path = window.location.pathname;
-  if (path.includes('dashboard')) return 'dashboard';
-  if (path.includes('courses')) return 'courses';
+  const normalized = path.replace(/\/+$/, '') || '/';
+  if (normalized === '/dashboard' || normalized.startsWith('/dashboard/')) return 'dashboard';
+  if (normalized === '/courses' || normalized.startsWith('/courses/')) return 'courses';
   return null;
 }
 
@@ -108,8 +109,7 @@ function setupLangToggle() {
   const btns = document.querySelectorAll('[data-lang-toggle]');
   btns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      applyLanguage();
-      location.reload();
+      toggleLang();
     });
   });
 }
@@ -138,8 +138,9 @@ function setupForgotPasswordModal() {
       const emailField = document.getElementById('resetEmail');
       const resetBtn = document.getElementById('resetBtn');
       const email = (emailField?.value || '').trim();
-      if (!email || !email.includes('@')) {
-        log.warn('Invalid email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        log.warn('Invalid email format');
         return;
       }
       if (!resetBtn) return;

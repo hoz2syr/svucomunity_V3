@@ -8,9 +8,7 @@ function tI18n(key) {
   return document.documentElement.getAttribute('data-i18n-' + key) || key;
 }
 
-function i18nT(key) {
-  return tI18n(key);
-}
+const i18nT = tI18n;
 
 function validateUsername(value) {
   const username = (value || '').trim();

@@ -3,34 +3,56 @@
  */
 import { getCsrfToken, getCsrfHeaderName } from './csrf.js';
 import { getDb } from './config.js';
-import { escapeHtml, encryptedGet } from './core.js';
+import { escapeHtml, storageGet } from './core.js';
 
 let coursesData = null;
-let coursesFailed = false;
+let coursesFailedAt = 0;
+const COURSES_RETRY_MS = 30_000;
 const _toastTimers = new Map();
-
+let _toastId = 0;
 const log = {
-  debug: (...args) => {
-    if (import.meta.env?.VITE_SVU_DEBUG) console.debug(...args);
-  },
-  info: (...args) => {
-    if (import.meta.env?.VITE_SVU_DEBUG) console.info(...args);
-  },
-  warn: (...args) => console.warn(...args),
-  error: (...args) => console.error(...args),
+  debug: (...args) => console.debug('[Shared]', ...args),
+  warn: (...args) => console.warn('[Shared]', ...args),
+  error: (...args) => console.error('[Shared]', ...args),
 };
 
-const MAX_JSON_SIZE = 10 * 1024 * 1024;
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast') || createToast();
+  const content = document.getElementById('toastContent') || toast.firstElementChild;
 
-function getCsrfHeaders() {
-  return {
-    'X-CSRF-Token': getCsrfToken(),
-  };
+  if (!content) return;
+
+  const safeMessage = escapeHtml(message);
+  content.textContent = safeMessage;
+  content.className =
+    (type === 'success' ? 'bg-green-600' : 'bg-red-600') +
+    ' text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium';
+
+  content.setAttribute('role', 'status');
+  content.setAttribute('aria-live', 'polite');
+
+  toast.classList.remove('opacity-0', 'translate-y-4');
+  toast.classList.add('opacity-100', 'translate-y-0');
+
+  const key = `toastMsg:${++_toastId}`;
+  clearTimeout(_toastTimers.get(key));
+
+  const timer = setTimeout(() => {
+    toast.classList.add('opacity-0', 'translate-y-4');
+    toast.classList.remove('opacity-100', 'translate-y-0');
+    _toastTimers.delete(key);
+  }, 3500);
+
+  _toastTimers.set(key, timer);
 }
 
 async function loadSVUCourses() {
+  const now = Date.now();
   if (coursesData) return coursesData;
-  if (coursesFailed) return {};
+  if (coursesFailedAt && now - coursesFailedAt < COURSES_RETRY_MS) {
+    log.debug('[Courses] Returning cached failure; retry after', Math.ceil((COURSES_RETRY_MS - (now - coursesFailedAt)) / 1000), 's');
+    return {};
+  }
 
   const paths = ['./svu_courses.json', 'svu_courses.json'];
   for (const path of paths) {
@@ -55,13 +77,14 @@ async function loadSVUCourses() {
         coursesData = await res.json();
       }
 
+      coursesFailedAt = 0;
       return coursesData;
-    } catch {
-      // try the next path
+    } catch (err) {
+      log.warn('[Courses] Failed to load from', path, ':', err);
     }
   }
 
-  coursesFailed = true;
+  coursesFailedAt = now;
   log.error('[Courses] svu_courses.json not found. Check deployment.');
   return {};
 }
@@ -90,36 +113,6 @@ function matchMajor(filterMajor, groupMajor) {
   const filterCode = filterMajor.split(/[\s(]/)[0].toUpperCase();
   const groupCode = groupMajor.split(/[\s(]/)[0].toUpperCase();
   return filterCode === groupCode;
-}
-
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast') || createToast();
-  const content = document.getElementById('toastContent') || toast.firstElementChild;
-
-  if (!content) return;
-
-  const safeMessage = escapeHtml(message);
-  content.textContent = safeMessage;
-  content.className =
-    (type === 'success' ? 'bg-green-600' : 'bg-red-600') +
-    ' text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium';
-
-  content.setAttribute('role', 'status');
-  content.setAttribute('aria-live', 'polite');
-
-  toast.classList.remove('opacity-0', 'translate-y-4');
-  toast.classList.add('opacity-100', 'translate-y-0');
-
-  const existingKey = 'toastMsg';
-  clearTimeout(_toastTimers.get(existingKey));
-
-  const timer = setTimeout(() => {
-    toast.classList.add('opacity-0', 'translate-y-4');
-    toast.classList.remove('opacity-100', 'translate-y-0');
-    _toastTimers.delete(existingKey);
-  }, 3500);
-
-  _toastTimers.set(existingKey, timer);
 }
 
 function createToast() {
@@ -159,7 +152,7 @@ function timeAgo(dateStr) {
 }
 
 function getCurrentLang() {
-  return document.documentElement.lang || encryptedGet('svu_lang') || 'ar';
+  return document.documentElement.lang || storageGet('svu_lang') || 'ar';
 }
 
 async function enrichCreators(groups, db) {
@@ -291,8 +284,11 @@ const COUNTRIES = [
  * @returns {string}
  */
 function getCountryName(country) {
-  const lang = 'ar';
-  return typeof country.name === 'object' ? country.name[lang] || country.name.ar : country.name;
+  const lang = getCurrentLang().startsWith('en') ? 'en' : 'ar';
+  if (typeof country.name === 'object') {
+    return country.name[lang] || country.name.ar || country.name.en || '';
+  }
+  return typeof country.name === 'string' ? country.name : '';
 }
 
 export {

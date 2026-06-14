@@ -42,7 +42,11 @@ function applyLanguage(lang) {
     const key = el.getAttribute('data-i18n');
     const text = t(key);
     if (el.tagName === 'INPUT') {
-      el.placeholder = text;
+      if (el.type === 'submit' || el.type === 'button') {
+        el.value = text;
+      } else {
+        el.placeholder = text;
+      }
     } else {
       el.textContent = text;
     }
