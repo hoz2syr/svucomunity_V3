@@ -1,4 +1,4 @@
-import type { TranslationDictionary } from '../types';
+import type { TranslationDictionary } from './types';
 
 export const scheduleTranslations: Record<string, TranslationDictionary> = {
   ar: {
@@ -181,9 +181,6 @@ export const scheduleTranslations: Record<string, TranslationDictionary> = {
   },
 };
 
-export const scheduleKeys = Object.values(scheduleTranslations.ar).flatMap(
-  (section) =>
-    typeof section === 'object'
-      ? Object.keys(section).map((k) => `schedule.${k}`)
-      : []
-);
+export const scheduleKeys = Object.values(scheduleTranslations.ar)
+  .filter((section): section is Record<string, string> => typeof section === 'object' && section !== null)
+  .flatMap((section) => Object.keys(section).map((k) => `schedule.${k}`));

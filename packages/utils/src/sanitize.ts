@@ -1,17 +1,24 @@
-import DOMPurify from 'dompurify';
-
 export function sanitizeHTML(dirty: string): string {
+  const ALLOWED_TAGS = ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'] as const;
+  const ALLOWED_ATTR = ['href', 'title', 'rel'] as const;
   if (!dirty) return '';
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['href', 'title', 'rel'],
-    ALLOW_DATA_ATTR: false,
-  });
+  const cleaned = dirty
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/on\w+="[^"]*"/gi, '')
+    .replace(/on\w+='[^']*'/gi, '')
+    .replace(/on\w+:\s*[^;]*/g, '');
+  return cleaned;
 }
 
 export function sanitizeText(text: string): string {
   if (!text) return '';
-  return DOMPurify.sanitize(text, { ALLOWED_TAGS: [] });
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 export function sanitizeUrl(url: string): string {
@@ -23,9 +30,9 @@ export function sanitizeUrl(url: string): string {
   if (/^\s*file\s*:/i.test(trimmed)) return '';
   if (/^\s*vbscript\s*:/i.test(trimmed)) return '';
   try {
-    const parsed = new URL(trimmed);
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
-    return trimmed;
+    new URL(trimmed);
+    if (/^https?:/i.test(trimmed)) return trimmed;
+    return '';
   } catch {
     return '';
   }

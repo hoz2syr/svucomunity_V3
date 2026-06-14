@@ -31,9 +31,8 @@ function useI18nContext(): I18nAPI {
     return {
       state: { lang, dir: computeDir(lang) },
       setLang: () => {},
-      toggleLang: () => getInitialLang(),
-      t: (key: string, fallback = '') => fallback || key,
-      lang: () => getInitialLang(),
+      toggleLang: (): Language => getInitialLang(),
+      t: (key: string, fallback?: string) => fallback || key,
     };
   }
   return ctx;

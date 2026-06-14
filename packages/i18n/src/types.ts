@@ -106,3 +106,14 @@ export interface I18nAPI {
 export type ScheduleDictionary = {
   [K in keyof ScheduleTranslations]: ScheduleTranslations[K];
 };
+
+export interface I18nContextValue {
+  lang: Language;
+  setLang: (lang: Language) => void;
+  toggleLang: () => Language;
+  t: (key: string, fallback?: string) => string;
+  dir: 'ltr' | 'rtl';
+  isRTL: boolean;
+}
+
+export type TranslationDictionary = Record<string, string | Record<string, string>>;

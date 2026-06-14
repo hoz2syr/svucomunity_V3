@@ -7,6 +7,12 @@
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "lucide-react": "^0.546.0",
+    "sonner": "^2.0.7"
+  },
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=@svu-community/web",
@@ -17,7 +23,7 @@
     "build:courses": "turbo run build --filter=@svu-community/courses",
     "build:schedule": "turbo run build --filter=@svu-community/schedule",
     "lint": "eslint . --ext .js,.ts,.tsx --report-unused-disable-directives --max-warnings 0",
-    "typecheck": "tsc -b --force",
+    "typecheck": "npx tsc -b --force",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

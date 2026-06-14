@@ -1,7 +1,7 @@
-export * from './user';
-export * from './course';
-export * from './group';
-export * from './resource';
+export * from './user.js';
+export * from './course.js';
+export * from './group.js';
+export * from './resource.js';
 
 export interface Schedule {
   id: string
@@ -13,6 +13,6 @@ export interface Schedule {
 }
 
 export interface AuthState {
-  user: import('./user').User | null
+  user: import('./user.js').User | null
   loading: boolean
 }

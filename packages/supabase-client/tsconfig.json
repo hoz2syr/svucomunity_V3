@@ -4,7 +4,10 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "types": ["node", "vite/client"]
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
