@@ -10,8 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "noEmit": true,
-    "isolatedModules": true,
-    "types": ["@playwright/test"]
+    "isolatedModules": true
   },
   "exclude": ["node_modules", "dist"]
 }

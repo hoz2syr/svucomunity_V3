@@ -14,10 +14,10 @@
     "sonner": "^2.0.7"
   },
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=@svu-community/web",
-    "dev:courses": "turbo run dev --filter=@svu-community/courses",
-    "dev:schedule": "turbo run dev --filter=@svu-community/schedule",
+    "dev": "concurrently --names web,courses,schedule --raw \"npm run dev --prefix apps/web\" \"npm run dev --prefix apps/courses\" \"npm run dev --prefix apps/schedule\"",
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev:courses": "vite --prefix apps/courses",
+    "dev:schedule": "vite --prefix apps/schedule",
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@svu-community/web",
     "build:courses": "turbo run build --filter=@svu-community/courses",
@@ -36,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.0.0",
     "globals": "^15.0.0",

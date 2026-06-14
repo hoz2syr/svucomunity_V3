@@ -34,13 +34,13 @@ export function SettingsPanel() {
     setLoading(true);
     setError(null);
     fetchSettings()
-      .then((s) => {
+      .then((s: AppSettings) => {
         if (!cancelled) {
           setSettings(s);
           setDirty(false);
         }
       })
-      .catch((e) => {
+      .catch((e: unknown) => {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : 'فشل تحميل الإعدادات');
         }
@@ -57,7 +57,7 @@ export function SettingsPanel() {
 
   const handleChange = useCallback(
     <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
-      setSettings((prev) => ({ ...prev, [key]: value }));
+      setSettings((prev: AppSettings) => ({ ...prev, [key]: value }));
       setDirty(true);
       setError(null);
     },

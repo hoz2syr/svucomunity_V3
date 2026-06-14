@@ -2,6 +2,7 @@
   "extends": "@svu-community/config/tsconfig/base",
   "compilerOptions": {
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["@playwright/test"]
   }
 }

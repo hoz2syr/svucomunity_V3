@@ -16,15 +16,15 @@ AlertDialogPortal.displayName = "AlertDialogPortal";
 
 const AlertDialogOverlay = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >((props, ref) => {
   return (
     <AlertDialogPrimitive.Overlay
-      {...props}
+      {...(props as any)}
       ref={ref}
       className={cn(
         "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        props.className,
+        (props as any).className,
       )}
     />
   );
@@ -33,7 +33,7 @@ AlertDialogOverlay.displayName = "AlertDialogOverlay";
 
 const AlertDialogContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   return (
     <AlertDialogPortal>
@@ -85,11 +85,12 @@ AlertDialogFooter.displayName = "AlertDialogFooter";
 
 const AlertDialogTitle = React.forwardRef<
   HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
+>((props, ref) => {
+  const { className, ...rest } = props as any
   return (
     <AlertDialogPrimitive.Title
-      {...props}
+      {...(rest as any)}
       ref={ref}
       className={cn("text-lg font-semibold", className)}
     />
@@ -99,11 +100,12 @@ AlertDialogTitle.displayName = "AlertDialogTitle";
 
 const AlertDialogDescription = React.forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
+>((props, ref) => {
+  const { className, ...rest } = props as any
   return (
     <AlertDialogPrimitive.Description
-      {...props}
+      {...(rest as any)}
       ref={ref}
       className={cn("text-sm text-muted-foreground", className)}
     />
