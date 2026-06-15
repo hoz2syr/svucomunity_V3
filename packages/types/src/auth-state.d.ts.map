@@ -1,1 +1,1 @@
-{"version":3,"file":"auth-state.d.ts","sourceRoot":"","sources":["auth-state.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,IAAI,EAAE,MAAM,WAAW,CAAA;AAErC,MAAM,WAAW,SAAS;IACxB,IAAI,EAAE,IAAI,GAAG,IAAI,CAAA;IACjB,OAAO,EAAE,OAAO,CAAA;CACjB"}
+{"version":3,"file":"auth-state.d.ts","sourceRoot":"","sources":["auth-state.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,SAAS;IACxB,IAAI,EAAE,OAAO,WAAW,EAAE,IAAI,GAAG,IAAI,CAAA;IACrC,OAAO,EAAE,OAAO,CAAA;CACjB"}

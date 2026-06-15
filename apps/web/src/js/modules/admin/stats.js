@@ -19,21 +19,30 @@ export async function loadStats(db) {
   }
 
   try {
-    const usersCount = await db.from('users').select('id', { count: 'exact', head: true });
-    const groupsCount = await db.from('groups').select('id', { count: 'exact', head: true });
-    const coursesCount = await db.from('courses').select('id', { count: 'exact', head: true });
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const isoDate = todayStart.toISOString();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isoDate = today.toISOString();
+    const { count: creatorCount } = await db
+      .from('study_groups')
+      .select('*', { count: 'exact', head: true });
+    const { data: members, error: membersErr } = await db
+      .from('group_members')
+      .select('group_id, user_id');
+    if (membersErr) throw membersErr;
+    const uniqueGroupIdsMember = [...new Set((members || []).map(m => m.group_id))];
+    const { count: memberCount } = uniqueGroupIdsMember.length
+      ? await db.from('study_groups').select('*', { count: 'exact', head: true }).in('id', uniqueGroupIdsMember)
+      : { count: 0 };
     const activeResult = await db
       .from('users')
       .select('id', { count: 'exact', head: true })
-      .or(`last_login.gte.${isoDate},is_active.eq.true`);
-
+      .gte('last_login', isoDate);
+    const usersCount = await db.from('users').select('id', { count: 'exact', head: true });
+    const groupsCount = await db.from('groups').select('id', { count: 'exact', head: true });
+    const coursesCount = await db.from('courses').select('id', { count: 'exact', head: true });
     setText('adminTotalUsers', usersCount.count ?? 0);
     setText('adminTotalCourses', coursesCount.count ?? 0);
-    setText('adminTotalGroups', groupsCount.count ?? 0);
+    setText('adminTotalGroups', (groupsCount.count ?? 0) + (memberCount ?? 0));
     setText('adminActiveToday', activeResult.count ?? '-');
   } catch (e) {
     console.error('[admin-stats] Fallback queries failed:', e);

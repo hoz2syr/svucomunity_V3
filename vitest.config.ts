@@ -19,8 +19,12 @@ export default defineConfig({
     environment: 'jsdom',
     alias: {
       '@': '/src',
+      '@sentry/browser': '/src/js/modules/page-dashboard/sentry-stub.js',
     },
     hooksTimeout: 5000,
     setupFiles: ['packages/ui/src/test-setup.ts'],
+    deps: {
+      inline: [/^@sentry/],
+    },
   },
 });

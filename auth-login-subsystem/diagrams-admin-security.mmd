@@ -1,0 +1,24 @@
+flowchart TD
+    A["HTTP Request to admin-actions"] --> B{"OPTIONS / CORS preflight?"}
+    B -->|"Yes"| C["Return CORS headers"]
+    B -->|"No"| D{"Authorization header<br/>starts with 'Bearer '?"}
+    D -->|"No"| E["401 authorization_required"]
+    D -->|"Yes"| F{"supabase.auth.getUser(token)<br/>returns valid user?"}
+    F -->|"No"| G["401 invalid_token"]
+    F -->|"Yes"| H{"users row exists<br/>and is_admin? and is_active?"}
+    H -->|"No"| I["401 profile_not_found"]
+    H -->|"Yes"| J{"action in allowed list?"}
+    J -->|"No"| K["400 unsupported_action"]
+    J -->|"Yes"| L["Log to admin_audit_log<br/>(caller_id, action, payload, IP, UA)"]
+    L --> M{"Any self-action guard?<br/>(revoke self / deactivate self)"}
+    M -->|"Self action blocked"| N["400 cannot_revoke_self / cannot_deactivate_self"]
+    M -->|"Allowed"| O["Execute DB action via service_role client"]
+    O --> P["200 / 400 / 500 JSON response"]
+
+    style E fill:#dc2626,color:#fff
+    style G fill:#dc2626,color:#fff
+    style I fill:#dc2626,color:#fff
+    style K fill:#f59e0b,color:#fff
+    style N fill:#f59e0b,color:#fff
+    style P fill:#16a34a,color:#fff
+    style L fill:#1d4ed8,color:#fff

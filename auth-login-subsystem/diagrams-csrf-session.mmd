@@ -1,0 +1,39 @@
+flowchart LR
+    subgraph "Browser"
+        S1["sessionStorage<br/>svu_csrf_token = fp:token"]
+        S2["Cookie<br/>svu_csrf_token = fp:token<br/>SameSite=Lax; Secure on HTTPS"]
+        FP["Browser fingerprint<br/>(UA,lang,tz,screen)"]
+    end
+
+    subgraph "csrf.js"
+        GT["getCsrfToken()"]
+        SC["setCsrfCookie()"]
+        AP["applyCsrfToSupabase()"]
+    end
+
+    subgraph "Supabase Client"
+        Q1["db.from(table).select()"]
+        Q2["db.from(table).insert()"]
+        Q3["Any DB query"]
+    end
+
+    FP -->|"hash"| GT
+    GT -->|"store proxy token"| S1
+    GT -->|"set cookie"| SC
+    SC -->|"write cookie"| S2
+    GT -->|"intercept query builder"| AP
+    AP -->|"add x-csrf-token"| Q1
+    AP -->|"add x-csrf-token"| Q2
+    AP -->|"add x-csrf-token"| Q3
+
+    note right of AP
+        Monkey-patches db.from() builder
+        to attach CSRF header to every
+        query without manual setup.
+    end note
+
+    note right of Q3
+        send request
+        ├── Cookie: svu_csrf_token=fp:token
+        └── Header: x-csrf-token=<token>
+    end note

@@ -1,6 +1,5 @@
-import type { User } from './user.js';
 export interface AuthState {
-    user: User | null;
+    user: import('./user.js').User | null;
     loading: boolean;
 }
 //# sourceMappingURL=auth-state.d.ts.map

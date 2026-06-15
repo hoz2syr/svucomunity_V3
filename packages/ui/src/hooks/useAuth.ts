@@ -1,24 +1,22 @@
 /// <reference types="vite/client" />
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
-import type { Profile, User } from '@svu-community/types';
+import type { Session } from '@supabase/supabase-js';
+import type { Profile } from '@svu-community/types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-type AuthUser = Profile | SupabaseUser;
-
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
 
-   const fetchProfile = useCallback(async (
-     supabase: SupabaseClient,
-     userId: string
-   ): Promise<Profile | null> => {
+  const fetchProfile = useCallback(async (
+    supabase: SupabaseClient,
+    userId: string
+  ): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
         .from('users')
@@ -62,7 +60,7 @@ export function useAuth() {
         if (currentSession) {
           setSession(currentSession);
           const profile = await fetchProfile(supabase as unknown as SupabaseClient, currentSession.user.id);
-          setUser(profile ?? currentSession.user);
+          setUser(profile);
         } else {
           setUser(null);
           setSession(null);
@@ -77,7 +75,7 @@ export function useAuth() {
             if (newSession?.user) {
               fetchProfile(supabase as unknown as SupabaseClient, newSession.user.id).then((profile) => {
                 if (!isMounted) return;
-                setUser(profile ?? newSession.user);
+                setUser(profile);
               });
             } else {
               setUser(null);
@@ -123,9 +121,7 @@ export function useAuth() {
       if (!data.user) throw new Error('No user returned from authentication');
 
       const profile = await fetchProfile(supabase as unknown as SupabaseClient, data.user.id);
-      const userData = profile ?? data.user;
-
-      setUser(userData);
+      setUser(profile);
       setSession(data.session);
 
       return data;
@@ -198,7 +194,7 @@ export function useAuth() {
       if (currentSession) {
         setSession(currentSession);
         const profile = await fetchProfile(supabase as unknown as SupabaseClient, currentSession.user.id);
-        setUser(profile ?? currentSession.user);
+        setUser(profile);
       }
 
       return data;
@@ -232,7 +228,7 @@ export function useAuth() {
     }
   }, []);
 
-  const isAuthenticated = user !== null && session !== null;
+  const isAuthenticated = session !== null;
   const isAuthReady = !loading;
 
   const setErrorState = useCallback((message: string | null) => {

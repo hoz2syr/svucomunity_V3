@@ -16,7 +16,7 @@
     <meta name="twitter:description" content="أكمل تفعيل حسابك">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#0f172a">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self'; frame-ancestors 'none';">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
@@ -25,18 +25,20 @@
     <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+    <a href="#verifyCard" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl">تخطي إلى المحتوى الرئيسي</a>
+
     <!-- Brand Header -->
     <div class="max-w-5xl mx-auto px-4 pt-6 pb-2 flex items-center justify-center">
         <a href="/index.html" class="flex items-center gap-3 group" aria-label="SVU Community Home">
             <img src="/icon.svg" alt="SVU Community" class="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
             <span class="text-xl font-bold gradient-text">SVU Community</span>
         </a>
-        </a>
     </div>
+
     <!-- Language & Theme Toggle -->
     <div class="fixed top-4 right-4 z-50 toggle-bar">
         <button data-lang-toggle onclick="window.i18n?.toggleLang(); location.reload();"
-            class="lang-toggle-btn" aria-label="Toggle language">
+            class="lang-toggle-btn focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-[var(--color-bg)]" aria-label="Toggle language">
             <span class="lang-icon">
                 <svg class="lang-globe" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
@@ -46,7 +48,8 @@
         </button>
         <div class="toggle-divider"></div>
         <button id="themeToggleBtn" onclick="window.toggleTheme?.()"
-            class="theme-toggle-btn" aria-label="Toggle theme">
+            class="theme-toggle-btn focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-[var(--color-bg)]"
+            aria-label="Toggle theme">
             <span class="icon-wrapper">
                 <svg class="icon-sun hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -64,15 +67,15 @@
     <div class="w-full max-w-md">
         <!-- Logo -->
         <div class="text-center mb-8">
-            <a href="/index.html" class="inline-flex items-center gap-3 mb-4 group">
+            <div class="inline-flex items-center gap-3 mb-4 group">
                 <img src="/icon.svg" alt="SVU Community" class="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
-            </a>
-            <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
+                <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
+            </div>
             <p class="text-secondary-400 text-sm mt-2" data-i18n="verifyEmailTitle">تفعيل البريد الإلكتروني</p>
         </div>
 
         <!-- Verification Card -->
-        <div class="glass rounded-2xl p-8 shadow-2xl">
+        <div id="verifyCard" class="glass rounded-2xl p-8 shadow-2xl">
             <!-- Loading State -->
             <div id="verifyLoading" class="text-center py-4">
                 <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
@@ -117,7 +120,7 @@
         <!-- Back to Home -->
         <div class="text-center mt-6">
             <a href="/index.html" class="text-secondary-400 hover:text-white text-sm transition flex items-center justify-center gap-2">
-                <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 rtl:rotate-0 ltr:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
                 <span data-i18n="backToHome">العودة للرئيسية</span>
@@ -126,7 +129,7 @@
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4 pointer-events-none" style="min-width: 250px;">
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4 pointer-events-none" style="min-width: 250px;" role="alert" aria-live="assertive" aria-atomic="true">
         <div id="toastContent" class="text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium"></div>
     </div>
 

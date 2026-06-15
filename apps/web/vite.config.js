@@ -78,7 +78,6 @@ export default defineConfig({
         register: './src/pages/register.html',
         dashboard: './src/pages/dashboard.html',
         courses: './src/pages/courses.html',
-        admin: './src/pages/admin.html',
         'verify-email': './src/pages/verify-email.html',
         'reset-password': './src/pages/reset-password.html',
       },

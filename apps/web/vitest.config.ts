@@ -5,6 +5,9 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,ts,tsx}'],
     globals: true,
     environment: 'happy-dom',
+    alias: {
+      '@sentry/browser': '/src/js/modules/page-dashboard/sentry-stub.js',
+    },
     coverage: {
       provider: 'v8',
     },

@@ -23,12 +23,12 @@
  */
 
 export function storageSet(key, value) {
-  try {
-    const toStore = typeof value === 'string' ? value : JSON.stringify(value);
-    localStorage.setItem(key, toStore);
-  } catch {
-    // storage unavailable (private mode, quota exceeded)
-  }
+   const toStore = typeof value === 'string' ? value : JSON.stringify(value);
+   try {
+     localStorage.setItem(key, toStore);
+   } catch {
+     // storage unavailable (private mode, quota exceeded)
+   }
 }
 
 export function storageGet(key) {

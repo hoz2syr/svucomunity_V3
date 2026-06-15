@@ -1,7 +1,7 @@
 /**
  * SVU Community — Shared utilities and cross-page helpers
  */
-import { getCsrfToken, getCsrfHeaderName } from './csrf.js';
+import { getCsrfToken, getCsrfHeaders } from './csrf.js';
 import { getDb } from './config.js';
 import { escapeHtml, storageGet } from './core.js';
 
@@ -22,13 +22,12 @@ function showToast(message, type = 'success') {
 
   if (!content) return;
 
-  const toast = document.getElementById('toast');
   const typeClass = type === 'success' ? 'success' : (type === 'error' ? 'error' : '');
   if (toast) {
     toast.className = toast.className.replace(/\b(?:success|error)\b/g, '').trim();
     if (typeClass) toast.classList.add(typeClass);
   }
-  content.setAttribute('role', 'status');
+  content.setAttribute('role', 'alert');
   content.setAttribute('aria-live', 'polite');
 
   if (toast) {
@@ -123,7 +122,7 @@ function createToast() {
   toast.className =
     'fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4';
   toast.style.minWidth = '250px';
-  toast.setAttribute('role', 'status');
+  toast.setAttribute('role', 'alert');
   toast.setAttribute('aria-live', 'polite');
 
   const content = document.createElement('div');
@@ -217,14 +216,38 @@ async function logout() {
     // ignore logout errors
   }
 
+  const APP_STORAGE_KEYS = [
+    'svu_session_token',
+    'svu_csrf_token',
+    'svu_session',
+    'svu_user',
+    'svu_profile',
+    'svu_pending_verification_email',
+    'svu_lang',
+  ];
+
   try {
     sessionStorage.removeItem('svu_session_token');
     sessionStorage.removeItem('svu_csrf_token');
-    localStorage.removeItem('svu_session');
-    localStorage.removeItem('svu_user');
-    localStorage.removeItem('svu_theme');
+    sessionStorage.removeItem('svu_theme');
   } catch {
     // ignore storage errors
+  }
+
+  try {
+    localStorage.removeItem('svu_session');
+    localStorage.removeItem('svu_user');
+  } catch {
+    // ignore storage errors
+  }
+
+  for (const key of APP_STORAGE_KEYS) {
+    try {
+      sessionStorage.removeItem(key);
+      localStorage.removeItem(key);
+    } catch {
+      // ignore storage errors
+    }
   }
 
   clearUserSession();

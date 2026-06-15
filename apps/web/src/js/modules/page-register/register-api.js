@@ -2,25 +2,8 @@ import { escapeHtml, handleRegisterError, showToast } from '../core.js';
 import { getCountryName } from '../shared.js';
 import { i18nT, validateUsername, validateMajor, validatePhone, validatePassword, formatFieldError, getCurrentLang } from './validation.js';
 import { state, resolveDb, MAJORS, fetchMajors } from './register-state.js';
+import { buildPhone } from './register-ui.js';
 import { setFormLoading } from './register-ui.js';
-
-function buildPhone(raw) {
-  const trimmed = (raw || '').trim();
-  const digits = trimmed.replace(/\D/g, '');
-  const dial = state.selected.dial;
-  const localPfx = state.selected.localPfx || [];
-
-  if (trimmed.startsWith('+') || trimmed.startsWith('00')) {
-    return dial + digits.slice(dial.slice(1).length);
-  }
-
-  if (trimmed.startsWith('0') && localPfx.length > 0) {
-    const prefixLen = localPfx[0].length;
-    return dial + digits.slice(prefixLen);
-  }
-
-  return dial + digits;
-}
 
 function buildAuthPayload() {
   const rawPhone = document.getElementById('phone')?.value || '';
@@ -57,12 +40,14 @@ async function submitRegisterForm() {
 
   const usernameError = validateUsername(username);
   if (usernameError) {
+    state._submitting = false;
     showToast(usernameError, 'error');
     return;
   }
 
   const majorError = validateMajor(state.selectedMajor);
   if (majorError) {
+    state._submitting = false;
     showToast(majorError, 'error');
     const majorInput = document.getElementById('majorInput');
     if (majorInput) majorInput.classList.add('invalid');
@@ -72,6 +57,7 @@ async function submitRegisterForm() {
 
   const phoneError = validatePhone(rawPhone, state.selected);
   if (phoneError) {
+    state._submitting = false;
     showToast(phoneError, 'error');
     document.getElementById('phoneError')?.classList.remove('hidden');
     const phoneInput = document.getElementById('phone');
@@ -81,11 +67,40 @@ async function submitRegisterForm() {
 
   const passwordError = validatePassword(password, confirm);
   if (passwordError) {
+    state._submitting = false;
     showToast(passwordError, 'error');
     return;
   }
 
   const payload = buildAuthPayload();
+
+  if (!payload.email || payload.email.length > 254) {
+    state._submitting = false;
+    showToast(i18nT('registerEmailInvalid') || 'صيغة البريد الإلكتروني غير صحيحة', 'error');
+    setFormLoading('registerBtn', false);
+    return;
+  }
+
+  if (payload.username.length > 50) {
+    state._submitting = false;
+    showToast(i18nT('registerUsernameTooLong') || 'اسم المستخدم طويل جداً', 'error');
+    setFormLoading('registerBtn', false);
+    return;
+  }
+
+  if (payload.first_name.length > 100 || payload.last_name.length > 100) {
+    state._submitting = false;
+    showToast(i18nT('registerNameTooLong') || 'الاسم طويل جداً', 'error');
+    setFormLoading('registerBtn', false);
+    return;
+  }
+
+  if (payload.phone.length < 8 || payload.phone.length > 20) {
+    state._submitting = false;
+    showToast(i18nT('registerPhoneInvalid') || 'رقم الهاتف غير صالح', 'error');
+    setFormLoading('registerBtn', false);
+    return;
+  }
 
   setFormLoading('registerBtn', true);
 
@@ -98,25 +113,27 @@ async function submitRegisterForm() {
 
     if (duplicateError && duplicateError.code !== 'PGRST116') throw duplicateError;
 
-    let usernameTaken = !!duplicateCheck;
-
-    if (!usernameTaken) {
-      const { data: emailCheck, error: emailErr } = await state.db
-        .from('users')
-        .select('username,email')
-        .eq('email', payload.email)
-        .maybeSingle();
-
-      if (emailErr && emailErr.code !== 'PGRST116') throw emailErr;
-      if (emailCheck) usernameTaken = true;
+    if (duplicateCheck) {
+      const language = getCurrentLang();
+      showToast(formatFieldError('username'), 'error');
+      setFormLoading('registerBtn', false);
+      state._submitting = false;
+      return;
     }
 
-    if (usernameTaken) {
+    const { data: emailCheck, error: emailErr } = await state.db
+      .from('users')
+      .select('username,email')
+      .eq('email', payload.email)
+      .maybeSingle();
+
+    if (emailErr && emailErr.code !== 'PGRST116') throw emailErr;
+
+    if (emailCheck) {
       const language = getCurrentLang();
-      const field = duplicateCheck?.username === payload.username ? 'username' : 'email';
-      const error = new Error(formatFieldError(field, language));
-      showToast(handleRegisterError(error), 'error');
+      showToast(formatFieldError('email'), 'error');
       setFormLoading('registerBtn', false);
+      state._submitting = false;
       return;
     }
 
@@ -139,11 +156,30 @@ async function submitRegisterForm() {
       },
     });
 
-    if (error) throw error;
+    if (error) {
+      const message = String(error.message || '');
+      if (message.includes('duplicate') || message.includes('already exists') || message.includes('unique')) {
+        const language = getCurrentLang();
+        const field = message.toLowerCase().includes('username') || message.toLowerCase().includes('المستخدم') ? 'username' : 'email';
+        showToast(formatFieldError(field), 'error');
+      } else {
+        showToast(handleRegisterError(error), 'error');
+      }
+      state._submitting = false;
+      setFormLoading('registerBtn', false);
+      return;
+    }
 
     showToast(i18nT('registerSuccess'), 'success');
     setTimeout(() => {
       const target = data.session ? 'login.html' : `verify-email.html?email=${encodeURIComponent(payload.email)}`;
+      if (!data.session) {
+        try {
+          localStorage.setItem('svu_pending_verification_email', payload.email);
+        } catch {
+          // storage unavailable
+        }
+      }
       window.location.href = target;
     }, data.session ? 2500 : 3000);
   } catch (registrationError) {
@@ -155,7 +191,6 @@ async function submitRegisterForm() {
 }
 
 export {
-  buildPhone,
   buildAuthPayload,
   submitRegisterForm,
 };

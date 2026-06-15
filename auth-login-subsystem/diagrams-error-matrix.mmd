@@ -1,0 +1,50 @@
+flowchart LR
+    subgraph "Frontend triggers"
+        E1["Empty login fields (client JS)"]
+        E2["Invalid email regex (client JS)"]
+        E3["Password < 8 chars (client JS)"]
+        E4["Duplicate username/email (pre-check)"]
+        E5["Weak password / mismatch (register)"]
+        E6["Missing/invalid recovery token (reset-password)"]
+        E7["Supabase auth.signInWithPassword failed"]
+        E8["Supabase auth.signUp / resend failed"]
+        E9["Supabase setSession / updateUser failed"]
+        E10["DB loadCurrentUser failed"]
+        E11["Admin query failed (auth-guard)"]
+    end
+
+    subgraph "Handlers / output"
+        H1["showToast('أدخل البريد وكلمة المرور')"]
+        H2["showToast('صيغة البريد الإلكتروني غير صحيحة')"]
+        H3["showToast('كلمة المرور قصيرة جداً')"]
+        H4["showToast(formatFieldError(field, lang))"]
+        H5["showToast(registerPasswordWeak / registerPasswordMismatch)"]
+        H6["showError('Invalid or expired link') + hide form"]
+        H7["handleLoginError(error) -> generic error"]
+        H8["showToast(handleRegisterError(error))"]
+        H9["showError(error.message) / showSuccess"]
+        H10["throw in handleLoginSubmit -> catch block"]
+        H11["redirect to unauthorized or generic error"]
+    end
+
+    E1 --> H1
+    E2 --> H2
+    E3 --> H3
+    E4 --> H4
+    E5 --> H5
+    E6 --> H6
+    E7 --> H7
+    E8 --> H8
+    E9 --> H9
+    E10 --> H10
+    E11 --> H11
+
+    subgraph "Notes"
+        N1["Messages are user-facing; identifiers should not leak whether accounts exist."]
+        N2["Sentry strips sensitive keys before sending events."]
+        N3["API-side also returns structured error codes; sensitive internal stack traces are sanitized on the client before display."]
+    end
+
+    N1 --> E7
+    N2 --> E7
+    N3 --> E8

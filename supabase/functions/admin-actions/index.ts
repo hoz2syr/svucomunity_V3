@@ -1,8 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:3000',
+  'Access-Control-Allow-Headers': 'authorization, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 function jsonResponse(status, body) {
@@ -10,6 +11,26 @@ function jsonResponse(status, body) {
     status,
     headers: { 'Content-Type': 'application/json', ...corsHeaders },
   });
+}
+
+async function verifyCaller(supabase, authHeader) {
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { ok: false, status: 401, error: 'authorization_required' };
+  }
+  const token = authHeader.slice(7).trim();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !user) {
+    return { ok: false, status: 401, error: 'invalid_token' };
+  }
+  const { data: profile, error: profileErr } = await supabase
+    .from('users')
+    .select('id, is_admin, is_active')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (profileErr || !profile) {
+    return { ok: false, status: 401, error: 'profile_not_found' };
+  }
+  return { ok: true, data: profile };
 }
 
 Deno.serve(async (req) => {
@@ -23,6 +44,15 @@ Deno.serve(async (req) => {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
+  const authHeader = req.headers.get('authorization') || '';
+  const callerResult = await verifyCaller(supabase, authHeader);
+  if (!callerResult.ok) return jsonResponse(callerResult.status, { error: callerResult.error });
+
+  const caller = callerResult.data;
+  if (!caller.is_admin || !caller.is_active) {
+    return jsonResponse(403, { error: 'forbidden' });
+  }
+
   let payload;
   try {
     payload = await req.json();
@@ -30,38 +60,29 @@ Deno.serve(async (req) => {
     return jsonResponse(400, { error: 'Invalid JSON body' });
   }
 
-  const { action, payload: args, caller_id } = payload;
+  const { action, payload: args } = payload ?? {};
   if (!action || typeof action !== 'string') {
     return jsonResponse(400, { error: 'missing_action' });
   }
 
-  const validActions = ['makeAdmin', 'revokeAdmin', 'toggleActive', 'deleteGroup', 'sendEmail', 'createCourse', 'deleteCourse', 'saveSettings', 'resetAllData'];
+  const validActions = [
+    'makeAdmin', 'revokeAdmin', 'toggleActive', 'deleteGroup',
+    'sendEmail', 'createCourse', 'deleteCourse', 'saveSettings', 'resetAllData'
+  ];
   if (!validActions.includes(action)) {
     return jsonResponse(400, { error: 'unsupported_action', action });
   }
 
-  const callerId = caller_id ?? (req.headers.get('x-caller-id') ?? null);
-  if (!callerId) {
-    return jsonResponse(401, { error: 'caller_id_required' });
-  }
-
-  const { data: caller, error: callerErr } = await supabase
-    .from('users')
-    .select('id, is_admin, is_active')
-    .eq('id', callerId)
-    .maybeSingle();
-
-  if (callerErr || !caller) {
-    return jsonResponse(401, { error: 'caller_not_found' });
-  }
-
-  if (!caller.is_admin) {
-    return jsonResponse(403, { error: 'forbidden' });
-  }
-
-  if (!caller.is_active) {
-    return jsonResponse(403, { error: 'caller_inactive' });
-  }
+  await supabase.from('admin_audit_log').insert({
+    caller_id: caller.id,
+    action,
+    payload: args ?? {},
+    ip_address: req.headers.get('x-forwarded-for') || 'unknown',
+    user_agent: req.headers.get('user-agent') || 'unknown',
+    created_at: new Date().toISOString(),
+  }).then(({ error: auditErr }) => {
+    if (auditErr) console.warn('[audit] failed:', auditErr);
+  });
 
   try {
     switch (action) {
@@ -79,7 +100,7 @@ Deno.serve(async (req) => {
       case 'revokeAdmin': {
         const { userId } = args ?? {};
         if (!userId) return jsonResponse(400, { error: 'userId_required' });
-        if (callerId === userId) {
+        if (caller.id === userId) {
           return jsonResponse(400, { error: 'cannot_revoke_self' });
         }
         const { error } = await supabase
@@ -95,7 +116,7 @@ Deno.serve(async (req) => {
         if (!userId || typeof active !== 'boolean') {
           return jsonResponse(400, { error: 'userId_and_active_required' });
         }
-        if (callerId === userId && !active) {
+        if (caller.id === userId && !active) {
           return jsonResponse(400, { error: 'cannot_deactivate_self' });
         }
         const { error } = await supabase
@@ -127,7 +148,6 @@ Deno.serve(async (req) => {
         if (!subject || !body) {
           return jsonResponse(400, { error: 'subject_and_body_required' });
         }
-
         let recipientList = [];
         if (recipientsType === 'all') {
           const { data: users, error: usersErr } = await supabase
@@ -144,16 +164,13 @@ Deno.serve(async (req) => {
         } else {
           return jsonResponse(400, { error: 'invalid_recipients_type' });
         }
-
         if (recipientList.length === 0) {
           return jsonResponse(400, { error: 'no_recipients' });
         }
-
         const resendKey = Deno.env.get('RESEND_API_KEY');
         if (!resendKey) {
           return jsonResponse(500, { error: 'email_service_not_configured' });
         }
-
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -163,16 +180,14 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             from: Deno.env.get('EMAIL_FROM') ?? 'noreply@svu-community.edu',
             to: recipientList,
-            subject,
-            html: body,
+            subject: subject.trim(),
+            html: body.trim(),
           }),
         });
-
         if (!emailRes.ok) {
           const errText = await emailRes.text();
           return jsonResponse(502, { error: 'resend_failed', detail: errText });
         }
-
         const emailData = await emailRes.json();
         return jsonResponse(200, {
           ok: true,
@@ -221,13 +236,11 @@ Deno.serve(async (req) => {
           allow_registration: typeof allowRegistration === 'boolean' ? allowRegistration : true,
           updated_at: new Date().toISOString(),
         };
-
         const { data: existing } = await supabase
           .from('settings')
           .select('key')
           .eq('key', 'app_config')
           .maybeSingle();
-
         if (existing) {
           const { error: updateErr } = await supabase
             .from('settings')
@@ -240,7 +253,6 @@ Deno.serve(async (req) => {
             .insert({ key: 'app_config', value: settingsRow });
           if (insertErr) throw insertErr;
         }
-
         return jsonResponse(200, { ok: true });
       }
 
@@ -250,19 +262,16 @@ Deno.serve(async (req) => {
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000');
         if (membersErr) throw membersErr;
-
         const { error: groupsErr } = await supabase
           .from('groups')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000');
         if (groupsErr) throw groupsErr;
-
         const { error: coursesErr } = await supabase
           .from('courses')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000');
         if (coursesErr) throw coursesErr;
-
         return jsonResponse(200, { ok: true });
       }
 

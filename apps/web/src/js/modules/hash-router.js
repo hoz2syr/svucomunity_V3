@@ -8,6 +8,7 @@
 
 const DEFAULT_ROUTE = '/dashboard';
 const routes = new Map();
+let _navigating = false;
 
 export function registerRoute(path, handler) {
   routes.set(path, handler);
@@ -63,4 +64,8 @@ export function startRouter() {
 
   window.addEventListener('hashchange', handleRoute);
   handleRoute();
+}
+
+export function isNavigating() {
+  return _navigating;
 }

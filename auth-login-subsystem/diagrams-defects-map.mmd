@@ -1,0 +1,80 @@
+flowchart TD
+    subgraph "Security defects"
+        S1["Critical: logout does not properly clear all storage"]
+        S2["High: CSRF token binding relies on browser fingerprint only; weak cross-device protection"]
+        S3["High: client-side login redirect target should be whitelisted"]
+        S4["Medium: password and validation enforcement is not duplicated server-side"]
+        S5["Medium: no rate limiting or backoff on auth attempts"]
+        S6["Low: admin page can briefly show unauthorized state before redirect"]
+    end
+
+    subgraph "Architecture / design defects"
+        A1["Tight coupling via window-shim.js exposing internal APIs"]
+        A2["Two duplicated supabase clients in shared packages<br/>(client.ts vs index.ts)"]
+        A3["Inconsistent local/session storage key naming between session.js and shared.js"]
+        A4["Duplicate pre-check for username/email in registration + rely on DB unique constraints too"]
+        A5["Reactive admin panel reads profile through 2 separate authentication gates"]
+        A6["No explicit UX state machine; UI relies on hidden/visible DOM classes"]
+    end
+
+    subgraph "Test coverage defects"
+        T1["No tests for CSRF header attachment"]
+        T2["No tests for session expiry/timeout"]
+        T3["No tests for email send fallback order"]
+        T4["No tests for admin self-action prevention on UI layer"]
+        T5["E2E tests hardcode BASE_URL; limited environment configuration"]
+        T6["No negative tests for database constraint violations"]
+    end
+
+    subgraph "Operational"
+        O1["Missing integration smoke tests for admin-actions edge function"]
+        O2["No monitoring of auth error rates or CSRF validation failures"]
+    end
+
+    S1 --> R1["Mitigation: harden logout and storage cleanup"]
+    S2 --> R2["Mitigation: bind CSRF token to additional stable signals and/or rotate on logout"]
+    S3 --> R3["Mitigation: allowlist paths or derive redirect from app state"]
+    S4 --> R4["Mitigation: enforce constraints via Supabase Auth / DB params as defense in depth"]
+    S5 --> R5["Mitigation: add exponential backoff / trusted client throttling"]
+    S6 --> R6["Mitigation: redirect immediately or overlay loading until check finishes"]
+
+    A1 --> R7["Mitigation: replace global window API with explicit module boundaries"]
+    A2 --> R8["Mitigation: consolidate single source of truth for browser supabase client"]
+    A3 --> R9["Mitigation: centralize storage key constants and reuse"]
+    A4 --> R10["Mitigation: keep pre-check UX but failover safely to Supabase unique errors"]
+    A5 --> R11["Mitigation: share auth result between UI and admin flows"]
+    A6 --> R12["Mitigation: add explicit state classes for form/view states"]
+
+    T1 --> RT1["Add unit/E2E assertions for x-csrf-token"]
+    T2 --> RT2["Add test for session timeout + auto-logout behavior"]
+    T3 --> RT3["Add tests with mocked localStorage/mail fallback states"]
+    T4 --> RT4["Add UI tests for 'cannot_revoke_self' action"]
+    T5 --> RT5["Use env-driven base URLs in all environments"]
+    T6 --> RT6["Add negative registration tests asserting unique constraint messages"]
+
+    O1 --> RO1["Add deploy smoke tests invoking admin-actions directly"]
+    O2 --> RO2["Add alerts on CSRF / auth error spike in Sentry / edge logs"]
+
+    style S1 fill:#dc2626,color:#fff
+    style S2 fill:#dc2626,color:#fff
+    style S3 fill:#f59e0b,color:#fff
+    style S4 fill:#f59e0b,color:#fff
+    style S5 fill:#f59e0b,color:#fff
+    style S6 fill:#f59e0b,color:#fff
+
+    style A1 fill:#2563eb,color:#fff
+    style A2 fill:#2563eb,color:#fff
+    style A3 fill:#2563eb,color:#fff
+    style A4 fill:#2563eb,color:#fff
+    style A5 fill:#2563eb,color:#fff
+    style A6 fill:#2563eb,color:#fff
+
+    style T1 fill:#7f1d1d,color:#fff
+    style T2 fill:#7f1d1d,color:#fff
+    style T3 fill:#7f1d1d,color:#fff
+    style T4 fill:#7f1d1d,color:#fff
+    style T5 fill:#7f1d1d,color:#fff
+    style T6 fill:#7f1d1d,color:#fff
+
+    style O1 fill:#4b5563,color:#fff
+    style O2 fill:#4b5563,color:#fff

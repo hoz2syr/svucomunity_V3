@@ -1,4 +1,8 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+if (!API_BASE) {
+  throw new Error('VITE_API_BASE_URL is required in production. Check your environment variables.');
+}
+const BASE = API_BASE;
 const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_RETRIES = 2;
 const RETRYABLE_STATUSES = new Set([502, 503, 504]);

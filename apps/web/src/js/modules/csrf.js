@@ -28,6 +28,10 @@
 
 const CSRF_COOKIE_NAME = 'svu_csrf_token';
 const CSRF_STORAGE_KEY = 'svu_csrf_token';
+// WARNING: path=/ is required for hash-based SPA routing.
+// All sibling apps on the same origin share this cookie.
+// Origin-level isolation MUST be enforced server-side (Edge Function auth.uid() + RLS).
+// Changing this to a narrower path breaks in-app CSRF validation across hash routes.
 const CSRF_COOKIE_PATH = '/';
 
 function generateToken() {
@@ -98,6 +102,13 @@ export function getCsrfHeaderName() {
   return 'x-csrf-token';
 }
 
+export function getCsrfHeaders() {
+  const token = getCsrfToken();
+  return {
+    [getCsrfHeaderName()]: token,
+  };
+}
+
 export function applyCsrfToSupabase(db) {
   if (!db) return;
   try {
@@ -121,11 +132,10 @@ export function applyCsrfToSupabase(db) {
 }
 
 export function validateCsrfFromEvent(event) {
-  const cookie = document.cookie
-    .split('; ')
-    .find(row => row.startsWith(CSRF_COOKIE_NAME + '='));
   const header = event.headers?.get?.(getCsrfHeaderName());
   if (!header) return false;
-  const stored = sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
-  return header === stored.slice(stored.indexOf(':') + 1);
+  const raw = getCsrfCookieRaw();
+  if (!raw) return false;
+  const token = raw.includes(':') ? raw.slice(raw.indexOf(':') + 1) : raw;
+  return header === token;
 }

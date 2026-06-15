@@ -11,10 +11,21 @@ function isEmailAddress(value) {
 function safeError(message) {
   if (!message || typeof message !== 'string') return 'فشلت العملية';
   const normalized = message.toLowerCase();
-  if (/(pgrst|supabase|postgres|connect|timeout|unauthorized|forbidden)/.test(normalized)) {
+  if (/(pgrst|supabase|postgres|connect|timeout|unauthorized|forbidden|string)/.test(normalized)) {
     return 'فشلت العملية';
   }
   return message;
+}
+
+async function getAdminAccessToken() {
+  const db = window.getDb?.();
+  if (!db) return null;
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    return session?.access_token ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function callAdmin(action, payload = {}) {
@@ -31,13 +42,22 @@ async function callAdmin(action, payload = {}) {
   }
 
   try {
+    const accessToken = await getAdminAccessToken();
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
     const { data, error } = await db.functions.invoke(ADMIN_FN, {
       body: { action, payload },
+      headers,
     });
     if (error) throw error;
     return { ok: true, data };
   } catch (e) {
-    showToast('فشل: ' + safeError(e?.message || ''), 'error');
+    showToast('فشلت العملية', 'error');
     console.error('[adminApi]', action, e);
     return { ok: false, error: e };
   }

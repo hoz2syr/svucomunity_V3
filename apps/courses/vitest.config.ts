@@ -14,6 +14,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@shared/components/ui': path.resolve(__dirname, '../../packages/ui/src/components/ui'),
+      '@shared/lib': path.resolve(__dirname, '../../packages/ui/src/lib'),
+      '@svu-community/ui': path.resolve(__dirname, '../../packages/ui/src'),
+      '@/lib/utils': path.resolve(__dirname, './src/lib/utils'),
     },
   },
 });

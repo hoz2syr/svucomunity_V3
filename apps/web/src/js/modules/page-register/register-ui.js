@@ -1,4 +1,4 @@
-import { escapeHtml, safeStorageGet } from '../core.js';
+﻿import { escapeHtml, safeStorageGet } from '../core.js';
 import { COUNTRIES, getCountryName } from '../shared.js';
 import { i18nT, localizeI18n, calcStrength } from './validation.js';
 import { state, MAJORS, getCurrentLang } from './register-state.js';
@@ -149,12 +149,25 @@ function checkPhone(value) {
 function buildPhone(raw) {
   const trimmed = (raw || '').trim();
   const digits = trimmed.replace(/\D/g, '');
-  const dial = state.selected.dial;
-  if (trimmed.startsWith('+') || trimmed.startsWith('00')) {
-    return dial + digits.slice(dial.slice(1).length);
+  const dialDigits = state.selected.dial.replace(/\D/g, '');
+
+  if (trimmed.startsWith('+')) {
+    const afterCountry = digits.slice(dialDigits.length);
+    if (state.selected.localPfx?.length && afterCountry.startsWith(state.selected.localPfx[0])) {
+      return state.selected.dial + afterCountry.slice(1);
+    }
+    return state.selected.dial + afterCountry;
   }
-  if (trimmed.startsWith('0')) return dial + digits.slice(1);
-  return dial + digits;
+
+  if (trimmed.startsWith('00')) {
+    return state.selected.dial + digits.slice(2 + dialDigits.length);
+  }
+
+  if (trimmed.startsWith('0') && state.selected.localPfx?.length) {
+    return state.selected.dial + digits.slice(1);
+  }
+
+  return state.selected.dial + digits;
 }
 
 function renderMajors(query = '') {

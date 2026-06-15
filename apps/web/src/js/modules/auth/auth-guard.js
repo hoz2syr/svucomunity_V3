@@ -26,7 +26,7 @@ export async function checkAuth(options = {}) {
   const requireAdmin = options.requireAdmin || false;
   const silent = options.silent || false;
 
-  const db = getDb() || initSupabase();
+  const db = getDb();
   if (!db) {
     const cfgError = getConfigError();
     if (!silent) {

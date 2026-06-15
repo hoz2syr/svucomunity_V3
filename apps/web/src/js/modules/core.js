@@ -9,7 +9,7 @@ import {
   THEME_CONFIG as _THEME_CONFIG,
 } from './config.js';
 import { storageSet, storageGet, storageRemove } from './encrypted-storage.js';
-import { getCsrfToken, getCsrfHeaderName, applyCsrfToSupabase, validateCsrfFromEvent } from './csrf.js';
+import { getCsrfToken, applyCsrfToSupabase, validateCsrfFromEvent } from './csrf.js';
 
 let Sentry = null;
 try {
@@ -381,6 +381,5 @@ export {
   getStoredTheme,
   applyTheme,
   getCsrfToken,
-  getCsrfHeaderName,
   validateCsrfFromEvent,
 };

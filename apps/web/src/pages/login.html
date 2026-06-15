@@ -15,8 +15,8 @@
     <meta name="twitter:title" content="تسجيل الدخول - SVU Community">
     <meta name="twitter:description" content="تسجيل الدخول إلى SVU Community">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#02020a">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
+    <meta name="theme-color" content="#0f172a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self'; frame-ancestors 'none';">
 
     <script type="module" src="../../env.js"></script>
     <script type="module" src="../js/modules/window-shim.js"></script>
@@ -63,7 +63,7 @@
     </div>
 
     <!-- Main content -->
-    <div class="w-full max-w-md relative z-10" id="main-content" role="main">
+    <main class="w-full max-w-md relative z-10" id="main-content">
 
         <!-- Logo + Title -->
         <div class="text-center mb-8 float-in">
@@ -87,7 +87,7 @@
                         <div>
                             <label class="block text-secondary-300 text-xs font-semibold mb-2 uppercase tracking-wider" for="loginIdentifier" data-i18n="loginEmail">البريد الإلكتروني</label>
                             <input type="email" id="loginIdentifier" required autocomplete="email"
-                                   class="neon-input w-full"
+                                   class="neon-input w-full ps-12"
                                    placeholder="أدخل بريدك الإلكتروني"
                                    aria-describedby="identifierHelp">
                             <p id="identifierHelp" class="text-secondary-500 text-xs mt-1.5" data-i18n="loginEmailHelp">أدخل بريدك الإلكتروني</p>
@@ -98,12 +98,11 @@
                             <label class="block text-secondary-300 text-xs font-semibold mb-2 uppercase tracking-wider" for="loginPassword" data-i18n="loginPassword">كلمة المرور</label>
                             <div class="relative">
                                 <input type="password" id="loginPassword" required autocomplete="current-password" minlength="8"
-                                       class="neon-input w-full"
-                                       style="padding-left: 48px;"
+                                class="neon-input w-full ps-12"
                                        placeholder="أدخل كلمة المرور"
                                        aria-describedby="passwordHelp">
                                 <button type="button" id="togglePasswordBtn"
-                                        class="pwd-toggle absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 rounded-lg"
+                                        class="pwd-toggle absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 rounded-lg"
                                         aria-label="Show password">
                                     <svg id="toggleLoginPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -147,7 +146,7 @@
         <!-- Back to home -->
         <div class="text-center mt-6 float-in-delay">
             <a href="/index.html" class="text-secondary-400 hover:text-white text-sm transition inline-flex items-center gap-2 group">
-                <svg class="w-4 h-4 rotate-180 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg class="w-4 h-4 rtl:rotate-0 ltr:rotate-180 transition-transform rtl:group-hover:translate-x-1 ltr:group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
                 <span data-i18n="backToHome">العودة للرئيسية</span>
@@ -200,7 +199,8 @@
         (function() {
             const field = document.getElementById('starField');
             if (!field) return;
-            const count = window.innerWidth < 768 ? 60 : 120;
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const count = prefersReducedMotion ? 0 : (window.innerWidth < 768 ? 60 : 120);
             const frag = document.createDocumentFragment();
             for (let i = 0; i < count; i++) {
                 const s = document.createElement('div');

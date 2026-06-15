@@ -15,7 +15,7 @@
 </head>
 <body class="min-h-screen bg-background text-white">
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-surface/80 backdrop-blur-xl border-l border-white/10 z-40 transform transition-transform duration-300 translate-x-0">
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-surface/80 backdrop-blur-xl border-e border-white/10 z-40 transform transition-transform duration-300 translate-x-0 md:translate-x-0 -translate-x-full" role="navigation" aria-label="القائمة الرئيسية">
         <div class="p-6 flex items-center gap-3">
             <img src="/icon.svg" alt="" class="w-10 h-10" />
             <span class="text-xl font-bold gradient-text">SVU Community</span>
@@ -39,7 +39,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="mr-64 p-8">
+    <main class="md:mr-64 p-4 md:p-8">
         <header class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-3xl font-bold" data-i18n="browseCourses">تصفح المقررات</h1>
@@ -58,8 +58,8 @@
         <!-- Search / Filter -->
         <section class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div class="relative w-full sm:w-80">
-                <input type="search" id="courseSearch" placeholder="بحث في المقررات..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-secondary-500 outline-none focus:border-primary-500" data-i18n-placeholder="searchCourses" />
-                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="search" id="courseSearch" placeholder="بحث في المقررات..." class="w-full pr-10 pl-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-secondary-500 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30" data-i18n-placeholder="searchCourses" />
+                <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
             <select id="semesterFilter" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-primary-500">
                 <option value="all" data-i18n="allSemesters">جميع الفصول</option>
@@ -83,12 +83,10 @@
         </section>
     </main>
 
-    <script src="/env.js"></script>
-    <script src="/vendor/supabase.min.js"></script>
-    <script type="module">
-      import { initSupabase } from '../js/modules/config.js';
-      window.supabase = initSupabase();
-    </script>
-    <script type="module" src="../js/modules/page-courses.js"></script>
+    <script type="module" src="../js/modules/window-shim.js"></script>
+    <script type="module" src="../js/modules/config.js"></script>
+    <script type="module" src="../js/modules/core.js"></script>
+    <script type="module" src="../js/modules/shared.js"></script>
+    <script type="module" src="../js/modules/i18n.js"></script>
 </body>
 </html>

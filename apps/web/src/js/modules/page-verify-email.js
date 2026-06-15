@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const accessToken = hashParams.get('access_token');
   const refreshToken = hashParams.get('refresh_token');
   const type = hashParams.get('type');
-  const errorParam = hashParams.get('error');
-  const errorDescription = hashParams.get('error_description');
+  const errorParam = escapeHtml(hashParams.get('error') || '');
 
   if (errorParam) {
     showError(window.i18n?.t('verifyEmailError') || 'حدث خطأ أثناء التفعيل');
@@ -86,11 +85,25 @@ async function resendVerification() {
   btn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ' + (window.i18n?.t('loading') || 'Loading...') + '</span>';
 
   try {
+    let email = '';
+
     const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
+    email = (urlParams.get('email') || '').trim();
 
     if (!email) {
-      showToast(window.i18n?.t('verifyEmailEnterEmail') || 'يرجى إدخال البريد الإلكتروني', 'error');
+      const storedEmail = safeStorageGet('svu_pending_verification_email');
+      if (storedEmail) {
+        email = storedEmail;
+      }
+    }
+
+    if (!email) {
+      const promptText = window.i18n?.t('verifyEmailEnterEmailPrompt') || 'أدخل بريدك الإلكتروني لإعادة إرسال رابط التفعيل:';
+      email = (window.prompt(promptText) || '').trim();
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast(window.i18n?.t('verifyEmailInvalidEmail') || 'صيغة البريد الإلكتروني غير صحيحة', 'error');
       return;
     }
 
@@ -106,7 +119,21 @@ async function resendVerification() {
   } catch (error) {
     showToast(error.message || window.i18n?.t('verifyEmailResendError') || 'فشل إرسال رابط التفعيل', 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span data-i18n="verifyEmailResend">' + (window.i18n?.t('verifyEmailResend') || 'إعادة إرسال رابط التفعيل') + '</span>';
+    const resendBtn = document.getElementById('resendBtn');
+    if (resendBtn) {
+      resendBtn.disabled = false;
+      resendBtn.innerHTML = '<span data-i18n="verifyEmailResend">' + (window.i18n?.t('verifyEmailResend') || 'إعادة إرسال رابط التفعيل') + '</span>';
+    }
   }
+}
+
+function safeStorageGet(key) {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+  } catch {
+    // storage unavailable
+  }
+  return null;
 }

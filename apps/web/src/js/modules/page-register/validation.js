@@ -29,10 +29,22 @@ function validatePhone(value, country) {
   if (!digits) {
     return i18nT('registerPhoneRequired');
   }
-  if (digits.length < (country?.minLen ?? 0)) {
+  if (!country) {
     return i18nT('registerPhoneInvalid');
   }
-  if (country && digits.length > country.maxLen) {
+  let normalized = digits;
+  if ((value || '').startsWith('+') || (value || '').startsWith('00')) {
+    normalized = digits.slice((country.dial || '').replace(/\D/g, '').length);
+  } else if (digits.startsWith('0') && (country?.localPfx ?? []).length) {
+    normalized = digits.slice(1);
+  }
+  if ((country?.localPfx ?? []).length && normalized.startsWith('0')) {
+    return i18nT('registerPhoneInvalid');
+  }
+  if (normalized.length < (country?.minLen ?? 0)) {
+    return i18nT('registerPhoneInvalid');
+  }
+  if (normalized.length > country.maxLen) {
     return i18nT('registerPhoneInvalid');
   }
   return null;
@@ -51,12 +63,8 @@ function validatePassword(password, confirm) {
   return null;
 }
 
-function formatFieldError(field, language) {
-  const isEn = language === 'en';
-  if (field === 'username') {
-    return isEn ? 'Username already registered' : 'اسم المستخدم مسجّل مسبقاً';
-  }
-  return isEn ? 'Email already registered' : 'البريد الإلكتروني مسجّل مسبقاً';
+function formatFieldError(field) {
+  return i18nT(field === 'username' ? 'registerDuplicateUsername' : 'registerDuplicateEmail');
 }
 
 function calcStrength(password) {

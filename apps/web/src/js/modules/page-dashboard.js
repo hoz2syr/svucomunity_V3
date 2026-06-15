@@ -46,21 +46,46 @@ async function loadStats(db, userId) {
   const uid = userId;
 
   try {
-    const { data } = await db
+    const { data, error } = await db
       .from('study_groups')
       .select('course_code')
-      .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
-    setStat('statCourses', new Set((data || []).map((r) => r.course_code)).size);
+      .eq('creator_id', uid);
+    if (error) throw error;
+    const memberCourses = await db
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', uid);
+    let memberCodes = [];
+    if (memberCourses.data?.length) {
+      const { data: groups } = await db
+        .from('study_groups')
+        .select('course_code')
+        .in('id', memberCourses.data.map(m => m.group_id));
+      memberCodes = (groups || []).map(g => g.course_code);
+    }
+    const allCodes = [...(data || []).map(r => r.course_code), ...memberCodes];
+    setStat('statCourses', new Set(allCodes).size);
   } catch {
     setStat('statCourses', '--');
   }
 
   try {
-    const { count } = await db
+    const { count: creatorCount } = await db
       .from('study_groups')
       .select('*', { count: 'exact', head: true })
-      .or(`creator_id.eq.${uid},members.cs.{${uid}}`);
-    setStat('statGroups', count ?? 'N/A');
+      .eq('creator_id', uid);
+    const { data: memberGroups } = await db
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', uid);
+    const memberGroupIds = (memberGroups || []).map(m => m.group_id);
+    const { count: memberCount } = memberGroupIds.length
+      ? await db
+          .from('study_groups')
+          .select('*', { count: 'exact', head: true })
+          .in('id', memberGroupIds)
+      : { count: 0 };
+    setStat('statGroups', (creatorCount ?? 0) + (memberCount ?? 0));
   } catch {
     setStat('statGroups', 'N/A');
   }
@@ -126,23 +151,25 @@ async function init() {
   loadStats(db, user.id).catch(() => {});
 }
 
+let authTimeout = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  authTimeout = setTimeout(function() {
+    const loading = document.getElementById('loadingState');
+    if (loading && !loading.classList.contains('hidden')) {
+      showErrorState('انتهت مهلة التحقق من الجلسة');
+    }
+  }, 10000);
+
+  init()
+    .then(() => { if (authTimeout) clearTimeout(authTimeout); })
+    .catch(() => {
+      if (authTimeout) clearTimeout(authTimeout);
+      showErrorState('فشل التحقق من الجلسة');
+    });
+});
+
 window.handleLogout = function(event) {
   if (event) event.preventDefault();
   logout();
 };
-
-let authTimeout = setTimeout(function() {
-  const loading = document.getElementById('loadingState');
-  if (loading && !loading.classList.contains('hidden')) {
-    showErrorState('انتهت مهلة التحقق من الجلسة');
-  }
-}, 10000);
-
-document.addEventListener('DOMContentLoaded', () => {
-  init()
-    .then(() => clearTimeout(authTimeout))
-    .catch(() => {
-      clearTimeout(authTimeout);
-      showErrorState('فشل التحقق من الجلسة');
-    });
-});
