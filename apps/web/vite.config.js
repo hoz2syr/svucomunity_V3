@@ -17,6 +17,7 @@ export default defineConfig({
 
   root: './apps/web',
   build: {
+    target: 'esnext',
     outDir: 'dist',
     rollupOptions: {
       input: {
