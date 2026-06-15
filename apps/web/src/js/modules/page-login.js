@@ -130,7 +130,7 @@ async function handleLoginSubmit(e) {
       avatar_url: meta.avatar_url || '',
     };
 
-    saveUserSession(userData, rememberMe);
+    saveUserSession(userData);
 
     const welcomeName = escapeHtml(userData.first_name || userData.username);
     showToast('مرحباً بك ' + welcomeName + '!', 'success');

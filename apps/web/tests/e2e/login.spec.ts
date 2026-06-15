@@ -32,4 +32,26 @@ test.describe('Login Page', () => {
     const resetLink = page.getByRole('link', { name: /إعادة تعيين|reset|forgot|نسيت كلمة المرور/i }).first()
     await expect(resetLink).toBeVisible()
   })
+
+  test('shows error for empty credentials', async ({ page }) => {
+    await page.goto(`${BASE_URL}/login.html`)
+    await page.getByRole('button', { name: /login|تسجيل الدخول|دخول/i }).first().click()
+    await expect(page.getByRole('alert')).toContainText(/أدخل البريد وكلمة المرور/)
+  })
+
+  test('shows error for invalid email format', async ({ page }) => {
+    await page.goto(`${BASE_URL}/login.html`)
+    await page.getByLabel(/email|البريد|username|اسم المستخدم/i).first().fill('invalid-email')
+    await page.getByLabel(/password|كلمة المرور/i).first().fill('password123')
+    await page.getByRole('button', { name: /login|تسجيل الدخول|دخول/i }).first().click()
+    await expect(page.getByRole('alert')).toContainText(/غير صحيحة/)
+  })
+
+  test('shows error for short password', async ({ page }) => {
+    await page.goto(`${BASE_URL}/login.html`)
+    await page.getByLabel(/email|البريد|username|اسم المستخدم/i).first().fill('user@example.com')
+    await page.getByLabel(/password|كلمة المرور/i).first().fill('short')
+    await page.getByRole('button', { name: /login|تسجيل الدخول|دخول/i }).first().click()
+    await expect(page.getByRole('alert')).toContainText(/قصيرة/)
+  })
 })

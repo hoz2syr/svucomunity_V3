@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
       access_token: accessToken,
       refresh_token: refreshToken,
     }).catch(() => {
-      showError(window.i18n?.t('resetPasswordInvalidLink') || 'Invalid or expired link');
+      showError(window.i18n?.t('resetPasswordInvalidLink') || 'رابط غير صالح أو منتهي الصلاحية');
     });
   } else if (!accessToken && db) {
     db.auth.getSession().then(({ data }) => {

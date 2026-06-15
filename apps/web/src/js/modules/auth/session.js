@@ -55,12 +55,19 @@ export async function setSession(refreshToken) {
 
 export async function clearSession() {
   const supabase = getSupabase();
-  if (!supabase) {
-    throw new Error('Supabase not initialized');
+
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    // ignore sign-out errors
   }
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error('[session] signOut failed:', error);
-    throw new Error('Unable to sign out');
+
+  try {
+    sessionStorage.removeItem('svu_session_token');
+    sessionStorage.removeItem('svu_csrf_token');
+    sessionStorage.removeItem('svu_theme');
+    localStorage.removeItem('svu_user');
+  } catch {
+    // ignore storage errors
   }
 }

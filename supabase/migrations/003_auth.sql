@@ -3,19 +3,47 @@
 -- Auth helpers: auto-profile creation + role check
 -- ════════════════════════════════════════════════════════════════
 
+CREATE OR REPLACE FUNCTION public.handle_email_confirmed()
+RETURNS TRIGGER
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.email_confirmed_at IS NOT NULL AND (OLD.email_confirmed_at IS NULL) THEN
+    INSERT INTO public.users (id, email, username)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.email, NEW.id::text)
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS on_auth_email_confirmed ON auth.users;
+CREATE TRIGGER on_auth_email_confirmed
+    AFTER UPDATE OF email_confirmed_at ON auth.users
+    FOR EACH ROW
+    WHEN (NEW.email_confirmed_at IS NOT NULL)
+    EXECUTE FUNCTION public.handle_email_confirmed();
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.users (id, email, username)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.email, NEW.id::text)
-  )
-  ON CONFLICT (id) DO NOTHING;
+  IF NEW.email_confirmed_at IS NOT NULL THEN
+    INSERT INTO public.users (id, email, username)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.email, NEW.id::text)
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -25,6 +53,7 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_new_user();
+
 
 CREATE OR REPLACE FUNCTION public.has_role(check_role TEXT)
 RETURNS BOOLEAN
@@ -44,13 +73,19 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION services.get_user_roles(uid UUID)
 RETURNS TABLE(is_admin BOOLEAN, is_active BOOLEAN)
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = services, public
+SET search_path = public
 AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated' USING errcode = '42501';
+  END IF;
+  RETURN QUERY
   SELECT u.is_admin, u.is_active
   FROM public.users u
-  WHERE u.id = $1;
+  WHERE u.id = uid;
+END;
 $$;
 
 CREATE OR REPLACE FUNCTION services.assert_admin()

@@ -1,12 +1,64 @@
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
+import { join } from 'path';
+
+function ensureVendorInPublic() {
+  const vendorDir = join(process.cwd(), 'vendor');
+  const publicVendorDir = join(process.cwd(), 'public', 'vendor');
+
+  if (!existsSync(vendorDir)) {
+    return;
+  }
+
+  function recursiveCopy(src, dest) {
+    const entries = readdirSync(src, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = join(src, entry.name);
+      const destPath = join(dest, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'vendor') {
+          continue;
+        }
+        if (!existsSync(destPath)) {
+          mkdirSync(destPath, { recursive: true });
+        }
+        recursiveCopy(srcPath, destPath);
+      } else {
+        copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  if (!existsSync(publicVendorDir)) {
+    mkdirSync(publicVendorDir, { recursive: true });
+  } else {
+    readdirSync(publicVendorDir, { withFileTypes: true }).forEach((entry) => {
+      const targetPath = join(publicVendorDir, entry.name);
+      if (entry.isDirectory()) {
+        readdirSync(targetPath, { recursive: true });
+      }
+    });
+  }
+
+  recursiveCopy(vendorDir, publicVendorDir);
+}
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
     tsconfigPaths(),
+    {
+      name: 'copy-vendor-to-public',
+      buildStart() {
+        ensureVendorInPublic();
+      },
+    },
   ],
+
+  base: '/',
+  publicDir: 'public',
 
   define: {
     'window.SVU_ENV': JSON.stringify({
@@ -25,8 +77,14 @@ export default defineConfig({
         login: './src/pages/login.html',
         register: './src/pages/register.html',
         dashboard: './src/pages/dashboard.html',
+        courses: './src/pages/courses.html',
+        admin: './src/pages/admin.html',
         'verify-email': './src/pages/verify-email.html',
         'reset-password': './src/pages/reset-password.html',
+      },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
       external: ['@sentry/browser'],
     },

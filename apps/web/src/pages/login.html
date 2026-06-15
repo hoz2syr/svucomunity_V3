@@ -23,14 +23,14 @@
     <script type="module" src="../app.js"></script>
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link rel="alternate icon" href="/icon.ico">
-    <link rel="stylesheet" href="../vendor/fonts/cairo.css">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="/vendor/fonts/cairo.css">
+    <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl">تخطي إلى المحتوى الرئيسي</a>
 
     <div class="fixed top-4 right-4 z-50 toggle-bar">
-        <button data-lang-toggle class="lang-toggle-btn" aria-label="Toggle language">
+        <button data-lang-toggle class="lang-toggle-btn cursor-pointer" aria-label="Toggle language">
             <span class="lang-icon">
                 <svg class="lang-globe" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
@@ -39,7 +39,7 @@
             </span>
         </button>
         <div class="toggle-divider"></div>
-        <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle theme">
+        <button id="themeToggleBtn" class="theme-toggle-btn cursor-pointer" aria-label="Toggle theme">
             <span class="icon-wrapper">
                 <svg class="icon-sun hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -56,8 +56,8 @@
 
     <div class="w-full max-w-md" id="main-content" role="main">
         <div class="text-center mb-8">
-            <a href="../../index.html" class="inline-flex items-center gap-3 mb-6 group">
-                <img src="/icon.svg" alt="SVU Community" class="w-15 h-15 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
+            <a href="/index.html" class="inline-flex items-center gap-3 mb-6 group">
+                <img src="/icon.svg" alt="SVU Community" class="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-105" width="60" height="60">
             </a>
             <h1 class="text-2xl font-bold gradient-text">SVU Community</h1>
         </div>
@@ -81,7 +81,7 @@
                             class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-secondary-500 outline-none pl-12"
                             data-i18n-placeholder="loginPassword" aria-describedby="passwordHelp">
                         <button type="button" id="togglePasswordBtn"
-                            class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-white transition"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-white transition cursor-pointer"
                             aria-label="Show password">
                             <svg id="toggleLoginPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -116,14 +116,14 @@
 
             <div class="mt-6 text-center">
                 <span class="text-secondary-400 text-sm" data-i18n="loginNoAccount">ليس لديك حساب؟ </span>
-                <a href="register.html" class="text-primary-400 hover:text-primary-300 text-sm font-semibold transition" data-i18n="loginCreateAccount">
+                <a href="/register.html" class="text-primary-400 hover:text-primary-300 text-sm font-semibold transition" data-i18n="loginCreateAccount">
                     إنشاء حساب جديد
                 </a>
             </div>
         </div>
 
         <div class="text-center mt-6">
-            <a href="../../index.html" class="text-secondary-400 hover:text-white text-sm transition flex items-center justify-center gap-2">
+            <a href="/index.html" class="text-secondary-400 hover:text-white text-sm transition flex items-center justify-center gap-2">
                 <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -136,7 +136,7 @@
         <div class="glass rounded-2xl p-8 max-w-md w-full shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-white" id="forgotPasswordTitle" data-i18n="forgotPassword">استعادة كلمة المرور</h3>
-                <button data-action="forgot-password-close" class="text-secondary-400 hover:text-white transition" aria-label="Close forgot password dialog">
+                <button data-action="forgot-password-close" type="button" class="text-secondary-400 hover:text-white transition cursor-pointer" aria-label="Close forgot password dialog">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4"
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transform transition-all duration-300 z-[9999] opacity-0 translate-y-4 pointer-events-none"
          style="min-width: 250px;" role="status" aria-live="polite" aria-atomic="true">
         <div id="toastContent" class="text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium"></div>
     </div>

@@ -36,11 +36,11 @@ describe('auth-guard', () => {
     expect(await checkAuth({ requireAdmin: true })).toBeNull(); expect(set).toHaveBeenCalledWith('index.html');
   });
 
-  it('redirects to login when admin check throws', async () => {
+  it('redirects to index when admin check throws', async () => {
     const db = { from: vi.fn().mockReturnThis(), select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), single: vi.fn().mockRejectedValue(new Error('PGRST116')) };
     C.getDb.mockReturnValue(db); C.verifySessionWithServer.mockResolvedValue(true);
     M.isLoggedIn.mockReturnValue(true); M.getCurrentUser.mockReturnValue({ id: 'u3' });
     const set = vi.spyOn(window.location, 'href', 'set').mockImplementation(() => {});
-    expect(await checkAuth({ requireAdmin: true })).toBeNull(); expect(set).toHaveBeenCalledWith('login.html');
+    expect(await checkAuth({ requireAdmin: true })).toBeNull(); expect(set).toHaveBeenCalledWith('index.html');
   });
 });

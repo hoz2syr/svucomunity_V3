@@ -215,8 +215,19 @@ async function logout() {
     // ignore logout errors
   }
 
+  try {
+    sessionStorage.removeItem('svu_session_token');
+    sessionStorage.removeItem('svu_csrf_token');
+    localStorage.removeItem('svu_session');
+    localStorage.removeItem('svu_user');
+    localStorage.removeItem('svu_theme');
+  } catch {
+    // ignore storage errors
+  }
+
   clearUserSession();
   showToast('تم تسجيل الخروج بنجاح', 'success');
+
   setTimeout(() => {
     window.location.href = 'login.html';
   }, 1000);

@@ -247,23 +247,14 @@ function handleRegisterError(error) {
 function handleLoginError(error) {
   const msg = error?.message || '';
 
-  if (msg.includes('Invalid login credentials') || msg.includes('invalid_grant')) {
-    return 'Invalid email or password';
-  }
-  if (msg.includes('Email not confirmed')) {
-    return 'Please confirm your email first';
-  }
   if (msg.includes('Too many requests')) {
-    return 'Too many attempts. Please try again later.';
+    return 'محاولات كثيرة جداً. يرجى المحاولة لاحقاً.';
   }
   if (msg.includes('Network') || msg.includes('network')) {
-    return 'Connection error. Please try again.';
-  }
-  if (msg.includes('User not found') || msg.includes('No user found')) {
-    return 'Invalid email or password';
+    return 'خطأ في الاتصال. يرجى المحاولة مرة أخرى.';
   }
 
-  return 'An error occurred. Please try again.';
+  return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
 }
 
 /**

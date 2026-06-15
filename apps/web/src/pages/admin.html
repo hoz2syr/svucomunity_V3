@@ -7,8 +7,9 @@
     <meta name="theme-color" content="#0f172a" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="stylesheet" href="../../vendor/fonts/cairo.css" />
-    <link rel="stylesheet" href="../../styles.css" />
+    <link rel="alternate icon" href="/icon.ico" />
+    <link rel="stylesheet" href="/vendor/fonts/cairo.css" />
+    <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body class="min-h-screen bg-background text-white">
     <div id="adminApp">
@@ -26,7 +27,7 @@
                     <svg class="icon-system w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z"/></svg>
                 </button>
                 <button id="langToggleBtn" class="px-3 py-1.5 rounded-xl glass hover:bg-white/10 transition font-bold text-sm">EN</button>
-                <a href="dashboard.html" class="px-4 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition" data-i18n="backToDashboard">العودة للوحة التحكم</a>
+                <a href="/dashboard.html" class="px-4 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition" data-i18n="backToDashboard">العودة للوحة التحكم</a>
             </div>
         </header>
 
@@ -201,12 +202,12 @@
     </div>
 
     <script src="../../env.js"></script>
-    <script src="../../vendor/supabase.min.js"></script>
-    <script src="../../js/window-shim.js"></script>
-    <script src="../../js/config.js"></script>
-    <script src="../../js/core.js"></script>
-    <script src="../../js/shared.js"></script>
-    <script src="../../js/i18n.js"></script>
-    <script type="module" src="../../js/page-admin.js"></script>
+    <script src="/vendor/supabase.min.js"></script>
+    <script type="module" src="../js/modules/window-shim.js"></script>
+    <script src="/assets/config.js"></script>
+    <script src="/assets/core.js"></script>
+    <script src="/assets/shared.js"></script>
+    <script src="/assets/i18n.js"></script>
+    <script type="module" src="/assets/page-admin.js"></script>
 </body>
 </html>

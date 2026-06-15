@@ -18,8 +18,8 @@
  * Security notes:
  * - SameSite=Lax (not Strict): Strict breaks redirect flows from external
  *   origins (password reset links, SSO callbacks) which are common in SPAs.
- * - Token is re-read from the cookie on every intercepted request so it
- *   stays in sync with the server-side copy (fixes stale-token bug).
+ * - Token is bound to a browser fingerprint hash (UA + language + timezone + resolution)
+ *   to reduce token theft replay from other browsers/devices on the same origin.
  * - The cookie is scoped to path=/ so it is sent on all routes of the
  *   current origin. This is intentional for a SPA that changes hash
  *   routes; sibling apps on the same origin will share the cookie, so
@@ -36,19 +36,47 @@ function generateToken() {
   return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function getBrowserFingerprint() {
+  try {
+    const nav = window.navigator;
+    const parts = [
+      nav.userAgent || '',
+      nav.language || '',
+      Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+      screen.width + 'x' + screen.height,
+    ];
+    const raw = parts.join('|');
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      const chr = raw.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(16);
+  } catch {
+    return 'unknown';
+  }
+}
+
 export function getCsrfToken() {
-  let token = sessionStorage.getItem(CSRF_STORAGE_KEY);
-  if (!token) {
-    token = generateToken();
+  const fingerprint = getBrowserFingerprint();
+  let stored = sessionStorage.getItem(CSRF_STORAGE_KEY);
+  if (!stored || !stored.startsWith(fingerprint + ':')) {
+    const token = fingerprint + ':' + generateToken();
     sessionStorage.setItem(CSRF_STORAGE_KEY, token);
     setCsrfCookie(token);
+    return token.slice(token.indexOf(':') + 1);
   }
-  return token;
+  return stored.slice(stored.indexOf(':') + 1);
+}
+
+export function getCsrfCookieRaw() {
+  return sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
 }
 
 function setCsrfCookie(token) {
   const secure = window.location.protocol === 'https:';
-  document.cookie = `${CSRF_COOKIE_NAME}=${token}; path=${CSRF_COOKIE_PATH}; SameSite=Lax; ${secure ? 'Secure;' : ''} max-age=86400`;
+  document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=${CSRF_COOKIE_PATH}; SameSite=Lax; ${secure ? 'Secure;' : ''} max-age=86400`;
 }
 
 export function getCsrfHeaderName() {
@@ -82,5 +110,7 @@ export function validateCsrfFromEvent(event) {
     .split('; ')
     .find(row => row.startsWith(CSRF_COOKIE_NAME + '='));
   const header = event.headers?.get?.(getCsrfHeaderName());
-  return !!header && header === (cookie ? cookie.split('=')[1] : '');
+  if (!header) return false;
+  const stored = sessionStorage.getItem(CSRF_STORAGE_KEY) || '';
+  return header === stored.slice(stored.indexOf(':') + 1);
 }

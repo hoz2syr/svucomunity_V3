@@ -1,22 +1,25 @@
+import { isLoggedIn, getCurrentUser, clearUserSession } from '../core.js';
+import { initSupabase, getDb, verifySessionWithServer } from '../config.js';
+
 export async function checkAdminAccess() {
-  if (!window.isLoggedIn?.()) {
+  if (!(await isLoggedIn())) {
     window.location.href = 'login.html';
     return false;
   }
 
-  const db = window.initSupabase?.() ?? window.getDb?.();
+  const db = getDb() || initSupabase();
   if (!db) {
     showAccessDenied();
     return false;
   }
 
-  const isValid = await window.verifySessionWithServer?.(db) ?? true;
+  const isValid = await verifySessionWithServer(db);
   if (!isValid) {
     window.location.href = 'login.html';
     return false;
   }
 
-  const user = window.getCurrentUser?.();
+  const user = getCurrentUser();
   if (!user?.id) {
     showAccessDenied();
     return false;
@@ -43,4 +46,8 @@ export async function checkAdminAccess() {
 function showAccessDenied() {
   document.getElementById('loadingState')?.classList.add('hidden');
   document.getElementById('accessDenied')?.classList.remove('hidden');
+
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 2000);
 }

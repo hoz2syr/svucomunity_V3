@@ -3,10 +3,24 @@
  */
 
 import { isLoggedIn, getCurrentUser, clearUserSession } from '../core.js';
-import { initSupabase, getDb, verifySessionWithServer } from '../config.js';
+import { initSupabase, getDb, verifySessionWithServer, getConfigError } from '../config.js';
+import { showToast } from '../shared.js';
 
 const AUTH_REDIRECT = `${window.location.origin}/login.html`;
 const UNAUTHORIZED_REDIRECT = `${window.location.origin}/index.html`;
+
+function safeRedirect(target) {
+  try {
+    const url = new URL(target, window.location.origin);
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      window.location.href = url.href;
+      return;
+    }
+  } catch {
+    // invalid URL
+  }
+  window.location.href = AUTH_REDIRECT;
+}
 
 export async function checkAuth(options = {}) {
   const requireAdmin = options.requireAdmin || false;
@@ -14,19 +28,24 @@ export async function checkAuth(options = {}) {
 
   const db = getDb() || initSupabase();
   if (!db) {
-    if (!silent) window.location.href = AUTH_REDIRECT;
+    const cfgError = getConfigError();
+    if (!silent) {
+      console.error('[auth-guard] init failed:', cfgError?.message);
+      showToast('تعذر الاتصال بالخادم. حاول مرة أخرى لاحقاً.', 'error');
+      safeRedirect(AUTH_REDIRECT);
+    }
     return null;
   }
 
   const isValid = await verifySessionWithServer(db);
   if (!isValid) {
-    if (!silent) window.location.href = AUTH_REDIRECT;
+    if (!silent) safeRedirect(AUTH_REDIRECT);
     return null;
   }
 
   const user = getCurrentUser();
   if (!user || !user.id) {
-    if (!silent) window.location.href = AUTH_REDIRECT;
+    if (!silent) safeRedirect(AUTH_REDIRECT);
     return null;
   }
 
@@ -39,18 +58,25 @@ export async function checkAuth(options = {}) {
         .single();
 
       if (!data?.is_admin || !data?.is_active) {
-      if (!silent) window.location.href = UNAUTHORIZED_REDIRECT;
+        if (!silent) {
+          showToast('ليس لديك صلاحية الوصول لهذه الصفحة.', 'error');
+          safeRedirect(UNAUTHORIZED_REDIRECT);
+        }
+        return null;
+      }
+    } catch (err) {
+      if (!silent) {
+        if (import.meta.env?.DEV) {
+          console.error('[auth-guard] Admin check failed:', err);
+        }
+        showToast('فشل التحقق من الصلاحيات. تواصل مع المشرف.', 'error');
+        safeRedirect(UNAUTHORIZED_REDIRECT);
+      }
       return null;
     }
-  } catch (err) {
-    if (import.meta.env?.DEV) {
-      console.error('[auth-guard] Admin check failed:', err);
-    }
-    if (!silent) window.location.href = UNAUTHORIZED_REDIRECT;
-    return null;
-  }
   }
 
   return { user, db };
 }
+
 
