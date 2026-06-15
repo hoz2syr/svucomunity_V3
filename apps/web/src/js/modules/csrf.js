@@ -61,13 +61,28 @@ function getBrowserFingerprint() {
 export function getCsrfToken() {
   const fingerprint = getBrowserFingerprint();
   let stored = sessionStorage.getItem(CSRF_STORAGE_KEY);
-  if (!stored || !stored.startsWith(fingerprint + ':')) {
-    const token = fingerprint + ':' + generateToken();
-    sessionStorage.setItem(CSRF_STORAGE_KEY, token);
-    setCsrfCookie(token);
-    return token.slice(token.indexOf(':') + 1);
+  if (stored) {
+    const [storedFp, storedToken] = stored.split(':');
+    if (storedToken) {
+      if (storedFp === fingerprint) {
+        return storedToken;
+      }
+      const cookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(CSRF_COOKIE_NAME + '='));
+      if (cookie && decodeURIComponent(cookie.split('=')[1]).startsWith(storedFp + ':')) {
+        const cookieStored = decodeURIComponent(cookie.split('=')[1]);
+        const cookieToken = cookieStored.slice(cookieStored.indexOf(':') + 1);
+        if (cookieToken === storedToken) {
+          return storedToken;
+        }
+      }
+    }
   }
-  return stored.slice(stored.indexOf(':') + 1);
+  const token = fingerprint + ':' + generateToken();
+  sessionStorage.setItem(CSRF_STORAGE_KEY, token);
+  setCsrfCookie(token);
+  return token.slice(token.indexOf(':') + 1);
 }
 
 export function getCsrfCookieRaw() {

@@ -75,7 +75,6 @@ async function handleLoginSubmit(e) {
   const btn = document.getElementById('loginBtn');
   const loginEmailField = document.getElementById('loginIdentifier');
   const passwordField = document.getElementById('loginPassword');
-  const rememberMe = document.getElementById('rememberMe')?.checked || false;
 
   if (!btn || !loginEmailField || !passwordField) return;
 

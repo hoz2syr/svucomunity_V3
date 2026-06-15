@@ -22,17 +22,19 @@ function showToast(message, type = 'success') {
 
   if (!content) return;
 
-  const safeMessage = escapeHtml(message);
-  content.textContent = safeMessage;
-  content.className =
-    (type === 'success' ? 'bg-green-600' : 'bg-red-600') +
-    ' text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium';
-
+  const toast = document.getElementById('toast');
+  const typeClass = type === 'success' ? 'success' : (type === 'error' ? 'error' : '');
+  if (toast) {
+    toast.className = toast.className.replace(/\b(?:success|error)\b/g, '').trim();
+    if (typeClass) toast.classList.add(typeClass);
+  }
   content.setAttribute('role', 'status');
   content.setAttribute('aria-live', 'polite');
 
-  toast.classList.remove('opacity-0', 'translate-y-4');
-  toast.classList.add('opacity-100', 'translate-y-0');
+  if (toast) {
+    toast.classList.remove('opacity-0', 'translate-y-4');
+    toast.classList.add('opacity-100', 'translate-y-0');
+  }
 
   const key = `toastMsg:${++_toastId}`;
   clearTimeout(_toastTimers.get(key));
