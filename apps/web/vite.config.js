@@ -15,7 +15,7 @@ export default defineConfig({
     }),
   },
 
-  root: './apps/web',
+  root: '.',
   build: {
     target: 'esnext',
     outDir: 'dist',
