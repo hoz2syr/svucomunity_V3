@@ -1,0 +1,31 @@
+project_id = "svu-community"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[auth]
+enabled = true
+port = 54321
+external_url = "http://localhost:3000"
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://*.supabase.co"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_signups = false
+enable_email_autoconfirm = false
+enable_email_signup = true
+enable_phone_signup = false
+phone_autoconfirm = false
+
+[auth.email]
+double_confirm_changes = true
+enable_confirmations = true
+
+[functions]
+[functions.delete-account]
+[functions.delete-account.environment]
+ALLOWED_ORIGINS = "http://localhost:3000"

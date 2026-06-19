@@ -19,12 +19,10 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self';">
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link rel="alternate icon" href="/icon.ico">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/assets/auth.css">
+    <link rel="stylesheet" href="/src/pages/login.css">
     <link rel="stylesheet" href="/vendor/fonts/cairo.css">
-    <link rel="stylesheet" href="/assets/styles.css">
-    <link rel="stylesheet" href="/assets/auth.css">
-
-    <script type="module" src="../../env.js"></script>
-    <script type="module" src="../app.js"></script>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 py-8">
 
@@ -265,9 +263,8 @@
                 </div>
 
                 <!-- Submit -->
-                <button type="submit" id="registerBtn"
-                        class="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    إنشاء حساب
+                <button type="submit" id="registerBtn" class="neon-cta w-full">
+                    <span data-i18n="registerBtn" id="registerBtnText">إنشاء حساب</span>
                 </button>
             </form>
 
@@ -291,5 +288,9 @@
     <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 transition-all duration-300 opacity-0 translate-y-4 z-50 pointer-events-none" role="alert" aria-live="assertive">
         <div id="toastContent" class="px-5 py-3 rounded-xl shadow-2xl text-white text-sm font-medium"></div>
     </div>
+
+    <script type="module" src="/env.js"></script>
+    <script type="module" src="/src/js/modules/window-shim.js"></script>
+    <script type="module" src="/src/app.js"></script>
 </body>
 </html>

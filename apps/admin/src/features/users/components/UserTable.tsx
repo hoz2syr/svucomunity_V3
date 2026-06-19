@@ -177,7 +177,7 @@ export function UserTable({
           onClick={handleExport}
         >
           <Download className="size-4" />
-          Export CSV
+          تصدير CSV
         </button>
       </div>
 

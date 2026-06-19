@@ -17,10 +17,14 @@ describe('validators', () => {
   });
 
   describe('isValidPassword', () => {
-    it('returns true for password >= 8 chars', () => expect(isValidPassword('12345678')).toBe(true));
+    it('returns true for password with uppercase, lowercase, number and special char', () => expect(isValidPassword('Abc123!@')).toBe(true));
     it('returns false for short password', () => expect(isValidPassword('123')).toBe(false));
     it('returns false for empty string', () => expect(isValidPassword('')).toBe(false));
     it('returns false for 7 chars', () => expect(isValidPassword('1234567')).toBe(false));
+    it('returns false for missing uppercase', () => expect(isValidPassword('abc123!@')).toBe(false));
+    it('returns false for missing lowercase', () => expect(isValidPassword('ABC123!@')).toBe(false));
+    it('returns false for missing number', () => expect(isValidPassword('Abcdef!@')).toBe(false));
+    it('returns false for missing special char', () => expect(isValidPassword('Abc12345')).toBe(false));
   });
 
   describe('getPasswordStrength', () => {

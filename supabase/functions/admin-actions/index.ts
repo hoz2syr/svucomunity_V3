@@ -67,7 +67,8 @@ Deno.serve(async (req) => {
 
   const validActions = [
     'makeAdmin', 'revokeAdmin', 'toggleActive', 'deleteGroup',
-    'sendEmail', 'createCourse', 'deleteCourse', 'saveSettings', 'resetAllData'
+    'sendEmail', 'createCourse', 'deleteCourse', 'saveSettings', 'resetAllData',
+    'deleteSelf'
   ];
   if (!validActions.includes(action)) {
     return jsonResponse(400, { error: 'unsupported_action', action });
@@ -130,13 +131,8 @@ Deno.serve(async (req) => {
       case 'deleteGroup': {
         const { groupId } = args ?? {};
         if (!groupId) return jsonResponse(400, { error: 'groupId_required' });
-        const { error: membersErr } = await supabase
-          .from('group_members')
-          .delete()
-          .eq('group_id', groupId);
-        if (membersErr) throw membersErr;
         const { error: groupErr } = await supabase
-          .from('groups')
+          .from('study_groups')
           .delete()
           .eq('id', groupId);
         if (groupErr) throw groupErr;
@@ -257,13 +253,8 @@ Deno.serve(async (req) => {
       }
 
       case 'resetAllData': {
-        const { error: membersErr } = await supabase
-          .from('group_members')
-          .delete()
-          .neq('id', '00000000-0000-0000-0000-000000000000');
-        if (membersErr) throw membersErr;
         const { error: groupsErr } = await supabase
-          .from('groups')
+          .from('study_groups')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000');
         if (groupsErr) throw groupsErr;
@@ -272,6 +263,21 @@ Deno.serve(async (req) => {
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000');
         if (coursesErr) throw coursesErr;
+        return jsonResponse(200, { ok: true });
+      }
+
+      case 'deleteSelf': {
+        const targetUserId = (args?.userId as string) ?? caller.id;
+        if (targetUserId !== caller.id) {
+          return jsonResponse(403, { error: 'cannot_delete_other_user' });
+        }
+        const { error: profileErr } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', caller.id);
+        if (profileErr) throw profileErr;
+        const { error: authErr } = await supabase.auth.admin.deleteUser(caller.id);
+        if (authErr) throw authErr;
         return jsonResponse(200, { ok: true });
       }
 

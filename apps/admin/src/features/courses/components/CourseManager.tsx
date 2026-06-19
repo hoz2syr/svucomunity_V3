@@ -37,7 +37,7 @@ import {
   PaginationPrevious,
 } from "@svu-community/ui/components/ui/pagination";
 import type { Course } from "@svu-community/types";
-import { getCourses, createCourse, updateCourse, deleteCourse } from "../../../services/api";
+import { getCourses, createCourse, updateCourse, deleteCourseSecure } from "../../../services/api";
 
 const PAGE_SIZE = 10;
 
@@ -116,6 +116,7 @@ export default function CourseManager() {
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
   const [deleting, setDeleting] = useState(false);
 
   const fetchCourses = async () => {
@@ -230,10 +231,11 @@ export default function CourseManager() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteCourse(deleteTarget.id);
+      await deleteCourseSecure(deleteTarget.id, deletePassword);
       setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       toast.success("تم حذف المقرر بنجاح");
       setDeleteTarget(null);
+      setDeletePassword('');
     } catch (err) {
       const message = err instanceof Error ? err.message : "فشل حذف المقرر";
       toast.error(message);
@@ -359,11 +361,20 @@ export default function CourseManager() {
                               هل أنت متأكد من حذف المقرر {course.code} - {course.name}؟ لا يمكن التراجع عن هذا الإجراء.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
+                          <Input
+                            type="password"
+                            placeholder="كلمة مرور الأدمن"
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') void handleDelete();
+                            }}
+                          />
                           <AlertDialogFooter>
-                            <AlertDialogCancel disabled={deleting}>إلغاء</AlertDialogCancel>
+                            <AlertDialogCancel disabled={deleting} onClick={() => setDeleteTarget(null)}>إلغاء</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={handleDelete}
-                              disabled={deleting}
+                              disabled={deleting || !deletePassword.trim()}
                               className="bg-destructive text-white hover:bg-destructive/90"
                             >
                               {deleting ? (

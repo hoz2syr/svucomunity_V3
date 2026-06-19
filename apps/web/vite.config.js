@@ -55,6 +55,32 @@ export default defineConfig({
         ensureVendorInPublic();
       },
     },
+    {
+      name: 'svu-dev-rewrites',
+      enforce: 'pre',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const url = req.url || '/';
+          const matches = ['/login.html', '/register.html', '/dashboard.html', '/courses.html', '/admin.html', '/verify-email.html', '/reset-password.html'];
+          if (matches.some(p => url === p || url.startsWith(p + '?'))) {
+            const target = url.split('?')[0];
+            const mapped = {
+              '/login.html': '/src/pages/login.html',
+              '/register.html': '/src/pages/register.html',
+              '/dashboard.html': '/src/pages/dashboard.html',
+              '/courses.html': '/src/pages/courses.html',
+              '/admin.html': '/src/pages/admin.html',
+              '/verify-email.html': '/src/pages/verify-email.html',
+              '/reset-password.html': '/src/pages/reset-password.html',
+            }[target];
+            if (mapped) {
+              req.url = mapped;
+            }
+          }
+          next();
+        });
+      },
+    },
   ],
 
   base: '/',
@@ -85,7 +111,7 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
       },
-      external: ['@sentry/browser'],
+      external: [],
     },
     minify: 'esbuild',
     sourcemap: false,
@@ -98,6 +124,9 @@ export default defineConfig({
     open: true,
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+    fs: {
+      allow: ['..', '../src'],
     },
   },
 

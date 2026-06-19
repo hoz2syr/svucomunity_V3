@@ -51,13 +51,26 @@ function validatePhone(value, country) {
 }
 
 function validatePassword(password, confirm) {
-  if ((password || '').length < PASSWORD_MIN) {
-    return i18nT('registerPasswordWeak');
+  const pwd = password || '';
+  if (pwd.length < 8) {
+    return i18nT('registerPasswordTooShort');
   }
-  if ((confirm || '').length < PASSWORD_MIN) {
-    return i18nT('registerPasswordWeak');
+  if (!/[A-Z]/.test(pwd)) {
+    return i18nT('registerPasswordMissingUppercase');
   }
-  if ((password || '') !== (confirm || '')) {
+  if (!/[a-z]/.test(pwd)) {
+    return i18nT('registerPasswordMissingLowercase');
+  }
+  if (!/[0-9]/.test(pwd)) {
+    return i18nT('registerPasswordMissingNumber');
+  }
+  if (!/[^A-Za-z0-9]/.test(pwd)) {
+    return i18nT('registerPasswordMissingSymbol');
+  }
+  if ((confirm || '').length < 8) {
+    return i18nT('registerPasswordTooShort');
+  }
+  if (pwd !== (confirm || '')) {
     return i18nT('registerPasswordMismatch');
   }
   return null;

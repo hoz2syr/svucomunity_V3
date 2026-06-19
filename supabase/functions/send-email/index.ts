@@ -13,6 +13,26 @@ function jsonResponse(status, body) {
   });
 }
 
+export async function verifyCaller(supabase, authHeader) {
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { ok: false, status: 401, error: 'authorization_required' };
+  }
+  const token = authHeader.slice(7).trim();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !user) {
+    return { ok: false, status: 401, error: 'invalid_token' };
+  }
+  const { data: profile, error: profileErr } = await supabase
+    .from('users')
+    .select('is_admin, is_active')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (profileErr || !profile) {
+    return { ok: false, status: 401, error: 'profile_not_found' };
+  }
+  return { ok: true, data: profile };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -24,30 +44,20 @@ Deno.serve(async (req) => {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
+  const authHeader = req.headers.get('authorization') || '';
+  const callerResult = await verifyCaller(supabase, authHeader);
+  if (!callerResult.ok) return jsonResponse(callerResult.status, { error: callerResult.error });
+
+  const caller = callerResult.data;
+  if (!caller.is_admin || !caller.is_active) {
+    return jsonResponse(403, { error: 'forbidden' });
+  }
+
   let payload;
   try {
     payload = await req.json();
   } catch {
     return jsonResponse(400, { error: 'Invalid JSON body' });
-  }
-
-  const userId = req.headers.get('x-user-id');
-  if (!userId) {
-    return jsonResponse(401, { error: 'caller_id_required' });
-  }
-
-  const { data: caller, error: callerErr } = await supabase
-    .from('users')
-    .select('is_admin, is_active')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (callerErr || !caller) {
-    return jsonResponse(401, { error: 'caller_not_found' });
-  }
-
-  if (!caller.is_admin || !caller.is_active) {
-    return jsonResponse(403, { error: 'forbidden' });
   }
 
   const { to, subject, html, recipientsType, customEmails } = payload ?? {};

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserTable, type UserRecord } from './components/UserTable';
-import { getUsers, updateUserRole, setUserActive } from '../../services/api';
+import { getUsers, updateUserRoleSecure, setUserActiveSecure } from '../../services/api';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@svu-community/ui/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@svu-community/ui/components/ui/alert-dialog';
+import { Input } from '@svu-community/ui/components/ui/input';
 
 function UsersPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
@@ -15,6 +26,41 @@ function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [detailsUser, setDetailsUser] = useState<UserRecord | null>(null);
+
+  const [reauthTarget, setReauthTarget] = useState<{ type: 'role' | 'status'; user: UserRecord; value: boolean } | null>(null);
+  const [reauthPassword, setReauthPassword] = useState('');
+  const [reauthLoading, setReauthLoading] = useState(false);
+
+  const requestReauth = useCallback((type: 'role' | 'status', user: UserRecord, value: boolean) => {
+    setReauthTarget({ type, user, value });
+    setReauthPassword('');
+  }, []);
+
+  const confirmReauth = useCallback(async () => {
+    if (!reauthTarget) return;
+    setReauthLoading(true);
+    setError(null);
+    try {
+      if (reauthTarget.type === 'role') {
+        await updateUserRoleSecure(reauthTarget.user.id, reauthTarget.value, reauthPassword);
+        setUsers((prev) =>
+          prev.map((u) => (u.id === reauthTarget.user.id ? { ...u, role: reauthTarget.value ? 'admin' : 'user' } : u)),
+        );
+      } else {
+        await setUserActiveSecure(reauthTarget.user.id, reauthTarget.value, reauthPassword);
+        setUsers((prev) =>
+          prev.map((u) => (u.id === reauthTarget.user.id ? { ...u, status: reauthTarget.value ? 'active' : 'inactive' } : u)),
+        );
+      }
+      setReauthTarget(null);
+      setReauthPassword('');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'فشل تنفيذ الإجراء';
+      setError(message);
+    } finally {
+      setReauthLoading(false);
+    }
+  }, [reauthTarget]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -43,29 +89,13 @@ function UsersPage() {
     void fetchUsers();
   }, [fetchUsers]);
 
-  const handleToggleAdmin = useCallback(async (user: UserRecord, admin: boolean) => {
-    try {
-      await updateUserRole(user.id, admin);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, role: admin ? 'admin' : 'user' } : u)),
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'فشل تحديث الصلاحية';
-      setError(message);
-    }
-  }, []);
+  const handleToggleAdmin = useCallback((user: UserRecord, admin: boolean) => {
+    requestReauth('role', user, admin);
+  }, [requestReauth]);
 
-  const handleToggleStatus = useCallback(async (user: UserRecord, nextStatus: 'active' | 'inactive') => {
-    try {
-      await setUserActive(user.id, nextStatus === 'active');
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u)),
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'فشل تحديث الحالة';
-      setError(message);
-    }
-  }, []);
+  const handleToggleStatus = useCallback((user: UserRecord, nextStatus: 'active' | 'inactive') => {
+    requestReauth('status', user, nextStatus === 'active');
+  }, [requestReauth]);
 
   const handleViewDetails = useCallback((user: UserRecord) => {
     setDetailsUser(user);
@@ -95,7 +125,7 @@ function UsersPage() {
         <p className="text-slate-400">قائمة المستخدمين المسجلين في المنصة</p>
       </div>
       {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive" role="alert" aria-live="assertive">
           {error}
         </div>
       )}
@@ -146,6 +176,32 @@ function UsersPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!reauthTarget} onOpenChange={(open) => !open && setReauthTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد الهوية</AlertDialogTitle>
+            <AlertDialogDescription>
+              أدخل كلمة مرور الأدمن لتأكيد هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            type="password"
+            placeholder="كلمة المرور"
+            value={reauthPassword}
+            onChange={(e) => setReauthPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void confirmReauth();
+            }}
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={reauthLoading}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction disabled={reauthLoading || !reauthPassword.trim()} onClick={() => void confirmReauth()}>
+              {reauthLoading ? 'جارٍ التحقق...' : 'تأكيد'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -12,8 +12,8 @@ const UNAUTHORIZED_REDIRECT = `${window.location.origin}/index.html`;
 function safeRedirect(target) {
   try {
     const url = new URL(target, window.location.origin);
-    if (url.protocol === 'http:' || url.protocol === 'https:') {
-      window.location.href = url.href;
+    if (url.origin === window.location.origin) {
+      window.location.href = target;
       return;
     }
   } catch {

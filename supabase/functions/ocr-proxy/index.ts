@@ -13,32 +13,24 @@ function jsonResponse(status, body) {
   });
 }
 
-async function callVisionApi(imageBase64: string, apiKey: string): Promise<string> {
-  const res = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        requests: [
-          {
-            image: { content: imageBase64 },
-            features: [{ type: 'TEXT_DETECTION', maxResults: 1 }],
-          },
-        ],
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Vision API error ${res.status}: ${text}`);
+export async function verifyCaller(supabase, authHeader) {
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { ok: false, status: 401, error: 'authorization_required' };
   }
-
-  const data = await res.json();
-  const annotation = data?.responses?.[0]?.fullTextAnnotation;
-  if (!annotation) return '';
-  return annotation.text;
+  const token = authHeader.slice(7).trim();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !user) {
+    return { ok: false, status: 401, error: 'invalid_token' };
+  }
+  const { data: profile, error: profileErr } = await supabase
+    .from('users')
+    .select('is_active')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (profileErr || !profile) {
+    return { ok: false, status: 401, error: 'profile_not_found' };
+  }
+  return { ok: true, data: profile };
 }
 
 Deno.serve(async (req) => {
@@ -52,6 +44,15 @@ Deno.serve(async (req) => {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
+  const authHeader = req.headers.get('authorization') || '';
+  const callerResult = await verifyCaller(supabase, authHeader);
+  if (!callerResult.ok) return jsonResponse(callerResult.status, { error: callerResult.error });
+
+  const caller = callerResult.data;
+  if (!caller.is_active) {
+    return jsonResponse(403, { error: 'forbidden' });
+  }
+
   let payload;
   try {
     payload = await req.json();
@@ -64,13 +65,13 @@ Deno.serve(async (req) => {
     return jsonResponse(401, { error: 'caller_id_required' });
   }
 
-  const { data: caller, error: callerErr } = await supabase
+  const { data: userCheck, error: userErr } = await supabase
     .from('users')
     .select('is_active')
     .eq('id', userId)
     .maybeSingle();
 
-  if (callerErr || !caller?.is_active) {
+  if (userErr || !userCheck?.is_active) {
     return jsonResponse(403, { error: 'forbidden' });
   }
 

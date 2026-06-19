@@ -90,7 +90,7 @@ describe('UserTable', () => {
       />,
     );
 
-    const exportButton = screen.getByText('Export CSV');
+    const exportButton = screen.getByText('تصدير CSV');
     expect(exportButton.hasAttribute('disabled')).toBe(true);
   });
 

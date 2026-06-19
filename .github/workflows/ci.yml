@@ -28,6 +28,9 @@ jobs:
       matrix:
         package:
           - apps/web
+          - apps/courses
+          - apps/schedule
+          - apps/admin
 
     defaults:
       run:

@@ -90,8 +90,8 @@ const PaginationPrevious = React.forwardRef<
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
-      <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">السابق</span>
+      <ChevronRightIcon />
     </PaginationLink>
   );
 });
@@ -109,8 +109,8 @@ const PaginationNext = React.forwardRef<
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
-      <ChevronRightIcon />
+      <ChevronLeftIcon />
+      <span className="hidden sm:block">التالي</span>
     </PaginationLink>
   );
 });

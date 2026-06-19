@@ -1,9 +1,13 @@
 /**
  * SVU Community — Login Page module
  */
+import '../../pages/login.css';
+
 import { escapeHtml, clearUserSession, saveUserSession, getCurrentUser, handleLoginError, loadCurrentUser } from './core.js';
 import { getDb } from './config.js';
 import { showToast, getCurrentLang } from './shared.js';
+import { getCsrfHeaders } from './csrf.js';
+import { randomAuthDelay } from '../utils/security.js';
 
 async function isSupabaseSessionActive(db) {
   if (!db) return false;
@@ -192,6 +196,22 @@ async function handleLoginSubmit(e) {
     showToast(i18nT('loginPasswordTooShort') || 'كلمة المرور قصيرة جداً (8 أحرف على الأقل)', 'error');
     return;
   }
+  if (!/[A-Z]/.test(password)) {
+    showToast(i18nT('loginPasswordMissingUppercase') || 'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل', 'error');
+    return;
+  }
+  if (!/[a-z]/.test(password)) {
+    showToast(i18nT('loginPasswordMissingLowercase') || 'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل', 'error');
+    return;
+  }
+  if (!/[0-9]/.test(password)) {
+    showToast(i18nT('loginPasswordMissingNumber') || 'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل', 'error');
+    return;
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    showToast(i18nT('loginPasswordMissingSymbol') || 'يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل', 'error');
+    return;
+  }
 
   btn.disabled = true;
   let spinner = null;
@@ -205,12 +225,17 @@ async function handleLoginSubmit(e) {
     const db = getDb();
     if (!db) throw new Error('تعذر الاتصال بالخادم');
 
+    const csrfHeaders = getCsrfHeaders();
+
     const { data: authData, error: authError } = await db.auth.signInWithPassword({
       email: loginEmail,
       password,
+    }, {
+      headers: csrfHeaders,
     });
 
     if (authError) {
+      await randomAuthDelay();
       recordFailedLogin();
       throw authError;
     }

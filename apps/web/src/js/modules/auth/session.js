@@ -63,7 +63,6 @@ export async function clearSession() {
   }
 
   try {
-    sessionStorage.removeItem('svu_session_token');
     sessionStorage.removeItem('svu_csrf_token');
     sessionStorage.removeItem('svu_theme');
     localStorage.removeItem('svu_user');

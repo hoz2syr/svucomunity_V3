@@ -16,7 +16,7 @@ function refreshThemeIcons() {
     dark: 'icon-moon',
     system: 'icon-system',
   };
-  const activeIcon = document.getElementById(themeToIcon[stored]);
+  const activeIcon = document.querySelector(`.${themeToIcon[stored]}`);
   activeIcon?.classList.remove('hidden');
 }
 

@@ -7,3 +7,14 @@ export async function requireAuth(options = {}) {
   }
   return result;
 }
+
+export async function requireAuthSafe(options = {}) {
+  try {
+    return await requireAuth(options);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unauthorized';
+    const error = new Error(message);
+    error.cause = err instanceof Error ? err.cause ?? err : undefined;
+    throw error;
+  }
+}

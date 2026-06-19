@@ -4,6 +4,7 @@ import { i18nT, validateUsername, validateMajor, validatePhone, validatePassword
 import { state, resolveDb, MAJORS, fetchMajors } from './register-state.js';
 import { buildPhone } from './register-ui.js';
 import { setFormLoading } from './register-ui.js';
+import { randomAuthDelay } from '../utils/security.js';
 
 function buildAuthPayload() {
   const rawPhone = document.getElementById('phone')?.value || '';
@@ -157,6 +158,7 @@ async function submitRegisterForm() {
     });
 
     if (error) {
+      await randomAuthDelay();
       const message = String(error.message || '');
       if (message.includes('duplicate') || message.includes('already exists') || message.includes('unique')) {
         const language = getCurrentLang();
@@ -175,7 +177,7 @@ async function submitRegisterForm() {
       const target = data.session ? 'login.html' : `verify-email.html?email=${encodeURIComponent(payload.email)}`;
       if (!data.session) {
         try {
-          localStorage.setItem('svu_pending_verification_email', payload.email);
+          sessionStorage.setItem('svu_pending_verification_email', payload.email);
         } catch {
           // storage unavailable
         }

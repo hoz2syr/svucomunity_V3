@@ -1,19 +1,36 @@
-import { describe, expect, it } from 'vitest';
-import { vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 let mockFrom = vi.fn();
+const mockRpc = vi.fn();
 
 vi.mock('@svu-community/supabase-client', () => ({
-  supabase: { from: (...args: unknown[]) => mockFrom(...args) },
+  supabase: {
+    from: (...args: unknown[]) => mockFrom(...args),
+    rpc: (...args: unknown[]) => mockRpc(...args),
+  },
 }));
 
-import { fetchSettings, updateSettings, testSupabaseConnection, DEFAULT_SETTINGS } from '../services/api';
+import { fetchSettings, updateSettings, testSupabaseConnection, DEFAULT_SETTINGS, getUsers } from '../services/api';
 
-describe('api.fetchSettings', () => {
+describe('api.assertAdmin', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFrom = vi.fn();
+    mockFrom.mockReturnValue({ select: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }) });
+    mockRpc.mockResolvedValue({ error: null });
   });
+
+  it('calls assert_admin RPC before any data operation', async () => {
+    await fetchSettings();
+    expect(mockRpc).toHaveBeenCalledWith('services.assert_admin');
+  });
+
+  it('throws forbidden when assert_admin RPC fails', async () => {
+    mockRpc.mockResolvedValueOnce({ error: { message: 'Forbidden' } });
+    await expect(fetchSettings()).rejects.toThrow('فشل التحقق من صلاحية الأدمن.');
+  });
+});
+
+describe('api.fetchSettings', () => {
 
   it('returns defaults when no row exists', async () => {
     mockFrom.mockReturnValue({
@@ -65,6 +82,7 @@ describe('api.updateSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFrom = vi.fn();
+    mockRpc.mockResolvedValue({ error: null });
   });
 
   it('upserts and returns updated settings', async () => {
@@ -104,6 +122,7 @@ describe('api.testSupabaseConnection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFrom = vi.fn();
+    mockRpc.mockResolvedValue({ error: null });
   });
 
   it('returns success with latency on successful query', async () => {

@@ -9,8 +9,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self'; frame-ancestors 'none';">
 
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="stylesheet" href="/src/styles/main.css" />
     <link rel="stylesheet" href="/vendor/fonts/cairo.css" />
-    <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body class="min-h-screen bg-background text-white">
     <a href="#dashboardContent" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl">تخطي إلى المحتوى الرئيسي</a>
@@ -194,13 +194,13 @@
         <div id="toastContent" class="text-white px-6 py-3 rounded-xl shadow-2xl border text-center font-medium"></div>
     </div>
 
-    <script type="module" src="../../env.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/module/index.js"></script>
-    <script type="module" src="../js/modules/window-shim.js"></script>
-    <script type="module" src="../js/modules/config.js"></script>
-    <script type="module" src="../js/modules/core.js"></script>
-    <script type="module" src="../js/modules/shared.js"></script>
-    <script type="module" src="../js/modules/i18n.js"></script>
-    <script type="module" src="../js/modules/page-dashboard.js"></script>
+    <script type="module" src="/env.js"></script>
+    <script type="module" src="/src/app.js"></script>
+    <script type="module" src="/src/js/modules/window-shim.js"></script>
+    <script type="module" src="/src/js/modules/config.js"></script>
+    <script type="module" src="/src/js/modules/core.js"></script>
+    <script type="module" src="/src/js/modules/shared.js"></script>
+    <script type="module" src="/src/js/modules/i18n.js"></script>
+    <script type="module" src="/src/js/modules/page-dashboard.js"></script>
 </body>
 </html>

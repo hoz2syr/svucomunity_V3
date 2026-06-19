@@ -18,7 +18,7 @@ import {
 } from "@svu-community/ui/components/ui/alert-dialog";
 import { Skeleton } from "@svu-community/ui/components/ui/skeleton";
 import type { Group } from "@svu-community/types";
-import { getGroups, deleteGroup } from "../../../services/api";
+import { getGroups, deleteGroupSecure } from "../../../services/api";
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +35,7 @@ export function GroupsManager() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
   const [deleting, setDeleting] = useState(false);
 
   const deleteTarget = groups.find((g) => g.id === deleteTargetId) ?? null;
@@ -85,13 +86,14 @@ export function GroupsManager() {
   }, [search]);
 
   const handleDelete = async () => {
-    if (!deleteTargetId) return;
+    if (!deleteTargetId || !deletePassword) return;
     setDeleting(true);
     try {
-      await deleteGroup(deleteTargetId);
+      await deleteGroupSecure(deleteTargetId, deletePassword);
       setGroups((prev) => prev.filter((g) => g.id !== deleteTargetId));
       toast.success("تم حذف المجموعة بنجاح");
       setDeleteTargetId(null);
+      setDeletePassword('');
     } catch (err) {
       const message = err instanceof Error ? err.message : "فشل حذف المجموعة";
       toast.error(message);
@@ -217,11 +219,20 @@ export function GroupsManager() {
                 هل أنت متأكد من حذف المجموعة {deleteTarget.name}؟ لا يمكن التراجع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <Input
+              type="password"
+              placeholder="كلمة مرور الأدمن"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void handleDelete();
+              }}
+            />
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting}>إلغاء</AlertDialogCancel>
+              <AlertDialogCancel disabled={deleting} onClick={() => setDeleteTargetId(null)}>إلغاء</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
-                disabled={deleting}
+                disabled={deleting || !deletePassword.trim()}
                 className="bg-destructive text-white hover:bg-destructive/90"
               >
                 {deleting ? (

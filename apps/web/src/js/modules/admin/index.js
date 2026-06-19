@@ -20,4 +20,6 @@ import { loadStats } from './stats.js';
 import { loadUsers, renderUsers, filterUsers } from './users.js';
 import { loadGroups, renderGroups, filterGroups } from './groups.js';
 
+export { checkAdminAccess, showAccessDenied, loadStats, loadUsers, renderUsers, filterUsers, loadGroups, renderGroups, filterGroups };
+
 

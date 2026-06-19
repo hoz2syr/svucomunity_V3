@@ -1,3 +1,5 @@
+import './styles/main.css';
+
 import { initializeTheme, applyTheme, getStoredTheme, toggleTheme } from './js/modules/core.js';
 import { initLang, toggleLang } from './js/modules/i18n.js';
 import { log, openModal, closeModal, logout } from './js/modules/shared.js';
@@ -26,7 +28,7 @@ async function loadPageModule(page) {
   const moduleName = getPageModuleName(page);
   if (!moduleName) return;
   try {
-    await import(moduleName);
+    await import(/* @vite-ignore */ moduleName);
   } catch (err) {
     log.error('Failed to load page module:', err);
   }
@@ -56,21 +58,8 @@ function lazyLoadImages() {
   });
 }
 
-function applyThemeIconState() {
-  const stored = getStoredTheme?.() || 'system';
-  const btn = document.getElementById('themeToggleBtn');
-  if (!btn) return;
-  const sun = btn.querySelector('.icon-sun');
-  const moon = btn.querySelector('.icon-moon');
-  const system = btn.querySelector('.icon-system');
-  if (sun) sun.classList.toggle('hidden', stored !== 'light');
-  if (moon) moon.classList.toggle('hidden', stored !== 'dark');
-  if (system) system.classList.toggle('hidden', stored !== 'system');
-}
-
 function deferNonCriticalInit() {
   const run = () => {
-    applyThemeIconState();
     setupIntersectionObserver();
     lazyLoadImages();
   };
@@ -168,6 +157,7 @@ function setupForgotPasswordModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initLang();
+  initializeTheme();
   setupThemeToggle();
   setupLangToggle();
   setupForgotPasswordModal();
@@ -178,8 +168,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   deferNonCriticalInit();
-});
-
-window.addEventListener('svu-theme-change', (e) => {
-  applyTheme(e.detail.theme);
 });

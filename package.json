@@ -10,7 +10,7 @@
   "overrides": {
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "lucide-react": "^0.546.0",
+    "lucide-react": "^1.18.0",
     "sonner": "^2.0.7"
   },
   "scripts": {
@@ -31,7 +31,6 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "clean": "rimraf dist",
-    "prepare": "npm install",
     "preinstall": "node -v && npm -v"
   },
   "devDependencies": {
@@ -43,9 +42,10 @@
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.0.0",
     "globals": "^15.0.0",
+    "recharts": "^2.15.4",
     "rimraf": "^6.0.0",
     "turbo": "^2.0.0",
-    "typescript": "^5.4.0",
+    "typescript": "~5.8.2",
     "typescript-eslint": "^8.61.0",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^6.1.1"

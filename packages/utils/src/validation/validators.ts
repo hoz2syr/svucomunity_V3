@@ -7,7 +7,12 @@ export function isValidPhone(phone: string): boolean {
 }
 
 export function isValidPassword(password: string): boolean {
-  return password.length >= 8;
+  if (password.length < 8 || password.length > 128) return false;
+  if (!/[A-Z]/.test(password)) return false;
+  if (!/[a-z]/.test(password)) return false;
+  if (!/[0-9]/.test(password)) return false;
+  if (!/[^A-Za-z0-9]/.test(password)) return false;
+  return true;
 }
 
 export function getPasswordStrength(password: string): number {

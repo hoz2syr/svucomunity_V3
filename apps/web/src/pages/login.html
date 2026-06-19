@@ -18,14 +18,11 @@
     <meta name="theme-color" content="#0f172a">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.supabase.co https://*.supabase.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com blob:; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co wss://*.supabase.com; base-uri 'self'; frame-ancestors 'none';">
 
-    <script type="module" src="../../env.js"></script>
-    <script type="module" src="../js/modules/window-shim.js"></script>
-    <script type="module" src="../app.js"></script>
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link rel="alternate icon" href="/icon.ico">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/assets/auth.css">
     <link rel="stylesheet" href="/vendor/fonts/cairo.css">
-    <link rel="stylesheet" href="/assets/styles.css">
-    <link rel="stylesheet" href="/assets/login.css">
 </head>
 <body class="login-body min-h-screen flex items-center justify-center p-4">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl">تخطي إلى المحتوى الرئيسي</a>
@@ -192,7 +189,7 @@
         <div id="toastContent" class="flex items-center justify-center gap-2"></div>
     </div>
 
-    <script type="module" src="../js/modules/page-login.js"></script>
+    <script type="module" src="/src/js/modules/page-login.js"></script>
 
     <script>
         // Generate starfield

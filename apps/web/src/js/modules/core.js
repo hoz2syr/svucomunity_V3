@@ -246,14 +246,6 @@ function handleRegisterError(error) {
  */
 function handleLoginError(error) {
   const msg = error?.message || '';
-
-  if (msg.includes('Too many requests')) {
-    return 'محاولات كثيرة جداً. يرجى المحاولة لاحقاً.';
-  }
-  if (msg.includes('Network') || msg.includes('network')) {
-    return 'خطأ في الاتصال. يرجى المحاولة مرة أخرى.';
-  }
-
   return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
 }
 
@@ -311,20 +303,26 @@ function getCurrentEffectiveTheme() {
 }
 
 function applyTheme(theme) {
-  const root = document.documentElement;
+  const stored = getStoredTheme();
+  const needsChange = stored !== theme;
 
-  if (theme === 'system') {
-    root.removeAttribute(THEME_CONFIG.LIGHT_ATTR);
-    const sysTheme = getSystemTheme();
-    root.classList.toggle(THEME_CONFIG.DARK_CLASS, sysTheme === 'dark');
-  } else {
-    root.setAttribute(THEME_CONFIG.LIGHT_ATTR, theme);
-    root.classList.toggle(THEME_CONFIG.DARK_CLASS, theme === 'dark');
+  if (needsChange) {
+    const root = document.documentElement;
+
+    if (theme === 'system') {
+      root.removeAttribute(THEME_CONFIG.LIGHT_ATTR);
+      const sysTheme = getSystemTheme();
+      root.classList.toggle(THEME_CONFIG.DARK_CLASS, sysTheme === 'dark');
+    } else {
+      root.setAttribute(THEME_CONFIG.LIGHT_ATTR, theme);
+      root.classList.toggle(THEME_CONFIG.DARK_CLASS, theme === 'dark');
+    }
+
+    safeStorageSet(THEME_CONFIG.STORAGE_KEY, theme);
+    dispatchEvent(new CustomEvent('svu-theme-change', { detail: { theme } }));
   }
 
-  safeStorageSet(THEME_CONFIG.STORAGE_KEY, theme);
   updateThemeToggleIcon(theme);
-  dispatchEvent(new CustomEvent('svu-theme-change', { detail: { theme } }));
 }
 
 function updateThemeToggleIcon(theme) {

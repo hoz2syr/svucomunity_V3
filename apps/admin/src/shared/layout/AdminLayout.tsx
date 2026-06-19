@@ -8,8 +8,12 @@ interface AdminLayoutProps {
 export function AdminLayout({ sidebar, children }: AdminLayoutProps) {
   return (
     <div className="admin-layout flex h-screen">
-      {sidebar ?? <aside className="sidebar w-64 border-l border-white/10" />}
-      <main className="content flex-1 overflow-auto">{children}</main>
+      <header aria-label="القائمة الجانبية" className="sidebar w-64 border-l border-white/10">
+        {sidebar}
+      </header>
+      <main className="content flex-1 overflow-auto" aria-label="المحتوى الرئيسي">
+        {children}
+      </main>
     </div>
   );
 }

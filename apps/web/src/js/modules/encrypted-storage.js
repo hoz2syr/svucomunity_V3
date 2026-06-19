@@ -1,5 +1,5 @@
 /**
- * SVU Community — Non-sensitive UI state storage (plain localStorage)
+ * SVU Community — localStorage wrapper (plain text, NOT encrypted)
  *
  * WARNING: This module stores values in plain localStorage.
  * It does NOT encrypt, authenticate, or integrity-protect data.
@@ -17,18 +17,32 @@
  * read everything stored here. There is no safe substitute for
  * keeping secrets server-side or in HttpOnly cookies.
  *
- * Note: This module does not perform encryption despite its historic
- * reference name. Use `sessionStorage` or server-side storage for
- * anything sensitive.
+ * Note: Despite its name, this module does not perform encryption.
+ * Use `sessionStorage` or server-side storage for sensitive values.
+ *
+ * Runtime guard: keys matching *_token, *_secret, *_key, *_password,
+ * session, auth, csrf, jwt, or similar trigger a console warning.
  */
 
+const SENSITIVE_KEY_PATTERNS = /(token|secret|key|password|session|auth|csrf|jwt|private|pii|personal)/i;
+
+function warnIfSensitive(key) {
+  if (SENSITIVE_KEY_PATTERNS.test(key)) {
+    console.warn(
+      `[storage] Refusing implicit storage of sensitive key "${key}". ` +
+      `This module uses plain localStorage. Use server-side storage or HttpOnly cookies instead.`
+    );
+  }
+}
+
 export function storageSet(key, value) {
-   const toStore = typeof value === 'string' ? value : JSON.stringify(value);
-   try {
-     localStorage.setItem(key, toStore);
-   } catch {
-     // storage unavailable (private mode, quota exceeded)
-   }
+  warnIfSensitive(key);
+  const toStore = typeof value === 'string' ? value : JSON.stringify(value);
+  try {
+    localStorage.setItem(key, toStore);
+  } catch {
+    // storage unavailable (private mode, quota exceeded)
+  }
 }
 
 export function storageGet(key) {

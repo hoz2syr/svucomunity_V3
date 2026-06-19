@@ -1,6 +1,8 @@
 /**
  * SVU Community — Shared utilities and cross-page helpers
  */
+import '../../styles/main.css';
+
 import { getCsrfToken, getCsrfHeaders } from './csrf.js';
 import { getDb } from './config.js';
 import { escapeHtml, storageGet } from './core.js';
@@ -300,7 +302,7 @@ function debounce(fn, delay = 300) {
 }
 
 const COUNTRIES = [
-  { code: 'SY', name: { ar: 'سوريا', en: 'Syria' }, dial: '+963', flag: '🇸🇾', localPfx: ['9'], minLen: 9, maxLen: 9 },
+  { code: 'SY', name: { ar: 'سوريا', en: 'Syria' }, dial: '+963', flag: '🇸🇾', localPfx: ['0'], minLen: 9, maxLen: 9 },
   { code: 'SA', name: { ar: 'السعودية', en: 'Saudi Arabia' }, dial: '+966', flag: '🇸🇦', localPfx: ['5'], minLen: 9, maxLen: 9 },
   { code: 'AE', name: { ar: 'الإمارات', en: 'UAE' }, dial: '+971', flag: '🇦🇪', localPfx: ['5'], minLen: 9, maxLen: 9 },
   { code: 'EG', name: { ar: 'مصر', en: 'Egypt' }, dial: '+20', flag: '🇪🇬', localPfx: ['1'], minLen: 10, maxLen: 10 },

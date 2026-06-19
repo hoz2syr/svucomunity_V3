@@ -361,3 +361,149 @@ body.login-body {
     transition: all 0.2s ease;
 }
 .pwd-toggle:hover { color: #38bdf8; }
+
+/* ===== LIGHT THEME OVERRIDES ===== */
+html:not(.dark) body.login-body {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(248, 250, 252, 0.95) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(99, 102, 241, 0.06) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
+        linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+html:not(.dark) .star {
+    background: rgba(15, 23, 42, 0.35);
+}
+html:not(.dark) .star.large {
+    box-shadow: 0 0 4px rgba(99, 102, 241, 0.4);
+}
+
+html:not(.dark) .nebula-orb {
+    opacity: 0.15;
+}
+
+html:not(.dark) .neon-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.5) inset,
+        0 20px 50px -15px rgba(0,0,0,0.15),
+        0 0 40px -15px rgba(99,102,241,0.15);
+}
+html:not(.dark) .neon-card::before {
+    background: linear-gradient(135deg,
+        rgba(56, 189, 248, 0.3) 0%,
+        rgba(129, 140, 248, 0.1) 40%,
+        rgba(192, 132, 252, 0.25) 100%);
+}
+
+html:not(.dark) .neon-title {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 55%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(99,102,241,0.2));
+}
+
+html:not(.dark) .neon-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: #1e293b;
+}
+html:not(.dark) .neon-input:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08), 0 0 20px -5px rgba(99, 102, 241, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+}
+html:not(.dark) .neon-input::placeholder {
+    color: rgba(100, 116, 139, 0.5);
+}
+
+html:not(.dark) .neon-cta {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #312e81 100%);
+    color: white;
+    box-shadow:
+        0 15px 35px -10px rgba(79, 70, 229, 0.4),
+        0 0 0 1px rgba(255,255,255,0.2) inset,
+        0 0 40px -10px rgba(56, 189, 248, 0.2);
+}
+html:not(.dark) .neon-cta:hover:not(:disabled) {
+    box-shadow:
+        0 20px 45px -12px rgba(79, 70, 229, 0.5),
+        0 0 0 1px rgba(255,255,255,0.25) inset,
+        0 0 60px -10px rgba(56, 189, 248, 0.3);
+}
+
+html:not(.dark) .neon-secondary {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: #312e81;
+}
+html:not(.dark) .neon-secondary:hover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 0 25px -6px rgba(99, 102, 241, 0.2);
+}
+
+html:not(.dark) .toggle-neon {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+}
+html:not(.dark) .toggle-neon:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 25px -6px rgba(99, 102, 241, 0.2);
+}
+html:not(.dark) .toggle-divider-neon {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+html:not(.dark) .neon-toast {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 30px -8px rgba(99,102,241,0.2), 0 15px 35px -10px rgba(0,0,0,0.1);
+    color: #1e293b;
+}
+html:not(.dark) .neon-toast.success {
+    border-color: rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 30px -8px rgba(34,197,94,0.2);
+}
+html:not(.dark) .neon-toast.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 30px -8px rgba(239,68,68,0.2);
+}
+
+html:not(.dark) .neon-link {
+    color: #6366f1;
+}
+html:not(.dark) .neon-link:hover {
+    color: #4f46e5;
+}
+html:not(.dark) .neon-link::after {
+    background: linear-gradient(90deg, transparent, #6366f1, transparent);
+}
+
+html:not(.dark) .modal-overlay {
+    background: rgba(15, 23, 42, 0.4);
+}
+
+html:not(.dark) .logo-glow::after {
+    background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+}
+
+html:not(.dark) .pwd-toggle {
+    color: rgba(99, 102, 241, 0.5);
+}
+html:not(.dark) .pwd-toggle:hover {
+    color: #6366f1;
+}
+
+html:not(.dark) .text-secondary-300 {
+    color: #475569;
+}
+html:not(.dark) .text-secondary-400 {
+    color: #64748b;
+}
+html:not(.dark) .text-secondary-500 {
+    color: #64748b;
+}

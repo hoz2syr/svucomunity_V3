@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AdminLayout } from './shared/layout/AdminLayout';
 import { Sidebar } from './shared/components/Sidebar';
 import { useTheme } from '@svu-community/ui';
@@ -20,13 +20,18 @@ type Profile = {
 registerRoute('/dashboard', DashboardPage);
 registerRoute('/users', UsersPage);
 registerRoute('/courses', CoursesPage);
+registerRoute('/groups', GroupsPage);
 registerRoute('/settings', SettingsPage);
 
 function App() {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme, setLight, setDark, setSystem } = useTheme();
+  const { theme } = useTheme();
   const { isActive, navigate } = useRoute();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -52,8 +57,7 @@ function App() {
         return;
       }
 
-      const authorized = isAdmin(profile as unknown as User) && !!profile.is_active && !!profile.email_confirmed_at;
-      setIsAuthorized(authorized);
+      setIsAuthorized(!!profile.is_admin && !!profile.is_active && !!profile.email_confirmed_at);
     } catch {
       setIsAuthorized(false);
     } finally {
@@ -79,22 +83,11 @@ function App() {
       await validateAccess(user);
     });
 
-    const onFocus = () => {
-      if (cancelled || isAuthorized !== true) return;
-      supabase.auth.getUser().then(({ data }) => {
-        if (cancelled) return;
-        validateAccess(data.user as User | null);
-      });
-    };
-
-    window.addEventListener('focus', onFocus);
-
     return () => {
       cancelled = true;
       subscription.unsubscribe();
-      window.removeEventListener('focus', onFocus);
     };
-  }, [validateAccess, isAuthorized]);
+  }, [validateAccess]);
 
   if (isLoading) {
     return (
@@ -120,7 +113,7 @@ function App() {
   return (
     <AdminLayout>
       <Sidebar />
-      <main className="content">
+      <main className="content" aria-label="المحتوى الرئيسي">
         <CurrentPage />
       </main>
     </AdminLayout>

@@ -150,3 +150,5 @@ export async function sendAdminEmail(recipientsType, subject, body, customEmails
 
   if (result.ok) showToast('تم إرسال الإيميل بنجاح', 'success');
 }
+
+export { callAdmin, makeAdmin, revokeAdmin, toggleActive, deleteGroup };

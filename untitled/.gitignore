@@ -1,0 +1,11 @@
+node_modules/
+build/
+dist/
+coverage/
+storybook-static/
+tsc-errors.txt
+.DS_Store
+*.log
+.env*
+!.env.example
+assets/.aistudio/

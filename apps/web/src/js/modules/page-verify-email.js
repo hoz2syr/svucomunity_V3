@@ -129,8 +129,8 @@ async function resendVerification() {
 
 function safeStorageGet(key) {
   try {
-    if (typeof localStorage !== 'undefined') {
-      return localStorage.getItem(key);
+    if (typeof sessionStorage !== 'undefined') {
+      return sessionStorage.getItem(key);
     }
   } catch {
     // storage unavailable

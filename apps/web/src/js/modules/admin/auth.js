@@ -3,7 +3,7 @@ import { initSupabase, getDb, verifySessionWithServer } from '../config.js';
 
 export async function checkAdminAccess() {
   if (!(await isLoggedIn())) {
-    window.location.href = 'login.html';
+    window.location.href = `${window.location.origin}/login.html`;
     return false;
   }
 
@@ -15,7 +15,7 @@ export async function checkAdminAccess() {
 
   const isValid = await verifySessionWithServer(db);
   if (!isValid) {
-    window.location.href = 'login.html';
+    window.location.href = `${window.location.origin}/login.html`;
     return false;
   }
 
@@ -46,8 +46,5 @@ export async function checkAdminAccess() {
 function showAccessDenied() {
   document.getElementById('loadingState')?.classList.add('hidden');
   document.getElementById('accessDenied')?.classList.remove('hidden');
-
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 2000);
+  window.location.href = `${window.location.origin}/index.html`;
 }

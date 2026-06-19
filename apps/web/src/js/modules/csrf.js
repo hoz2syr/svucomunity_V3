@@ -94,8 +94,9 @@ export function getCsrfCookieRaw() {
 }
 
 function setCsrfCookie(token) {
-  const secure = window.location.protocol === 'https:';
-  document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=${CSRF_COOKIE_PATH}; SameSite=Lax; ${secure ? 'Secure;' : ''} max-age=86400`;
+  const isProduction = window.location.protocol === 'https:';
+  const secureDirective = isProduction ? 'Secure;' : '';
+  document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=${CSRF_COOKIE_PATH}; SameSite=Lax; ${secureDirective} max-age=86400`;
 }
 
 export function getCsrfHeaderName() {
