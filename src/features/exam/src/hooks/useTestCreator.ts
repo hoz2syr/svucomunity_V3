@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { TestModel, Question } from '../types';
 import { saveTest } from '../lib/store';
+import { upsertTestToSupabase } from '../services/exam.supabase';
+import { hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CreateTestState {
@@ -27,6 +30,7 @@ export interface UseTestCreatorReturn extends CreateTestState {
 }
 
 export function useTestCreator(): UseTestCreatorReturn {
+  const { session } = useAuth();
   const [jsonText, setJsonText] = useState('');
   const [testTitle, setTestTitle] = useState('');
   const [testDesc, setTestDesc] = useState('');
@@ -34,6 +38,11 @@ export function useTestCreator(): UseTestCreatorReturn {
   const [showExplanations, setShowExplanations] = useState(true);
   const [globalTimeLimit, setGlobalTimeLimit] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const userIdRef = useRef<string | null>(session?.user?.id ?? null);
+
+  useEffect(() => {
+    userIdRef.current = session?.user?.id ?? null;
+  }, [session]);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,7 +54,7 @@ export function useTestCreator(): UseTestCreatorReturn {
         const content = event.target?.result as string;
         setJsonText(content);
       } catch {
-        setError('تعذر قراءة الملف السحابي');
+        setError('تعذر قراءة الملف.');
       }
     };
     reader.readAsText(file);
@@ -90,6 +99,15 @@ export function useTestCreator(): UseTestCreatorReturn {
       };
 
       saveTest(newTest);
+
+      const uid = userIdRef.current;
+      if (uid && hasSupabaseEnv()) {
+        upsertTestToSupabase({ ...newTest, userId: uid }).catch((err) => {
+          const message = err instanceof Error ? err.message : String(err);
+          setError(`فشل مزامنة الامتحان مع السحابة: ${message}`);
+        });
+      }
+
       navigate('/exam/saved');
     } catch {
       setError('صيغة JSON غير صالحة. تأكد من صحة الملف.');
