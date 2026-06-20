@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   security-check:
@@ -66,7 +66,9 @@ jobs:
   deploy-supabase:
     needs: [build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: |
+      github.ref == 'refs/heads/master' &&
+      github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
