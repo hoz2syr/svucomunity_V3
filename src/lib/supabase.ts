@@ -128,9 +128,23 @@ export const handleAuthCallback = async (): Promise<AuthCallbackResult> => {
     const { data, error } = await getSupabaseClient().auth.getSession();
 
     if (!error && data.session?.user) {
-      const profileResult = await upsertProfile(data.session.user);
-      if (profileResult.error) {
-        return { data, error: profileResult.error };
+      if (data.session.user.email_confirmed_at) {
+        const { error: profileWriteError } = await getSupabaseClient()
+          .from('profiles')
+          .upsert({
+            id: data.session.user.id,
+            full_name: data.session.user.user_metadata.full_name || data.session.user.email || '',
+            email: data.session.user.email,
+            username: data.session.user.user_metadata.username || data.session.user.email?.split('@')[0] || '',
+            role: 'student',
+            provider: data.session.user.app_metadata.provider || 'email',
+            provider_id: data.session.user.app_metadata.provider_id || null,
+          })
+          .select()
+          .single();
+        if (profileWriteError && profileWriteError.code !== '23505' && profileWriteError.message?.includes('row-level security')) {
+          return { data, error: new SupabaseOperationError('PROFILE_RLS_BLOCKED', profileWriteError.message) };
+        }
       }
     }
 

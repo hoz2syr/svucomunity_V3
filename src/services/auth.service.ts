@@ -114,7 +114,7 @@ export const completeAuthCallback = async (): Promise<AuthCallbackResult> => {
 
     if (result.data?.session?.user) {
       const profileResult = await upsertProfile(result.data.session.user);
-      if (profileResult.error) {
+      if (profileResult.error && !profileResult.error.message?.includes('row-level security')) {
         return { data: result.data, error: profileResult.error };
       }
     }
