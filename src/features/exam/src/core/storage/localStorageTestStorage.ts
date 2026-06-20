@@ -7,7 +7,7 @@ const CURRENT_USER_KEY = 'svu_tests_current_user';
 export class LocalFirstTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
 
-  private getCurrentUserId(): string | null {
+  getCurrentUserId(): string | null {
     if (this.currentUserId) return this.currentUserId;
     try {
       const raw = localStorage.getItem(CURRENT_USER_KEY);

@@ -41,12 +41,12 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
     setError(null);
     try {
       storage.setCurrentUserId(userId);
-      const { data, error } = await fetch('/api/exam/tests', {
+      const response = await fetch('/api/exam/tests', {
         headers: { 'x-user-id': userId },
       });
-
-      if (!data || !Array.isArray(data)) {
-        throw new Error(error || 'Invalid response');
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !Array.isArray(data)) {
+        throw new Error(data?.message || response.statusText || 'تعذر جلب الاختبارات المحفوظة.');
       }
 
       const serverTests = (data ?? []) as TestModel[];

@@ -12,11 +12,11 @@ export default function SavedTests() {
   const { tests, loadingPdf, isLoading, error, fetchTests, handleDelete, handlePrintPdf, handleExportWord } = useCoreSavedTests();
 
   useEffect(() => {
-    fetchTests('local-user');
+    fetchTests();
   }, [fetchTests]);
 
   if (error) {
-    return <ErrorState title="خطأ في تحميل البيانات" message={error} onRetry={() => fetchTests('local-user')} />;
+    return         <ErrorState title="خطأ في تحميل البيانات" message={error} onRetry={() => fetchTests()} />;
   }
 
   return (

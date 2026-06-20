@@ -202,6 +202,15 @@ export function usePlayTest(testId: string | undefined, navigate: (path: string)
     return () => window.removeEventListener('keydown', handler);
   }, [hasStarted, showResults, onKeyDownRaw]);
 
+  const answeredCount = useMemo(() => {
+    if (!test) return 0;
+    return Object.keys(selectedAnswers).filter(id => {
+      const answer = selectedAnswers[id];
+      if (!answer || answer.trim() === '') return false;
+      return true;
+    }).length;
+  }, [test, selectedAnswers]);
+
   const handleRateTest = useCallback((stars: number) => {
     if (!test?.id) return;
     const result = rateTest(test.id, stars, answeredCount, test.questions.length);
@@ -216,15 +225,6 @@ export function usePlayTest(testId: string | undefined, navigate: (path: string)
     if (!test) return 0;
     return test.questions.reduce((acc, q) => acc + (selectedAnswers[q.id] === q.correctAnswer ? 1 : 0), 0);
   }, [test, selectedAnswers, showResults]);
-
-  const answeredCount = useMemo(() => {
-    if (!test) return 0;
-    return Object.keys(selectedAnswers).filter(id => {
-      const answer = selectedAnswers[id];
-      if (!answer || answer.trim() === '') return false;
-      return true;
-    }).length;
-  }, [test, selectedAnswers]);
 
   const canRate = useMemo(() => answeredCount >= 1, [answeredCount]);
 

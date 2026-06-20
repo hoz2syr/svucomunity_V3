@@ -38,7 +38,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete 
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <StarRating rating={test.rating ?? 0} readonly size={16} />
+          <StarRating rating={test.rating ?? 0} readonly size={16} onRate={() => {}} />
           {test.rating ? (
             <span className="text-xs text-secondary-400">{test.rating}/5</span>
           ) : (

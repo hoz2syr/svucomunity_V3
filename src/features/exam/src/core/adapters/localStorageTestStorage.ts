@@ -6,6 +6,21 @@ const CURRENT_USER_KEY = 'svu_tests_current_user';
 export class LocalFirstTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
 
+  getCurrentUserId(): string | null {
+    if (this.currentUserId !== null) return this.currentUserId;
+    try {
+      const raw = localStorage.getItem(CURRENT_USER_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        this.currentUserId = typeof parsed === 'string' ? parsed : null;
+        return this.currentUserId;
+      }
+    } catch {
+      // ignore corrupt localStorage value
+    }
+    return null;
+  }
+
   setCurrentUserId(userId: string | null) {
     this.currentUserId = userId;
     if (userId) {

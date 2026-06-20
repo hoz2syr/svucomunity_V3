@@ -4,6 +4,10 @@ import { fetchTestsFromSupabase, upsertTestToSupabase, deleteTestFromSupabase } 
 export class SupabaseTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
 
+  getCurrentUserId(): string | null {
+    return this.currentUserId;
+  }
+
   setCurrentUserId(userId: string | null) {
     this.currentUserId = userId;
   }
