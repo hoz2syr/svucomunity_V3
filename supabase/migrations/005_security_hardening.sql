@@ -34,13 +34,12 @@ create trigger prevent_role_change
   for each row
   execute function public.prevent_role_change();
 
--- ── admin_audit_log: allow Edge Functions (service_role) to INSERT ──
--- Row-level inserts from authenticated clients are blocked (no user-facing policy).
--- Edge Functions using SUPABASE_SERVICE_ROLE_KEY bypass RLS entirely.
--- We add a restrictive policy here so queries with non-service-role keys are rejected.
+-- ── admin_audit_log: allow service_role to INSERT (via Edge Functions / backend) ──
+-- Client-side inserts are blocked because service_role bypasses RLS, and
+-- using `auth.uid() IS NULL` here rejects any request that arrives without a JWT.
 create policy "Service role only: insert audit log"
   on public.admin_audit_log for insert
-  with check (auth.uid() IS NOT NULL);
+  with check (auth.uid() IS NULL);
 
 -- ── rate_limits table for persistent rate limiting ──
 create table if not exists public.rate_limits (
@@ -57,7 +56,7 @@ alter table public.rate_limits enable row level security;
 
 create policy "Service role only: manage rate limits"
   on public.rate_limits for all
-  using (auth.uid() IS NOT NULL);
+  using (auth.uid() IS NULL);
 
 -- ── Explicitly guard existing RLS policies with auth.uid() IS NOT NULL ──
 -- Re-create with explicit guard so the intent is unambiguous.

@@ -8,7 +8,3 @@ alter table public.profiles
 alter table public.profiles
   add constraint check_provider
   check (provider in ('email', 'google'));
-
-alter table public.profiles
-  add constraint profiles_email_key
-  unique (email);
