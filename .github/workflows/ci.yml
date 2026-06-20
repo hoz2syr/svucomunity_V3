@@ -74,9 +74,5 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Link project
-        run: supabase link --project-ref svu-community --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
       - name: Push migrations to Supabase
-        run: supabase db push --linked
-      - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref svu-community --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+        run: supabase db push --db-url "${{ secrets.SUPABASE_DB_URL }}"
