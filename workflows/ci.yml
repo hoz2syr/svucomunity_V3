@@ -20,9 +20,6 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./untitled
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,9 +31,6 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./untitled
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,9 +42,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./untitled
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -63,9 +54,6 @@ jobs:
   build:
     needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./untitled
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
