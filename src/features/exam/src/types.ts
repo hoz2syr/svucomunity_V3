@@ -25,6 +25,7 @@ export interface TestModel {
   questions: Question[];
   rating?: number;
   ratedBySession?: boolean;
+  published?: boolean;
 }
 
 
