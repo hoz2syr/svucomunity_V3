@@ -31,6 +31,7 @@ enable_confirmations = true
 
 [[functions]]
 name = "delete-account"
+verify_jwt = true
 
 [functions.env]
 ALLOWED_ORIGINS = "http://localhost:3000"
