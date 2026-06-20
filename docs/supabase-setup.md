@@ -41,13 +41,18 @@ supabase db push
 1. افتح المشروع في **Supabase Dashboard**.
 2. اذهب إلى **Authentication → Providers**.
 3. فعّل **Google**.
-4. أضف:
-   - `Client ID` من Google Cloud Console.
-   - `Client Secret` من Google Cloud Console.
-5. أضف Redirect URI الخاص بالمشروع، عادة:
-   - `https://<project-id>.supabase.co/auth/v1/callback`
-   - `https://your-domain.com/auth/callback`
-6. اربط `VITE_GOOGLE_CLIENT_ID` في واجهة التطبيق.
+4. أنشئ عميل OAuth في [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
+   - Application type: **Web application**
+   - Authorized JavaScript origins:
+     - `http://localhost:5173`
+     - `https://svu-community.pages.dev` (أو domain تاعك)
+   - Authorized redirect URIs: `https://<project-id>.supabase.co/auth/v1/callback`
+   - انسخ `Client ID` و `Client Secret`
+5. عُد لـ Supabase Dashboard → **Authentication → Providers → Google**:
+   - **Enabled**: ✅ Yes
+   - الصق `Client ID` و `Client Secret`
+   - احفظ
+6. أضف `VITE_GOOGLE_CLIENT_ID` في Cloudflare Pages → Settings → Environment Variables
 
 ---
 
@@ -140,13 +145,37 @@ curl -X POST "https://YOUR_PROJECT_ID.supabase.co/functions/v1/delete-account" \
 
 ## 6. متغيرات بيئة الواجهة
 
-انسخ `.env.example` إلى `.env.local` في `untitled/`:
+### 6.1 في GitHub Secrets (ل CI/CD)
+أضف في GitHub → Settings → Secrets and variables → Actions:
+
+| Secret | القيمة | من أين |
+|---|---|---|
+| `VITE_SUPABASE_URL` | `https://<project-id>.supabase.co` | Supabase Dashboard → Settings → API |
+| `VITE_SUPABASE_ANON_KEY` | public/anon key | Supabase Dashboard → Settings → API |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID | Google Cloud Console → Credentials |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token | Cloudflare Dashboard → My Profile → API Tokens |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID | Cloudflare Dashboard → Home |
+| `SUPABASE_ACCESS_TOKEN` | Supabase Personal Access Token | Supabase → Account → Access Tokens |
+
+### 6.2 في Cloudflare Pages (للـ Build)
+أضف في Cloudflare Dashboard → Pages → svu-community → Settings → Environment Variables:
+
+| Variable | القيمة |
+|---|---|
+| `VITE_SUPABASE_URL` | نفس القيمة في GitHub Secrets |
+| `VITE_SUPABASE_ANON_KEY` | نفس القيمة في GitHub Secrets |
+| `VITE_GOOGLE_CLIENT_ID` | نفس القيمة في GitHub Secrets |
+
+> **ملاحظة:** المتغيرات `VITE_*` تُقرأ من GitHub Secrets أثناء الـ Build في CI، ومن Cloudflare Dashboard كاحتياط إضافي.
+
+### 6.3 محلياً (للتطوير)
+انسخ `.env.example` إلى `.env.local`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-املأ فقط المتغيرات العامة:
+املأ:
 
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
@@ -155,7 +184,6 @@ VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
 ```
 
 لا تضع هذه القيم في Git:
-
 - `.env.local`
 - `service_role key`
 - Google Client Secret

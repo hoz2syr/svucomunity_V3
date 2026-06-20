@@ -4,7 +4,7 @@
 
 - حساب Supabase (مجاني أو مدفوع)
 - حساب Cloudflare Pages
-- نطاق مخصص (اختياري)
+- مستودع GitHub مربوط بـ Cloudflare Pages
 
 ---
 
@@ -20,8 +20,12 @@
 ### 2.2 تشغيل Migrations
 تأكد من تشغيل جميع migrations من `supabase/migrations/`، بما فيها `003_add_profile_identity_fields.sql`.
 
+الطريقة الآلية (عبر CI):
+- عند كل push لـ `master`، job `deploy-supabase` في `.github/workflows/ci.yml` ينشر migrations تلقائيًا.
+
+الطريقة اليدوية (إذا احتجت):
 ```bash
-# من مجلد المشروع الرئيسي (svu community v3.0.0_cleantree)
+# من مجلد المشروع الرئيسي
 supabase link --project-ref YOUR_PROJECT_ID
 supabase db push
 ```
@@ -36,16 +40,21 @@ supabase db seed
 2. فعّل **Email**:
    - ✅ Confirm email (موصى به للإنتاج)
    - ✅ Secure email change
-   - Redirect URL: `https://your-domain.com/auth/callback`
+   - Site URL: `https://svu-community.pages.dev` (أو domain تاعك)
+   - Redirect URLs: `https://<project-id>.supabase.co/auth/v1/callback`
 3. فعّل **Google OAuth**:
    - أنشئ عميل OAuth في [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-   - أضف Origins و Redirect URIs:
-     - `https://your-project.supabase.co/auth/v1/callback`
-     - `https://your-domain.com/auth/callback`
-   - انسخ `Client ID` إلى Supabase → Google Provider
+   - Application type: **Web application**
+   - Authorized JavaScript origins:
+     - `http://localhost:5173`
+     - `https://svu-community.pages.dev`
+   - Authorized redirect URIs: `https://<project-id>.supabase.co/auth/v1/callback`
+   - انسخ `Client ID` و `Client Secret`
+   - عُد لـ Supabase → Authentication → Providers → Google
+   - الصق `Client ID` و `Client Secret` → احفظ
 
 ### 2.5 تفعيل RLS Policies
-تأكد من تنفيذ migrations التالية في Supabase SQL Editor:
+تأكد من تنفيذ migrations التالية في Supabase SQL Editor (أو عبر CI كما في 2.2):
 
 ```sql
 -- جدول profiles بعد migrations 001 و 003
@@ -100,29 +109,27 @@ CREATE TRIGGER on_auth_user_deleted
 راجع التوثيق التفصيلي في `docs/edge-functions.md`.
 
 ### 3.1 المتغيرات السرية
-
 لا تضع `SUPABASE_SERVICE_ROLE_KEY` في `.env.local` أو في كود المتصفح.
 
 ```bash
 supabase secrets set SUPABASE_URL="https://YOUR_PROJECT_ID.supabase.co"
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY"
-supabase secrets set ALLOWED_ORIGINS="https://your-domain.com"
+supabase secrets set ALLOWED_ORIGINS="https://svu-community.pages.dev"
 ```
 
 للتطوير المحلي:
-
 ```bash
 supabase secrets set ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173"
 ```
 
-### 3.2 نشر الدالة
+> لا تستخدم `*` في `ALLOWED_ORIGINS` للإنتاج.
 
+### 3.2 نشر الدالة
 ```bash
 supabase functions deploy delete-account --project-ref YOUR_PROJECT_ID
 ```
 
 ### 3.3 التحقق من السلوك
-
 - لا تقبل الدالة `GET`.
 - لا تقبل `userId` من body.
 - تقرأ المستخدم من JWT فقط.
@@ -135,20 +142,36 @@ supabase functions deploy delete-account --project-ref YOUR_PROJECT_ID
 
 ## 4. إعداد متغيرات البيئة
 
-### 4.1 إنشاء `.env.local`
+### 4.1 في GitHub Secrets (للـ CI/CD)
+أضف في GitHub → Settings → Secrets and variables → Actions:
+
+| Secret | القيمة | من أين |
+|---|---|---|
+| `VITE_SUPABASE_URL` | `https://<project-id>.supabase.co` | Supabase Dashboard → Settings → API |
+| `VITE_SUPABASE_ANON_KEY` | public/anon key | Supabase Dashboard → Settings → API |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID | Google Cloud Console → Credentials |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token | Cloudflare Dashboard → My Profile → API Tokens |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID | Cloudflare Dashboard → Home |
+| `SUPABASE_ACCESS_TOKEN` | Supabase Personal Access Token | Supabase → Account → Access Tokens |
+
+### 4.2 في Cloudflare Pages (للـ Build كاحتياط)
+أضف في Cloudflare Dashboard → Pages → svu-community → Settings → Environment Variables:
+
+| Variable | القيمة |
+|---|---|
+| `VITE_SUPABASE_URL` | نفس القيمة في GitHub Secrets |
+| `VITE_SUPABASE_ANON_KEY` | نفس القيمة في GitHub Secrets |
+| `VITE_GOOGLE_CLIENT_ID` | نفس القيمة في GitHub Secrets |
+
+### 4.3 محلياً (للتطوير)
 ```bash
-# انسخ من .env.example
 cp .env.example .env.local
 ```
 
-### 4.2 ملء المتغيرات
 ```env
-# من Supabase Dashboard → Settings → API
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-# من Google Cloud Console → Credentials
-VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_ANON_PUBLIC_KEY
+VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
 ```
 
 **⚠️ تنبيه أمني:**
@@ -158,41 +181,30 @@ VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 
 ---
 
-## 5. بناء ونشر الواجهة
+## 5. بناء ونشر الواجهة (Cloudflare Pages)
 
-### 5.1 بناء المشروع
+### 5.1 البنية التحتية
+النشر يتم تلقائيًا عبر GitHub Actions عند كل push لـ `master`:
+
+| Workflow | الوظيفة |
+|---|---|
+| `.github/workflows/ci.yml` | lint + typecheck + test + build + deploy Supabase migrations |
+| `.github/workflows/deploy-web.yml` | build + deploy إلى Cloudflare Pages |
+
+### 5.2 البناء محلياً (للتحقق)
 ```bash
-# تثبيت التبعيات
-npm install
-
-# فحص الأنواع
-npm run lint
-
-# بناء للإنتاج
+npm install --force
 npm run build
 ```
 
-### 5.2 نشر على Vercel
-```bash
-# تثبيت Vercel CLI
-npm install -g vercel
+### 5.3 الإعدادات في Cloudflare Pages
+1. اربط المستودع: `hoz2syr/svucomunity_V3`
+2. Branch: `master`
+3. Build command: `npm run build`
+4. Build output: `dist`
+5. أضف الـ Environment Variables كما في القسم 4.2
 
-# نشر
-vercel --prod
-```
-
-أو عبر لوحة التحكم:
-1. اربط مستودع Git بـ Vercel
-2. أضف متغيرات البيئة في Vercel Dashboard → Settings → Environment Variables
-3. فعّل **Preview Deployment** لـ branches
-
-### 5.3 إعدادات Vercel الإضافية
-في `vercel.json` (اختياري):
-```json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
-```
+> **ملاحظة:** لا تبني على Node.js 20 — استخدم Node.js 22 أو أعلى. CI معد ليعمل مع `npm install --force` لحل مشكلة Rollup native module على Linux.
 
 ---
 
@@ -201,6 +213,7 @@ vercel --prod
 ### 6.1 فحوصات TypeScript
 ```bash
 npm run lint
+npm run typecheck
 ```
 
 ### 6.2 فحوصات البناء
@@ -210,7 +223,7 @@ npm run build
 ```
 
 ### 6.3 اختبار الوظائف يدوياً
-1. افتح الموقع المنشور
+1. افتح `https://svu-community.pages.dev`
 2. سجّل حساب جديد → تحقق من وصول بريد التأكيد
 3. سجّل دخول عبر Google → تحقق من التوجيه إلى `/dashboard`
 4. اختبر زر حذف الحساب → تحقق من نجاح العملية
@@ -221,60 +234,67 @@ npm run build
 ## 7. المشاكل الشائعة والحلول
 
 ### 7.1 خطأ "Missing Supabase environment variables"
-**السبب:** `.env.local` غير موجود أو غير مكتمل  
+**السبب:** `.env.local` غير موجود أو غير مكتمل، أو `VITE_*` غير مضبوط في Cloudflare/GitHub  
 **الحل:**
 ```bash
-# تحقق من وجود الملف
+# تحقق من وجود الملف محلياً
 ls .env.local
 
-# تحقق من المحتوى
-cat .env.local | grep VITE_
+# تحقق من المتغيرات في Cloudflare Dashboard
+# Pages → svu-community → Settings → Environment Variables
 ```
 
 ### 7.2 خطأ "Invalid login credentials"
 **السبب:** البريد غير مؤكد أو كلمة المرور خاطئة  
 **الحل:**
 - فعل **Confirm email** في Supabase
-- تحقق من Redirect URL صحيح
+- تحقق من Redirect URL صحيح في Supabase Dashboard → Authentication → URL Configuration
 
-### 7.3 زر حذف الحساب لا يعمل
-**السبب:** Edge Function غير منشورة أو Service Role key غير مضبوط  
+### 7.3 خطأ Cloudflare 401 "Authentication error"
+**السبب:** `CLOUDFLARE_API_TOKEN` في GitHub Secrets غير صالح أو منتهي  
 **الحل:**
-```bash
-# تحقق من نشر الدالة
-supabase functions list --project-ref YOUR_PROJECT_ID
+1. Cloudflare Dashboard → My Profile → API Tokens
+2. أنشئ Token جديد بصلاحية **Cloudflare Pages > Edit**
+3. حدث `CLOUDFLARE_API_TOKEN` في GitHub Secrets
 
-# أعد النشر إذا لزم الأمر
-supabase functions deploy delete-account --project-ref YOUR_PROJECT_ID
-```
-
-### 7.4 Google OAuth يفشل
-**السبب:** Client ID أو Redirect URI غير صحيح  
+### 7.4 خطأ "Unsupported provider: provider is not enabled"
+**السبب:** Google Provider غير مفعل في Supabase  
 **الحل:**
-- تحقق من `VITE_GOOGLE_CLIENT_ID` في `.env.local`
-- تحقق من Authorized Redirect URIs في Google Cloud Console
+1. Supabase Dashboard → Authentication → Providers → Google
+2. ✅ Enabled = Yes
+3. أضف Client ID + Client Secret من Google Cloud Console
+
+### 7.5 خطأ TypeScript `published does not exist in type 'TestModel'`
+**السبب:** الحقل `published` موجود في قاعدة البيانات لكن مفقود من `TestModel`  
+**الحل:** تم الإصلاح في `src/features/exam/src/types.ts` بإضافة `published?: boolean`
+
+### 7.6 Build يفشل على Linux بسبب Rollup
+**السبب:** Rollup optional dependency bug على Ubuntu runners  
+**الحل:** استخدم `npm install --force` بدلاً من `npm ci` في CI workflows
 
 ---
 
 ## 8. الأمان
 
 ### 8.1 متغيرات البيئة
-- ✅ استخدم `VITE_*` فقط للقيم العامة
+- ✅ استخدم `VITE_*` فقط للقيم العامة (مُررة من GitHub Secrets للـ Build)
 - ❌ لا تستخدم `SERVICE_ROLE_KEY` في الكود الأمامي
 - ✅ فعّل RLS على جميع الجداول
+- ✅ مفاتيح `VITE_*` موجودة في GitHub Secrets و Cloudflare Dashboard فقط
 
 ### 8.2 RLS Policies
 تأكد من عدم وجود Policies مفتوحة:
 ```sql
--- تحقق من absence of overly permissive policies
 SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
 FROM pg_policies
 WHERE tablename IN ('profiles', 'courses', 'groups');
 ```
 
-### 8.3 CORS
-في Supabase Dashboard → Settings → API:
-- أضف نطاق موقعك إلى **Allowed Origins**
+### 8.3 Auth Security Check في CI
+الـ workflow `ci.yml` يحتوي على job `security-check` يمنع تسريب أسرار للعميل:
+```bash
+# يرفض Build إذا وجد SERVICE_ROLE_KEY أو Gemini/Resend API Keys في الكود
+```
 
 ---
 
@@ -288,7 +308,7 @@ npm update
 
 ### 9.2 مراقبة الأخطاء
 - فعّل Supabase Logs → Database → Authentication
-- فعّل مراقبة أخطاء الواجهة عند الحاجة عبر آلية موثقة وخارج نطاق هذا الملف حالياً
+- فعّل مراقبة أخطاء الواجهة عند الحاجة
 
 ### 9.3 النسخ الاحتياطي
 ```bash
@@ -300,23 +320,25 @@ supabase db dump -f backup.sql
 
 ## 10. قائمة التحقق النهائية (Checklist)
 
-- [ ] Supabase project منشأ ومتصل
-- [ ] Migrations منفذة بنجاح
-- [ ] RLS Policies مفعلة على جميع الجداول
-- [ ] Google OAuth مفعل ويعمل
-- [ ] Edge Function `delete-account` منشورة
-- [ ] `.env.local` مكتمل بالقيم الصحيحة
-- [ ] `npm run lint` يمر بدون أخطاء
-- [ ] `npm run build` ينتج `dist/` صالح
-- [ ] الموقع المنشور يعمل على `https://your-domain.com`
+- [x] Supabase project منشأ ومتصل
+- [x] Migrations منفذة بنجاح (232 rows seeded)
+- [x] RLS Policies مفعلة على جميع الجداول
+- [x] Google OAuth مفعل في Supabase + Google Cloud Console
+- [x] Edge Function `delete-account` منشورة
+- [x] `VITE_*` variables في GitHub Secrets و Cloudflare Dashboard
+- [x] `npm run lint` يمر بدون أخطاء
+- [x] `npm run build` ينتج `dist/` صالح
+- [x] CI workflows (`ci.yml` + `deploy-web.yml`) شغالة
+- [x] Cloudflare Pages ينشر تلقائيًا من GitHub Actions
+- [ ] الموقع المنشور يعمل على `https://svu-community.pages.dev`
 - [ ] تسجيل حساب جديد + تأكيد البريد يعمل
 - [ ] تسجيل الدخول عبر Google يعمل
 - [ ] زر حذف الحساب يعمل (يتطلب Edge Function)
 - [ ] زر نسيت كلمة المرور يعمل
 - [ ] التوجيه إلى `/dashboard` بعد تسجيل الدخول يعمل
-- [ ] حماية المسارات (`ProtectedRoute`) تعمل
+- [ ] حماية المسارات (`GuestRoute`) تعمل
 
 ---
 
 تم إنشاء هذا الملف بتاريخ: 2026-06-18  
-آخر تحديث: 2026-06-18
+آخر تحديث: 2026-06-20

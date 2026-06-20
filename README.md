@@ -296,7 +296,7 @@ CREATE POLICY "Users can update own profile"
 
 ## كيفية التشغيل
 
-1. تثبيت التبعيات: `npm install`
+1. تثبيت التبعيات: `npm install --force`
 2. إنشاء `.env.local` من `.env.example`:
    ```txt
    VITE_SUPABASE_URL=your_url
@@ -304,7 +304,25 @@ CREATE POLICY "Users can update own profile"
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
    ```
 3. تشغيل الخادم: `npm run dev`
-4. فتح `http://localhost:3000`
+4. فتح `http://localhost:5173`
+
+---
+
+## CI/CD والنشر
+
+### Workflows
+| ملف | الوظيفة |
+|---|---|
+| `.github/workflows/ci.yml` | lint + typecheck + test + build + deploy migrations to Supabase |
+| `.github/workflows/deploy-web.yml` | build + deploy frontend to Cloudflare Pages |
+
+### environment Variables
+- **GitHub Secrets**: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `SUPABASE_ACCESS_TOKEN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_CLIENT_ID`
+- **Cloudflare Pages Dashboard**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_CLIENT_ID`
+
+### Build Notes
+- استخدم `npm install --force` بدلاً من `npm ci` في CI بسبب Rollup optional dependency bug على Linux
+- Cloudflare Pages ينشر بناءً على GitHub Actions (مش Cloudflare direct integration)
 
 ## أوامر npm
 
