@@ -19,7 +19,7 @@ export interface TestSettings {
 export interface TestModel {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   createdAt: number;
   settings: TestSettings;
   questions: Question[];
