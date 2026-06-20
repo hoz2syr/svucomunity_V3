@@ -29,7 +29,8 @@ describe('supabase client', () => {
     vi.stubEnv('VITE_SUPABASE_URL', '');
     vi.stubEnv('VITE_SUPABASE_ANON_KEY', '');
 
-    const { signInWithGoogle, handleAuthCallback, deleteOwnAccount } = await import('@/src/lib/supabase');
+    const { signInWithGoogle, handleAuthCallback } = await import('@/src/lib/supabase');
+    const { deleteOwnAccount } = await import('@/src/services/account.service');
 
     await expect(signInWithGoogle()).resolves.toEqual({ data: null, error: { message: missingSupabaseEnvMessage } });
     await expect(handleAuthCallback()).resolves.toEqual({ data: { session: null }, error: { message: missingSupabaseEnvMessage } });
@@ -47,5 +48,14 @@ describe('supabase client', () => {
     await expect(loginWithPassword('a@b.com', 'Password123!')).resolves.toEqual({ data: null, error: { message: missingSupabaseEnvMessage } });
     await expect(registerWithEmail('Student', 'a@b.com', 'Password123!')).resolves.toEqual({ data: null, error: { message: missingSupabaseEnvMessage } });
     await expect(fetchNotifications()).resolves.toEqual({ data: [], error: { message: missingSupabaseEnvMessage } });
+  });
+
+  it('returns missing-env error from deleteOwnAccount via the service layer', async () => {
+    vi.stubEnv('VITE_SUPABASE_URL', '');
+    vi.stubEnv('VITE_SUPABASE_ANON_KEY', '');
+
+    const { deleteOwnAccount } = await import('@/src/services/account.service');
+
+    await expect(deleteOwnAccount()).resolves.toEqual({ ok: false, error: missingSupabaseEnvMessage });
   });
 });

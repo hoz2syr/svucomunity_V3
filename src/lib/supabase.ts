@@ -142,8 +142,8 @@ export const handleAuthCallback = async (): Promise<AuthCallbackResult> => {
           })
           .select()
           .single();
-        if (profileWriteError && profileWriteError.code !== '23505' && profileWriteError.message?.includes('row-level security')) {
-          return { data, error: new SupabaseOperationError('PROFILE_RLS_BLOCKED', profileWriteError.message) };
+        if (profileWriteError) {
+          return { data, error: { message: profileWriteError.message } };
         }
       }
     }
@@ -157,43 +157,3 @@ export const handleAuthCallback = async (): Promise<AuthCallbackResult> => {
 export type DeleteOwnAccountResult =
   | { ok: true }
   | { ok: false; error: string };
-
-export const deleteOwnAccount = async (): Promise<DeleteOwnAccountResult> => {
-  if (!hasSupabaseEnv()) {
-    return {
-      ok: false,
-      error: missingSupabaseEnvMessage,
-    };
-  }
-
-  try {
-    const client = getSupabaseClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await client.auth.getUser();
-
-    if (userError || !user) {
-      return {
-        ok: false,
-        error: userError?.message || 'تعذر التحقق من الجلسة الحالية.',
-      };
-    }
-
-    const { error: fnError } = await client.functions.invoke('delete-account');
-
-    if (fnError) {
-      return {
-        ok: false,
-        error: fnError.message || 'فشل حذف الحساب من المصادقة.',
-      };
-    }
-
-    return { ok: true };
-  } catch (error) {
-    return {
-      ok: false,
-      error: getErrorMessage(error),
-    };
-  }
-};

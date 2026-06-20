@@ -1,4 +1,4 @@
-# exam feature — README
+# Exam Feature — README
 
 ## Overview
 
@@ -6,6 +6,10 @@
 multiple-choice / true-false / essay tests inside SVU Community.  
 It lives entirely under `src/features/exam/` and exposes its public pages
 via the barrel `src/features/exam/index.ts`.
+
+The feature has been refactored from a flat localStorage hook-based architecture
+into a layered architecture with core services, adapters, and storage implementations,
+with comprehensive test coverage.
 
 ---
 
@@ -16,13 +20,19 @@ src/features/exam/
 ├── index.ts                    # Public barrel: Home, CreateTest, PlayTest, SavedTests
 ├── components/
 │   ├── ExamLayout.tsx          # Route layout shell (back button)
-│   └── ExamNavbar.tsx          # Feature tab navigation
+│   ├── ExamNavbar.tsx          # Feature tab navigation
+│   ├── Skeletons.tsx           # Skeleton, TestCardSkeleton, PlayTestSkeleton
+│   ├── ErrorState.tsx          # Error display with optional retry
+│   ├── TestCard.tsx            # Test card component
+│   ├── StarRating.tsx          # Star rating display
+│   └── Loading.tsx             # Full-page spinner
 └── src/
     ├── types.ts                # QuestionType, Question, TestSettings, TestModel
-    ├── components/
-    │   ├── Skeletons.tsx       # Skeleton, TestCardSkeleton, PlayTestSkeleton
-    │   ├── ErrorState.tsx      # Error display with optional retry
-    │   └── Loading.tsx         # Full-page spinner
+    ├── pages/
+    │   ├── Home.tsx            # Prompt builder landing page
+    │   ├── CreateTest.tsx      # JSON upload / paste → test creation form
+    │   ├── PlayTest.tsx        # Active test play view (pre-start / answering / results)
+    │   └── SavedTests.tsx      # Grid list of saved tests with actions
     ├── hooks/
     │   ├── index.ts            # Barrel re-export
     │   ├── usePromptPreferences.ts   # Home page prompt builder state
@@ -30,17 +40,52 @@ src/features/exam/
     │   ├── useCopyToClipboard.ts     # Clipboard abstraction
     │   ├── useTestCreator.ts         # CreateTest form logic + validation
     │   ├── usePlayTest.ts            # PlayTest state machine + timer
-    │   └── useSavedTests.ts          # SavedTests CRUD + export actions
+    │   ├── useSavedTests.ts          # SavedTests CRUD + export actions (legacy)
+    │   ├── useCoreSavedTests.ts      # SavedTests with core adapter pattern
+    │   └── useCorePlayTest.ts        # PlayTest with core adapter pattern
     ├── lib/
-    │   ├── store.ts            # localStorage CRUD (TODO: replace with Supabase)
+    │   ├── store.ts            # Legacy localStorage CRUD (TODO: replace with Supabase)
     │   ├── export.ts           # PDF (html2pdf.js) and Word (docx) generators
     │   └── utils.ts            # cn() tailwind-merge helper, escapeHtml()
-    └── pages/
-        ├── Home.tsx            # Prompt builder landing page
-        ├── CreateTest.tsx      # JSON upload / paste → test creation form
-        ├── PlayTest.tsx        # Active test play view (pre-start / answering / results)
-        └── SavedTests.tsx      # Grid list of saved tests with actions
+    ├── core/
+    │   ├── models/
+    │   │   └── test.ts          # TestModel domain model
+    │   ├── services/
+    │   │   ├── index.ts         # Barrel re-export (dead — re-exports legacy)
+    │   │   └── testService.ts   # Business logic layer (TestService)
+    │   ├── storage/
+    │   │   ├── index.ts         # Barrel re-export
+    │   │   └── localStorageTestStorage.ts  # Core localStorage implementation
+    │   └── adapters/
+    │       ├── localStorageTestStorage.ts  # Legacy adapter (wraps store.ts)
+    │       └── supabaseTestStorage.ts       # Supabase backend adapter
+    └── services/
+        └── exam.supabase.ts     # Supabase mappers: toTestRow, toTestModel, fetch/upsert/delete
 ```
+
+---
+
+## Architecture Layers
+
+### Legacy Path (Flat)
+- `useTestCreator` → `lib/store.ts` → localStorage
+- `useSavedTests` → `lib/store.ts` → localStorage
+- Simple, direct localStorage access
+
+### New Path (Layered)
+```
+useCoreSavedTests → TestStorageAdapter → localStorageTestStorage
+                                         → supabaseTestStorage
+useCorePlayTest  → TestStorageAdapter → localStorageTestStorage
+```
+- Adapter pattern allows swapping storage backends
+- Core `localStorageTestStorage` implements the canonical CRUD logic
+- Legacy adapter wraps `lib/store.ts` for backward compatibility
+
+### Known Issues
+- `core/services/testService.ts` exists but is not integrated into hooks yet
+- `core/services/index.ts` is a dead re-export
+- Two separate `LocalFirstTestStorage` implementations exist with different APIs
 
 ---
 
@@ -143,14 +188,16 @@ Both are slated for replacement by the Supabase backend (see `BACKEND_SCHEMA.md`
 
 ## Hooks Reference
 
-| Hook | Responsibility |
-|---|---|
-| `usePromptPreferences` | Persisted form state for AI prompt builder |
-| `usePromptGenerator` | Memoised Arabic prompt string from preferences |
-| `useCopyToClipboard` | Clipboard write with fallback + 2s success flash |
-| `useTestCreator` | Create test form state, file upload, JSON parsing, validation |
-| `usePlayTest` | Full test-play state machine: fetch, timer, select, reveal, score |
-| `useSavedTests` | Listing, delete-confirm, PDF/Word export loading states |
+| Hook | Responsibility | Architecture |
+|---|---|---|
+| `usePromptPreferences` | Persisted form state for AI prompt builder | Legacy |
+| `usePromptGenerator` | Memoised Arabic prompt string from preferences | Legacy |
+| `useCopyToClipboard` | Clipboard write with fallback + 2s success flash | Legacy |
+| `useTestCreator` | Create test form state, file upload, JSON parsing, validation | Legacy → `lib/store.ts` |
+| `usePlayTest` | Full test-play state machine: fetch, timer, select, reveal, score | Legacy |
+| `useSavedTests` | Listing, delete-confirm, PDF/Word export loading states | Legacy → `lib/store.ts` |
+| `useCoreSavedTests` | SavedTests CRUD via core adapter pattern (localStorage/Supabase) | Core adapter |
+| `useCorePlayTest` | PlayTest via core adapter pattern | Core adapter |
 
 ---
 

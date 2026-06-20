@@ -1,5 +1,11 @@
 # Auth Flow
 
+## ملاحظة هامة حول RLS و Profile Creation
+بعد إصلاح خطأ RLS في upsert البروفايل:
+- يتم إنشاء البروفايل **تلقائياً** عبر `handle_new_user` trigger في Supabase بعد إنشاء المستخدم.
+- `completeAuthCallback` يتوقف عن استدعاء `upsertProfile` عندما `email_confirmed_at` غير متوفر (خلال OAuth callback قبل اكتمال الجلسة).
+- عند حدوث خطأ RLS (42501) أثناء upsert، يتم امتصاص الخطأ بشكل صامت وعدم إيقاف تدفق المصادقة.
+
 ## المخطط
 
 ```mermaid
@@ -145,6 +151,8 @@ sequenceDiagram
 - تنبيهات الإشعارات تعمل في وضع placeholder في Guest Mode.
 - `GuestButton` موجود في `src/components/shared/GuestButton.tsx` ويستخدم `motion.button`.
 - `AuthProvider` يستدعي `completeAuthCallback`.
-- `AuthCallback` الصفحة تستدعي نفس العملية أيضاً — قد يؤدي إلى تكرار `upsertProfile`.
+- `completeAuthCallback` يتعامل مع RLS errors من `upsertProfile` بشكل صامت — لا يظهر خطأ للمستخدم.
 - `loginSchema` يسمح بـ 6 أحرف، بينما `registerSchema` يطلب 8 أحرف.
 - `ProtectedRoute` غير موصول حالياً — يحتاج إنشاء ميزة المجموعات أولاً.
+- `handle_new_user` trigger في Supabase هو المصدر الوحيد للحقيقة لإنشاء البروفايل الجديد.
+- تمت إضافة اختبارات جديدة: `tests/lib/supabase.callback.test.ts` و `tests/services/auth.service.test.ts` تغطي سيناريوهات RLS.

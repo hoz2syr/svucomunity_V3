@@ -4,9 +4,23 @@ import { useTestCreator } from '@/src/features/exam/src/hooks/useTestCreator';
 
 const mockNavigate = vi.fn();
 
+const mockAuthState = { session: null, loading: false, envMissing: false, signIn: vi.fn(), signOut: vi.fn() };
+const mockGetState = vi.fn(() => mockAuthState);
+const mockSubscribe = vi.fn(() => () => {});
+
+vi.mock('@/src/contexts/AuthContext', () => ({
+  useAuth: () => mockAuthState,
+}));
+
+vi.mock('@/src/features/exam/src/services/exam.supabase', () => ({
+  upsertTestToSupabase: vi.fn().mockResolvedValue({ error: null }),
+}));
+
 describe('useTestCreator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuthState.session = null;
+    localStorage.clear();
   });
 
   it('initializes with empty state', () => {
@@ -36,13 +50,14 @@ describe('useTestCreator', () => {
   it('saves valid JSON array and navigates', () => {
     const { result } = renderHook(() => useTestCreator());
     const validJson = JSON.stringify([
-      { id: 'q1', type: 'multiple_choice', text: 'سؤال 1', options: ['أ', 'ب'], correctAnswer: 'أ' }
+      { id: 'q1', type: 'multiple_choice', text: 'سؤال 1', options: ['أ', 'ب'], correctAnswer: 'أ' },
     ]);
     act(() => result.current.setTestTitle('اختبار صالح'));
     act(() => result.current.setJsonText(validJson));
     act(() => result.current.handleCreate(mockNavigate));
     expect(mockNavigate).toHaveBeenCalledWith('/exam/saved');
     expect(result.current.error).toBe('');
+    expect(localStorage.getItem('svu_tests_db')).not.toBeNull();
   });
 
   it('strips markdown code fences before parsing', () => {

@@ -105,9 +105,22 @@ tests/
 │       ├── components/
 │       │   ├── Skeletons.test.tsx
 │       │   └── ErrorState.test.tsx
-│       └── hooks/
-│           ├── useTestCreator.test.ts
-│           └── usePromptPreferences.test.ts
+│       ├── core/
+│       │   ├── adapters/
+│       │   │   ├── localStorageTestStorage.test.ts
+│       │   │   └── supabaseTestStorage.test.ts
+│       │   └── storage/
+│       │       └── localStorageTestStorage.test.ts
+│       ├── hooks/
+│       │   ├── useCoreSavedTests.test.ts
+│       │   ├── useCorePlayTest.test.ts
+│       │   ├── useTestCreator.test.ts
+│       │   ├── usePromptPreferences.test.ts
+│       │   └── usePromptGenerator.test.ts
+│       └── services/
+│           └── exam.supabase.test.ts
+├── lib/
+│   └── supabase.callback.test.ts
 ├── pages/
 │   ├── Home.test.tsx
 │   └── Login.test.tsx
@@ -126,19 +139,24 @@ tests/
 
 ### تغطية الاختبارات
 
-| المجال | الحالة |
-|---|---|
-| Auth | جيد |
-| Dashboard components | جيد |
-| Exam feature | جيد (store, utils, hooks, components) |
-| Landing sections | ضعيف (FinalCTASection فقط) |
-| ProtectedRoute | موجود لكن غير موصول — اختباراته قديمة |
-| ErrorBoundary | غير مختبر |
-| Integration | Partial (useRateLimit.integration.test.ts) |
+| المجال | الحالة | عدد الاختبارات |
+|---|---|---|
+| Auth | ممتاز | 11 (core + callback) |
+| Auth service | ممتاز | 5 |
+| Supabase tests | Good | 5 |
+| Dashboard components | جيد | 21 |
+| Exam feature | جيد جداً | 68+ (core + hooks + adapter + service + component) |
+| Landing sections | جيد | 9 |
+| ProtectedRoute | موجود لكن غير موصول | 3 |
+| Zustand stores | جيد | 8 |
+| Custom hooks | جيد | 23 |
+| Validity/schemas | جيد | 2 |
+| Total | | 274 test cases |
 
 ### ملاحظات
+- `lib/supabase.callback.test.ts` يغطي سيناريوهات `handleAuthCallback` (RLS/no-env).
+- `tests/features/exam/` لها تغطية ممتازة تشمل core layer جديد و adapter و service mapper.
+- `tests/components/ProtectedRoute.test.tsx` موجود لكن المكون غير موصول — يمكن حذفه لاحقاً.
+- `tests/dashboard/landing/` موجود لكن ملف landing المحلي في `src/components/landing/` لا يزال بدون تغطية كاملة.
+- `Zustand stores` و `TanStack Query` لهما اختبارات لكنهما غير مستخدمين في production حالياً.
 - `src/lib/rateLimit.ts.spec.ts` خارج نمط vitest الحالي — يحتاج نقل أو تحديث config.
-- `tests/features/exam/` لها تغطية جيدة.
-- `tests/components/ProtectedRoute.test.tsx` موجود لكن المكون غير موصول — يمكن حذفه أو تحويله.
-- `tests/dashboard/landing/` موجود لكن ملف landing المحلي في `src/components/landing/` لا يزال بدون تغطية كافية.
-- `Zustand stores` و `TanStack Query` لهما اختبارات لكنهما غير مستخدمين في production.

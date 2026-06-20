@@ -339,26 +339,27 @@ CREATE POLICY "Users can update own profile"
 
 ## حالة الاختبارات
 
+- المجموع: 65 ملف اختبار / 274 اختبار.
 - `tests/auth.test.tsx` يغطي auth flows.
-- `tests/supabase.test.ts` يغطي lazy/no-env Supabase behavior.
-- `tests/services/*.test.ts` يغطي service layer.
-- `tests/dashboard/*.test.tsx` يغطي dashboard modals.
-- `tests/InputField.test.tsx` يغطي UI input behavior.
+- `tests/supabase.test.ts` + `tests/lib/supabase.callback.test.ts` يغطيان lazy/no-env Supabase behavior.
+- `tests/services/*.test.ts` يغطي service layer بالكامل (auth, profile, account, notification, env).
+- `tests/dashboard/*.test.tsx` + `tests/components/dashboard/*` يغطي dashboard modals و custom hooks.
+- `tests/features/exam/` يغطي الميزة بالكامل:
+  - `store.test.ts`, `utils.test.ts`
+  - `core/adapters/localStorageTestStorage.test.ts`, `core/adapters/supabaseTestStorage.test.ts`
+  - `core/storage/localStorageTestStorage.test.ts`
+  - `hooks/useCoreSavedTests.test.ts`, `hooks/useTestCreator.test.ts`, `hooks/usePromptPreferences.test.ts`
+  - `services/exam.supabase.test.ts`
+  - `components/Skeletons.test.tsx`, `components/ErrorState.test.tsx`
+- `tests/components/**` يغطي UI components و landing sections.
+- `tests/hooks/*` يغطي custom hooks.
 - `tests/setup.ts` يثبت mocks للـ jsdom.
 
 ## ملاحظات للتطوير المستقبلي
 
-- [x] إضافة React Hook Form + Zod للنماذج
-- [x] إضافة React Query للاستعلامات وذاكرة تخزين مؤقت
-- [x] إضافة Zustand لإدارة الحالة العامة
-- [x] نظام إشعارات حقيقي عبر Supabase + جدول `notifications`
-- [x] Service layer لـ Supabase
-- [x] Lazy Supabase client بدون crash عند نقص `.env.local`
 - [ ] تحسين جاهزية الإنتاج عبر المهمة 10
-- [ ] تحسين SEO بـ React Helmet
-- [x] Storybook لتوثيق المكونات
-- [x] تفكيك Dashboard و Modals
 - [ ] تحسين SEO بـ React Helmet
 - [ ] إضافة PWA support
 - [ ] تحليل حجم الحزمة (`rollup-plugin-visualizer`)
 - [ ] إضافة Husky + lint-staged لمنع كود غير مطابق
+- [ ] توحيد طبقة التخزين في ميزة الاختبارات (تبسيط بنية `core/`)

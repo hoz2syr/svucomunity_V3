@@ -7,8 +7,8 @@ vi.mock('@/src/lib/supabase', () => ({
   hasSupabaseEnv: vi.fn(() => true),
   missingSupabaseEnvMessage: MESSAGE,
   getErrorMessage: (error: unknown) => error instanceof Error ? error.message : String(error),
+  handleAuthCallback: vi.fn(),
 }));
-vi.mock('@/src/services/profile.service', () => ({ upsertProfile: vi.fn() }));
 
 describe('auth service', () => {
   const mockSupabase = {
@@ -56,5 +56,33 @@ describe('auth service', () => {
     const result = await loginWithPassword('a@example.com', 'Password123!');
     expect(result.data).toBeNull();
     expect(result.error?.message).toContain('Missing Supabase environment');
+  });
+
+  it('completeAuthCallback passes through libHandleAuthCallback result', async () => {
+    const lib = await import('@/src/lib/supabase');
+    const { completeAuthCallback } = await import('@/src/services/auth.service');
+
+    const successData = { session: { user: { id: 'user-1', email: 'u@example.com' } } };
+    vi.mocked(lib.hasSupabaseEnv).mockReturnValue(true);
+    vi.mocked(lib.handleAuthCallback).mockResolvedValue({ data: successData, error: null });
+
+    const result = await completeAuthCallback();
+
+    expect(result.data).toEqual(successData);
+    expect(result.error).toBeNull();
+  });
+
+  it('completeAuthCallback returns error from libHandleAuthCallback', async () => {
+    const lib = await import('@/src/lib/supabase');
+    const { completeAuthCallback } = await import('@/src/services/auth.service');
+
+    const rlsError = { message: 'new row violates row-level security policy' };
+    vi.mocked(lib.hasSupabaseEnv).mockReturnValue(true);
+    vi.mocked(lib.handleAuthCallback).mockResolvedValue({ data: { session: null }, error: rlsError });
+
+    const result = await completeAuthCallback();
+
+    expect(result.data).toEqual({ session: null });
+    expect(result.error?.message).toBe(rlsError.message);
   });
 });

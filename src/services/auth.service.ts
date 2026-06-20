@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { handleAuthCallback as libHandleAuthCallback, hasSupabaseEnv, missingSupabaseEnvMessage, upsertProfile } from '../lib/supabase';
+import { handleAuthCallback as libHandleAuthCallback, hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/supabase';
 import type { SupabaseOperationError } from '../types/supabase';
 
 export type AuthCallbackResult = {
@@ -110,13 +110,6 @@ export const completeAuthCallback = async (): Promise<AuthCallbackResult> => {
     const result = await libHandleAuthCallback();
     if (result.error) {
       return { data: { session: null }, error: result.error };
-    }
-
-    if (result.data?.session?.user) {
-      const profileResult = await upsertProfile(result.data.session.user);
-      if (profileResult.error && !profileResult.error.message?.includes('row-level security')) {
-        return { data: result.data, error: profileResult.error };
-      }
     }
 
     return result as AuthCallbackResult;
