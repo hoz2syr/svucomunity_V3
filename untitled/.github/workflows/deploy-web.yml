@@ -3,11 +3,10 @@ name: Deploy Web
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - '**'
-      - '!apps/**'
-      - '!**/README.md'
+      - '!README.md'
 
 jobs:
   deploy:
