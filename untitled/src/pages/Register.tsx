@@ -6,6 +6,7 @@ import { useAuthForm } from '../hooks/useAuthForm';
 import { RegisterInput } from '../schemas/auth.schema';
 import { AuthCard } from '../components/shared/AuthCard';
 import { InputField } from '../components/ui/InputField';
+import { GuestButton } from '../components/shared/GuestButton';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
 import { loginWithGoogle, registerWithEmail } from '../services/auth.service';
 
@@ -196,7 +197,9 @@ export const RegisterPage = () => {
             8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص
           </p>
         )}
-      </div>
-    </AuthCard>
+
+        <GuestButton className="w-full" label="المتابعة كزائر" />
+        </div>
+      </AuthCard>
   );
 };

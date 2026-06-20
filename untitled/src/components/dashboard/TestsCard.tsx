@@ -8,8 +8,8 @@ export const TestsCard = () => (
     icon={<TestTube2 />}
     iconBg="#0e7490"
     iconColor="#22d3ee"
-    linkTo="/dashboard/tests"
-    linkLabel="عرض الاختبارات"
+    linkTo="/exam"
+    linkLabel="بدء اختبار"
     index={3}
   />
 );

@@ -8,7 +8,11 @@
 | `/login` | `LoginPage` | عام |
 | `/register` | `RegisterPage` | عام |
 | `/auth/callback` | `AuthCallback` | عام |
-| `/dashboard` | `DashboardPage` عبر `ProtectedRoute` | محمي |
+| `/dashboard` | `DashboardPage` عبر `GuestRoute` | عام (يدعم الزائر) |
+| `/exam` | `ExamHome` عبر `GuestRoute` + `ExamLayout` | عام |
+| `/exam/create` | `CreateTest` عبر `GuestRoute` + `ExamLayout` | عام |
+| `/exam/saved` | `SavedTests` عبر `GuestRoute` + `ExamLayout` | عام |
+| `/exam/play/:id` | `PlayTest` عبر `GuestRoute` + `ExamLayout` | عام |
 | `*` | `NotFoundPage` | عام |
 
 ## مخطط المسارات
@@ -19,47 +23,49 @@ graph TD
   B[/login] --> I[LoginPage]
   C[/register] --> J[RegisterPage]
   D[/auth/callback] --> K[AuthCallback]
-  E[/dashboard] --> L[ProtectedRoute]
+  E[/dashboard] --> L[GuestRoute]
   L --> M[DashboardPage]
-  F[*] --> N[NotFoundPage]
+  F[/exam] --> N[GuestRoute]
+  N --> O[ExamLayout]
+  O --> P[ExamHome]
+  F1[/exam/create] --> N1[GuestRoute]
+  N1 --> O1[ExamLayout]
+  O1 --> P1[CreateTest]
+  F2[/exam/saved] --> N2[GuestRoute]
+  N2 --> O2[ExamLayout]
+  O2 --> P2[SavedTests]
+  F3[/exam/play/:id] --> N3[GuestRoute]
+  N3 --> O3[ExamLayout]
+  O3 --> P3[PlayTest]
+  G[*] --> Q[NotFoundPage]
 ```
 
-## السلوك
+## سلوك كل مسار
 
 ### `/`
 - تعرض الصفحة الرئيسية.
-- تحتوي على:
-  - Navbar
-  - Hero
-  - LandingSections
-  - Footer
+- تحتوي على: Navbar، Hero، LandingSections، Footer.
 
 ### `/login`
-- تعرض نموذج تسجيل الدخول.
-- تدعم:
-  - Email/password
-  - Google OAuth
-  - Forgot password modal
+- نموذج تسجيل الدخول.
+- Email/password + Google OAuth + Forgot password modal.
 
 ### `/register`
-- تعرض نموذج إنشاء الحساب.
-- تدعم:
-  - Email/password
-  - Google OAuth
-  - success state بعد التسجيل
+- نموذج إنشاء الحساب.
+- Email/password + Google OAuth + success state.
 
 ### `/auth/callback`
-- تستلم redirect من Supabase.
-- تكمل الجلسة.
-- توجه إلى `/dashboard` أو `/login` حسب الحالة.
+- تستلم redirect من Supabase وتكمل الجلسة.
 
 ### `/dashboard`
-- محمية بواسطة `ProtectedRoute`.
-- تتطلب جلسة فعالة.
-- إذا لم تكن الجلسة موجودة، تعيد التوجيه إلى `/login`.
+- محمي بـ `GuestRoute` (يقبل المُسجّل والزائر).
+- الزائر يحصل على بيانات تجريبية placeholder.
+
+### `/exam`, `/exam/create`, `/exam/saved`, `/exam/play/:id`
+- كلها تستخدم `GuestRoute` + `ExamLayout`.
+- ميزة الاختبارات مستقلة تماماً داخل `features/exam/`.
 
 ## ملاحظات
 
-- `ProtectedRoute` موجود في `src/components/ProtectedRoute.tsx`.
 - المسارات تعتمد على `react-router-dom`.
-- لا توجد حماية إضافية داخل الصفحة نفسها.
+- `ProtectedRoute` غير مستخدم حالياً في `App.tsx` — محجوز لميزة **المجموعات (Study Groups)** المستقبلية التي ستكون متاحة للمُسجّلين فقط.

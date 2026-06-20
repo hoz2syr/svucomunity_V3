@@ -30,7 +30,7 @@ Home
 - Login موجود.
 - Google OAuth موجود.
 - Forgot password موجود.
-- ProtectedRoute موجود.
+- GuestRoute هو النشط حالياً (يقبل الزائر).
 
 ## 3. Register → Login
 
@@ -110,8 +110,42 @@ Home
 - موجود.
 - simulation فقط.
 
-## ملخص
+## 9. Guest Mode Entry
 
-- الواجهة تغطي المسارات الأساسية.
-- التجربة بعد تسجيل الدخول غير مكتملة.
-- لا توجد واجهة فعلية للمجموعات أو المقررات أو الجدول داخل dashboard.
+```txt
+Home / Login / Register
+  -> GuestButton
+  -> enableGuestMode()
+  -> sessionStorage.setItem('svu-guest-mode', 'true')
+  -> navigate /dashboard
+  -> Dashboard renders without auth
+```
+
+### الحالة
+- `GuestButton` متواجد في FinalCTASection و Login و Register.
+- `GuestRoute` يسمح بالدخول إلى `/dashboard` بدون جلسة.
+- الإشعارات والبيانات تعمل في وضع placeholder.
+- لا يوجد واجهة فعلية للمجموعات أو المقررات أو الجدول داخل dashboard.
+- `EmptyDashboardState` يعرض 4 بطاقات ميزات لكن الروابط الداخلية غير منفذة بعد.
+
+## 10. Exam Feature Flow
+
+```txt
+Home
+  -> copy Arabic AI prompt
+  -> navigate /exam/create
+  -> paste JSON или upload .json
+  -> fill form (title, description, time limit)
+  -> saveTest → localStorage
+  -> navigate /exam/saved
+  -> SavedTests shows grid of TestCards
+  -> play / PDF / Word / delete
+  -> PlayTest with timer and feedback modes
+```
+
+### الحالة
+- ميزة كاملة ومستقلة.
+- تستخدم localStorage (svu_tests_db).
+- تصدير PDF و Word يعمل.
+- Tests موجودة لكن Not interconnected مع Dashboard.
+- BACKEND_SCHEMA.md موجود للتحويل لـ Supabase.

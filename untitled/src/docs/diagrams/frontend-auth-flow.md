@@ -7,6 +7,7 @@ sequenceDiagram
   participant H as Hook
   participant S as Service
   participant A as AuthContext
+  participant G as GuestContext
   participant B as Supabase
 
   U->>P: submit login/register
@@ -20,9 +21,19 @@ sequenceDiagram
   A-->>P: redirect
 ```
 
-## Notes
+## مكونات المصادقة
 
-- `AuthContext` is the central auth state holder.
-- `ProtectedRoute` depends on `AuthContext`.
-- `src/services/auth.service.ts` is the main auth service.
-- `src/lib/supabase.ts` still has legacy auth helpers.
+| المكون | الحالة |
+|---|---|
+| `AuthContext` | نشط |
+| `GuestContext` | نشط |
+| `GuestRoute` | **نشط** — يُستخدم في App.tsx |
+| `ProtectedRoute` | **محجوز** — لميزة المجموعات |
+
+## ملاحظات
+
+- `AuthContext` هو مركز حالة المصادقة.
+- `GuestRoute` يعتمد على `AuthContext` + `GuestContext`.
+- `src/services/auth.service.ts` هو الخدمة الرئيسية للمصادقة.
+- `src/lib/supabase.ts` يحتوي على دوال legacy بجانب `getSupabaseClient`.
+- `loginSchema` يسمح بـ 6 أحرف، بينما `registerSchema` يطلب 8 أحرف.

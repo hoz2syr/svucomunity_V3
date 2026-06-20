@@ -7,11 +7,10 @@ graph TD
    A[DashboardPage] --> B[DashboardLayout]
   A --> C[DashboardHeader]
   A --> D[EmptyDashboardState]
-  D --> D1[FeatureCard]
-  D --> D2[StudyGroupsCard]
-  D --> D3[CourseMaterialsCard]
-  D --> D4[ScheduleExtractionCard]
-  D --> D5[TestsCard]
+  D --> D1[StudyGroupsCard]
+  D --> D2[CourseMaterialsCard]
+  D --> D3[ScheduleExtractionCard]
+  D --> D4[TestsCard]
   A --> E[SettingsModal]
   A --> F[LogoutModal]
   A --> G[DeleteAccountModal]
@@ -25,31 +24,36 @@ graph TD
 
 ## الحالة الحالية
 
-- Dashboard shell موجود.
-- Header موجود.
-- Notifications menu موجود.
-- Profile menu موجود.
+- Dashboard shell موجود ومكتمل.
+- Header موجود مع NotificationMenu + ProfileMenu.
 - Settings modal موجود.
 - Logout modal موجود.
 - Delete account modal موجود.
-- `EmptyDashboardState` لا يزال فارغاً.
+- `EmptyDashboardState` يعرض حالياً 4 بطاقات ميزات (placeholder).
+- `GuestRoute` هو الحارس النشط لـ `/dashboard` — يقبل المُسجِّل والزائر.
+- `ProtectedRoute` غير موصول — محجوز لميزة المجموعات المستقبلية.
+- `notificationStore` و `uiStore` موجودان لكن غير مستخدمين حالياً.
+- `TanStack Query` مهيأ لكن لا يستخدم فعلياً لجلب البيانات.
 
 ## التدفق
 
 1. المستخدم يدخل `/dashboard`.
-2. `ProtectedRoute` يتحقق من الجلسة.
-3. إذا كانت الجلسة غير موجودة، يعيد التوجيه إلى `/login`.
-4. إذا كانت الجلسة موجودة، يتم عرض `DashboardPage`.
-5. `DashboardPage` تحمل notifications.
-6. المستخدم يستطيع فتح:
-   - notifications
-   - settings
+2. `GuestRoute` يتحقق:
+   - إذا كانت هناك جلسة Supabase → يسمح.
+   - إذا كان `isGuest = true` (من sessionStorage) → يسمح.
+   - وإلا → يعيد التوجيه إلى `/login`.
+3. `DashboardPage` تُعرض مع `EmptyDashboardState`.
+4. `useDashboardNotifications`:
+   - في Guest Mode → no API call (short-circuit).
+   - في Logged-in Mode → fetch from Supabase.
+5. المستخدم يستطيع فتح:
+   - notifications (placeholder in guest mode)
+   - settings (logged-in only)
    - logout
    - delete account
 
 ## ملاحظات
 
-- لا توجد واجهة فعلية للمجموعات أو المقررات.
-- لا توجد لوحة نشاط أو جدول أو محتوى داخلي.
-- `notificationStore` غير مستخدم.
-- `TanStack Query` موجود لكن لا يستخدم في notifications.
+- لا توجد واجهة فعلية للمجموعات بعد — Cards هي placeholders.
+- ميزة الاختبارات (Exam) موجودة بشكل منفصل تحت `/exam/*` ولا تمر عبر Dashboard.
+- ميزة المجموعات (Study Groups) ستُضاف مستقبلاً وستكون محمية بـ `ProtectedRoute`.

@@ -3,6 +3,7 @@ import { AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DeleteAccountModal, LogoutModal, SettingsModal } from '../../components/dashboard';
 import { useAuth } from '../../contexts/AuthContext';
+import { useGuest } from '../../contexts/GuestContext';
 import { deleteOwnAccount, signOutCurrentUser } from '../../services/account.service';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
@@ -21,6 +22,7 @@ const getUser = (session: ReturnType<typeof useAuth>['session'], profile: Return
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const { session, profile, loading: authLoading } = useAuth();
+  const { isGuest, enableGuestMode } = useGuest();
   const {
     profileMenuRef,
     isProfileMenuOpen,
@@ -43,7 +45,6 @@ export const DashboardPage = () => {
 
   useEffect(() => {
     if (!isProfileMenuOpen) return;
-
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setIsProfileMenuOpen(false);
@@ -53,22 +54,13 @@ export const DashboardPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isProfileMenuOpen, setIsProfileMenuOpen, profileMenuRef]);
 
-  useEffect(() => {
-    if (!isProfileMenuOpen && !isNotificationsOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsProfileMenuOpen(false);
-        setIsNotificationsOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isProfileMenuOpen, isNotificationsOpen, setIsNotificationsOpen, setIsProfileMenuOpen]);
-
   const user = getUser(session, profile);
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleGuestLoginPrompt = () => {
+    enableGuestMode();
+    navigate('/login', { replace: true });
+  };
 
   const handleSignOut = async () => {
     const result = await signOutCurrentUser();
@@ -132,7 +124,7 @@ export const DashboardPage = () => {
           notifications={notifications}
           isProfileMenuOpen={isProfileMenuOpen}
           onToggleNotifications={() => setIsNotificationsOpen((prev) => !prev)}
-          onToggleProfile={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+          onToggleProfile={() => setIsProfileMenuOpen((prev) => !prev)}
           onOpenSettings={openSettings}
           onOpenLogout={() => {
             setIsProfileMenuOpen(false);
@@ -143,7 +135,7 @@ export const DashboardPage = () => {
             setActiveModal('delete');
           }}
         />
-        <EmptyDashboardState />
+        <EmptyDashboardState userName={user.name} />
       </main>
 
       <div className="fixed bottom-4 right-4 text-slate-600 text-xs">

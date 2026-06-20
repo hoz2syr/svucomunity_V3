@@ -15,7 +15,8 @@ src/
 │   │   └── Header.tsx
 │   ├── shared/
 │   │   ├── AuthCard.tsx
-│   │   └── ForgotPasswordModal.tsx
+│   │   ├── ForgotPasswordModal.tsx
+│   │   └── GuestButton.tsx
 │   ├── dashboard/
 │   │   ├── ModalOverlay.tsx
 │   │   ├── LogoutModal.tsx
@@ -25,6 +26,11 @@ src/
 │   │   ├── SecuritySettingsForm.tsx
 │   │   ├── useProfileSettings.ts
 │   │   ├── useSecuritySettings.ts
+│   │   ├── FeatureCard.tsx
+│   │   ├── StudyGroupsCard.tsx
+│   │   ├── CourseMaterialsCard.tsx
+│   │   ├── ScheduleExtractionCard.tsx
+│   │   ├── TestsCard.tsx
 │   │   └── index.ts
 │   ├── landing/
 │   │   ├── HeroAddition.tsx
@@ -42,18 +48,41 @@ src/
 │   │   ├── InputField.tsx
 │   │   ├── ServerError.tsx
 │   │   └── Skeleton.tsx
-│   ├── AuthBackground.tsx
-│   ├── ErrorBoundary.tsx
-│   ├── InteractiveMap.tsx
-│   ├── LandingSections.tsx
+│   ├── GuestRoute.tsx
 │   └── ProtectedRoute.tsx
 ├── contexts/
-│   └── AuthContext.tsx
+│   ├── AuthContext.tsx
+│   └── GuestContext.tsx
 ├── features/
-│   ├── account/services/index.ts
-│   ├── profile/services/index.ts
-│   ├── notifications/services/index.ts
-│   └── auth/services/index.ts
+│   └── exam/
+│       ├── index.ts
+│       ├── components/
+│       │   ├── ExamLayout.tsx
+│       │   ├── ExamNavbar.tsx
+│       │   ├── Skeletons.tsx
+│       │   ├── ErrorState.tsx
+│       │   ├── TestCard.tsx
+│       │   ├── StarRating.tsx
+│       │   └── Loading.tsx
+│       └── src/
+│           ├── types.ts
+│           ├── pages/
+│           │   ├── Home.tsx
+│           │   ├── CreateTest.tsx
+│           │   ├── PlayTest.tsx
+│           │   └── SavedTests.tsx
+│           ├── hooks/
+│           │   ├── usePlayTest.ts
+│           │   ├── useSavedTests.ts
+│           │   ├── useTestCreator.ts
+│           │   ├── usePromptPreferences.ts
+│           │   ├── usePromptGenerator.ts
+│           │   ├── useCopyToClipboard.ts
+│           │   └── index.ts
+│           └── lib/
+│               ├── store.ts        # localStorage CRUD
+│               ├── export.ts       # PDF / Word exporters
+│               └── utils.ts
 ├── hooks/
 │   ├── useAuthForm.ts
 │   ├── useRateLimit.ts
@@ -76,8 +105,6 @@ src/
 │       ├── EmptyDashboardState.tsx
 │       ├── useDashboardNotifications.ts
 │       └── useDashboardState.ts
-├── schemas/
-│   └── auth.schema.ts
 ├── services/
 │   ├── auth.service.ts
 │   ├── profile.service.ts
@@ -101,9 +128,15 @@ src/
 │   └── animation.ts
 └── stories/
     ├── Header.stories.ts
-    ├── ui/*.stories.tsx
-    └── README.md
+    └── ui/
+        ├── InputField.stories.tsx
+        ├── AuthButton.stories.tsx
+        ├── GlassCard.stories.tsx
+        ├── Skeleton.stories.tsx
+        └── ServerError.stories.tsx
 ```
+
+> **ملاحظة:** `features/*/services/index.ts` (account, profile, notifications, auth) موجودة لكن تُعيد تصدير `src/services/` ولا تُستورد في `App.tsx`.
 
 ## تقسيم المسؤوليات
 
@@ -112,12 +145,15 @@ src/
 | `pages` | صفحات كاملة ومسارات التطبيق |
 | `components/layout` | Navbar وFooter وHeader |
 | `components/ui` | مكونات واجهة قابلة لإعادة الاستخدام |
-| `components/dashboard` | مكونات لوحة التحكم |
+| `components/dashboard` | مكونات لوحة التحكم والنماذج |
 | `components/landing` | أجزاء الصفحة الرئيسية |
 | `components/shared` | مكونات مشتركة بين auth والواجهة |
+| `components/GuestRoute.tsx` | يسمح للمُسجّل والزائر بالدخول |
+| `components/ProtectedRoute.tsx` | **محجوز لميزة المجموعات (Study Groups) — يمنع الزوار فقط** |
+| `features/exam` | ميزة الاختبارات كاملة (self-contained) |
 | `hooks` | Hooks مخصصة للواجهة والمنطق التفاعلي |
-| `services` | طبقة الوصول إلى Supabase والعمليات الخلفية |
-| `stores` | Zustand stores |
+| `services` | طبقة الوصول إلى Supabase |
+| `stores` | Zustand stores (غير مستخدمة حالياً) |
 | `types` | تعريفات TypeScript |
 | `schemas` | Zod validation schemas |
 | `utils` | دوال مساعدة عامة |
@@ -125,7 +161,10 @@ src/
 
 ## ملاحظات مهمة
 
-- `src/stories` لا يجب أن يستورده أي ملف إنتاجي.
-- `features/**/services/index.ts` موجودة لكن معظم المنطق لا يزال في `src/services`.
-- `src/lib/supabase.ts` يحتوي على دوال legacy بجانب الدالة الأساسية `getSupabaseClient`.
-- `src/pages/Dashboard/EmptyDashboardState.tsx` يشير إلى أن لوحة التحكم غير مكتملة وظيفياً.
+- `stories/` لا يجب أن يستورده أي ملف إنتاجي.
+- `features/exam/` ميزة مستقلة كاملة — localStorage + PDF/Word export + vitest coverage.
+- `GuestRoute` يُستخدم حالياً لجميع المسارات بما فيها `/dashboard`.
+- `ProtectedRoute` غير مستخدم حالياً — مُحجزم لميزة **المجموعات** المستقبلية.
+- `src/lib/supabase.ts` يحتوي على دوال legacy بجانب `getSupabaseClient`.
+- `stores` ({notificationStore, uiStore}) غير مستخدمة في production حالياً.
+- `TanStack Query` مُهيأ لكن لا يستخدم فعلياً لجلب البيانات.

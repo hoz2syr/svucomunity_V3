@@ -1,0 +1,4 @@
+export { default as ExamHome } from './src/pages/Home';
+export { default as CreateTest } from './src/pages/CreateTest';
+export { default as PlayTest } from './src/pages/PlayTest';
+export { default as SavedTests } from './src/pages/SavedTests';

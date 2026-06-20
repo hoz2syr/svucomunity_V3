@@ -4,6 +4,7 @@ import { useAuthForm } from '../hooks/useAuthForm';
 import { AuthCard } from '../components/shared/AuthCard';
 import { ForgotPasswordModal } from '../components/shared/ForgotPasswordModal';
 import { InputField } from '../components/ui/InputField';
+import { GuestButton } from '../components/shared/GuestButton';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
 import { loginWithGoogle, loginWithPassword } from '../services/auth.service';
 import { useRateLimit } from '../hooks/useRateLimit';
@@ -116,6 +117,8 @@ export const LoginPage = () => {
           autoComplete="current-password"
           required
         />
+
+        <GuestButton className="w-full" label="الدخول كزائر" />
 
         <button
           type="button"

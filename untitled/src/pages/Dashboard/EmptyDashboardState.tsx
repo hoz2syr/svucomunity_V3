@@ -1,9 +1,12 @@
+import { motion } from 'motion/react';
 import { StudyGroupsCard } from '../../components/dashboard/StudyGroupsCard';
 import { CourseMaterialsCard } from '../../components/dashboard/CourseMaterialsCard';
 import { ScheduleExtractionCard } from '../../components/dashboard/ScheduleExtractionCard';
 import { TestsCard } from '../../components/dashboard/TestsCard';
 
-export const EmptyDashboardState = () => (
+type EmptyDashboardStateProps = { userName?: string };
+
+export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardStateProps) => (
   <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
     <div className="max-w-5xl mx-auto">
       <motion.div
@@ -13,7 +16,7 @@ export const EmptyDashboardState = () => (
         className="mb-10"
       >
         <h1 className="text-4xl font-black text-white tracking-tight mb-3">
-          مجتمع <span className="text-cyan-400">الاختبارات</span>
+          مرحبا بك، {userName}
         </h1>
         <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
           اختر أداة من الأسفل للبدء. كل ميزة تساعدك على تنظيم دراستك والوصول إلى موادك بسرعة.

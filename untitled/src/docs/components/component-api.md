@@ -127,6 +127,24 @@
 - الاستخدام: بطاقة ميزة الاختبارات.
 - ملاحظات: يستخدم `FeatureCard` مع أيقونة `TestTube2`.
 
+### GuestButton
+- الملف: `src/components/shared/GuestButton.tsx`
+- الاستخدام: زر دخول كزائر مشترك بين Landing و Login و Register.
+- ملاحظات:
+  - يستدعي `enableGuestMode()` من `GuestContext`.
+  - ينتقل إلى `/dashboard` بعد التفعيل.
+
+### GuestRoute
+- الملف: `src/components/GuestRoute.tsx`
+- الاستخدام: حماية مسارات وضع الزائر.
+- ملاحظات:
+  - يسمح بالوصول بدون جلسة Supabase إذا كان `isGuest` مفعلاً.
+
+### GuestContext
+- الملف: `src/contexts/GuestContext.tsx`
+- الاستخدام: إدارة حالة وضع الزائر.
+- يخزن الحالة في `sessionStorage` تحت المفتاح `svu-guest-mode`.
+
 ## Dashboard Components
 
 ### DashboardHeader
@@ -220,8 +238,16 @@
 - ملاحظات:
   - ليس متصلاً ببيانات حقيقية.
 
+### GuestRoute
+- الملف: `src/components/GuestRoute.tsx`
+- الاستخدام: يسمح بالوصول للمسارات العامة (Dashboard + Exam).
+- يقبل: المُسجِّل + الزائر (Guest Mode).
+- يعيد التوجيه لـ `/login` إذا لم تكن هناك جلسة ولا وضع زائر.
+
 ### ProtectedRoute
 - الملف: `src/components/ProtectedRoute.tsx`
-- الاستخدام: حماية المسارات.
+- الاستخدام: **محجوز لميزة المجموعات (Study Groups) المستقبلية.**
+- السلوك: يسمح للمُسجِّلين فقط — يمنع الزوار (Guest Mode).
+- الإدراج في `App.tsx`: غير موصول حالياً — جاهز للاستخدام عند بناء ميزة المجموعات.
 - props:
   - `children`

@@ -29,6 +29,11 @@ vi.mock('../src/contexts/AuthContext', () => ({
   useAuth: () => ({ ...authMock }),
 }));
 
+vi.mock('../src/contexts/GuestContext', () => ({
+  GuestProvider: ({ children }: { children: React.ReactNode }) => children,
+  useGuest: () => ({ isGuest: false, enableGuestMode: vi.fn(), disableGuestMode: vi.fn() }),
+}));
+
 const supabaseMocks = vi.hoisted(() => ({
   signOut: vi.fn(),
   from: vi.fn(() => ({
@@ -93,7 +98,7 @@ describe('DashboardPage', () => {
 
   it('renders error state on notifications failure', async () => {
     notificationsData.data = [];
-    notificationsData.error = { message: 'failed' };
+    notificationsData.error = { message: 'تعذر تحميل الإشعارات' };
     renderWithProviders(<DashboardPage />);
     await openNotifications();
     await waitFor(() => expect(screen.getByText('تعذر تحميل الإشعارات')).toBeTruthy());

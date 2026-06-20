@@ -52,7 +52,9 @@ describe('profile service', () => {
           eq: mockEqUpdate,
         })),
       })),
-      auth: {},
+      auth: {
+        getUser: vi.fn(() => ({ data: { user: { id: '1' } } })),
+      },
     } as never);
 
     const { updateProfile } = await import('@/src/services/profile.service');
@@ -66,6 +68,7 @@ describe('profile service', () => {
     mockGetSupabaseClient.mockReturnValue({
       from: vi.fn(() => ({})),
       auth: {
+        getUser: vi.fn(() => ({ data: { user: { id: '1', email: 'a@example.com' } } })),
         signInWithPassword: vi.fn(() => ({ error: null })),
         updateUser: vi.fn(() => ({ error: null })),
       },

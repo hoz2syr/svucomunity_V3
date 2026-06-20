@@ -27,6 +27,10 @@ vi.mock('@/src/services/auth.service', () => ({
   loginWithPassword: (...args: any[]) => mockLoginWithPassword(...args),
 }));
 
+vi.mock('@/src/contexts/GuestContext', () => ({
+  useGuest: () => ({ isGuest: false, enableGuestMode: vi.fn(), disableGuestMode: vi.fn() }),
+}));
+
 const renderWithRouter = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 

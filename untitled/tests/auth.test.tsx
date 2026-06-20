@@ -7,6 +7,7 @@ import { LoginPage } from '../src/pages/Login';
 import { RegisterPage } from '../src/pages/Register';
 import { AuthCallback } from '../src/pages/AuthCallback';
 import { ForgotPasswordModal } from '../src/components/shared/ForgotPasswordModal';
+import { GuestProvider } from '../src/contexts/GuestContext';
 
 const missingSupabaseEnvMessage = 'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local';
 
@@ -33,7 +34,9 @@ const renderWithProviders = (ui: React.ReactElement) =>
   render(
     <MemoryRouter>
       <QueryClientProvider client={queryClient}>
-        {ui}
+        <GuestProvider>
+          {ui}
+        </GuestProvider>
       </QueryClientProvider>
     </MemoryRouter>
   );

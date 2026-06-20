@@ -1,0 +1,53 @@
+import type { ITestStorage, TestModel } from '../storage/testStorage';
+
+const STORAGE_KEY = 'svu_tests_db';
+const CURRENT_USER_KEY = 'svu_tests_current_user';
+
+export class LocalFirstTestStorage implements ITestStorage {
+  private currentUserId: string | null = null;
+
+  setCurrentUserId(userId: string | null) {
+    this.currentUserId = userId;
+    if (userId) {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userId));
+    } else {
+      localStorage.removeItem(CURRENT_USER_KEY);
+    }
+  }
+
+  getTests(): TestModel[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  saveTest(test: TestModel): void {
+    const tests = this.getTests();
+    const idx = tests.findIndex(t => t.id === test.id);
+    if (idx >= 0) {
+      tests[idx] = test;
+    } else {
+      tests.push(test);
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tests));
+  }
+
+  deleteTest(id: string): void {
+    const tests = this.getTests().filter(t => t.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tests));
+  }
+
+  getTestById(id: string): TestModel | undefined {
+    return this.getTests().find(t => t.id === id);
+  }
+
+  hydrateFromServer(_userId: string, serverTests: TestModel[]): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serverTests));
+  }
+}
+
+export const localStorageTestStorage = new LocalFirstTestStorage();
+export const testStorage = localStorageTestStorage;

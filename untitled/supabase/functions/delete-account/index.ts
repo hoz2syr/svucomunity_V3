@@ -3,7 +3,47 @@ import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supa
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 3;
-const rateLimits = new Map<string, { count: number; resetAt: number }>();
+
+const checkRateLimit = async (
+  supabaseAdmin: SupabaseClient,
+  key: string,
+): Promise<{ allowed: boolean; retryAfterMs: number }> => {
+  const now = new Date();
+  const windowEnd = new Date(now.getTime() + RATE_LIMIT_WINDOW_MS);
+
+  const { data: existing, error: fetchError } = await supabaseAdmin
+    .from("rate_limits")
+    .select("count, reset_at")
+    .eq("key", key)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("Rate limit fetch error:", fetchError);
+    return { allowed: true, retryAfterMs: 0 };
+  }
+
+  if (!existing || new Date(existing.reset_at) < now) {
+    await supabaseAdmin.from("rate_limits").upsert(
+      { key, count: 1, reset_at: windowEnd.toISOString() },
+      { onConflict: "key" },
+    );
+    return { allowed: true, retryAfterMs: 0 };
+  }
+
+  if (existing.count >= RATE_LIMIT_MAX_ATTEMPTS) {
+    return {
+      allowed: false,
+      retryAfterMs: new Date(existing.reset_at).getTime() - now.getTime(),
+    };
+  }
+
+  await supabaseAdmin
+    .from("rate_limits")
+    .update({ count: existing.count + 1 })
+    .eq("key", key);
+
+  return { allowed: true, retryAfterMs: 0 };
+};
 
 const getAllowedOrigins = () =>
   (Deno.env.get("ALLOWED_ORIGINS") ?? "")
@@ -47,23 +87,6 @@ const jsonResponse = (
       "Content-Type": "application/json",
     },
   });
-
-const checkRateLimit = (key: string) => {
-  const now = Date.now();
-  const current = rateLimits.get(key);
-
-  if (!current || now >= current.resetAt) {
-    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, retryAfterMs: 0 };
-  }
-
-  if (current.count >= RATE_LIMIT_MAX_ATTEMPTS) {
-    return { allowed: false, retryAfterMs: current.resetAt - now };
-  }
-
-  rateLimits.set(key, { ...current, count: current.count + 1 });
-  return { allowed: true, retryAfterMs: 0 };
-};
 
 const isAdminUser = async (supabaseAdmin: SupabaseClient, userId: string): Promise<boolean> => {
   const { data } = await supabaseAdmin
@@ -110,7 +133,12 @@ serve(async (req) => {
   const jwt = authHeader.slice("Bearer ".length);
   const clientIp = getClientIp(req);
   const rateLimitKey = `${clientIp}:${jwt.slice(0, 16)}`;
-  const rateLimit = checkRateLimit(rateLimitKey);
+
+  const tempAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { persistSession: false },
+  });
+
+  const rateLimit = await checkRateLimit(tempAdminClient, rateLimitKey);
 
   if (!rateLimit.allowed) {
     return jsonResponse({ error: "Too many requests" }, 429, origin);
@@ -162,8 +190,6 @@ serve(async (req) => {
   if (auditError) {
     console.error("Audit log insert failed:", auditError);
   }
-
-  rateLimits.delete(rateLimitKey);
 
   return jsonResponse({ ok: true }, 200, origin);
 });

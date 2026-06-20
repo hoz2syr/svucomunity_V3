@@ -77,13 +77,13 @@ export const upsertProfile = async (user: User): Promise<UpsertProfileResult> =>
       .single();
 
     if (error) {
-      console.error('upsertProfile error:', error);
+      // Structured logging for production — consider integrating with a proper
+      // error tracking service (e.g. Sentry) to avoid leaking sensitive data to the browser console.
     }
 
     return { data: (data as Profile | null) ?? null, error };
   } catch (error) {
     const supabaseError = toSupabaseError(error);
-    console.error('upsertProfile exception:', supabaseError);
     return { data: null, error: supabaseError };
   }
 };

@@ -33,7 +33,14 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
   }
 
   try {
-    const { data, error } = await getSupabaseClient()
+    const client = getSupabaseClient();
+    const { data: { user } } = await client.auth.getUser();
+
+    if (!user || user.id !== userId) {
+      return { data: null, error: { message: 'غير مصرح به.' } };
+    }
+
+    const { data, error } = await client
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -55,9 +62,16 @@ export const updateProfile = async (userId: string, full_name: string, username:
   }
 
   try {
-    const { error } = await getSupabaseClient()
+    const client = getSupabaseClient();
+    const { data: { user } } = await client.auth.getUser();
+
+    if (!user || user.id !== userId) {
+      return { data: null, error: { message: 'غير مصرح به.' } };
+    }
+
+    const { error } = await client
       .from('profiles')
-      .update({ full_name, username, updated_at: new Date().toISOString() })
+      .update({ full_name, username })
       .eq('id', userId);
 
     return { data: null, error };
@@ -73,6 +87,16 @@ export const updatePassword = async (email: string, currentPassword: string, new
 
   try {
     const client = getSupabaseClient();
+    const { data: { user } } = await client.auth.getUser();
+
+    if (!user) {
+      return { data: null, error: { message: 'غير مصرح به.' } };
+    }
+
+    if (user.email !== email) {
+      return { data: null, error: { message: 'البريد الإلكتروني لا يطابق المستخدم الحالي.' } };
+    }
+
     const { error: signInError } = await client.auth.signInWithPassword({
       email,
       password: currentPassword,

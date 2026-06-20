@@ -30,7 +30,7 @@ const FeatureCard = ({
   >
     <Link
       to={linkTo}
-      className="group relative block h-full rounded-3xl bg-[#060a1f]/60 backdrop-blur-2xl border border-white/5 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-white/10 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+      className="group relative block h-full rounded-3xl bg-[#0a1020]/80 backdrop-blur-2xl border border-cyan-500/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-cyan-400/25 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 animate-border-glow"
     >
       <div className="absolute -inset-px bg-gradient-to-br from-cyan-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-md mix-blend-screen pointer-events-none" />
 

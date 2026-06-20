@@ -1,17 +1,13 @@
--- Example seed data for local development
--- Run with: supabase db seed
+-- Seed data for local development
+-- Run with: supabase db seed --use-service-role
+-- IMPORTANT: This uses the service_role key to bypass RLS.
+-- The UUIDs below are placeholders and MUST be replaced with real auth.user IDs
+-- from your local database before seeding. Run the following query in SQL Editor
+-- to get a real user ID:
+--   SELECT id FROM auth.users WHERE email IS NOT NULL LIMIT 1;
+--
+-- WARNING: Never commit real user IDs or seed data with real identities.
+-- These values are examples only.
 
-insert into public.profiles (id, full_name, avatar_url, phone)
-values
-  (
-    '00000000-0000-0000-0000-000000000001',
-    'طالب تجريبي',
-    null,
-    '0500000000'
-  ),
-  (
-    '00000000-0000-0000-0000-000000000002',
-    'مستخدم ثاني',
-    null,
-    '0500000001'
-  );
+-- INSERT INTO public.profiles (id, full_name, avatar_url, phone)
+-- VALUES ('00000000-0000-0000-0000-REAL_USER_ID_HERE', 'طالب تجريبي', null, '0500000000');

@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig/base.json",
-  "include": ["index.ts", "eslint/**/*", "tailwind/**/*", "vite/**/*", "vitest/**/*", "tsconfig/**/*"],
-  "exclude": ["node_modules", "dist"]
-}
