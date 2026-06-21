@@ -4,17 +4,19 @@ export interface Question {
   id: string;
   type: QuestionType;
   text: string;
-  options?: string[]; // Used for multiple_choice
-  correctAnswer?: string; // For true_false, 'true' or 'false'. Fallback for essay.
-  correctAnswers?: string[]; // Preferred for essay/open-ended: one or more accepted answers.
+  options?: string[];
+  correctAnswer?: string;
+  correctAnswers?: string[];
   explanation?: string;
-  timeLimitSeconds?: number; // Optional per-question timer
+  timeLimitSeconds?: number;
 }
 
 export interface TestSettings {
   showExplanations: boolean;
   globalTimeLimitMinutes?: number;
 }
+
+export type TestPublishStatus = 'private_local' | 'private_synced' | 'published';
 
 export interface TestModel {
   id: string;
@@ -25,7 +27,5 @@ export interface TestModel {
   questions: Question[];
   rating?: number;
   ratedBySession?: boolean;
-  published?: boolean;
+  published: boolean;
 }
-
-

@@ -3,6 +3,7 @@ import { fetchTestsFromSupabase, upsertTestToSupabase, deleteTestFromSupabase } 
 
 export class SupabaseTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
+  private cachedTests: TestModel[] = [];
 
   getCurrentUserId(): string | null {
     return this.currentUserId;
@@ -13,7 +14,7 @@ export class SupabaseTestStorage implements ITestStorage {
   }
 
   getTests(): TestModel[] {
-    throw new Error('SupabaseTestStorage does not support direct local reads without hydration. Call hydrateFromServer first.');
+    return this.cachedTests;
   }
 
   saveTest(test: TestModel): void {
@@ -35,15 +36,16 @@ export class SupabaseTestStorage implements ITestStorage {
     deleteTestFromSupabase({ testId: id, userId }).catch((error) => {
       console.error('delete from Supabase failed', error);
     });
+    this.cachedTests = this.cachedTests.filter((t) => t.id !== id);
   }
 
   getTestById(id: string): TestModel | undefined {
-    const tests = this.getTests();
-    return tests.find((test) => test.id === id);
+    return this.cachedTests.find((test) => test.id === id);
   }
 
-  hydrateFromServer(userId: string, _serverTests: TestModel[]): void {
+  hydrateFromServer(userId: string, serverTests: TestModel[]): void {
     this.currentUserId = userId;
+    this.cachedTests = [...serverTests];
   }
 
   syncToServer(_test: TestModel): void {

@@ -27,6 +27,9 @@ export interface UseTestCreatorReturn extends CreateTestState {
   setGlobalTimeLimit: (v: number) => void;
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCreate: (navigate: (path: string) => void) => void;
+  handlePublish: (testId: string, navigate: (path: string) => void) => Promise<void>;
+  publishingId: string | null;
+  publishError: string | null;
 }
 
 export function useTestCreator(): UseTestCreatorReturn {
@@ -37,7 +40,9 @@ export function useTestCreator(): UseTestCreatorReturn {
   const [error, setError] = useState('');
   const [showExplanations, setShowExplanations] = useState(true);
   const [globalTimeLimit, setGlobalTimeLimit] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const userIdRef = useRef<string | null>(session?.user?.id ?? null);
 
   useEffect(() => {
@@ -62,6 +67,7 @@ export function useTestCreator(): UseTestCreatorReturn {
 
   const handleCreate = useCallback((navigate: (path: string) => void) => {
     setError('');
+    setPublishError(null);
     if (!testTitle.trim()) {
       setError('يرجى إدخال عنوان الاختبار');
       return;
@@ -96,23 +102,75 @@ export function useTestCreator(): UseTestCreatorReturn {
           globalTimeLimitMinutes: globalTimeLimit || undefined,
         },
         questions,
+        published: false,
       };
 
       saveTest(newTest);
-
-      const uid = userIdRef.current;
-      if (uid && hasSupabaseEnv()) {
-        upsertTestToSupabase({ ...newTest, userId: uid }).catch((err) => {
-          const message = err instanceof Error ? err.message : String(err);
-          setError(`فشل مزامنة الامتحان مع السحابة: ${message}`);
-        });
-      }
-
       navigate('/exam/saved');
     } catch {
       setError('صيغة JSON غير صالحة. تأكد من صحة الملف.');
     }
   }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit]);
+
+  const handlePublish = useCallback(async (testId: string, navigate: (path: string) => void) => {
+    setPublishError(null);
+    setPublishingId(testId);
+
+    const uid = userIdRef.current;
+
+    if (!uid) {
+      setPublishingId(null);
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    if (!hasSupabaseEnv()) {
+      setPublishingId(null);
+      setPublishError(missingSupabaseEnvMessage);
+      return;
+    }
+
+    try {
+      const tests = (() => {
+        try {
+          const data = localStorage.getItem('svu_tests_db');
+          return data ? JSON.parse(data) : [];
+        } catch {
+          return [];
+        }
+      })();
+
+      const testIndex = tests.findIndex((t: TestModel) => t.id === testId);
+      if (testIndex === -1) {
+        setPublishError('الاختبار غير موجود');
+        setPublishingId(null);
+        return;
+      }
+
+      const test = tests[testIndex];
+      const updatedTest: TestModel = {
+        ...test,
+        published: true,
+      };
+
+      const result = await upsertTestToSupabase({ ...updatedTest, userId: uid });
+
+      if (result.error) {
+        setPublishError(result.error.message || 'فشل نشر الاختبار');
+        setPublishingId(null);
+        return;
+      }
+
+      tests[testIndex] = updatedTest;
+      localStorage.setItem('svu_tests_db', JSON.stringify(tests));
+      setPublishingId(null);
+      navigate('/exam/saved');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setPublishError(message);
+      setPublishingId(null);
+    }
+  }, []); // navigate is passed as argument, not from closure
 
   return {
     jsonText, setJsonText,
@@ -124,5 +182,8 @@ export function useTestCreator(): UseTestCreatorReturn {
     fileInputRef,
     handleFileUpload,
     handleCreate,
+    handlePublish,
+    publishingId,
+    publishError,
   };
 }

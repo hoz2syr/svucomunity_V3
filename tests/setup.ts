@@ -25,6 +25,16 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+vi.mock('html2pdf.js', () => {
+  const save = vi.fn().mockResolvedValue(undefined);
+  return {
+    __esModule: true,
+    default: () => ({
+      set: () => ({ from: () => ({ save }) }),
+    }),
+  };
+});
+
   vi.mock('motion/react', () => {
     const React = require('react');
     const makeEl = (tag: string) => (props: Record<string, unknown>, ref: React.Ref<any>) =>

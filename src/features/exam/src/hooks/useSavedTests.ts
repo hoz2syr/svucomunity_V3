@@ -2,8 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { TestModel } from '../types';
-import { getTests, deleteTest } from '../lib/store';
+import { getTests, deleteTest, saveTest } from '../lib/store';
 import { exportToPdf, exportToWord } from '../lib/export';
+import { upsertTestToSupabase } from '../services/exam.supabase';
+import { hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export interface UseSavedTestsReturn {
   tests: TestModel[];
@@ -11,9 +14,15 @@ export interface UseSavedTestsReturn {
   isLoading: boolean;
   error: string | null;
   fetchTests: () => Promise<void>;
-  handleDelete: (id: string) => Promise<void>;
+  requestDelete: (id: string) => void;
+  executeDelete: () => Promise<void>;
+  cancelDelete: () => void;
+  canDelete: boolean;
   handlePrintPdf: (test: TestModel) => Promise<void>;
   handleExportWord: (test: TestModel) => Promise<void>;
+  handlePublish: (testId: string) => Promise<void>;
+  publishingId: string | null;
+  publishError: string | null;
 }
 
 export function useSavedTests(): UseSavedTestsReturn {
@@ -21,6 +30,8 @@ export function useSavedTests(): UseSavedTestsReturn {
   const [loadingPdf, setLoadingPdf] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   const fetchTests = useCallback(async () => {
     setIsLoading(true);
@@ -39,12 +50,29 @@ export function useSavedTests(): UseSavedTestsReturn {
     fetchTests();
   }, [fetchTests]);
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا الاختبار؟')) {
-      deleteTest(id);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [titleCache, setTitleCache] = useState<Record<string, string>>({});
+
+  const requestDelete = useCallback((id: string) => {
+    setConfirmDeleteId(id);
+  }, []);
+
+  const cancelDelete = useCallback(() => {
+    setConfirmDeleteId(null);
+  }, []);
+
+  const executeDelete = useCallback(async () => {
+    if (!confirmDeleteId) return;
+    setIsDeleting(true);
+    try {
+      deleteTest(confirmDeleteId);
       await fetchTests();
+    } finally {
+      setIsDeleting(false);
+      setConfirmDeleteId(null);
     }
-  }, [fetchTests]);
+  }, [confirmDeleteId, fetchTests]);
 
   const handlePrintPdf = useCallback(async (test: TestModel) => {
     setLoadingPdf(test.id);
@@ -67,14 +95,50 @@ export function useSavedTests(): UseSavedTestsReturn {
     }
   }, []);
 
+  const handlePublish = useCallback(async (testId: string) => {
+    setPublishingId(testId);
+    setPublishError(null);
+
+    try {
+      const stored = getTests();
+      const existing = stored.find(t => t.id === testId);
+      if (!existing) {
+        throw new Error('الاختبار غير موجود');
+      }
+
+      const updated: TestModel = {
+        ...existing,
+        published: true,
+        publishedAt: existing.publishedAt ?? new Date().toISOString(),
+      };
+
+      saveTest(updated);
+      setTests(stored.map(t => t.id === testId ? updated : t));
+
+      if (hasSupabaseEnv()) {
+        await upsertTestToSupabase(updated);
+      }
+    } catch {
+      setPublishError('لم يتم النشر. حاول مرة أخرى لاحقاً.');
+    } finally {
+      setPublishingId(null);
+    }
+  }, []);
+
   return {
     tests,
     loadingPdf,
     isLoading,
     error,
     fetchTests,
-    handleDelete,
+    requestDelete,
+    executeDelete,
+    cancelDelete,
+    canDelete: true,
     handlePrintPdf,
     handleExportWord,
+    handlePublish,
+    publishingId,
+    publishError,
   };
 }

@@ -2,6 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCoreSavedTests } from '@/src/features/exam/src/hooks/useCoreSavedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
+import { localStorageTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
+import { supabaseStorage } from '@/src/features/exam/src/core/adapters/supabaseTestStorage';
+import * as examSupabase from '@/src/features/exam/src/services/exam.supabase';
+import type { TestRow } from '@/src/features/exam/src/services/exam.supabase';
 
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   id: 'test-1',
@@ -10,6 +14,7 @@ const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   createdAt: Date.now(),
   settings: { showExplanations: true },
   questions: [],
+  published: false,
   ...overrides,
 });
 
@@ -25,20 +30,33 @@ vi.mock('@/src/contexts/AuthContext', () => ({
   useAuth: () => mockAuth,
 }));
 
-describe('useCoreSavedTests', () => {
-  beforeEach(() => {
-    mockAuth = createMockAuth();
-    localStorage.clear();
-    vi.clearAllMocks();
-    window.confirm = () => true;
-    window.alert = () => {};
-  });
+const mockedFetchTests = vi.mocked(examSupabase.fetchTestsFromSupabase);
 
+beforeEach(() => {
+  mockAuth = createMockAuth();
+  localStorage.clear();
+  supabaseStorage.setCurrentUserId(null);
+  supabaseStorage.hydrateFromServer('', []);
+  vi.clearAllMocks();
+
+  const fetchSpy = vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockResolvedValue({ data: [], error: null });
+
+  fetchSpy.mockImplementation(async (userId: string) => {
+    const cached = supabaseStorage.getTests();
+    if (cached.length > 0) {
+      return { data: cached, error: null };
+    }
+    return { data: [], error: null };
+  });
+});
+
+describe('useCoreSavedTests', () => {
   it('starts with loading true and empty tests', () => {
     const { result } = renderHook(() => useCoreSavedTests());
     expect(result.current.tests).toEqual([]);
     expect(result.current.error).toBeNull();
     expect(result.current.loadingPdf).toBeNull();
+    expect(result.current.canDelete).toBe(false);
   });
 
   it('uses localStorage path when userId is absent', async () => {
@@ -53,9 +71,10 @@ describe('useCoreSavedTests', () => {
     expect(result.current.tests).toHaveLength(1);
     expect(result.current.tests[0].id).toBe('local');
     expect(result.current.error).toBeNull();
+    expect(result.current.canDelete).toBe(false);
   });
 
-  it('uses localStorage path when userId is null', async () => {
+  it('uses localStorage path when userId is empty string', async () => {
     mockAuth.session = { user: { id: '' } } as any;
     localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 'local' })]));
 
@@ -70,7 +89,7 @@ describe('useCoreSavedTests', () => {
 
   it('sets error on server fetch exception', async () => {
     mockAuth.session = { user: { id: 'user-1' } } as any;
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network down'));
+    vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockRejectedValue(new Error('network down'));
 
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
@@ -84,10 +103,10 @@ describe('useCoreSavedTests', () => {
 
   it('sets error on server non-array response', async () => {
     mockAuth.session = { user: { id: 'user-1' } } as any;
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: 'bad data' }),
-    } as any);
+    vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockResolvedValue({
+      data: [],
+      error: { message: 'bad data' },
+    });
 
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
@@ -95,18 +114,16 @@ describe('useCoreSavedTests', () => {
     });
 
     expect(result.current.tests).toEqual([]);
-    expect(result.current.error).toBeTruthy();
+    expect(result.current.error).toBe('bad data');
     vi.restoreAllMocks();
   });
 
   it('sets error on server response not ok', async () => {
     mockAuth.session = { user: { id: 'user-1' } } as any;
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: 'Internal Server Error',
-      json: async () => ({}),
-    } as any);
+    vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockResolvedValue({
+      data: [],
+      error: { message: 'Internal Server Error' },
+    });
 
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
@@ -114,47 +131,70 @@ describe('useCoreSavedTests', () => {
     });
 
     expect(result.current.tests).toEqual([]);
-    expect(result.current.error).toBeTruthy();
+    expect(result.current.error).toBe('Internal Server Error');
     vi.restoreAllMocks();
   });
 
-  it('handleDelete skips when no userId and user cancels confirm', async () => {
-    mockAuth.session = { user: { id: '' } } as any;
-    window.confirm = () => false;
+  it('requestDelete sets confirmDeleteId and executeDelete removes test', async () => {
+    mockAuth.session = { user: { id: 'user-1' } } as any;
+    const test = buildTest({ id: 't1' });
+    supabaseStorage.hydrateFromServer('user-1', [test]);
+    supabaseStorage.setCurrentUserId('user-1');
 
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
-      await result.current.handleDelete('t1');
+      await result.current.fetchTests();
     });
 
-    expect(result.current.tests).toEqual([]);
-  });
+    expect(result.current.tests).toHaveLength(1);
+    expect(result.current.confirmDeleteId).toBeNull();
 
-  it('handleDelete proceeds and refreshes tests when userId is present', async () => {
-    mockAuth.session = { user: { id: 'user-1' } } as any;
-    localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1' })]));
+    act(() => result.current.requestDelete('t1'));
+    expect(result.current.confirmDeleteId).toBe('t1');
 
-    const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
-      await result.current.handleDelete('t1');
+      await result.current.executeDelete();
     });
 
     expect(result.current.tests).toHaveLength(0);
+    expect(result.current.confirmDeleteId).toBeNull();
+    vi.restoreAllMocks();
   });
 
-  it('handleDelete alerts on error', async () => {
-    mockAuth.session = { user: { id: 'user-1' } } as any;
-    localStorage.setItem('svu_tests_db', 'not-json');
-
+  it('executeDelete alerts when storage throws', async () => {
+    mockAuth.session = { user: { id: '' } } as any;
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const storageSpy = vi.spyOn(localStorageTestStorage, 'deleteTest').mockImplementation(() => {
+      throw new Error('storage delete failed');
+    });
 
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
-      await result.current.handleDelete('t1');
+      await result.current.fetchTests();
+    });
+
+    act(() => {
+      result.current.requestDelete('t1');
+    });
+    expect(result.current.confirmDeleteId).toBe('t1');
+
+    await act(async () => {
+      await result.current.executeDelete();
     });
 
     expect(alertMock).toHaveBeenCalled();
+    storageSpy.mockRestore();
     alertMock.mockRestore();
+  });
+
+  it('reveals canDelete true with userId and false without', async () => {
+    mockAuth.session = null;
+    const { result: noUser } = renderHook(() => useCoreSavedTests());
+    expect(noUser.current.canDelete).toBe(false);
+
+    mockAuth.session = { user: { id: 'user-1' } } as any;
+    const { result: withUser } = renderHook(() => useCoreSavedTests());
+    expect(withUser.current.canDelete).toBe(true);
   });
 
   it('handlePrintPdf sets loading and clears on finish', async () => {
@@ -167,9 +207,8 @@ describe('useCoreSavedTests', () => {
 
   it('handleExportWord alerts on failure', async () => {
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const original = window.alert;
     const { result } = renderHook(() => useCoreSavedTests());
     await act(async () => {
       await result.current.handleExportWord(buildTest());
@@ -177,6 +216,7 @@ describe('useCoreSavedTests', () => {
 
     expect(alertMock).toHaveBeenCalled();
     alertMock.mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('isLoading reflects authLoading when true', () => {
@@ -189,5 +229,54 @@ describe('useCoreSavedTests', () => {
     mockAuth.loading = true;
     const { result } = renderHook(() => useCoreSavedTests());
     expect(result.current.isLoading).toBe(true);
+  });
+
+  it('exposes publishingId and publishError state', async () => {
+    mockAuth.session = { user: { id: '' } } as any;
+    localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1' })]));
+
+    const { result } = renderHook(() => useCoreSavedTests());
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    expect(result.current.publishingId).toBeNull();
+    expect(result.current.publishError).toBeNull();
+    expect(typeof result.current.handlePublish).toBe('function');
+  });
+
+  it('handlePublish sets published flag for the matching test', async () => {
+    mockAuth.session = { user: { id: '' } } as any;
+    localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1', published: false })]));
+
+    const { result } = renderHook(() => useCoreSavedTests());
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    await act(async () => {
+      await result.current.handlePublish('t1');
+    });
+
+    expect(result.current.publishingId).toBeNull();
+    const updated = result.current.tests.find(test => test.id === 't1');
+    expect(updated?.published).toBe(true);
+  });
+
+  it('handlePublish surfaces error when test is missing', async () => {
+    mockAuth.session = { user: { id: '' } } as any;
+    localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1' })]));
+
+    const { result } = renderHook(() => useCoreSavedTests());
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    await act(async () => {
+      await result.current.handlePublish('missing');
+    });
+
+    expect(result.current.publishError).toBeTruthy();
+    expect(result.current.publishingId).toBeNull();
   });
 });

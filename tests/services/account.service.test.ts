@@ -142,6 +142,28 @@ describe('delete-account: Edge Function integration', () => {
   });
 });
 
+describe('delete-account: timeout path', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    lib.hasSupabaseEnv.mockReturnValue(true);
+    client.auth.getUser.mockResolvedValue({ data: { user: { id: '1', email: 'a@example.com', user_metadata: {}, app_metadata: {} } }, error: null });
+    client.functions.invoke.mockImplementation(() => new Promise(() => {}));
+  });
+
+  it('returns Arabic timeout error when Edge Function stalls (fake timers)', async () => {
+    vi.useFakeTimers();
+    const { deleteOwnAccount } = await import('../../src/services/account.service');
+
+    const promise = deleteOwnAccount();
+    await vi.advanceTimersByTimeAsync(15_001);
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('مهلة');
+    vi.useRealTimers();
+  });
+});
+
 describe('account service: shared helpers', () => {
   beforeEach(() => {
     vi.resetModules();

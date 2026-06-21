@@ -22,7 +22,7 @@ export const toTestRow = (test: TestModel & { userId: string }): Omit<TestRow, '
   settings: test.settings,
   questions: test.questions,
   rating: test.rating ?? null,
-  published: false,
+  published: test.published ?? false,
 });
 
 export const toTestModel = (row: TestRow): TestModel => ({

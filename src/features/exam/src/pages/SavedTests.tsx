@@ -1,22 +1,65 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useCoreSavedTests } from '../hooks';
-import { FileText, Trash2, Printer, Download } from 'lucide-react';
+import { useGuest } from '@/src/contexts/GuestContext';
+import { FileText } from 'lucide-react';
 import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { TestCard } from '../components/TestCard';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PublishConfirmDialog } from '../components/PublishConfirmDialog';
+import { GuestSharePrompt } from '../components/GuestSharePrompt';
 
 export default function SavedTests() {
-  const { tests, loadingPdf, isLoading, error, fetchTests, handleDelete, handlePrintPdf, handleExportWord } = useCoreSavedTests();
+  const {
+    tests,
+    loadingPdf,
+    isLoading,
+    error,
+    fetchTests,
+    canDelete,
+    confirmDeleteId,
+    isDeleting,
+    requestDelete,
+    executeDelete,
+    cancelDelete,
+    handlePrintPdf,
+    handleExportWord,
+    handlePublish,
+    publishingId,
+    publishError,
+  } = useCoreSavedTests();
+  const { isGuest } = useGuest();
+  const [confirmPublishId, setConfirmPublishId] = useState<string | null>(null);
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
 
   useEffect(() => {
     fetchTests();
   }, [fetchTests]);
 
+  const handleRequestPublish = (testId: string) => {
+    if (isGuest) {
+      setShowGuestPrompt(true);
+      return;
+    }
+    setConfirmPublishId(testId);
+  };
+
+  const handleConfirmPublish = async () => {
+    if (!confirmPublishId) return;
+    await handlePublish(confirmPublishId);
+    setConfirmPublishId(null);
+  };
+
+  const deleteTargetTitle = confirmDeleteId
+    ? tests.find(test => test.id === confirmDeleteId)?.title ?? ''
+    : '';
+
   if (error) {
-    return         <ErrorState title="خطأ في تحميل البيانات" message={error} onRetry={() => fetchTests()} />;
+    return <ErrorState title="خطأ في تحميل البيانات" message={error} onRetry={() => fetchTests()} />;
   }
 
   return (
@@ -28,8 +71,8 @@ export default function SavedTests() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <TestCardSkeleton key={`skeleton-${i}`} />
+          {Array.from({ length: 6 }).map((_, index) => (
+            <TestCardSkeleton key={`skeleton-${index}`} />
           ))}
         </div>
       ) : tests.length === 0 ? (
@@ -39,22 +82,60 @@ export default function SavedTests() {
           </div>
           <h3 className="text-xl font-bold text-white mb-2">لا يوجد اختبارات بعد</h3>
           <p className="text-secondary-400 mb-6">قم بإنشاء اختبارك الأول من ملف JSON الآن</p>
-          <Link to="/exam/create" className="btn-primary flex items-center gap-2">إنشاء اختبار</Link>
+          <Link to="/exam/create" className="btn-primary flex items-center gap-2">
+            إنشاء اختبار
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {tests.map((test) => (
+          {tests.map(test => (
             <TestCard
               key={test.id}
               test={test}
               loadingPdf={loadingPdf}
+              canDelete={canDelete}
+              isGuest={isGuest}
               onPrintPdf={handlePrintPdf}
               onExportWord={handleExportWord}
-              onDelete={handleDelete}
+              onDelete={requestDelete}
+              onPublish={handleRequestPublish}
+              publishingId={publishingId}
+              publishError={publishError}
             />
           ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {confirmDeleteId && (
+          <ConfirmDialog
+            key="confirm-delete"
+            isOpen={!!confirmDeleteId}
+            title="تأكيد الحذف"
+            message={`هل أنت متأكد من حذف "${deleteTargetTitle}"؟ لا يمكن التراجع عن هذا الإجراء.`}
+            confirmLabel="حذف"
+            cancelLabel="إلغاء"
+            onConfirm={executeDelete}
+            onCancel={cancelDelete}
+            isLoading={isDeleting}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmPublishId && (
+      <PublishConfirmDialog
+        key="confirm-publish"
+        testTitle={tests.find(test => test.id === confirmPublishId)?.title ?? ''}
+        isOpen={!!confirmPublishId}
+        onConfirm={handleConfirmPublish}
+        onCancel={() => setConfirmPublishId(null)}
+        isLoading={publishingId === confirmPublishId}
+      />
+        )}
+      </AnimatePresence>
+
+      <GuestSharePrompt open={showGuestPrompt} onClose={() => setShowGuestPrompt(false)} />
     </div>
   );
 }

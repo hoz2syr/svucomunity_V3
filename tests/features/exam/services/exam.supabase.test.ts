@@ -16,7 +16,7 @@ const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
 });
 
 describe('exam.supabase mappers', () => {
-  it('toTestRow maps description and rating nullability and sets published false', () => {
+  it('toTestRow maps description and rating nullability and preserves published', () => {
     const test = buildTest({ description: undefined, rating: undefined, published: true });
     const row = toTestRow(test);
     expect(row).toEqual({
@@ -27,7 +27,7 @@ describe('exam.supabase mappers', () => {
       settings: { showExplanations: true },
       questions: [],
       rating: null,
-      published: false,
+      published: true,
     });
   });
 
@@ -38,10 +38,10 @@ describe('exam.supabase mappers', () => {
     expect(row.rating).toBe(4);
   });
 
-  it('toTestRow always sets published to false', () => {
+  it('toTestRow preserves published flag instead of forcing false', () => {
     const test = buildTest({ published: true });
     const row = toTestRow(test);
-    expect(row.published).toBe(false);
+    expect(row.published).toBe(true);
   });
 
   it('toTestModel maps row to TestModel with Date.parse for createdAt', () => {
