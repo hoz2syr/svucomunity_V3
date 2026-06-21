@@ -7,13 +7,11 @@ import { InputField } from '../components/ui/InputField';
 import { GuestButton } from '../components/shared/GuestButton';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
 import { loginWithGoogle, loginWithPassword } from '../services/auth.service';
-import { useRateLimit } from '../hooks/useRateLimit';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
   const [showForgotModal, setShowForgotModal] = useState(false);
   const auth = useAuthForm({ mode: 'login' });
-  const rateLimiter = useRateLimit({ storageKey: 'login_rate_limit' });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,32 +22,20 @@ export const LoginPage = () => {
       return;
     }
 
-    const status = rateLimiter.status;
-    if (status.blocked) {
-      auth.setServerError('تم تجاوز عدد المحاولات. يرجى المحاولة لاحقاً.');
-      return;
-    }
-
     const values = await auth.handleSubmit();
-    if (!values) {
-      rateLimiter.limiter.recordAttempt(true);
-      return;
-    }
+    if (!values) return;
 
     try {
       const { error } = await loginWithPassword(values.email, values.password);
 
       if (error) {
         auth.setServerError(error.message || 'فشل تسجيل الدخول. تحقق من البيانات.');
-        rateLimiter.limiter.recordAttempt(true);
         return;
       }
 
-      rateLimiter.limiter.recordAttempt(false);
       navigate('/dashboard');
     } catch {
       auth.setServerError('حدث خطأ غير متوقع.');
-      rateLimiter.limiter.recordAttempt(true);
     }
   };
 

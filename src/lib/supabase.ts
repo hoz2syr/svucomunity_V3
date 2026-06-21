@@ -1,5 +1,4 @@
-import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
-import type { Profile } from '../types/profile';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { SupabaseOperationError } from '../types/supabase';
 
 type EnvConfig = {
@@ -51,43 +50,6 @@ const toSupabaseError = (error: unknown): SupabaseOperationError => ({
   message: getErrorMessage(error),
 });
 
-export type UpsertProfileResult = {
-  data: Profile | null;
-  error: SupabaseOperationError | null;
-};
-
-export const upsertProfile = async (user: User): Promise<UpsertProfileResult> => {
-  if (!hasSupabaseEnv()) {
-    return { data: null, error: createMissingEnvError() };
-  }
-
-  try {
-    const { data, error } = await getSupabaseClient()
-      .from('profiles')
-      .upsert({
-        id: user.id,
-        full_name: user.user_metadata.full_name || user.email || '',
-        email: user.email,
-        username: user.user_metadata.username || user.email?.split('@')[0] || '',
-        role: 'student',
-        provider: user.app_metadata.provider || 'email',
-        provider_id: user.app_metadata.provider_id || null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      // Structured logging for production — consider integrating with a proper
-      // error tracking service (e.g. Sentry) to avoid leaking sensitive data to the browser console.
-    }
-
-    return { data: (data as Profile | null) ?? null, error };
-  } catch (error) {
-    const supabaseError = toSupabaseError(error);
-    return { data: null, error: supabaseError };
-  }
-};
-
 export type SignInWithGoogleResult = {
   data: unknown;
   error: SupabaseOperationError | null;
@@ -126,28 +88,6 @@ export const handleAuthCallback = async (): Promise<AuthCallbackResult> => {
 
   try {
     const { data, error } = await getSupabaseClient().auth.getSession();
-
-    if (!error && data.session?.user) {
-      if (data.session.user.email_confirmed_at) {
-        const { error: profileWriteError } = await getSupabaseClient()
-          .from('profiles')
-          .upsert({
-            id: data.session.user.id,
-            full_name: data.session.user.user_metadata.full_name || data.session.user.email || '',
-            email: data.session.user.email,
-            username: data.session.user.user_metadata.username || data.session.user.email?.split('@')[0] || '',
-            role: 'student',
-            provider: data.session.user.app_metadata.provider || 'email',
-            provider_id: data.session.user.app_metadata.provider_id || null,
-          })
-          .select()
-          .single();
-        if (profileWriteError) {
-          return { data, error: { message: profileWriteError.message } };
-        }
-      }
-    }
-
     return { data, error };
   } catch (error) {
     return { data: { session: null }, error: toSupabaseError(error) };

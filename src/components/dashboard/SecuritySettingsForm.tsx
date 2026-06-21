@@ -27,9 +27,9 @@ export const SecuritySettingsForm = ({ onSubmit }: SecuritySettingsFormProps) =>
       onSubmit={form.handleSubmit(handleSubmit)}
       className="space-y-5"
     >
-      <InputField label="كلمة المرور الحالية" type="password" {...form.register('current_password')} error={form.formState.errors.current_password?.message} />
-      <InputField label="كلمة المرور الجديدة" type="password" {...form.register('new_password')} error={form.formState.errors.new_password?.message} />
-      <InputField label="تأكيد كلمة المرور" type="password" {...form.register('confirm_password')} error={form.formState.errors.confirm_password?.message} />
+      <InputField label="كلمة المرور الحالية" type="password" autoComplete="current-password" {...form.register('current_password')} error={form.formState.errors.current_password?.message} />
+      <InputField label="كلمة المرور الجديدة" type="password" autoComplete="new-password" {...form.register('new_password')} error={form.formState.errors.new_password?.message} />
+      <InputField label="تأكيد كلمة المرور" type="password" autoComplete="new-password" {...form.register('confirm_password')} error={form.formState.errors.confirm_password?.message} />
       {successMsg && (
         <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-emerald-400 text-sm font-medium flex items-center gap-1">
           {successMsg}

@@ -18,7 +18,6 @@ vi.mock('@/src/lib/supabase', () => {
     hasSupabaseEnv: vi.fn(() => true),
     missingSupabaseEnvMessage: MESSAGE,
     getErrorMessage: (error: unknown) => error instanceof Error ? error.message : String(error),
-    upsertProfile: vi.fn(() => ({ data: { id: '1', full_name: 'طالب' }, error: null })),
   };
 });
 
@@ -28,21 +27,6 @@ describe('profile service', () => {
     vi.clearAllMocks();
     mockEqUpdate.mockClear();
     mockEqPassword.mockClear();
-  });
-
-  it('upserts a profile and returns typed data', async () => {
-    mockGetSupabaseClient.mockReturnValue({
-      from: vi.fn(() => ({
-        upsert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => ({ data: { id: '1', full_name: 'طالب' }, error: null })) })) })),
-      })),
-      auth: {},
-    } as never);
-
-    const { upsertProfile } = await import('@/src/services/profile.service');
-    const result = await upsertProfile({ id: '1', email: 'a@example.com' } as never);
-
-    expect(result.data).toEqual({ id: '1', full_name: 'طالب' });
-    expect(result.error).toBeNull();
   });
 
   it('updates profile fields', async () => {

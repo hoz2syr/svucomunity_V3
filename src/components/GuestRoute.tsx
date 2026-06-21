@@ -4,7 +4,7 @@ import { useGuest } from '../contexts/GuestContext';
 
 export const GuestRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
-  const { isGuest } = useGuest();
+  const { isGuest, guestProfile } = useGuest();
 
   if (loading) {
     return (
@@ -18,4 +18,9 @@ export const GuestRoute = ({ children }: { children: React.ReactNode }) => {
   if (isGuest) return <>{children}</>;
 
   return <Navigate to="/login" replace />;
+};
+
+export const useGuestProfile = () => {
+  const { isGuest, guestProfile } = useGuest();
+  return { isGuest, guestProfile };
 };

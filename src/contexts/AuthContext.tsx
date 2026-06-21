@@ -10,10 +10,14 @@ interface AuthState {
   profile: Profile | null;
   loading: boolean;
   envMissing: boolean;
+  error: string | null;
+  sessionExpiring: boolean;
+  sessionExpiryTime: number | null;
 }
 
 interface AuthContextValue extends AuthState {
   refreshProfile: () => Promise<void>;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -23,6 +27,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<AuthState['profile']>(null);
   const [loading, setLoading] = useState(true);
   const [envMissing, setEnvMissing] = useState(!hasSupabaseEnv());
+  const [error, setError] = useState<string | null>(null);
+  const [sessionExpiring, setSessionExpiring] = useState(false);
+  const [sessionExpiryTime, setSessionExpiryTime] = useState<number | null>(null);
 
   const refreshProfileForUser = useCallback(async (userId: string) => {
     if (!hasSupabaseEnv()) {
@@ -50,6 +57,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [refreshProfileForUser, session]);
 
+  const decodeJwt = (token: string): { exp: number } | null => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded;
+    } catch {
+      return null;
+    }
+  };
+
+  const checkSessionExpiry = useCallback(() => {
+    if (!session?.access_token) {
+      setSessionExpiring(false);
+      setSessionExpiryTime(null);
+      return;
+    }
+
+    const payload = decodeJwt(session.access_token);
+    if (!payload?.exp) return;
+
+    const now = Math.floor(Date.now() / 1000);
+    const remainingMs = (payload.exp - now) * 1000;
+    const warningThreshold = 5 * 60 * 1000;
+
+    setSessionExpiryTime(payload.exp * 1000);
+    setSessionExpiring(remainingMs <= warningThreshold && remainingMs > 0);
+  }, [session]);
+
+  useEffect(() => {
+    checkSessionExpiry();
+    if (!session?.access_token) return;
+
+    const interval = setInterval(checkSessionExpiry, 30_000);
+    return () => clearInterval(interval);
+  }, [session, checkSessionExpiry]);
+
+  const clearError = useCallback(() => setError(null), []);
+
   useEffect(() => {
     if (!hasSupabaseEnv()) {
       setLoading(false);
@@ -64,14 +109,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const result = await completeAuthCallback();
         if (!mounted) return;
         setEnvMissing(false);
-        setSession(result.data.session);
-        if (result.data.session) {
-          await refreshProfileForUser(result.data.session.user.id);
+
+        if (result.error) {
+          setError(result.error.message);
+          setSession(null);
+          setProfile(null);
+        } else {
+          setError(null);
+          setSession(result.data.session);
+          if (result.data.session) {
+            await refreshProfileForUser(result.data.session.user.id);
+          }
         }
       } catch (error) {
         if (mounted) {
           setEnvMissing(true);
+          setError(getErrorMessage(error));
           console.error('Auth init error:', getErrorMessage(error));
+          setSession(null);
+          setProfile(null);
         }
       } finally {
         if (mounted) setLoading(false);
@@ -111,7 +167,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [refreshProfileForUser]);
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, refreshProfile, envMissing }}>
+    <AuthContext.Provider value={{ session, profile, loading, refreshProfile, envMissing, error, clearError, sessionExpiring, sessionExpiryTime }}>
       {children}
     </AuthContext.Provider>
   );

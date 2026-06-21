@@ -60,16 +60,14 @@ describe('handleAuthCallback coverage', () => {
     expect(fromSpy).not.toHaveBeenCalled();
   });
 
-  it('returns profile error when RLS upsert fails for confirmed user', async () => {
+  it('returns session user without upsert when email is confirmed', async () => {
     vi.stubEnv('VITE_SUPABASE_URL', 'https://example.com');
     vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon');
-
-    const rlsError = { code: '42501', message: 'new row violates row-level security policy for table "profiles"' };
 
     const profileQueryBuilder = {
       upsert: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: rlsError }),
+      single: vi.fn(),
     };
     const fromSpy = vi.fn().mockReturnValue(profileQueryBuilder);
 
@@ -98,7 +96,8 @@ describe('handleAuthCallback coverage', () => {
     const { handleAuthCallback } = await import('@/src/lib/supabase');
     const result = await handleAuthCallback();
 
-    expect(result.error?.message).toBe(rlsError.message);
-    expect(fromSpy).toHaveBeenCalledWith('profiles');
+    expect(result.data?.session?.user?.id).toBe('user-1');
+    expect(result.error).toBeNull();
+    expect(fromSpy).not.toHaveBeenCalled();
   });
 });

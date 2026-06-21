@@ -31,3 +31,9 @@ enable_confirmations = true
 
 [functions.delete-account]
 verify_jwt = true
+
+[functions.auth-login]
+verify_jwt = false
+
+[functions.auth-register]
+verify_jwt = false

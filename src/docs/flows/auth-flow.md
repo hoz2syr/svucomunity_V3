@@ -13,14 +13,19 @@ sequenceDiagram
   participant U as User
   participant P as Page
   participant S as Service
-  participant A as Supabase
+  participant E as Edge Function
+  participant A as Supabase Auth
   participant C as AuthContext
   participant G as GuestContext
 
   U->>P: submit login/register
   P->>S: loginWithPassword / registerWithEmail
-  S->>A: auth.signInWithPassword / auth.signUp
-  A-->>S: session / error
+  S->>E: functions.invoke('auth-login' / 'auth-register')
+  E->>E: rate limit check (IP-based)
+  E->>A: auth.signInWithPassword / auth.signUp
+  A-->>E: session / error
+  E-->>S: { session, error }
+  S->>S: client.auth.setSession(tokens)
   S-->>P: result
   P->>C: session update
   C->>P: redirect dashboard / success state
@@ -152,7 +157,9 @@ sequenceDiagram
 - `GuestButton` موجود في `src/components/shared/GuestButton.tsx` ويستخدم `motion.button`.
 - `AuthProvider` يستدعي `completeAuthCallback`.
 - `completeAuthCallback` يتعامل مع RLS errors من `upsertProfile` بشكل صامت — لا يظهر خطأ للمستخدم.
-- `loginSchema` يسمح بـ 6 أحرف، بينما `registerSchema` يطلب 8 أحرف.
+- `loginSchema` و `registerSchema` يطلبان 8 أحرف على الأقل لكلمة المرور.
 - `ProtectedRoute` غير موصول حالياً — يحتاج إنشاء ميزة المجموعات أولاً.
 - `handle_new_user` trigger في Supabase هو المصدر الوحيد للحقيقة لإنشاء البروفايل الجديد.
 - تمت إضافة اختبارات جديدة: `tests/lib/supabase.callback.test.ts` و `tests/services/auth.service.test.ts` تغطي سيناريوهات RLS.
+- تسجيل الدخول وإنشاء الحساب يتم الآن عبر Edge Functions (`auth-login` و `auth-register`) مع Rate Limiting على مستوى الخادم.
+- وضع الزائر يخزن البروفايل في `localStorage` ويظهر بروفايل محلي حقيقي (ليس وهمي).

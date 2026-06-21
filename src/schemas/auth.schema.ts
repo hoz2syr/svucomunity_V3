@@ -3,7 +3,7 @@ import type { DeleteAccountInput, LoginInput, ProfileInput, RegisterInput, Secur
 
 export const loginSchema = z.object({
   email: z.string().min(1, 'البريد الإلكتروني مطلوب').email('صيغة البريد غير صحيحة').max(255),
-  password: z.string().min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل').max(128),
+  password: z.string().min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل').max(128),
 }) satisfies z.ZodType<LoginInput>;
 
 export const registerSchema = z.object({

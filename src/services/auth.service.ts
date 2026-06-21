@@ -44,10 +44,29 @@ export const loginWithPassword = async (email: string, password: string): Promis
 
   try {
     const client = await import('../lib/supabase').then((m) => m.getSupabaseClient());
-    const { data, error } = await client.auth.signInWithPassword({ email, password });
-    return { data, error };
-  } catch (error) {
-    return { data: null, error: toSupabaseError(error) };
+    const { data, error } = await client.functions.invoke('auth-login', {
+      body: { email, password },
+    });
+
+    if (error || !data?.session) {
+      return {
+        data: null,
+        error: { message: data?.error || error?.message || 'فشل تسجيل الدخول.' },
+      };
+    }
+
+    const { error: setSessionError } = await client.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    });
+
+    if (setSessionError) {
+      return { data: null, error: toSupabaseError(setSessionError) };
+    }
+
+    return { data: { user: data.session.user }, error: null };
+  } catch (err) {
+    return { data: null, error: toSupabaseError(err) };
   }
 };
 
@@ -58,17 +77,30 @@ export const registerWithEmail = async (name: string, email: string, password: s
 
   try {
     const client = await import('../lib/supabase').then((m) => m.getSupabaseClient());
-    const { data, error } = await client.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+    const { data, error } = await client.functions.invoke('auth-register', {
+      body: { name, email, password },
     });
-    return { data, error };
-  } catch (error) {
-    return { data: null, error: toSupabaseError(error) };
+
+    if (error || data?.error) {
+      return {
+        data: null,
+        error: { message: data?.error || error?.message || 'فشل إنشاء الحساب.' },
+      };
+    }
+
+    if (data?.session) {
+      const { error: setSessionError } = await client.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+      if (setSessionError) {
+        return { data: null, error: toSupabaseError(setSessionError) };
+      }
+    }
+
+    return { data: { user: data?.data?.user }, error: null };
+  } catch (err) {
+    return { data: null, error: toSupabaseError(err) };
   }
 };
 
@@ -108,10 +140,6 @@ export const completeAuthCallback = async (): Promise<AuthCallbackResult> => {
 
   try {
     const result = await libHandleAuthCallback();
-    if (result.error) {
-      return { data: { session: null }, error: result.error };
-    }
-
     return result as AuthCallbackResult;
   } catch (error) {
     return { data: { session: null }, error: toSupabaseError(error) };

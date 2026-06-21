@@ -32,6 +32,8 @@ export default defineConfig(() => {
       strictPort: true,
       headers: {
         'Content-Security-Policy': CSP_HEADER,
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
       },
     },
     build: {

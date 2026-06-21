@@ -1,8 +1,6 @@
-import { getErrorMessage, getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage, upsertProfile } from '../lib/supabase';
+import { getErrorMessage, getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/supabase';
 import type { Profile } from '../types/profile';
 import type { SupabaseOperationError } from '../types/supabase';
-
-export { upsertProfile };
 
 export type RefreshProfileResult = {
   data: Profile | null;
