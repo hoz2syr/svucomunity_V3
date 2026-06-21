@@ -95,7 +95,8 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
         ).finally(() => {
           fetchTests();
         });
-      }).catch(() => {
+      }).catch((err) => {
+        console.error('Migration prefetch exception:', err);
         fetchTests();
       });
     }

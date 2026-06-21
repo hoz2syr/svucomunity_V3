@@ -43,7 +43,7 @@ export const ExamNavbar = () => {
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center shadow-[0_0_18px_rgba(6,182,212,0.35)]">
               <Home className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <span className="hidden xs:inline">الاختبارات</span>
+            <span className="hidden sm:inline">الاختبارات</span>
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -56,7 +56,7 @@ export const ExamNavbar = () => {
                   key={item.path}
                   to={item.path}
                   className={`
-                    relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all
+                    relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all min-h-[44px]
                     ${
                       active
                         ? 'bg-white/10 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08)]'
@@ -64,7 +64,7 @@ export const ExamNavbar = () => {
                     }
                   `}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-cyan-400' : ''}`} />
+                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${active ? 'text-cyan-400' : ''}`} />
                   <span className="hidden sm:inline">{item.label}</span>
                   {active && (
                     <span className="sm:hidden">

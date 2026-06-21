@@ -44,10 +44,17 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error || !data) {
-      return { data: null, error: error ?? { message: 'تعذر قراءة الملف الشخصي.' } };
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return { data: null, error: null };
+      }
+      return { data: null, error: error };
+    }
+
+    if (!data) {
+      return { data: null, error: null };
     }
 
     return { data: data as Profile, error: null };
