@@ -26,8 +26,8 @@ export interface UseTestCreatorReturn extends CreateTestState {
   setShowExplanations: (v: boolean) => void;
   setGlobalTimeLimit: (v: number) => void;
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleCreate: (navigate: (path: string) => void) => void;
-  handlePublish: (testId: string, navigate: (path: string) => void) => Promise<void>;
+  handleCreate: (navigate?: (path: string) => void) => void;
+  handlePublish: (testId: string, navigate: (path: string, options?: { replace?: boolean }) => void) => Promise<void>;
   publishingId: string | null;
   publishError: string | null;
 }
@@ -65,7 +65,7 @@ export function useTestCreator(): UseTestCreatorReturn {
     reader.readAsText(file);
   }, []);
 
-  const handleCreate = useCallback((navigate: (path: string) => void) => {
+  const handleCreate = useCallback((navigate?: (path: string) => void) => {
     setError('');
     setPublishError(null);
     if (!testTitle.trim()) {
@@ -106,13 +106,13 @@ export function useTestCreator(): UseTestCreatorReturn {
       };
 
       saveTest(newTest);
-      navigate('/exam/saved');
+      navigate?.('/exam/saved');
     } catch {
       setError('صيغة JSON غير صالحة. تأكد من صحة الملف.');
     }
   }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit]);
 
-  const handlePublish = useCallback(async (testId: string, navigate: (path: string) => void) => {
+  const handlePublish = useCallback(async (testId: string, navigate?: (path: string, options?: { replace?: boolean }) => void) => {
     setPublishError(null);
     setPublishingId(testId);
 
@@ -120,7 +120,7 @@ export function useTestCreator(): UseTestCreatorReturn {
 
     if (!uid) {
       setPublishingId(null);
-      navigate('/login', { replace: true });
+      navigate?.('/login', { replace: true });
       return;
     }
 
@@ -164,7 +164,7 @@ export function useTestCreator(): UseTestCreatorReturn {
       tests[testIndex] = updatedTest;
       localStorage.setItem('svu_tests_db', JSON.stringify(tests));
       setPublishingId(null);
-      navigate('/exam/saved');
+      navigate?.('/exam/saved');
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setPublishError(message);

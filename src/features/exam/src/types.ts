@@ -28,4 +28,5 @@ export interface TestModel {
   rating?: number;
   ratedBySession?: boolean;
   published: boolean;
+  publishedAt?: string;
 }

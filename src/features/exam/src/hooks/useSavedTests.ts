@@ -116,7 +116,7 @@ export function useSavedTests(): UseSavedTestsReturn {
       setTests(stored.map(t => t.id === testId ? updated : t));
 
       if (hasSupabaseEnv()) {
-        await upsertTestToSupabase(updated);
+        await upsertTestToSupabase(updated as TestModel & { userId: string });
       }
     } catch {
       setPublishError('لم يتم النشر. حاول مرة أخرى لاحقاً.');
