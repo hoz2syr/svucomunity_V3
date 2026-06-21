@@ -1,5 +1,4 @@
 import { TestModel, Question } from '../types';
-import html2pdf from 'html2pdf.js';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header } from 'docx';
 import { saveAs } from 'file-saver';
 import { escapeHtml } from './utils';
@@ -35,15 +34,14 @@ function getTFState(correctAnswer: string | undefined, showExplanations: boolean
   const f = correctAnswer?.toLowerCase() === 'false';
   return {
     showT: showExplanations && t,
-    showTColor: showExplanations && t ? '#059669' : '#334155',
     showF: showExplanations && f,
-    showFColor: showExplanations && f ? '#dc2626' : '#334155'
+    showTColor: showExplanations && t ? '059669' : '334155',
+    showFColor: showExplanations && f ? 'dc2626' : '334155'
   };
 }
 
 function renderQuestionPdf(test: TestModel, q: Question, index: number): string {
   const parts: string[] = [];
-  parts.push(`<h3 style="font-size: 18pt; margin-bottom: 16px; font-weight: 700; color: #0f172a; line-height: 1.5;">${index + 1}. ${escapeHtml(q.text)}</h3>`);
 
   if (q.type === 'multiple_choice' && q.options) {
     parts.push('<div style="display: flex; flex-direction: column; gap: 12px; padding-right: 20px;">');
@@ -117,56 +115,128 @@ function renderQuestionWord(test: TestModel, q: Question, index: number, childre
   }
 }
 
-// Creates a temporary DOM node containing the print layout, exports to PDF, then cleans up.
+// Renders the test layout as a standalone HTML fragment and triggers browser print-to-PDF.
 export const exportToPdf = async (test: TestModel) => {
-  const container = document.createElement('div');
-  container.style.padding = '30px';
-  container.style.direction = 'rtl';
-  container.style.fontFamily = 'Cairo, sans-serif';
-  container.style.color = '#000';
-  container.style.background = '#fff';
-  container.style.lineHeight = '1.6';
+  const html = buildPdfHtml(test);
 
-  let htmlContent = `
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0ea5e9; padding-bottom: 20px; margin-bottom: 30px;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <img src="data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#0ea5e9\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"></path><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"></path></svg>')}" width="36" height="36" style="flex-shrink:0" />
-        <span style="font-size: 22pt; font-weight: 800; color: #0f172a;">مجتمع SVU</span>
-      </div>
-      <div style="text-align: left;">
-        <div style="color: #0ea5e9; font-weight: bold; font-size: 12pt;">svucommunity.social</div>
-        <div style="color: #64748b; font-size: 10pt;">منصة الاختبارات</div>
-      </div>
-    </div>
-    <div style="text-align: center; margin-bottom: 50px;">
-      <h1 style="font-size: 26pt; margin-bottom: 16px; color: #1e293b; font-weight: 800;">${escapeHtml(test.title)}</h1>
-      ${test.description ? `<p style="font-size: 16pt; color: #475569;">${escapeHtml(test.description)}</p>` : ''}
-    </div>
-  `;
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  if (!printWindow) {
+    alert('يرجى السماح بالنوافذ المنبثقة لتصدير PDF');
+    return;
+  }
 
-  test.questions.forEach((q, index) => {
-    htmlContent += `
-      <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
-        <h3 style="font-size: 18pt; margin-bottom: 16px; font-weight: 700; color: #0f172a; line-height: 1.5;">${index + 1}. ${escapeHtml(q.text)}</h3>
-    `;
-    htmlContent += renderQuestionPdf(test, q, index);
-    htmlContent += `</div>`;
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+
+  await new Promise<void>(resolve => {
+    const onReady = () => {
+      printWindow.removeEventListener('load', onReady);
+      setTimeout(() => {
+        printWindow.print();
+        resolve();
+      }, 400);
+    };
+    printWindow.addEventListener('load', onReady);
+    setTimeout(() => {
+      printWindow.removeEventListener('load', onReady);
+      resolve();
+    }, 2000);
   });
 
-  container.innerHTML = htmlContent;
-  document.body.appendChild(container);
-
-  const opt = {
-    margin:       15,
-    filename:     `${test.title || 'test'}.pdf`,
-    image:        { type: 'jpeg' as const, quality: 1.0 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-  };
-
-  await html2pdf().set(opt).from(container).save();
-  document.body.removeChild(container);
+  setTimeout(() => {
+    try { printWindow.close(); } catch {}
+  }, 1000);
 };
+
+function buildPdfHtml(test: TestModel): string {
+  const questionsHtml = test.questions
+    .map((q, idx) => {
+      const answerBlock = renderQuestionPdf(test, q, idx);
+      return `
+        <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
+          <h3 style="font-size: 17pt; margin: 0 0 14px 0; font-weight: 700; color: #0f172a; line-height: 1.6;">${idx + 1}. ${escapeHtml(q.text)}</h3>
+          ${answerBlock}
+        </div>
+      `;
+    })
+    .join('');
+
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>${escapeHtml(test.title)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      direction: rtl;
+      color: #0f172a;
+      background: #ffffff;
+      padding: 40px 48px;
+      line-height: 1.7;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    @page {
+      size: A4;
+      margin: 18mm 18mm 22mm 18mm;
+    }
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #0ea5e9;
+      padding-bottom: 18px;
+      margin-bottom: 32px;
+    }
+    .brand-name {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .brand-meta {
+      text-align: left;
+      font-size: 10pt;
+      color: #64748b;
+    }
+    .brand-meta strong {
+      color: #0ea5e9;
+    }
+    h1 {
+      font-size: 24pt;
+      margin: 0 0 14px 0;
+      font-weight: 800;
+      color: #1e293b;
+      text-align: center;
+    }
+    .desc {
+      text-align: center;
+      font-size: 14pt;
+      color: #475569;
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">
+    <div class="brand-name">مجتمع SVU</div>
+    <div class="brand-meta">
+      <div><strong>svucommunity.social</strong></div>
+      <div>منصة الاختبارات</div>
+    </div>
+  </div>
+  <h1>${escapeHtml(test.title)}</h1>
+  ${test.description ? `<p class="desc">${escapeHtml(test.description)}</p>` : ''}
+  ${questionsHtml}
+</body>
+</html>`;
+}
 
 
 export const exportToWord = async (test: TestModel) => {

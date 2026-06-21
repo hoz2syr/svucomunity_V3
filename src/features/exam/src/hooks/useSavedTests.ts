@@ -26,6 +26,7 @@ export interface UseSavedTestsReturn {
 }
 
 export function useSavedTests(): UseSavedTestsReturn {
+  const { session } = useAuth();
   const [tests, setTests] = useState<TestModel[]>([]);
   const [loadingPdf, setLoadingPdf] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,15 +116,15 @@ export function useSavedTests(): UseSavedTestsReturn {
       saveTest(updated);
       setTests(stored.map(t => t.id === testId ? updated : t));
 
-      if (hasSupabaseEnv()) {
-        await upsertTestToSupabase(updated as TestModel & { userId: string });
+      if (hasSupabaseEnv() && session?.user?.id) {
+        await upsertTestToSupabase({ ...updated, userId: session.user.id });
       }
     } catch {
       setPublishError('لم يتم النشر. حاول مرة أخرى لاحقاً.');
     } finally {
       setPublishingId(null);
     }
-  }, []);
+  }, [session]);
 
   return {
     tests,

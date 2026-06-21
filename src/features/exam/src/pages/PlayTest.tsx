@@ -18,7 +18,7 @@ export default function PlayTest() {
 
   if (!hasStarted) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 animation-fade-in-up px-3 sm:px-0">
+      <div className="max-w-3xl mx-auto space-y-6 animation-fade-in-up px-3 sm:px-0 pb-24">
         <button onClick={() => navigate('/exam/saved')} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition">
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>العودة للاختبارات</span>
@@ -87,7 +87,7 @@ export default function PlayTest() {
 
   if (showResults) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 pb-24">
         <button onClick={() => navigate('/exam/saved')} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition">
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>العودة للاختبارات</span>
@@ -162,7 +162,7 @@ export default function PlayTest() {
   if (!currentQ) return null;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-24">
       <button onClick={() => navigate('/exam/saved')} className="text-secondary-400 hover:text-white flex items-center gap-2 mb-6 transition">
         <ArrowLeft className="w-5 h-5" />
         <span>العودة</span>
@@ -178,11 +178,11 @@ export default function PlayTest() {
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-col xs:flex-row items-center justify-center gap-3 xs:gap-4">
         <button
           onClick={() => { if (currentIdx > 0) setCurrentIdx(currentIdx - 1); }}
           disabled={currentIdx === 0}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full xs:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px]"
         >
           <ChevronRight className="w-5 h-5" />
           <span>السؤال السابق</span>
@@ -190,7 +190,7 @@ export default function PlayTest() {
         <button
           onClick={() => { if (currentIdx < test.questions.length - 1) setCurrentIdx(currentIdx + 1); }}
           disabled={currentIdx === test.questions.length - 1}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full xs:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px]"
         >
           <span>السؤال التالي</span>
           <ChevronLeft className="w-5 h-5" />
@@ -199,7 +199,7 @@ export default function PlayTest() {
 
       <div className="glass-card" onKeyDown={handleKeyDown} tabIndex={0} autoFocus>
         <h2 className="text-2xl font-bold text-white leading-relaxed mb-2">{currentQ.text}</h2>
-        <p className="text-xs text-secondary-500 mb-6">الأسهم للتنقل بين الأسئلة · 1-9 للاختيار · t/f لصح/خطأ · Enter للتأكيد</p>
+        <p className="text-sm text-secondary-400 mb-6">الأسهم للتنقل بين الأسئلة · 1-9 للاختيار · t/f لصح/خطأ · Enter للتأكيد</p>
 
         <div className="space-y-3">
           {currentQ.type === 'multiple_choice' && currentQ.options?.map((opt, i) => {
