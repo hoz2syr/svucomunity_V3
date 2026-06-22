@@ -37,7 +37,7 @@ export class LocalFirstTestStorage implements ITestStorage {
     }
   }
 
-  saveTest(test: TestModel): void {
+  async saveTest(test: TestModel): Promise<void> {
     const tests = this.getTests();
     const idx = tests.findIndex(t => t.id === test.id);
     if (idx >= 0) {
@@ -48,7 +48,7 @@ export class LocalFirstTestStorage implements ITestStorage {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tests));
   }
 
-  deleteTest(id: string): void {
+  async deleteTest(id: string): Promise<void> {
     const tests = this.getTests().filter(t => t.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tests));
   }

@@ -20,6 +20,13 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
   const descId = `publish-confirm-desc-${generatedDescId}`;
   const [showSuccess, setShowSuccess] = useState(false);
   const [step, setStep] = useState<'confirm' | 'success'>('confirm');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setError(null);
+    }
+  }, [isOpen]);
 
   const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
@@ -78,12 +85,14 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
   }, [isOpen]);
 
   const handleConfirm = async () => {
+    setError(null);
     try {
       await onConfirm();
       setStep('success');
       setShowSuccess(true);
-    } catch {
-      // onConfirm failed — stay in confirm step and surface the error
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'حدث خطأ أثناء النشر.';
+      setError(message);
     }
   };
 
@@ -129,6 +138,11 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
                 <span className="text-white font-medium mx-1">"{testTitle}"</span>
                 ليكون متاحاً للجميع عبر رابط عام. هل تريد المتابعة؟
               </p>
+              {error && (
+                <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
 
             <div className="px-6 pb-6 flex gap-3">

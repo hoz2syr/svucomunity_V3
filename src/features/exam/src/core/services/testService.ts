@@ -23,12 +23,12 @@ export class TestService {
     return this.storage.getTestById(id);
   }
 
-  saveTest(test: TestModel): void {
-    this.storage.saveTest(test);
+  async saveTest(test: TestModel): Promise<void> {
+    await this.storage.saveTest(test);
   }
 
-  deleteTest(id: string): void {
-    this.storage.deleteTest(id);
+  async deleteTest(id: string): Promise<void> {
+    await this.storage.deleteTest(id);
   }
 
   rateTest(input: RateTestInput): RateTestResult {

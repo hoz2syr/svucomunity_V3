@@ -5,6 +5,10 @@ import React from 'react';
 import { usePublishedTests } from '@/src/features/exam/src/hooks/usePublishedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
 
+vi.mock('@/src/contexts/AuthContext', () => ({
+  useAuth: () => ({ envMissing: false }),
+}));
+
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   id: 'pub-1',
   title: 'اختبار منشور',
@@ -40,6 +44,7 @@ vi.mock('@/src/lib/supabase', () => {
     hasSupabaseEnv: () => true,
     getSupabaseClient: () => mock,
     missingSupabaseEnvMessage: 'missing',
+    getErrorMessage: (error: unknown, fallback = 'حدث خطأ غير متوقع.') => (error instanceof Error ? error.message : typeof error === 'string' ? error : fallback),
     __setMock: (m: any) => { Object.assign(mock, m); },
   };
 });

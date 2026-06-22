@@ -143,7 +143,7 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
       publishedAt: existing.publishedAt ?? new Date().toISOString(),
     };
 
-    storage.saveTest(updated);
+    await storage.saveTest(updated);
     setTests(currentTests.map(t => (t.id === testId ? updated : t)));
 
     if (userId && hasSupabaseEnv() && !envMissing) {
@@ -157,7 +157,7 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
   }, [userId, queryClient, storage, envMissing]);
 
   const executeDelete = useCallback(async (id: string) => {
-    storage.deleteTest(id);
+    await storage.deleteTest(id);
     const remaining = storage.getTests();
     setTests(remaining);
     if (userId && hasSupabaseEnv() && !envMissing) {

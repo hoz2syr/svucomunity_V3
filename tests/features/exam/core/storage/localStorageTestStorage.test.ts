@@ -24,30 +24,30 @@ describe('core/storage LocalFirstTestStorage', () => {
     expect(storage.getTests()).toEqual([]);
   });
 
-  it('persists and retrieves tests', () => {
+  it('persists and retrieves tests', async () => {
     const test = buildTest({ id: 't1' });
-    storage.saveTest(test);
+    await storage.saveTest(test);
     expect(storage.getTests()).toHaveLength(1);
     expect(storage.getTests()[0].id).toBe('t1');
   });
 
-  it('updates existing test by id', () => {
-    storage.saveTest(buildTest({ id: 't1', title: 'أول' }));
-    storage.saveTest(buildTest({ id: 't1', title: 'ثانٍ' }));
+  it('updates existing test by id', async () => {
+    await storage.saveTest(buildTest({ id: 't1', title: 'أول' }));
+    await storage.saveTest(buildTest({ id: 't1', title: 'ثانٍ' }));
     expect(storage.getTests()).toHaveLength(1);
     expect(storage.getTests()[0].title).toBe('ثانٍ');
   });
 
-  it('deletes test by id', () => {
-    storage.saveTest(buildTest({ id: 't1' }));
-    storage.saveTest(buildTest({ id: 't2' }));
-    storage.deleteTest('t1');
+  it('deletes test by id', async () => {
+    await storage.saveTest(buildTest({ id: 't1' }));
+    await storage.saveTest(buildTest({ id: 't2' }));
+    await storage.deleteTest('t1');
     expect(storage.getTests()).toHaveLength(1);
     expect(storage.getTests()[0].id).toBe('t2');
   });
 
-  it('getTestById returns test or undefined', () => {
-    storage.saveTest(buildTest({ id: 't1' }));
+  it('getTestById returns test or undefined', async () => {
+    await storage.saveTest(buildTest({ id: 't1' }));
     expect(storage.getTestById('t1')?.id).toBe('t1');
     expect(storage.getTestById('missing')).toBeUndefined();
   });
@@ -73,8 +73,8 @@ describe('core/storage LocalFirstTestStorage', () => {
     expect(inst.getCurrentUserId()).toBeNull();
   });
 
-  it('hydrateFromServer merges server and local tests', () => {
-    storage.saveTest(buildTest({ id: 'local' }));
+  it('hydrateFromServer merges server and local tests', async () => {
+    await storage.saveTest(buildTest({ id: 'local' }));
     const serverTests = [buildTest({ id: 'server' })];
     storage.hydrateFromServer('user-1', serverTests);
     const all = storage.getTests();
@@ -84,20 +84,20 @@ describe('core/storage LocalFirstTestStorage', () => {
     expect(localStorage.getItem('svu_tests_current_user')).toBe(JSON.stringify('user-1'));
   });
 
-  it('hydrateFromServer keeps local when server has no conflicting ids', () => {
-    storage.saveTest(buildTest({ id: 'only-local' }));
+  it('hydrateFromServer keeps local when server has no conflicting ids', async () => {
+    await storage.saveTest(buildTest({ id: 'only-local' }));
     storage.hydrateFromServer('user-1', []);
     expect(storage.getTests()).toHaveLength(1);
     expect(storage.getTests()[0].id).toBe('only-local');
   });
 
-  it('enqueuePending deduplicates by id', () => {
+  it('enqueuePending deduplicates by id', async () => {
     storage.setCurrentUserId('user-1');
     const t1 = buildTest({ id: 't1' });
     const t2 = buildTest({ id: 't2' });
-    storage.saveTest(t1);
-    storage.saveTest(t1);
-    storage.saveTest(t2);
+    await storage.saveTest(t1);
+    await storage.saveTest(t1);
+    await storage.saveTest(t2);
     const raw = localStorage.getItem('svu_tests_pending:user-1');
     expect(raw).not.toBeNull();
     const queue = JSON.parse(raw!) as TestModel[];
@@ -105,22 +105,22 @@ describe('core/storage LocalFirstTestStorage', () => {
     expect(queue.map(q => q.id).sort()).toEqual(['t1', 't2']);
   });
 
-  it('enqueuePending skips when userId is null', () => {
+  it('enqueuePending skips when userId is null', async () => {
     storage.setCurrentUserId(null);
     const rawBefore = localStorage.getItem('svu_tests_pending:user-1');
-    storage.saveTest(buildTest({ id: 't1' }));
+    await storage.saveTest(buildTest({ id: 't1' }));
     const rawAfter = localStorage.getItem('svu_tests_pending:user-1');
     expect(rawAfter).toBe(rawBefore);
   });
 
-  it('getPendingSyncCount returns correct count', () => {
+  it('getPendingSyncCount returns correct count', async () => {
     storage.setCurrentUserId('user-1');
     expect(storage.getPendingSyncCount('user-1')).toBe(0);
-    storage.saveTest(buildTest({ id: 't1' }));
+    await storage.saveTest(buildTest({ id: 't1' }));
     expect(storage.getPendingSyncCount('user-1')).toBe(1);
   });
 
-  it('getPendingSyncCount returns 0 on corrupt queue', () => {
+  it('getPendingSyncCount returns 0 on corrupt queue', async () => {
     storage.setCurrentUserId('user-1');
     localStorage.setItem('svu_tests_pending:user-1', 'not-json');
     expect(storage.getPendingSyncCount('user-1')).toBe(0);

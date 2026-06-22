@@ -18,7 +18,7 @@ export class SupabaseTestStorage implements ITestStorage {
     return this.cachedTests;
   }
 
-  saveTest(test: TestModel): void {
+  async saveTest(test: TestModel): Promise<void> {
     const userId = this.currentUserId;
     if (!userId) {
       throw new Error('Cannot sync to Supabase without userId. Call setCurrentUserId first.');
@@ -30,19 +30,15 @@ export class SupabaseTestStorage implements ITestStorage {
       this.cachedTests.push(test);
     }
     const record = { ...test, userId };
-    upsertTestToSupabase(record).catch((error) => {
-      console.error('syncToServer failed', error);
-    });
+    await upsertTestToSupabase(record);
   }
 
-  deleteTest(id: string): void {
+  async deleteTest(id: string): Promise<void> {
     const userId = this.currentUserId;
     if (!userId) {
       throw new Error('Cannot delete from Supabase without userId. Call setCurrentUserId first.');
     }
-    deleteTestFromSupabase({ testId: id, userId }).catch((error) => {
-      console.error('delete from Supabase failed', error);
-    });
+    await deleteTestFromSupabase({ testId: id, userId });
     this.cachedTests = this.cachedTests.filter((t) => t.id !== id);
   }
 

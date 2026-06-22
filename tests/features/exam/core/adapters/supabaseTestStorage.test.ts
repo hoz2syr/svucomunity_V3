@@ -52,20 +52,19 @@ describe('SupabaseTestStorage', () => {
     expect(storage.getTests()[0].id).toBe('new');
   });
 
-  it('saveTest rejects when userId not set', () => {
-    expect(() => storage.saveTest({ id: 't1', title: 'x', createdAt: 1, settings: { showExplanations: true }, questions: [] })).toThrow('Cannot sync to Supabase without userId');
+  it('saveTest rejects when userId not set', async () => {
+    await expect(storage.saveTest({ id: 't1', title: 'x', createdAt: 1, settings: { showExplanations: true }, questions: [] })).rejects.toThrow('Cannot sync to Supabase without userId');
   });
 
-  it('deleteTest rejects when userId not set', () => {
-    expect(() => storage.deleteTest('t1')).toThrow('Cannot delete from Supabase without userId');
+  it('deleteTest rejects when userId not set', async () => {
+    await expect(storage.deleteTest('t1')).rejects.toThrow('Cannot delete from Supabase without userId');
   });
 
   it('saveTest forwards to upsertTestToSupabase', async () => {
     mockUpsert.mockResolvedValue({ error: null });
     storage.setCurrentUserId('user-1');
     const test = { id: 't1', title: 'x', createdAt: 1, settings: { showExplanations: true }, questions: [] } as const;
-    storage.saveTest(test as any);
-    await Promise.resolve();
+    await storage.saveTest(test as any);
     expect(mockUpsert).toHaveBeenCalledWith({ ...test, userId: 'user-1' });
   });
 
@@ -76,8 +75,7 @@ describe('SupabaseTestStorage', () => {
       { id: 't2', createdAt: 2, settings: { showExplanations: true }, questions: [] },
     ] as any);
     storage.setCurrentUserId('user-1');
-    storage.deleteTest('t1');
-    await Promise.resolve();
+    await storage.deleteTest('t1');
     expect(mockDelete).toHaveBeenCalledWith({ testId: 't1', userId: 'user-1' });
     expect(storage.getTests()).toHaveLength(1);
     expect(storage.getTests()[0].id).toBe('t2');

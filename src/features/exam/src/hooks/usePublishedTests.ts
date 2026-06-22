@@ -5,6 +5,7 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { TestModel } from '../types';
 import { fetchPublishedTests } from '../services/exam.supabase';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export interface UsePublishedTestsReturn {
   tests: TestModel[];
@@ -20,6 +21,7 @@ const PAGE_LIMIT = 9;
 
 export function usePublishedTests(): UsePublishedTestsReturn {
   const queryClient = useQueryClient();
+  const { envMissing } = useAuth();
   const [errorState, setError] = useState<string | null>(null);
 
   const {
@@ -44,7 +46,7 @@ export function usePublishedTests(): UsePublishedTestsReturn {
       const last = lastPage[lastPage.length - 1];
       return { created_at: new Date(last.createdAt).toISOString(), id: last.id } as { created_at: string; id: string };
     },
-    enabled: hasSupabaseEnv(),
+    enabled: hasSupabaseEnv() && !envMissing,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
   });

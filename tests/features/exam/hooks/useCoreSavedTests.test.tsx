@@ -288,7 +288,11 @@ describe('useCoreSavedTests', () => {
     });
 
     await act(async () => {
-      await result.current.handlePublish('missing');
+      try {
+        await result.current.handlePublish('missing');
+      } catch {
+        // expected: handlePublish re-throws after surfacing publishError
+      }
     });
 
     expect(result.current.publishError).toBeTruthy();

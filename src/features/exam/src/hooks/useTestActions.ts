@@ -83,6 +83,7 @@ export function useTestActions({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'لم يتم النشر. حاول مرة أخرى لاحقاً.';
       setPublishError(message);
+      throw err;
     } finally {
       setPublishingId(null);
     }
