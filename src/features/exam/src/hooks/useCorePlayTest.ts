@@ -3,10 +3,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { TestModel, Question } from '../types';
-import { testStorage } from '../core/adapters/localStorageTestStorage';
-import { TestService, RateTestInput } from '../core/services/testService';
-
-const testService = new TestService(testStorage);
+import { localStorageTestStorage } from '../core/adapters/localStorageTestStorage';
+import { fetchPublishedTestById, rateTestInSupabase } from '../services/exam.supabase';
 
 export interface UseCorePlayTestReturn {
   test: TestModel | null;
@@ -29,11 +27,15 @@ export interface UseCorePlayTestReturn {
   formatTime: (seconds: number) => string;
   handleKeyDown: React.KeyboardEventHandler;
   setCurrentIdx: (idx: number) => void;
-  rateTest: (stars: number) => void;
+  rateTest: (stars: number) => Promise<void>;
   canRate: boolean;
 }
 
-export function useCorePlayTest(testId: string | undefined, navigate: (path: string) => void): UseCorePlayTestReturn {
+export interface UseCorePlayTestOptions {
+  publicTestId?: string;
+}
+
+export function useCorePlayTest(testId: string | undefined, navigate: (path: string) => void, options?: UseCorePlayTestOptions): UseCorePlayTestReturn {
   const [test, setTest] = useState<TestModel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const initialTimeRef = useRef<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const publicTestId = options?.publicTestId;
 
   useEffect(() => {
     const fetchTestDetails = async () => {
@@ -53,11 +56,22 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       setError(null);
       try {
         await new Promise(resolve => setTimeout(resolve, 600));
-        const found = testService.getTestById(testId);
-        if (found) {
-          setTest(found);
+        if (publicTestId) {
+          const { data: publishedTest, error: pubError } = await fetchPublishedTestById(publicTestId);
+          if (pubError) {
+            setError(pubError.message);
+          } else if (publishedTest) {
+            setTest(publishedTest);
+          } else {
+            setError('عذراً، لم يتم العثور على هذا الاختبار. ربما تم حذفه أو أن الرابط غير صحيح.');
+          }
         } else {
-          setError('عذراً، لم يتم العثور على هذا الاختبار. ربما تم حذفه أو أن الرابط غير صحيح.');
+          const found = localStorageTestStorage.getTestById(testId);
+          if (found) {
+            setTest(found);
+          } else {
+            setError('عذراً، لم يتم العثور على هذا الاختبار. ربما تم حذفه أو أن الرابط غير صحيح.');
+          }
         }
       } catch {
         setError('حدث خطأ أثناء تحميل بيانات الاختبار.');
@@ -66,7 +80,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       }
     };
     fetchTestDetails();
-  }, [testId, navigate]);
+  }, [testId, publicTestId, navigate]);
 
   useEffect(() => {
     if (hasStarted && test?.settings.globalTimeLimitMinutes && initialTimeRef.current === null) {
@@ -87,10 +101,16 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       return;
     }
     const timer = setInterval(() => {
-      setTimeLeft(prev => (prev !== null && prev > 0 ? prev - 1 : null));
+      setTimeLeft(prev => {
+        if (prev === null || prev <= 0) {
+          setShowResults(true);
+          return null;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(timer);
-  }, [hasStarted, showResults, timeLeft]);
+  }, [hasStarted, showResults]);
 
   const currentQ = test ? test.questions[currentIdx] : null;
   const isCurrentCorrect = currentQ ? selectedAnswers[currentQ.id] === currentQ.correctAnswer : false;
@@ -192,14 +212,19 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
     return () => window.removeEventListener('keydown', handler);
   }, [hasStarted, showResults, onKeyDownRaw]);
 
-  const handleRateTest = useCallback((stars: number) => {
+  const handleRateTest = useCallback(async (stars: number) => {
     if (!test?.id) return;
-    const input: RateTestInput = { testId: test.id, rating: stars };
-    const result = testService.rateTest(input);
-    if (result.success && result.updatedRating) {
-      setTest(prev => prev ? { ...prev, rating: result.updatedRating } : prev);
-    } else if (result.error) {
-      window.alert(result.error);
+    try {
+      const result = await rateTestInSupabase(test.id, stars);
+      if (result.error) {
+        window.alert(result.error);
+        return;
+      }
+      if (result.updatedRating !== undefined) {
+        setTest(prev => prev ? { ...prev, rating: result.updatedRating } : prev);
+      }
+    } catch {
+      window.alert('حدث خطأ أثناء إرسال التقييم.');
     }
   }, [test]);
 

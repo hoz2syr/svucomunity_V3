@@ -5,7 +5,7 @@ type DashboardLayoutProps = {
 };
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => (
-  <div className="min-h-screen bg-[#030612] text-slate-200 font-sans flex overflow-hidden relative" dir="rtl">
+  <div className="min-h-screen bg-[#030612] text-slate-200 font-sans flex overflow-hidden relative px-4 sm:px-6 lg:px-8" dir="rtl">
     <div className="fixed inset-0 bg-gradient-to-br from-[#030612] via-[#0a0f2e] to-[#030612] pointer-events-none" />
 
     <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-900/8 blur-[180px] rounded-full pointer-events-none" />

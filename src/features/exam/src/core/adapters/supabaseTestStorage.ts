@@ -1,5 +1,6 @@
 import type { ITestStorage, TestModel } from '../storage/testStorage';
 import { fetchTestsFromSupabase, upsertTestToSupabase, deleteTestFromSupabase } from '../../services/exam.supabase';
+import { clearAllExamLocalData, SYNCED_PREFIX, PENDING_PREFIX } from '../utils/storageKeys';
 
 export class SupabaseTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
@@ -58,6 +59,17 @@ export class SupabaseTestStorage implements ITestStorage {
 
   async drainPendingSync(_queue: (test: TestModel) => Promise<void>): Promise<void> {
     // no-op for now; Supabase path is eager through saveTest/deleteTest
+  }
+
+  clearUserData(userId?: string): void {
+    const targetUserId = userId ?? this.currentUserId;
+    clearAllExamLocalData(userId);
+    if (targetUserId) {
+      localStorage.removeItem(`${SYNCED_PREFIX}${targetUserId}`);
+      localStorage.removeItem(`${PENDING_PREFIX}${targetUserId}`);
+    }
+    this.cachedTests = [];
+    this.currentUserId = null;
   }
 }
 

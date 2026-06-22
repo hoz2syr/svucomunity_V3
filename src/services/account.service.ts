@@ -1,4 +1,5 @@
 import { getErrorMessage, getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/supabase';
+import { clearAllExamLocalData } from '../lib/examStorage';
 
 const EDGE_FUNCTION_NAME = 'delete-account';
 const EDGE_FUNCTION_TIMEOUT_MS = 15_000;
@@ -68,7 +69,7 @@ export const deleteOwnAccount = async (): Promise<DeleteOwnAccountResult> => {
       };
     }
 
-const invokePromise = client.functions.invoke(EDGE_FUNCTION_NAME);
+    const invokePromise = client.functions.invoke(EDGE_FUNCTION_NAME);
     const timeoutPromise = new Promise<never>((_resolve, reject) => {
       const handler = () => {
         reject(
@@ -104,6 +105,14 @@ const invokePromise = client.functions.invoke(EDGE_FUNCTION_NAME);
         ok: false,
         error: classifyFunctionError(fnError),
       };
+    }
+
+    clearAllExamLocalData(user.id);
+    try {
+      sessionStorage.removeItem('svu-guest-mode');
+      sessionStorage.removeItem('svu-guest-profile');
+    } catch {
+      // ignore sessionStorage access errors
     }
 
     return { ok: true };

@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from 'react-router-dom';
-import { Sparkles, Box, Settings, Copy, CheckCircle2, Save } from 'lucide-react';
+import { Sparkles, Box, Settings, Copy, CheckCircle2, Save, HelpCircle } from 'lucide-react';
 import { usePromptPreferences, usePromptGenerator } from '../hooks';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 
@@ -13,11 +13,18 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-12 animation-fade-in-up pb-16">
       <div className="text-center max-w-3xl mx-auto space-y-6 mt-8">
-        <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
-          حول ملفات JSON المعقدة إلى
-          <br />
-          <span className="gradient-text">اختبارات احترافية</span> فوراً
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
+            أنشئ اختبارات احترافية
+          </h1>
+          <div className="relative group">
+            <HelpCircle className="w-6 h-6 text-secondary-400 cursor-help" />
+            <div className="absolute bottom-full left-0 mb-2 w-72 p-3 bg-secondary-800 border border-secondary-700 rounded-xl text-xs text-secondary-300 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
+              <strong className="text-white mb-1 block">لماذا JSON؟</strong>
+              JSON هو التنسيق الموثوب الوحيد اليوم الذي يولّده الذكاء الاصطناعي بدقة عالية، ويتحقق منه آلياً بدون مكتبات خارجية، ويتعامل معه المتصفح مباشرة عبر <code className="text-emerald-400">JSON.parse</code> — مما يجعله الجسر الأمثل بين الـ AI والمنصة.
+            </div>
+          </div>
+        </div>
         <p className="text-secondary-400 text-lg leading-relaxed">
           منصة متكاملة لبناء الاختبارات من متعدد والصح والخطأ، مع خيارات تصدير متقدمة كـ PDF منظم للطباعة والتخصيص الكامل للأسئلة والإجابات والشروحات.
         </p>

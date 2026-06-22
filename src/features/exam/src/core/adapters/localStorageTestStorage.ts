@@ -1,7 +1,5 @@
 import type { ITestStorage, TestModel } from '../storage/testStorage';
-
-const STORAGE_KEY = 'svu_tests_db';
-const CURRENT_USER_KEY = 'svu_tests_current_user';
+import { STORAGE_KEY, CURRENT_USER_KEY, PENDING_PREFIX, SYNCED_PREFIX, clearAllExamLocalData } from '../utils/storageKeys';
 
 export class LocalFirstTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
@@ -62,7 +60,16 @@ export class LocalFirstTestStorage implements ITestStorage {
   hydrateFromServer(_userId: string, serverTests: TestModel[]): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serverTests));
   }
+
+  clearUserData(userId?: string): void {
+    clearAllExamLocalData(userId);
+    const targetUserId = userId ?? this.getCurrentUserId();
+    if (targetUserId) {
+      localStorage.removeItem(`${PENDING_PREFIX}${targetUserId}`);
+      localStorage.removeItem(`${SYNCED_PREFIX}${targetUserId}`);
+    }
+    this.currentUserId = null;
+  }
 }
 
 export const localStorageTestStorage = new LocalFirstTestStorage();
-export const testStorage = localStorageTestStorage;

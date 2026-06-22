@@ -1,55 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchNotifications } from '../../services/notification.service';
-import { getErrorMessage } from '../../services/environment.service';
 import { missingSupabaseEnvMessage } from '../../services/environment.service';
 import { useGuest } from '../../contexts/GuestContext';
+import { useAuth } from '../../contexts/AuthContext';
 import type { Notification } from '../../types/notification';
 
 export const useDashboardNotifications = () => {
   const { isGuest } = useGuest();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notificationsLoading, setNotificationsLoading] = useState(true);
-  const [notificationsError, setNotificationsError] = useState<string | null>(null);
+  const { session } = useAuth();
+  const userId = session?.user?.id;
 
-  useEffect(() => {
-    if (isGuest) {
-      setNotifications([]);
-      setNotificationsLoading(false);
-      setNotificationsError(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadNotifications = async () => {
-      setNotificationsLoading(true);
-      setNotificationsError(null);
-
+  const { data = [], isLoading, error } = useQuery({
+    queryKey: ['notifications', userId],
+    queryFn: async (): Promise<Notification[]> => {
       const result = await fetchNotifications();
-
-      if (cancelled) return;
-
       if (result.error) {
-        setNotificationsError(result.error.message === missingSupabaseEnvMessage ? missingSupabaseEnvMessage : result.error.message);
-        setNotifications([]);
-        setNotificationsLoading(false);
-        return;
+        const message = result.error.message === missingSupabaseEnvMessage ? missingSupabaseEnvMessage : result.error.message;
+        throw new Error(message);
       }
+      return result.data;
+    },
+    enabled: !isGuest,
+    staleTime: 1000 * 60,
+  });
 
-      setNotifications(result.data);
-      setNotificationsLoading(false);
+  if (isGuest) {
+    return {
+      notifications: [] as Notification[],
+      notificationsLoading: false,
+      notificationsError: null,
     };
-
-    loadNotifications();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isGuest]);
+  }
 
   return {
-    notifications,
-    notificationsLoading,
-    notificationsError,
+    notifications: data,
+    notificationsLoading: isLoading,
+    notificationsError: error instanceof Error ? error.message : null,
   };
 };

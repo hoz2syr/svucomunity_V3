@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 type FeatureCardProps = {
   title: string;
@@ -22,12 +23,15 @@ const FeatureCard = ({
   linkTo,
   linkLabel,
   index = 0,
-}: FeatureCardProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 24 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4, delay: index * 0.1 }}
-  >
+}: FeatureCardProps) => {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+      animate={reducedMotion ? false : { opacity: 1, y: 0 }}
+      transition={reducedMotion ? { duration: 0 } : { duration: 0.4, delay: index * 0.1 }}
+    >
     <Link
       to={linkTo}
       className="group relative block h-full rounded-3xl bg-[#0a1020]/80 backdrop-blur-2xl border border-cyan-500/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-cyan-400/25 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 animate-border-glow"
@@ -62,7 +66,8 @@ const FeatureCard = ({
       </div>
     </Link>
   </motion.div>
-);
+  );
+};
 
 export { FeatureCard };
 export type { FeatureCardProps };

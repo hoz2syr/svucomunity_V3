@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Bell, ChevronDown, LogOut, Shield, Trash2, User, Search } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Shield, Trash2, User, X } from 'lucide-react';
 import type { Notification } from '../../types/notification';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 type DashboardUser = {
   id: string;
@@ -12,22 +13,23 @@ type DashboardUser = {
 };
 
 type NotificationMenuProps = {
-  isOpen: boolean;
+  isNotificationsOpen: boolean;
   unreadCount: number;
   loading: boolean;
   error: string | null;
   notifications: Notification[];
   onClose: () => void;
+  reducedMotion?: boolean;
 };
 
-export const NotificationMenu = ({ isOpen, unreadCount, loading, error, notifications, onClose }: NotificationMenuProps) => (
+export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, error, notifications, onClose, reducedMotion = false }: NotificationMenuProps) => (
   <AnimatePresence>
-    {isOpen && (
+    {isNotificationsOpen && (
       <motion.div
-        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        initial={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-        transition={{ duration: 0.15 }}
+        exit={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
+        transition={reducedMotion ? { duration: 0 } : { duration: 0.15 }}
         className="absolute left-0 mt-3 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
         role="menu"
       >
@@ -92,22 +94,23 @@ export const NotificationMenu = ({ isOpen, unreadCount, loading, error, notifica
 );
 
 type ProfileMenuProps = {
-  isOpen: boolean;
+  isProfileMenuOpen: boolean;
   user: DashboardUser;
   onClose: () => void;
   onOpenSettings: (tab: 'profile' | 'security') => void;
   onOpenLogout: () => void;
   onOpenDelete: () => void;
+  reducedMotion?: boolean;
 };
 
-export const ProfileMenu = ({ isOpen, user, onClose, onOpenSettings, onOpenLogout, onOpenDelete }: ProfileMenuProps) => (
+export const ProfileMenu = ({ isProfileMenuOpen, user, onClose, onOpenSettings, onOpenLogout, onOpenDelete, reducedMotion = false }: ProfileMenuProps) => (
   <AnimatePresence>
-    {isOpen && (
+    {isProfileMenuOpen && (
       <motion.div
-        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        initial={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-        transition={{ duration: 0.15 }}
+        exit={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
+        transition={reducedMotion ? { duration: 0 } : { duration: 0.15 }}
         className="absolute left-0 mt-3 w-64 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
         role="menu"
       >
@@ -167,10 +170,12 @@ export const DashboardHeader = ({
   onOpenLogout,
   onOpenDelete,
 }: DashboardHeaderProps) => {
+  const reducedMotion = useReducedMotion();
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -224,14 +229,14 @@ export const DashboardHeader = ({
 
   return (
     <motion.header
-      animate={{
+      animate={reducedMotion ? { height: expanded ? 80 : 56, borderRadius: 32, marginTop: expanded ? 12 : 24, marginLeft: expanded ? 16 : 24, marginRight: expanded ? 16 : 24 } : {
         height: expanded ? 80 : 56,
         borderRadius: 32,
         marginTop: expanded ? 12 : 24,
         marginLeft: expanded ? 16 : 24,
         marginRight: expanded ? 16 : 24,
       }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       className="sticky top-0 z-30 bg-[#030612]/75 backdrop-blur-2xl border border-cyan-500/10 shadow-lg shadow-cyan-900/10 flex items-center justify-between px-5 lg:px-8"
     >
       <div className="flex items-center gap-3">
@@ -240,8 +245,8 @@ export const DashboardHeader = ({
             <span className="text-white font-extrabold text-[15px] font-display tracking-tight">SVU</span>
           </div>
           <motion.span
-            animate={{ opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 }}
-            transition={{ duration: 0.25 }}
+            animate={reducedMotion ? { opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 } : { opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 }}
+            transition={reducedMotion ? { duration: 0 } : { duration: 0.25 }}
             className="text-white font-extrabold text-xl tracking-wide hidden lg:block font-display overflow-hidden whitespace-nowrap"
           >
             Community
@@ -250,14 +255,26 @@ export const DashboardHeader = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <div ref={searchRef} className={`relative flex items-center transition-all duration-300 ${searchFocused ? 'w-52' : 'w-10'} hidden md:flex`}>
+        <div ref={searchRef} className={`relative flex items-center transition-all duration-300 ${searchFocused ? 'w-64' : 'w-10'} hidden md:flex`}>
           <input
-            type="text"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="بحث..."
+            aria-label="بحث في المحتوى"
             onFocus={() => setSearchFocused(true)}
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pr-10 pl-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500/40 focus:bg-white/8 transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pr-3 pl-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500/40 focus:bg-white/8 transition-all"
           />
-          <Search size={15} className="absolute left-3 text-slate-500 pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              aria-label="مسح البحث"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 text-slate-500 hover:text-white transition-colors p-1 rounded-full hover:bg-white/5"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -280,12 +297,13 @@ export const DashboardHeader = ({
             )}
           </button>
           <NotificationMenu
-            isOpen={isNotificationsOpen}
+            isNotificationsOpen={isNotificationsOpen}
             unreadCount={unreadCount}
             loading={notificationsLoading}
             error={notificationsError}
             notifications={notifications}
             onClose={onToggleNotifications}
+            reducedMotion={reducedMotion}
           />
         </div>
 
@@ -303,8 +321,8 @@ export const DashboardHeader = ({
               {user.name.charAt(0)}
             </div>
             <motion.span
-              animate={{ opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 }}
-              transition={{ duration: 0.25 }}
+              animate={reducedMotion ? { opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 } : { opacity: expanded ? 1 : 0, width: expanded ? 'auto' : 0 }}
+              transition={reducedMotion ? { duration: 0 } : { duration: 0.25 }}
               className="text-sm font-semibold text-slate-200 hidden lg:block max-w-[8rem] truncate overflow-hidden whitespace-nowrap"
             >
               {user.name}
@@ -312,12 +330,13 @@ export const DashboardHeader = ({
             <ChevronDown size={14} className={`text-slate-500 transition-transform duration-300 ${isProfileMenuOpen ? 'rotate-180 text-cyan-400' : ''}`} />
           </button>
           <ProfileMenu
-            isOpen={isProfileMenuOpen}
+            isProfileMenuOpen={isProfileMenuOpen}
             user={user}
             onClose={onToggleProfile}
             onOpenSettings={onOpenSettings}
             onOpenLogout={onOpenLogout}
             onOpenDelete={onOpenDelete}
+            reducedMotion={reducedMotion}
           />
         </div>
       </div>

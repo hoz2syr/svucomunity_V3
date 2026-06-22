@@ -60,6 +60,7 @@ const getAllowedOrigin = (origin: string | null | undefined) => {
 };
 
 const corsHeaders = (origin: string | null | undefined) => {
+  const allowedOrigin = getAllowedOrigin(origin);
   const headers = new Headers({
     "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -67,9 +68,9 @@ const corsHeaders = (origin: string | null | undefined) => {
     "Vary": "Origin",
   });
 
-  const allowedOrigin = getAllowedOrigin(origin);
   if (allowedOrigin) {
     headers.set("Access-Control-Allow-Origin", allowedOrigin);
+    headers.set("Access-Control-Allow-Credentials", "true");
   }
 
   return headers;

@@ -11,6 +11,7 @@ import {
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { SkipLink } from '../components/accessibility/SkipLink';
 import { CardSkeleton } from '../components/ui/Skeleton';
 import { useParticleCanvas } from '../hooks/useParticleCanvas';
 
@@ -35,6 +36,7 @@ export const Home = () => {
   if (reducedMotion) {
     return (
       <div className="relative w-full min-h-screen text-slate-100 bg-[#060a1f] selection:bg-cyan-500/30">
+        <SkipLink />
         <Navbar />
         <section className="relative w-full h-screen flex flex-col items-center justify-center select-none bg-[#0a0f2e] overflow-hidden">
           <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none w-full px-4 pt-16">
@@ -45,7 +47,7 @@ export const Home = () => {
           </div>
           <ScrollIndicator />
         </section>
-        <main className="relative z-10 bg-[#060a1f] w-full pb-20">
+        <main id="main-content" className="relative z-10 bg-[#060a1f] w-full pb-20">
           <ErrorBoundary>
             <Suspense fallback={
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 max-w-7xl mx-auto align-center h-[50vh]">
@@ -65,6 +67,7 @@ export const Home = () => {
 
   return (
     <div className="relative w-full min-h-screen text-slate-100 bg-[#060a1f] selection:bg-cyan-500/30">
+      <SkipLink />
       <Navbar />
 
       <section className="relative w-full min-h-screen flex flex-col items-center justify-center pt-28 pb-12 bg-[#0a0f2e] select-none overflow-hidden">
@@ -91,7 +94,7 @@ export const Home = () => {
         <ScrollIndicator />
       </section>
 
-      <main className="relative z-10 bg-[#060a1f] w-full pb-20 overflow-hidden">
+      <main id="main-content" className="relative z-10 bg-[#060a1f] w-full pb-20 overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen pointer-events-none translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute top-[30%] left-0 w-[600px] h-[600px] bg-cyan-600/10 blur-[150px] rounded-full mix-blend-screen pointer-events-none -translate-x-1/2"></div>
         <div className="absolute bottom-0 right-[20%] w-[800px] h-[800px] bg-purple-900/20 blur-[150px] rounded-full mix-blend-screen pointer-events-none translate-y-1/2"></div>

@@ -1,5 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 import { useInView } from '../../hooks/useInView';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 interface FadeInProps {
   children: ReactNode;
@@ -8,12 +9,18 @@ interface FadeInProps {
   blurLayer?: boolean;
 }
 
-/**
- * Animated wrapper component that fades and translates its children in when they enter the viewport.
- * Uses useInView hook to detect intersection.
- */
 export const FadeIn: FC<FadeInProps> = ({ children, delay = 0, className = "", blurLayer = false }) => {
   const { ref, isInView } = useInView();
+  const reducedMotion = useReducedMotion();
+
+  if (reducedMotion) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div
       ref={ref}

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useCoreSavedTests } from '../hooks';
 import { useGuest } from '@/src/contexts/GuestContext';
-import { FileText } from 'lucide-react';
+import { FileText, ChevronDown, Loader2 } from 'lucide-react';
 import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { TestCard } from '../components/TestCard';
@@ -31,6 +31,9 @@ export default function SavedTests() {
     handlePublish,
     publishingId,
     publishError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useCoreSavedTests();
   const { isGuest } = useGuest();
   const [confirmPublishId, setConfirmPublishId] = useState<string | null>(null);
@@ -51,7 +54,6 @@ export default function SavedTests() {
   const handleConfirmPublish = async () => {
     if (!confirmPublishId) return;
     await handlePublish(confirmPublishId);
-    setConfirmPublishId(null);
   };
 
   const deleteTargetTitle = confirmDeleteId
@@ -69,13 +71,13 @@ export default function SavedTests() {
         <p className="text-secondary-400">راجع واطبع وشارك اختباراتك السابقة</p>
       </div>
 
-      {isLoading ? (
+      {isLoading && tests.length === 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: Math.min(6, hasNextPage ? 6 : 0) || 6 }).map((_, index) => (
             <TestCardSkeleton key={`skeleton-${index}`} />
           ))}
         </div>
-      ) : tests.length === 0 ? (
+      ) : tests.length === 0 && !isLoading ? (
         <div className="glass-card flex flex-col items-center justify-center p-12 text-center">
           <div className="w-20 h-20 rounded-full bg-secondary-800 flex items-center justify-center mb-4">
             <FileText className="w-10 h-10 text-secondary-500" />
@@ -87,23 +89,47 @@ export default function SavedTests() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {tests.map(test => (
-            <TestCard
-              key={test.id}
-              test={test}
-              loadingPdf={loadingPdf}
-              canDelete={canDelete}
-              isGuest={isGuest}
-              onPrintPdf={handlePrintPdf}
-              onExportWord={handleExportWord}
-              onDelete={requestDelete}
-              onPublish={handleRequestPublish}
-              publishingId={publishingId}
-              publishError={publishError}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {tests.map(test => (
+              <TestCard
+                key={test.id}
+                test={test}
+                loadingPdf={loadingPdf}
+                canDelete={canDelete}
+                isGuest={isGuest}
+                onPrintPdf={handlePrintPdf}
+                onExportWord={handleExportWord}
+                onDelete={requestDelete}
+                onPublish={handleRequestPublish}
+                publishingId={publishingId}
+                publishError={publishError}
+              />
+            ))}
+          </div>
+
+          {hasNextPage && (
+            <div className="flex justify-center pt-4 pb-8">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="btn-secondary inline-flex items-center gap-2 min-w-[200px] justify-center"
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    جاري التحميل...
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    تحميل المزيد
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       <AnimatePresence>
@@ -124,14 +150,15 @@ export default function SavedTests() {
 
       <AnimatePresence>
         {confirmPublishId && (
-      <PublishConfirmDialog
-        key="confirm-publish"
-        testTitle={tests.find(test => test.id === confirmPublishId)?.title ?? ''}
-        isOpen={!!confirmPublishId}
-        onConfirm={handleConfirmPublish}
-        onCancel={() => setConfirmPublishId(null)}
-        isLoading={publishingId === confirmPublishId}
-      />
+          <PublishConfirmDialog
+            key="confirm-publish"
+            testTitle={tests.find(test => test.id === confirmPublishId)?.title ?? ''}
+            testId={confirmPublishId}
+            isOpen={!!confirmPublishId}
+            onConfirm={handleConfirmPublish}
+            onCancel={() => { setConfirmPublishId(null); }}
+            isLoading={publishingId === confirmPublishId}
+          />
         )}
       </AnimatePresence>
 

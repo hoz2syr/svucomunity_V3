@@ -74,7 +74,10 @@ src/
 │           ├── hooks/
 │           │   ├── usePlayTest.ts
 │           │   ├── useSavedTests.ts
+│           │   ├── useCoreSavedTests.ts
 │           │   ├── useTestCreator.ts
+│           │   ├── useTestActions.ts
+│           │   ├── useTestMigration.ts
 │           │   ├── usePromptPreferences.ts
 │           │   ├── usePromptGenerator.ts
 │           │   ├── useCopyToClipboard.ts

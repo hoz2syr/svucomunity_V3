@@ -13,7 +13,7 @@ import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
-import { ExamHome, CreateTest, SavedTests, PlayTest } from './features/exam';
+import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared } from './features/exam';
 
 function App() {
   return (
@@ -71,6 +71,16 @@ function App() {
                     <GuestRoute>
                       <ExamLayout>
                         <PlayTest />
+                      </ExamLayout>
+                    </GuestRoute>
+                  }
+                />
+                <Route
+                  path="/exam/shared/:id"
+                  element={
+                    <GuestRoute>
+                      <ExamLayout>
+                        <PlayTestShared />
                       </ExamLayout>
                     </GuestRoute>
                   }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { completeAuthCallback } from '../services/auth.service';
 
@@ -6,68 +6,69 @@ export const AuthCallback = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'error'>('loading');
   const [message, setMessage] = useState('جاري تسجيل الدخول...');
-  const timerRef = useRef<number | null>(null);
-  const redirectRef = useRef<number | null>(null);
-  const isMountedRef = useRef(true);
-  const retryCountRef = useRef(0);
-
-  const runCallback = async () => {
-    try {
-      const result = await completeAuthCallback();
-      if (!isMountedRef.current) return;
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-      if (redirectRef.current) window.clearTimeout(redirectRef.current);
-      if (result.error) {
-        if (result.data?.session) {
-          navigate('/dashboard', { replace: true });
-          return;
-        }
-        setStatus('error');
-        setMessage(result.error.message || 'حدث خطأ أثناء تسجيل الدخول.');
-        return;
-      }
-      navigate('/dashboard', { replace: true });
-    } catch (err) {
-      if (!isMountedRef.current) return;
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-      setStatus('error');
-      setMessage(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول.');
-    }
-  };
+  const [retryKey, setRetryKey] = useState(0);
+  const [autoRetryCount, setAutoRetryCount] = useState(0);
+  const MAX_AUTO_RETRIES = 2;
 
   useEffect(() => {
-    isMountedRef.current = true;
+    const controller = new AbortController();
+
+    const runCallback = async () => {
+      try {
+        const result = await completeAuthCallback();
+        if (controller.signal.aborted) return;
+
+        if (result.error) {
+          if (result.data?.session) {
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+          setStatus('error');
+          setMessage(result.error.message || 'حدث خطأ أثناء تسجيل الدخول.');
+          return;
+        }
+        navigate('/dashboard', { replace: true });
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setStatus('error');
+        setMessage(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول.');
+      }
+    };
 
     const timeoutId = window.setTimeout(() => {
-      if (isMountedRef.current) {
-        if (retryCountRef.current < 2) {
-          retryCountRef.current += 1;
-          runCallback();
-        } else {
-          setStatus('error');
-          setMessage('انتهت المهلة. يرجى المحاولة مرة أخرى.');
-        }
+      if (!controller.signal.aborted) {
+        setStatus('error');
+        setMessage('انتهت المهلة. يرجى المحاولة مرة أخرى.');
       }
     }, 30000);
 
     runCallback();
 
     return () => {
-      isMountedRef.current = false;
-      if (timeoutId) window.clearTimeout(timeoutId);
-      if (redirectRef.current) window.clearTimeout(redirectRef.current);
+      controller.abort();
+      window.clearTimeout(timeoutId);
     };
-  }, [navigate]);
+  }, [navigate, retryKey]);
+
+  useEffect(() => {
+    if (status === 'error' && autoRetryCount < MAX_AUTO_RETRIES) {
+      const delay = Math.min(1000 * Math.pow(2, autoRetryCount), 5000);
+      const timer = window.setTimeout(() => {
+        setAutoRetryCount(c => c + 1);
+        setRetryKey(k => k + 1);
+        setStatus('loading');
+        setMessage('جاري إعادة المحاولة تلقائياً...');
+      }, delay);
+      return () => window.clearTimeout(timer);
+    }
+  }, [status, autoRetryCount]);
 
   const handleRetry = () => {
-    retryCountRef.current += 1;
-    setStatus('loading');
-    setMessage('جاري تسجيل الدخول...');
-    runCallback();
+    setRetryKey((k) => k + 1);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#060a1f] flex-col gap-4">
+    <div className="flex items-center justify-center min-h-screen bg-[#060a1f] flex-col gap-4 px-4">
       <div className={`text-lg ${status === 'error' ? 'text-red-400' : 'text-cyan-400'}`}>
         {message}
       </div>

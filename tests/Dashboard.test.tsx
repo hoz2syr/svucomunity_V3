@@ -83,6 +83,7 @@ const openNotifications = async () => {
 
 describe('DashboardPage', () => {
   beforeEach(() => {
+    queryClient.clear();
     vi.clearAllMocks();
     notificationsData.data = [];
     notificationsData.error = null;
@@ -93,7 +94,7 @@ describe('DashboardPage', () => {
   it('renders empty notifications state', async () => {
     renderWithProviders(<DashboardPage />);
     await openNotifications();
-    expect(screen.getByText('لا توجد إشعارات')).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('لا توجد إشعارات')).toBeTruthy());
   });
 
   it('renders error state on notifications failure', async () => {

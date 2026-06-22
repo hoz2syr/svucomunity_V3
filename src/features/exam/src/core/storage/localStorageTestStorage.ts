@@ -1,8 +1,5 @@
 import type { ITestStorage, TestModel } from './testStorage';
-
-const STORAGE_KEY = 'svu_tests_db';
-const PREFIX = 'svu_tests_pending:';
-const CURRENT_USER_KEY = 'svu_tests_current_user';
+import { STORAGE_KEY, CURRENT_USER_KEY, PENDING_PREFIX, SYNCED_PREFIX, clearAllExamLocalData } from '../utils/storageKeys';
 
 export class LocalFirstTestStorage implements ITestStorage {
   private currentUserId: string | null = null;
@@ -64,13 +61,13 @@ export class LocalFirstTestStorage implements ITestStorage {
     for (const t of serverTests) merged.set(t.id, t);
     for (const t of localTests) merged.set(t.id, t);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(merged.values())));
-    localStorage.setItem(`svu_tests_synced:${userId}`, '1');
+    localStorage.setItem(`${SYNCED_PREFIX}${userId}`, '1');
   }
 
   private enqueuePending(test: TestModel): void {
     const userId = this.getCurrentUserId();
     if (!userId) return;
-    const key = PREFIX + userId;
+    const key = PENDING_PREFIX + userId;
     try {
       const raw = localStorage.getItem(key);
       const queue: TestModel[] = raw ? JSON.parse(raw) : [];
@@ -88,7 +85,7 @@ export class LocalFirstTestStorage implements ITestStorage {
 
   getPendingSyncCount(userId: string): number {
     try {
-      const raw = localStorage.getItem(PREFIX + userId);
+      const raw = localStorage.getItem(PENDING_PREFIX + userId);
       return raw ? JSON.parse(raw).length : 0;
     } catch {
       return 0;
@@ -98,7 +95,7 @@ export class LocalFirstTestStorage implements ITestStorage {
   async drainPendingSync(queue: (test: TestModel) => Promise<void>): Promise<void> {
     const userId = this.getCurrentUserId();
     if (!userId) return;
-    const key = PREFIX + userId;
+    const key = PENDING_PREFIX + userId;
     try {
       const raw = localStorage.getItem(key);
       const pending: TestModel[] = raw ? JSON.parse(raw) : [];
@@ -109,6 +106,16 @@ export class LocalFirstTestStorage implements ITestStorage {
     } catch {
       // ignore
     }
+  }
+
+  clearUserData(userId?: string): void {
+    clearAllExamLocalData(userId);
+    const targetUserId = userId ?? this.getCurrentUserId();
+    if (targetUserId) {
+      localStorage.removeItem(`${PENDING_PREFIX}${targetUserId}`);
+      localStorage.removeItem(`${SYNCED_PREFIX}${targetUserId}`);
+    }
+    this.currentUserId = null;
   }
 }
 

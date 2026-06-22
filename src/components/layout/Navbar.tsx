@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
@@ -101,6 +101,8 @@ export const Navbar = () => {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [hoveredLoginDesktop, setHoveredLoginDesktop] = useState(false);
   const [hoveredMobileLink, setHoveredMobileLink] = useState<string | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -109,6 +111,45 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const getFocusable = () => Array.from(menu.querySelectorAll<HTMLElement>(focusableSelectors));
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first || !menu.contains(document.activeElement)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last || !menu.contains(document.activeElement)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
 
   const outerStyle = sticky ? NAV_STYLES.stickyOuter : NAV_STYLES.baseOuter;
 
@@ -219,6 +260,7 @@ export const Navbar = () => {
             {/* Mobile Menu Button */}
             <div className={NAV_CLASSES.mobileMenuButton}>
               <button
+                ref={menuButtonRef}
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
                 aria-expanded={menuOpen}
@@ -233,6 +275,8 @@ export const Navbar = () => {
 
         {/* Mobile Menu */}
         <div
+          ref={menuRef}
+          data-mobile-menu
           className={NAV_CLASSES.mobileMenu}
           style={{
             maxHeight: menuOpen ? '16rem' : '0',

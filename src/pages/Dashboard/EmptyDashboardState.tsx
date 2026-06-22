@@ -3,18 +3,22 @@ import { StudyGroupsCard } from '../../components/dashboard/StudyGroupsCard';
 import { CourseMaterialsCard } from '../../components/dashboard/CourseMaterialsCard';
 import { ScheduleExtractionCard } from '../../components/dashboard/ScheduleExtractionCard';
 import { TestsCard } from '../../components/dashboard/TestsCard';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 type EmptyDashboardStateProps = { userName?: string };
 
-export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardStateProps) => (
-  <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
-    <div className="max-w-5xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-10"
-      >
+export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardStateProps) => {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
+      <div className="max-w-5xl mx-auto">
+        <motion.div
+          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+          animate={reducedMotion ? false : { opacity: 1, y: 0 }}
+          transition={reducedMotion ? { duration: 0 } : { duration: 0.5 }}
+          className="mb-10"
+        >
         <h1 className="text-4xl font-black text-white tracking-tight mb-3">
           مرحبا بك، {userName}
         </h1>
@@ -31,4 +35,6 @@ export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardSta
       </div>
     </div>
   </div>
-);
+  );
+};
+

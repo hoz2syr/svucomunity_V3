@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ExamNavbar } from './ExamNavbar';
 import { ArrowRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { SkipLink } from '../../../components/accessibility/SkipLink';
 
 type ExamLayoutProps = {
   children: ReactNode;
@@ -12,9 +13,12 @@ export const ExamLayout = ({ children }: ExamLayoutProps) => {
   const isOnExamPage = location.pathname.includes('/exam/saved/play/');
 
   return (
-    <div className="min-h-screen bg-[#030612] text-slate-200 font-sans" dir="rtl">
+    <div className="min-h-screen bg-[#030612] text-slate-200 font-sans px-4 sm:px-6 lg:px-8" dir="rtl">
+      <SkipLink />
       <ExamNavbar />
-      {children}
+      <div id="main-content" className="relative z-10 px-3 sm:px-4">
+        {children}
+      </div>
       {!isOnExamPage && (
         <Link
           to="/dashboard"

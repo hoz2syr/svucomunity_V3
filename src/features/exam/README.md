@@ -38,11 +38,13 @@ src/features/exam/
     │   ├── usePromptPreferences.ts   # Home page prompt builder state
     │   ├── usePromptGenerator.ts     # Pure Arabic prompt string generator
     │   ├── useCopyToClipboard.ts     # Clipboard abstraction
+    │   ├── useTestActions.ts         # Shared action state (PDF/Word export, delete/publish flows)
+    │   ├── useTestMigration.ts       # One-time localStorage → Supabase migration on login
     │   ├── useTestCreator.ts         # CreateTest form logic + validation
     │   ├── usePlayTest.ts            # PlayTest state machine + timer
     │   ├── useSavedTests.ts          # SavedTests CRUD + export actions (legacy)
-    │   ├── useCoreSavedTests.ts      # SavedTests with core adapter pattern
-    │   └── useCorePlayTest.ts        # PlayTest with core adapter pattern
+    │   ├── useCoreSavedTests.ts      # SavedTests via core adapter + cursor pagination
+    │   └── useCorePlayTest.ts        # PlayTest via core adapter pattern
     ├── lib/
     │   ├── store.ts            # Legacy localStorage CRUD (TODO: replace with Supabase)
     │   ├── export.ts           # PDF (html2pdf.js) and Word (docx) generators
@@ -74,18 +76,22 @@ src/features/exam/
 
 ### New Path (Layered)
 ```
-useCoreSavedTests → TestStorageAdapter → localStorageTestStorage
-                                         → supabaseTestStorage
-useCorePlayTest  → TestStorageAdapter → localStorageTestStorage
+useCoreSavedTests → useTestActions → PDF/Word export, publish/delete UI state
+                 → useTestMigration → one-time local→server sync on login
+                 → useInfiniteQuery → fetchTestsPage (cursor pagination)
+                 → TestStorageAdapter → localStorageTestStorage
+                                      → supabaseTestStorage
 ```
 - Adapter pattern allows swapping storage backends
-- Core `localStorageTestStorage` implements the canonical CRUD logic
-- Legacy adapter wraps `lib/store.ts` for backward compatibility
+- Core `localStorageTestStorage` implements canonical CRUD
+- `useTestActions` extracts shared action state (publishing, deleting, exporting) from both saved-tests hooks
+- `useTestMigration` handles first-login data sync without cluttering the main query hook
+- Legacy `lib/store.ts` retained for backward compatibility with `useSavedTests`
 
 ### Known Issues
 - `core/services/testService.ts` exists but is not integrated into hooks yet
 - `core/services/index.ts` is a dead re-export
-- Two separate `LocalFirstTestStorage` implementations exist with different APIs
+- Two separate localStorage implementations exist (`lib/store.ts` vs `core/adapters/localStorageTestStorage.ts`) during migration period
 
 ---
 
@@ -193,10 +199,12 @@ Both are slated for replacement by the Supabase backend (see `BACKEND_SCHEMA.md`
 | `usePromptPreferences` | Persisted form state for AI prompt builder | Legacy |
 | `usePromptGenerator` | Memoised Arabic prompt string from preferences | Legacy |
 | `useCopyToClipboard` | Clipboard write with fallback + 2s success flash | Legacy |
+| `useTestActions` | Shared action state: PDF/Word export loading, publish/delete confirmations | Shared utility |
+| `useTestMigration` | First-login localStorage → Supabase sync (prefetch + upsert unsaved) | Core adapter |
 | `useTestCreator` | Create test form state, file upload, JSON parsing, validation | Legacy → `lib/store.ts` |
 | `usePlayTest` | Full test-play state machine: fetch, timer, select, reveal, score | Legacy |
 | `useSavedTests` | Listing, delete-confirm, PDF/Word export loading states | Legacy → `lib/store.ts` |
-| `useCoreSavedTests` | SavedTests CRUD via core adapter pattern (localStorage/Supabase) | Core adapter |
+| `useCoreSavedTests` | SavedTests CRUD via core adapter + cursor pagination (`useInfiniteQuery`) | Core adapter |
 | `useCorePlayTest` | PlayTest via core adapter pattern | Core adapter |
 
 ---
@@ -207,7 +215,7 @@ Both are slated for replacement by the Supabase backend (see `BACKEND_SCHEMA.md`
 # All tests
 npx vitest run
 
-# Exam feature only (33 tests)
+# Exam feature only (199 tests)
 npx vitest run tests/features/exam
 
 # With coverage

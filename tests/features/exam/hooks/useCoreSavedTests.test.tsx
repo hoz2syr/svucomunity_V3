@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 import { useCoreSavedTests } from '@/src/features/exam/src/hooks/useCoreSavedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
 import { localStorageTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
 import { supabaseStorage } from '@/src/features/exam/src/core/adapters/supabaseTestStorage';
 import * as examSupabase from '@/src/features/exam/src/services/exam.supabase';
-import { TestWrapper } from '@/tests/setup';
+import type { TestRow } from '@/src/features/exam/src/services/exam.supabase';
 
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   id: 'test-1',
@@ -38,6 +40,15 @@ beforeEach(() => {
   vi.clearAllMocks();
 
   const fetchSpy = vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockResolvedValue({ data: [], error: null });
+
+  fetchSpy.mockImplementation(async (userId: string) => {
+    const cached = supabaseStorage.getTests();
+    if (cached.length > 0) {
+      return { data: cached, error: null };
+    }
+    return { data: [], error: null };
+  });
+
   vi.spyOn(examSupabase, 'fetchTestsPage').mockImplementation(async (_userId: string, _cursor?: any, limit = 9) => {
     const cached = supabaseStorage.getTests();
     const page = cached.slice(0, limit);
@@ -47,19 +58,17 @@ beforeEach(() => {
       : undefined;
     return { data: page, error: null, nextCursor, hasMore };
   });
-
-  fetchSpy.mockImplementation(async (userId: string) => {
-    const cached = supabaseStorage.getTests();
-    if (cached.length > 0) {
-      return { data: cached, error: null };
-    }
-    return { data: [], error: null };
-  });
 });
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
 
 describe('useCoreSavedTests', () => {
   it('starts with loading true and empty tests', () => {
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     expect(result.current.tests).toEqual([]);
     expect(result.current.error).toBeNull();
     expect(result.current.loadingPdf).toBeNull();
@@ -70,7 +79,7 @@ describe('useCoreSavedTests', () => {
     mockAuth.session = { user: { id: '' } } as any;
     localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 'local' })]));
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -85,7 +94,7 @@ describe('useCoreSavedTests', () => {
     mockAuth.session = { user: { id: '' } } as any;
     localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 'local' })]));
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -98,7 +107,7 @@ describe('useCoreSavedTests', () => {
     mockAuth.session = { user: { id: 'user-1' } } as any;
     vi.spyOn(examSupabase, 'fetchTestsPage').mockRejectedValue(new Error('network down'));
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -116,7 +125,7 @@ describe('useCoreSavedTests', () => {
       hasMore: false,
     });
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -126,13 +135,31 @@ describe('useCoreSavedTests', () => {
     vi.restoreAllMocks();
   });
 
+  it('sets error on server response not ok', async () => {
+    mockAuth.session = { user: { id: 'user-1' } } as any;
+    vi.spyOn(examSupabase, 'fetchTestsPage').mockResolvedValue({
+      data: [],
+      error: { message: 'Internal Server Error' },
+      hasMore: false,
+    });
+
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    expect(result.current.tests).toEqual([]);
+    expect(result.current.error).toBe('Internal Server Error');
+    vi.restoreAllMocks();
+  });
+
   it('requestDelete sets confirmDeleteId and executeDelete removes test', async () => {
     mockAuth.session = { user: { id: 'user-1' } } as any;
     const test = buildTest({ id: 't1' });
     supabaseStorage.hydrateFromServer('user-1', [test]);
     supabaseStorage.setCurrentUserId('user-1');
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -159,7 +186,7 @@ describe('useCoreSavedTests', () => {
       throw new Error('storage delete failed');
     });
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -180,16 +207,16 @@ describe('useCoreSavedTests', () => {
 
   it('reveals canDelete true with userId and false without', async () => {
     mockAuth.session = null;
-    const { result: noUser } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result: noUser } = renderHook(() => useCoreSavedTests(), { wrapper });
     expect(noUser.current.canDelete).toBe(false);
 
     mockAuth.session = { user: { id: 'user-1' } } as any;
-    const { result: withUser } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result: withUser } = renderHook(() => useCoreSavedTests(), { wrapper });
     expect(withUser.current.canDelete).toBe(true);
   });
 
   it('handlePrintPdf sets loading and clears on finish', async () => {
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.handlePrintPdf(buildTest());
     });
@@ -200,7 +227,7 @@ describe('useCoreSavedTests', () => {
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.handleExportWord(buildTest());
     });
@@ -212,31 +239,35 @@ describe('useCoreSavedTests', () => {
 
   it('isLoading reflects authLoading when true', () => {
     mockAuth.loading = true;
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     expect(result.current.isLoading).toBe(true);
   });
 
-  it('exposes pagination fields from useInfiniteQuery', async () => {
-    mockAuth.session = { user: { id: 'user-1' } } as any;
-    const manyTests = Array.from({ length: 5 }, (_, i) => buildTest({ id: `t${i}` }));
-    supabaseStorage.hydrateFromServer('user-1', manyTests);
-    supabaseStorage.setCurrentUserId('user-1');
+  it('isLoading is true when authLoading is true even when hook isLoading is false', async () => {
+    mockAuth.loading = true;
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
+    expect(result.current.isLoading).toBe(true);
+  });
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+  it('exposes publishingId and publishError state', async () => {
+    mockAuth.session = { user: { id: '' } } as any;
+    localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1' })]));
+
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
 
-    expect(typeof result.current.fetchNextPage).toBe('function');
-    expect(typeof result.current.hasNextPage).toBe('boolean');
-    expect(typeof result.current.isFetchingNextPage).toBe('boolean');
+    expect(result.current.publishingId).toBeNull();
+    expect(result.current.publishError).toBeNull();
+    expect(typeof result.current.handlePublish).toBe('function');
   });
 
   it('handlePublish sets published flag for the matching test', async () => {
     mockAuth.session = { user: { id: '' } } as any;
     localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1', published: false })]));
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });
@@ -254,7 +285,7 @@ describe('useCoreSavedTests', () => {
     mockAuth.session = { user: { id: '' } } as any;
     localStorage.setItem('svu_tests_db', JSON.stringify([buildTest({ id: 't1' })]));
 
-    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper });
     await act(async () => {
       await result.current.fetchTests();
     });

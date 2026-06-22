@@ -28,6 +28,10 @@ create policy "Users can view own tests"
   on public.tests for select
   using (auth.uid() IS NOT NULL AND auth.uid() = user_id);
 
+create policy "Public can view published tests"
+  on public.tests for select
+  using (published = true);
+
 create policy "Users can insert own tests"
   on public.tests for insert
   with check (auth.uid() IS NOT NULL AND auth.uid() = user_id);
