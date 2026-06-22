@@ -59,7 +59,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
       </div>
 
       <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-secondary-900/30">
-        {isGuest && !test.published && onPublish && (
+        {!test.published && onPublish && (
           <button
             onClick={() => onPublish(test.id)}
             disabled={isPublishing}

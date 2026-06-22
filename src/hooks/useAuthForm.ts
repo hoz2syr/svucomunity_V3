@@ -26,6 +26,7 @@ export type UseAuthFormReturn = {
   reset: () => void;
   fieldErrors: AuthFieldErrors;
   hasFieldErrors: boolean;
+  setLoading: (loading: boolean) => void;
 };
 
 export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAuthFormReturn {
@@ -80,6 +81,8 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
     setServerError('');
   }, [form]);
 
+  const setLoading = useCallback((loading: boolean) => setIsLoading(loading), []);
+
   return {
     form,
     isLoading,
@@ -90,5 +93,6 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
     reset,
     fieldErrors,
     hasFieldErrors: Object.keys(fieldErrors).length > 0,
+    setLoading,
   };
 }

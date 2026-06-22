@@ -136,16 +136,17 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
   }, [userId, queryClient, storage, envMissing]);
 
   const executeDelete = useCallback(async (id: string) => {
-    storage.deleteTest(id);
+    localStorageTestStorage.deleteTest(id);
     if (userId && hasSupabaseEnv() && !envMissing) {
       await deleteTestFromSupabase({ testId: id, userId });
     }
-    setTests([...storage.getTests()]);
+    const remaining = localStorageTestStorage.getTests();
+    setTests(remaining);
     queryClient.setQueryData<TestModel[][]>(['tests', userId], (old) => {
       if (!old) return old;
       return old.map((page: TestModel[]) => page.filter((t) => t.id !== id));
     });
-  }, [storage, userId, queryClient, envMissing]);
+  }, [userId, queryClient, envMissing]);
 
   const actions = useTestActions({
     onPublish: handlePublish,

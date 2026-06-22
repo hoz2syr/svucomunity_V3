@@ -34,6 +34,7 @@ export const RegisterPage = () => {
 
       if (error) {
         auth.setServerError(error.message || 'فشل إنشاء الحساب. حاول مرة أخرى.');
+        auth.setLoading(false);
         return;
       }
 
@@ -41,6 +42,7 @@ export const RegisterPage = () => {
       auth.reset();
     } catch {
       auth.setServerError('حدث خطأ غير متوقع أثناء إنشاء الحساب.');
+      auth.setLoading(false);
     }
   };
 

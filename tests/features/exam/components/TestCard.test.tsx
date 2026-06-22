@@ -61,3 +61,50 @@ describe('TestCard delete visibility', () => {
     expect(screen.getAllByTitle('حذف الاختبار').length).toBeGreaterThan(0);
   });
 });
+
+describe('TestCard publish/sharing visibility', () => {
+  it('shows publish button for logged-in user when test is not published', () => {
+    renderWithRouter(
+      <TestCard
+        test={buildTest({ published: false })}
+        loadingPdf={null}
+        onPrintPdf={() => {}}
+        onExportWord={() => {}}
+        onDelete={() => {}}
+        onPublish={() => {}}
+        isGuest={false}
+      />
+    );
+    expect(screen.getByText('نشر ومشاركة')).toBeDefined();
+  });
+
+  it('shows publish button for guest user when test is not published', () => {
+    renderWithRouter(
+      <TestCard
+        test={buildTest({ published: false })}
+        loadingPdf={null}
+        onPrintPdf={() => {}}
+        onExportWord={() => {}}
+        onDelete={() => {}}
+        onPublish={() => {}}
+        isGuest={true}
+      />
+    );
+    expect(screen.getByText('نشر ومشاركة')).toBeDefined();
+  });
+
+  it('does not show publish button when test is already published', () => {
+    renderWithRouter(
+      <TestCard
+        test={buildTest({ published: true })}
+        loadingPdf={null}
+        onPrintPdf={() => {}}
+        onExportWord={() => {}}
+        onDelete={() => {}}
+        onPublish={() => {}}
+        isGuest={false}
+      />
+    );
+    expect(screen.queryByText('نشر ومشاركة')).toBeNull();
+  });
+});

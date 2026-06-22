@@ -33,9 +33,60 @@ const createMissingEnvError = (): SupabaseOperationError => ({
   message: missingSupabaseEnvMessage,
 });
 
-const toSupabaseError = (error: unknown): SupabaseOperationError => ({
-  message: error instanceof Error ? error.message : String(error),
-});
+const classifyAuthFunctionError = (
+  raw: { message?: string; status?: number } | null | undefined,
+  fallback = 'حدث خطأ غير متوقع. حاول مرة أخرى.',
+): string => {
+  if (!raw) return fallback;
+  const message = (raw.message ?? '').toLowerCase();
+  const status = raw.status;
+
+  if (message.includes('network') || message.includes('fetch failed')) {
+    return 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+  }
+  if (message.includes('edge function')) {
+    return 'تعذر الوصول إلى خدمة المصادقة. قد تكون الخدمة متوقفة حالياً.';
+  }
+  if (status === 429 || message.includes('too many attempts')) {
+    return 'طلبات كثيرة جداً. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.';
+  }
+  if (status === 403) {
+    return 'ليس لديك صلاحية كافية.';
+  }
+  if (status === 401 || message.includes('invalid credentials') || message.includes('invalid login')) {
+    return 'بريد إلكتروني أو كلمة مرور غير صحيحة.';
+  }
+  if (message.includes('email not confirmed')) {
+    return 'يرجى تفعيل حسابك عبر رابط التأكيد المرسل إلى بريدك الإلكتروني.';
+  }
+  if (message.includes('user already registered') || message.includes('already been registered') || message.includes('email already exists')) {
+    return 'هذا البريد الإلكتروني مسجل مسبقاً.';
+  }
+  if (message.includes('password must be at least')) {
+    return 'كلمة المرور قصيرة جداً. يجب أن تكون 8 أحرف على الأقل.';
+  }
+  if (status && status >= 500) {
+    return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
+  }
+  return fallback;
+};
+
+const extractFnError = (
+  supabaseError: { message?: string; status?: number } | null | undefined,
+  dataFallback: unknown,
+): { message?: string; status?: number } | null => {
+  if (supabaseError) return supabaseError;
+  if (typeof dataFallback === 'string') return { message: dataFallback };
+  if (dataFallback && typeof dataFallback === 'object') {
+    const obj = dataFallback as Record<string, unknown>;
+    if (typeof obj.error === 'string') return { message: obj.error };
+    if (typeof obj.error === 'object' && obj.error !== null) {
+      const errObj = obj.error as { message?: string; status?: number };
+      return { message: errObj.message, status: errObj.status };
+    }
+  }
+  return null;
+};
 
 export const loginWithPassword = async (email: string, password: string): Promise<SignInWithPasswordResult> => {
   if (!hasSupabaseEnv()) {
@@ -49,9 +100,10 @@ export const loginWithPassword = async (email: string, password: string): Promis
     });
 
     if (error || !data?.session) {
+      const raw = extractFnError(error, (data as { error?: unknown } | undefined)?.error);
       return {
         data: null,
-        error: { message: data?.error || error?.message || 'فشل تسجيل الدخول.' },
+        error: { message: classifyAuthFunctionError(raw) },
       };
     }
 
@@ -61,12 +113,12 @@ export const loginWithPassword = async (email: string, password: string): Promis
     });
 
     if (setSessionError) {
-      return { data: null, error: toSupabaseError(setSessionError) };
+      return { data: null, error: { message: classifyAuthFunctionError(setSessionError) } };
     }
 
     return { data: { user: data.session.user }, error: null };
   } catch (err) {
-    return { data: null, error: toSupabaseError(err) };
+    return { data: null, error: { message: classifyAuthFunctionError(err as { message?: string }) } };
   }
 };
 
@@ -82,9 +134,10 @@ export const registerWithEmail = async (name: string, email: string, password: s
     });
 
     if (error || data?.error) {
+      const raw = extractFnError(error, (data as { error?: unknown } | undefined)?.error);
       return {
         data: null,
-        error: { message: data?.error || error?.message || 'فشل إنشاء الحساب.' },
+        error: { message: classifyAuthFunctionError(raw) },
       };
     }
 
@@ -94,13 +147,13 @@ export const registerWithEmail = async (name: string, email: string, password: s
         refresh_token: data.session.refresh_token,
       });
       if (setSessionError) {
-        return { data: null, error: toSupabaseError(setSessionError) };
+        return { data: null, error: { message: classifyAuthFunctionError(setSessionError) } };
       }
     }
 
     return { data: { user: data?.data?.user }, error: null };
   } catch (err) {
-    return { data: null, error: toSupabaseError(err) };
+    return { data: null, error: { message: classifyAuthFunctionError(err as { message?: string }) } };
   }
 };
 
@@ -111,9 +164,16 @@ export const loginWithGoogle = async (): Promise<SignInWithGoogleResult> => {
 
   try {
     const { signInWithGoogle } = await import('../lib/supabase');
-    return await signInWithGoogle();
+    const result = await signInWithGoogle();
+    if (result.error) {
+      return {
+        data: null,
+        error: { message: classifyAuthFunctionError(result.error) },
+      };
+    }
+    return result;
   } catch (error) {
-    return { data: null, error: toSupabaseError(error) };
+    return { data: null, error: { message: classifyAuthFunctionError(error as { message?: string }) } };
   }
 };
 
@@ -127,9 +187,12 @@ export const resetPassword = async (email: string): Promise<ResetPasswordResult>
     const { data, error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/login`,
     });
-    return { data, error };
+    if (error) {
+      return { data: null, error: { message: classifyAuthFunctionError(error) } };
+    }
+    return { data, error: null };
   } catch (error) {
-    return { data: null, error: toSupabaseError(error) };
+    return { data: null, error: { message: classifyAuthFunctionError(error as { message?: string }) } };
   }
 };
 
@@ -140,9 +203,12 @@ export const completeAuthCallback = async (): Promise<AuthCallbackResult> => {
 
   try {
     const result = await libHandleAuthCallback();
+    if (result.error) {
+      return { data: { session: null }, error: { message: classifyAuthFunctionError(result.error) } };
+    }
     return result as AuthCallbackResult;
   } catch (error) {
-    return { data: { session: null }, error: toSupabaseError(error) };
+    return { data: { session: null }, error: { message: classifyAuthFunctionError(error as { message?: string }) } };
   }
 };
 

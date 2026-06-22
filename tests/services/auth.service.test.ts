@@ -68,7 +68,7 @@ describe('auth service', () => {
     const result = await loginWithPassword('a@example.com', 'WrongPass1!');
 
     expect(result.error).not.toBeNull();
-    expect(result.error?.message).toBe('Invalid credentials');
+    expect(result.error?.message).toBe('بريد إلكتروني أو كلمة مرور غير صحيحة.');
   });
 
   it('loginWithPassword returns error when edge function returns error object', async () => {
@@ -81,7 +81,7 @@ describe('auth service', () => {
     const result = await loginWithPassword('a@example.com', 'Password123!');
 
     expect(result.error).not.toBeNull();
-    expect(result.error?.message).toBe('Network error');
+    expect(result.error?.message).toBe('فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.');
   });
 
   it('loginWithPassword returns missing-env error when environment not configured', async () => {
@@ -131,7 +131,7 @@ describe('auth service', () => {
     const result = await registerWithEmail('طالب', 'exists@example.com', 'Password123!');
 
     expect(result.error).not.toBeNull();
-    expect(result.error?.message).toBe('Email already exists');
+    expect(result.error?.message).toBe('هذا البريد الإلكتروني مسجل مسبقاً.');
   });
 
   it('registerWithEmail returns missing-env error when environment not configured', async () => {
@@ -169,7 +169,7 @@ describe('auth service', () => {
     const result = await completeAuthCallback();
 
     expect(result.data).toEqual({ session: null });
-    expect(result.error?.message).toBe(rlsError.message);
+    expect(result.error?.message).toBe('حدث خطأ غير متوقع. حاول مرة أخرى.');
   });
 
   it('loginWithPassword handles thrown error gracefully', async () => {

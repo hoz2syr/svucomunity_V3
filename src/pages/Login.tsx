@@ -30,12 +30,14 @@ export const LoginPage = () => {
 
       if (error) {
         auth.setServerError(error.message || 'فشل تسجيل الدخول. تحقق من البيانات.');
+        auth.setLoading(false);
         return;
       }
 
       navigate('/dashboard');
     } catch {
       auth.setServerError('حدث خطأ غير متوقع.');
+      auth.setLoading(false);
     }
   };
 
