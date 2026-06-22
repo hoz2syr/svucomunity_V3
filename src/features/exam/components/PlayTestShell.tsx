@@ -60,7 +60,6 @@ export function PlayTestShell({
     formatTime,
     setCurrentIdx,
     rateTest,
-    canRate,
   } = state;
 
   if (isLoading) return <PlayTestSkeleton />;

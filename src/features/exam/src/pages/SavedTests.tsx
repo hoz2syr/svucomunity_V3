@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useCoreSavedTests } from '../hooks';
 import { useGuest } from '@/src/contexts/GuestContext';
@@ -30,7 +30,6 @@ export default function SavedTests() {
     handleExportWord,
     handlePublish,
     publishingId,
-    publishError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -97,13 +96,11 @@ export default function SavedTests() {
                 test={test}
                 loadingPdf={loadingPdf}
                 canDelete={canDelete}
-                isGuest={isGuest}
                 onPrintPdf={handlePrintPdf}
                 onExportWord={handleExportWord}
                 onDelete={requestDelete}
                 onPublish={handleRequestPublish}
                 publishingId={publishingId}
-                publishError={publishError}
               />
             ))}
           </div>

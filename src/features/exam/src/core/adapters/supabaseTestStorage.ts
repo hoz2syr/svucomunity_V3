@@ -1,5 +1,5 @@
 import type { ITestStorage, TestModel } from '../storage/testStorage';
-import { fetchTestsFromSupabase, upsertTestToSupabase, deleteTestFromSupabase } from '../../services/exam.supabase';
+import { upsertTestToSupabase, deleteTestFromSupabase } from '../../services/exam.supabase';
 import { clearAllExamLocalData, SYNCED_PREFIX, PENDING_PREFIX } from '../utils/storageKeys';
 
 export class SupabaseTestStorage implements ITestStorage {

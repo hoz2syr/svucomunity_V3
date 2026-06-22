@@ -241,7 +241,6 @@ const RATING_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 10;
 
-const rateLimitKey = (testId: string) => `rate_test:${testId}`;
 const getRateLimitRecord = (): { count: number; resetAt: number } | null => {
   try {
     const raw = localStorage.getItem('svu_tests_rate_limit');
@@ -264,7 +263,7 @@ const setRateLimitRecord = (count: number): void => {
   );
 };
 
-const checkRatingRateLimit = (testId: string): boolean => {
+const checkRatingRateLimit = (_testId: string): boolean => {
   const existing = getRateLimitRecord();
   if (!existing) {
     setRateLimitRecord(1);

@@ -6,7 +6,7 @@ import { useTestCreator } from '../hooks';
 
 export default function CreateTest() {
   const navigate = useNavigate();
-  const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, setError, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
+  const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animation-fade-in-up mt-6">

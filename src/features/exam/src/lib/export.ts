@@ -40,7 +40,7 @@ function getTFState(correctAnswer: string | undefined, showExplanations: boolean
   };
 }
 
-function renderQuestionPdf(test: TestModel, q: Question, index: number): string {
+function renderQuestionPdf(test: TestModel, q: Question, _index: number): string {
   const parts: string[] = [];
 
   if (q.type === 'multiple_choice' && q.options) {

@@ -1,9 +1,8 @@
 "use client";
 
 import { Link } from 'react-router-dom';
-import { FileText, Clock, Play, Printer, Download, Trash2, Share2, Lock } from 'lucide-react';
+import { FileText, Clock, Play, Printer, Download, Trash2, Share2 } from 'lucide-react';
 import { TestModel } from '../types';
-import { cn } from '../lib/utils';
 import { StarRating } from './StarRating';
 import { PrivacyBadge } from './PrivacyBadge';
 
@@ -14,13 +13,11 @@ interface TestCardProps {
   onExportWord: (test: TestModel) => void;
   onDelete: (id: string) => void;
   canDelete?: boolean;
-  isGuest?: boolean;
   onPublish?: (testId: string) => void;
   publishingId?: string | null;
-  publishError?: string | null;
 }
 
-export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete, canDelete = true, isGuest = false, onPublish, publishingId, publishError }: TestCardProps) {
+export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete, canDelete = true, onPublish, publishingId }: TestCardProps) {
   const isPublishing = publishingId === test.id;
 
   return (

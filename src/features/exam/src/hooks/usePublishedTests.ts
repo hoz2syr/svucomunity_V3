@@ -29,7 +29,6 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     isFetchingNextPage,
     isLoading: queryLoading,
     error: queryError,
-    refetch,
   } = useInfiniteQuery<TestModel[]>({
     queryKey: ['published-tests'],
     initialPageParam: undefined,
