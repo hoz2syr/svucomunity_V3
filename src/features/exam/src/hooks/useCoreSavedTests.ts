@@ -147,10 +147,6 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
     setTests(currentTests.map(t => (t.id === testId ? updated : t)));
 
     if (userId && hasSupabaseEnv() && !envMissing) {
-      const result = await upsertTestToSupabase({ ...updated, userId });
-      if (result.error) {
-        throw new Error(result.error.message || 'فشل نشر الاختبار.');
-      }
       queryClient.invalidateQueries({ queryKey: ['tests', userId] });
       queryClient.invalidateQueries({ queryKey: ['published-tests'] });
     }

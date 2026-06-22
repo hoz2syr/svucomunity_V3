@@ -120,7 +120,7 @@ export const upsertTestToSupabase = async (test: TestModel & { userId: string })
 
   try {
     const row = toTestRow(test);
-    const { error } = await getSupabaseClient().from('tests').upsert(row);
+    const { error } = await getSupabaseClient().from('tests').upsert(row, { onConflict: 'id' });
     if (error) {
       return { error: { message: error.message } };
     }
@@ -194,7 +194,7 @@ export const fetchPublishedTests = async (
   }
 
   try {
-    const query = getSupabaseClient()
+    const q = getSupabaseClient()
       .from('tests')
       .select('id, title, description, settings, questions, rating, published, created_at, updated_at')
       .eq('published', true)
@@ -204,10 +204,10 @@ export const fetchPublishedTests = async (
 
     if (cursor) {
       const cursorDate = new Date(cursor.created_at).toISOString();
-      query.or(`created_at.lt.${cursorDate},and(created_at.eq.${cursorDate},id.lt.${cursor.id})`);
+      q.or(`created_at.lt.${cursorDate},and(created_at.eq.${cursorDate},id.lt.${cursor.id})`);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await q;
 
     if (error) {
       return { data: [], error: { message: error.message }, hasMore: false };
