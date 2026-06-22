@@ -9,6 +9,7 @@ export interface TestRow {
   settings: TestModel['settings'];
   questions: TestModel['questions'];
   rating: number | null;
+  rating_count: number | null;
   published: boolean;
   created_at: string;
   updated_at: string;
@@ -22,6 +23,7 @@ export const toTestRow = (test: TestModel & { userId: string }): Omit<TestRow, '
   settings: test.settings,
   questions: test.questions,
   rating: test.rating ?? null,
+  rating_count: 0,
   published: test.published ?? false,
 });
 
@@ -149,6 +151,12 @@ export const deleteTestFromSupabase = async ({ testId, userId }: { testId: strin
   }
 };
 
+const stripCorrectAnswers = (questions: TestModel['questions']): TestModel['questions'] =>
+  questions.map(q => {
+    if (q.type === 'essay' || q.type === 'true_false') return q;
+    return { ...q, correctAnswer: undefined, correctAnswers: undefined };
+  });
+
 export const fetchPublishedTestById = async (testId: string): Promise<{ data: TestModel | null; error: ExamSupabaseError | null }> => {
   if (!hasSupabaseEnv()) {
     return { data: null, error: { message: missingSupabaseEnvMessage } };
@@ -170,9 +178,55 @@ export const fetchPublishedTestById = async (testId: string): Promise<{ data: Te
       return { data: null, error: null };
     }
 
-    return { data: toTestModel(data as TestRow), error: null };
+    const model = toTestModel(data as TestRow);
+    return { data: { ...model, questions: stripCorrectAnswers(model.questions) }, error: null };
   } catch (error) {
     return { data: null, error: { message: String(error) } };
+  }
+};
+
+export const fetchPublishedTests = async (
+  limit = 20,
+  cursor?: { created_at: string; id: string },
+): Promise<FetchTestsPageResult> => {
+  if (!hasSupabaseEnv()) {
+    return { data: [], error: { message: missingSupabaseEnvMessage }, hasMore: false };
+  }
+
+  try {
+    const query = getSupabaseClient()
+      .from('tests')
+      .select('id, title, description, settings, questions, rating, published, created_at, updated_at')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(limit + 1);
+
+    if (cursor) {
+      const cursorDate = new Date(cursor.created_at).toISOString();
+      query.or(`created_at.lt.${cursorDate},and(created_at.eq.${cursorDate},id.lt.${cursor.id})`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return { data: [], error: { message: error.message }, hasMore: false };
+    }
+
+    const rows = (data ?? []) as TestRow[];
+    const items = rows.map(row => {
+      const model = toTestModel(row);
+      return { ...model, questions: stripCorrectAnswers(model.questions) };
+    });
+    const hasMore = items.length > limit;
+    const sliced = hasMore ? items.slice(0, limit) : items;
+    const nextCursor = hasMore && sliced.length > 0
+      ? { created_at: new Date(sliced[sliced.length - 1].createdAt).toISOString(), id: sliced[sliced.length - 1].id }
+      : undefined;
+
+    return { data: sliced, error: null, nextCursor, hasMore };
+  } catch (error) {
+    return { data: [], error: { message: String(error) }, hasMore: false };
   }
 };
 

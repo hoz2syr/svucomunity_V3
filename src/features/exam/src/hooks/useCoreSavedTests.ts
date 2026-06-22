@@ -132,6 +132,7 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
 
     if (userId && hasSupabaseEnv() && !envMissing) {
       await upsertTestToSupabase({ ...updated, userId });
+      queryClient.invalidateQueries({ queryKey: ['tests', userId] });
     }
   }, [userId, queryClient, storage, envMissing]);
 

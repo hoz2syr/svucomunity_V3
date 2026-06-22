@@ -27,6 +27,7 @@ describe('exam.supabase mappers', () => {
       settings: { showExplanations: true },
       questions: [],
       rating: null,
+      rating_count: 0,
       published: true,
     });
   });
@@ -142,5 +143,120 @@ describe('fetchTestsPage pagination', () => {
     expect(result.data).toHaveLength(3);
     expect(result.hasMore).toBe(false);
     expect(result.nextCursor).toBeUndefined();
+  });
+});
+
+describe('fetchPublishedTests', () => {
+  beforeEach(() => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  });
+
+  it('returns hasMore=false and no cursor when fewer than limit', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://x.supabase.co';
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'k';
+
+    const now = Date.now();
+    const rows = Array.from({ length: 3 }, (_, i) => ({
+      id: `t${i}`, user_id: 'user-1', title: `t${i}`,
+      description: null, settings: {} as TestModel['settings'],
+      questions: [] as TestModel['questions'], rating: null, published: true,
+      created_at: new Date(now - i * 1000).toISOString(),
+      updated_at: new Date(now - i * 1000).toISOString(),
+    }));
+
+    vi.mock('@/src/lib/supabase', () => {
+      const mock: any = { from: () => ({ select: () => ({ eq: () => ({ order: () => ({ order: () => ({ limit: async () => ({ data: [], error: null }) }) }) }) }) }) };
+      return {
+        hasSupabaseEnv: () => true,
+        getSupabaseClient: () => mock,
+        missingSupabaseEnvMessage: 'missing',
+        __setMock: (m: any) => { Object.assign(mock, m); },
+      };
+    });
+
+    const mod = await import('@/src/lib/supabase');
+    (mod as any).__setMock({
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              order: () => ({
+                limit: async () => ({ data: rows, error: null }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    });
+
+    const { fetchPublishedTests } = await import('@/src/features/exam/src/services/exam.supabase');
+    const result = await fetchPublishedTests(9);
+    expect(result.data).toHaveLength(3);
+    expect(result.hasMore).toBe(false);
+    expect(result.nextCursor).toBeUndefined();
+  });
+});
+
+describe('fetchPublishedTestById strips correctAnswer', () => {
+  beforeEach(() => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  });
+
+  it('removes correctAnswer from MCQ questions in public response', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://x.supabase.co';
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'k';
+
+    const now = Date.now();
+    const rows = [
+      {
+        id: 'pub-1',
+        user_id: 'user-1',
+        title: 'اختبار منشور',
+        description: 'وصف',
+        settings: { showExplanations: true } as TestModel['settings'],
+        questions: [
+          { id: 'q1', type: 'multiple_choice', text: 'سؤال 1', options: ['أ', 'ب'], correctAnswer: 'ب' },
+          { id: 'q2', type: 'true_false', text: 'سؤال 2', correctAnswer: 'true' },
+        ],
+        rating: 4,
+        published: true,
+        created_at: new Date(now).toISOString(),
+        updated_at: new Date(now).toISOString(),
+      },
+    ];
+
+    vi.mock('@/src/lib/supabase', () => {
+      const mock: any = { from: () => ({ select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }) }) }) };
+      return {
+        hasSupabaseEnv: () => true,
+        getSupabaseClient: () => mock,
+        missingSupabaseEnvMessage: 'missing',
+        __setMock: (m: any) => { Object.assign(mock, m); },
+      };
+    });
+
+    const mod = await import('@/src/lib/supabase');
+    (mod as any).__setMock({
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: rows[0], error: null }),
+            }),
+          }),
+        }),
+      }),
+    });
+
+    const { fetchPublishedTestById } = await import('@/src/features/exam/src/services/exam.supabase');
+    const result = await fetchPublishedTestById('pub-1');
+
+    expect(result.error).toBeNull();
+    expect(result.data).not.toBeNull();
+    expect(result.data!.questions[0].correctAnswer).toBeUndefined();
+    expect(result.data!.questions[1].correctAnswer).toBe('true');
+    expect(result.data!.published).toBe(true);
   });
 });

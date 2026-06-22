@@ -19,7 +19,7 @@ export default function Home() {
           </h1>
           <div className="relative group">
             <HelpCircle className="w-6 h-6 text-secondary-400 cursor-help" />
-            <div className="absolute bottom-full left-0 mb-2 w-72 p-3 bg-secondary-800 border border-secondary-700 rounded-xl text-xs text-secondary-300 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
+            <div className="absolute top-full left-0 mt-2 w-72 p-3 bg-secondary-800 border border-secondary-700 rounded-xl text-xs text-secondary-300 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
               <strong className="text-white mb-1 block">لماذا JSON؟</strong>
               JSON هو التنسيق الموثوب الوحيد اليوم الذي يولّده الذكاء الاصطناعي بدقة عالية، ويتحقق منه آلياً بدون مكتبات خارجية، ويتعامل معه المتصفح مباشرة عبر <code className="text-emerald-400">JSON.parse</code> — مما يجعله الجسر الأمثل بين الـ AI والمنصة.
             </div>

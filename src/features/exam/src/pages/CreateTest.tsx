@@ -9,7 +9,7 @@ export default function CreateTest() {
   const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, setError, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animation-fade-in-up">
+    <div className="max-w-3xl mx-auto space-y-8 animation-fade-in-up mt-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-white mb-2">إنشاء اختبار جديد</h1>
         <p className="text-secondary-400">قم برفع ملف JSON أو لصقه مباشرة للبدء</p>

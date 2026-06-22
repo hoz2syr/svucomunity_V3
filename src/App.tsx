@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { GuestProvider } from './contexts/GuestContext';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
-import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared } from './features/exam';
+import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests } from './features/exam';
 
 function App() {
   return (
@@ -37,6 +37,14 @@ function App() {
                 />
                 <Route
                   path="/exam"
+                  element={
+                    <GuestRoute>
+                      <Navigate to="/exam/saved" replace />
+                    </GuestRoute>
+                  }
+                />
+                <Route
+                  path="/exam/home"
                   element={
                     <GuestRoute>
                       <ExamLayout>
@@ -81,6 +89,16 @@ function App() {
                     <GuestRoute>
                       <ExamLayout>
                         <PlayTestShared />
+                      </ExamLayout>
+                    </GuestRoute>
+                  }
+                />
+                <Route
+                  path="/exam/browse"
+                  element={
+                    <GuestRoute>
+                      <ExamLayout>
+                        <BrowsePublishedTests />
                       </ExamLayout>
                     </GuestRoute>
                   }

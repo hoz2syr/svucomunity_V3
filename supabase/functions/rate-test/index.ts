@@ -45,7 +45,7 @@ serve(async (req) => {
 
     const { data: test, error: fetchError } = await supabase
       .from("tests")
-      .select("id, rating")
+      .select("id, rating, rating_count")
       .eq("id", testId)
       .maybeSingle();
 
@@ -57,11 +57,15 @@ serve(async (req) => {
     }
 
     const existingRating = test.rating ?? null;
-    const updatedRating = Math.round(((existingRating ?? 0) + rating) / (existingRating ? 2 : 1));
+    const existingCount = test.rating_count ?? 0;
+    const newCount = existingCount + 1;
+    const updatedRating = Math.round(
+      ((existingRating ?? 0) * existingCount + rating) / newCount,
+    );
 
     const { error: updateError } = await supabase
       .from("tests")
-      .update({ rating: updatedRating })
+      .update({ rating: updatedRating, rating_count: newCount })
       .eq("id", testId);
 
     if (updateError) {

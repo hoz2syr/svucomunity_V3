@@ -29,6 +29,9 @@ enable_confirmations = true
 # pass = "your-smtp-password"
 # admin_email = "admin@domain.com"
 
+[functions."rate-test"]
+verify_jwt = true
+
 [functions.delete-account]
 verify_jwt = true
 

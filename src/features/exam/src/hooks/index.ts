@@ -7,4 +7,5 @@ export { useCorePlayTest, type UseCorePlayTestOptions } from './useCorePlayTest'
 export { useCoreSavedTests } from './useCoreSavedTests';
 export { useTestActions, type UseTestActionsOptions, type UseTestActionsReturn } from './useTestActions';
 export { useTestMigration } from './useTestMigration';
+export { usePublishedTests, type UsePublishedTestsReturn } from './usePublishedTests';
 export type { UseCorePlayTestReturn } from './useCorePlayTest';

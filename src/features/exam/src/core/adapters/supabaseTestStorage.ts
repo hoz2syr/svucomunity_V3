@@ -23,6 +23,12 @@ export class SupabaseTestStorage implements ITestStorage {
     if (!userId) {
       throw new Error('Cannot sync to Supabase without userId. Call setCurrentUserId first.');
     }
+    const idx = this.cachedTests.findIndex((t) => t.id === test.id);
+    if (idx >= 0) {
+      this.cachedTests[idx] = test;
+    } else {
+      this.cachedTests.push(test);
+    }
     const record = { ...test, userId };
     upsertTestToSupabase(record).catch((error) => {
       console.error('syncToServer failed', error);

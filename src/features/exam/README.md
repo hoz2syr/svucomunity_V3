@@ -32,7 +32,8 @@ src/features/exam/
     │   ├── Home.tsx            # Prompt builder landing page
     │   ├── CreateTest.tsx      # JSON upload / paste → test creation form
     │   ├── PlayTest.tsx        # Active test play view (pre-start / answering / results)
-    │   └── SavedTests.tsx      # Grid list of saved tests with actions
+    │   ├── SavedTests.tsx      # Grid list of saved tests with actions
+    │   └── BrowsePublishedTests.tsx # Browse all published tests from the community
     ├── hooks/
     │   ├── index.ts            # Barrel re-export
     │   ├── usePromptPreferences.ts   # Home page prompt builder state
@@ -44,7 +45,8 @@ src/features/exam/
     │   ├── usePlayTest.ts            # PlayTest state machine + timer
     │   ├── useSavedTests.ts          # SavedTests CRUD + export actions (legacy)
     │   ├── useCoreSavedTests.ts      # SavedTests via core adapter + cursor pagination
-    │   └── useCorePlayTest.ts        # PlayTest via core adapter pattern
+    │   ├── useCorePlayTest.ts        # PlayTest via core adapter pattern
+    │   └── usePublishedTests.ts      # Published tests listing with cursor pagination
     ├── lib/
     │   ├── store.ts            # Legacy localStorage CRUD (TODO: replace with Supabase)
     │   ├── export.ts           # PDF (html2pdf.js) and Word (docx) generators
@@ -161,9 +163,12 @@ interface Question {
 | Route | Component | Source |
 |---|---|---|
 | `/exam` | `Home` | `src/pages/Home.tsx` |
+| `/exam/home` | `Home` | `src/pages/Home.tsx` |
 | `/exam/create` | `CreateTest` | `src/pages/CreateTest.tsx` |
 | `/exam/saved` | `SavedTests` | `src/pages/SavedTests.tsx` |
 | `/exam/play/:id` | `PlayTest` | `src/pages/PlayTest.tsx` |
+| `/exam/shared/:id` | `PlayTestShared` | `src/pages/PlayTestShared.tsx` |
+| `/exam/browse` | `BrowsePublishedTests` | `src/pages/BrowsePublishedTests.tsx` |
 
 ---
 
