@@ -56,9 +56,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
-  const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const isPassword = type === "password";
   const baseClasses = "w-full bg-[#050815]/50 border rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 transition-all font-sans";
   const stateClasses = error
@@ -76,7 +75,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         </label>
       )}
       <motion.div
-        animate={isFocused ? { scale: 1.02 } : { scale: 1 }}
+        animate={{ scale: 1 }}
         className="relative"
       >
           <input

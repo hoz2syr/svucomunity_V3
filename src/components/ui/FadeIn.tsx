@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import { type FC, type ReactNode } from 'react';
 import { useInView } from '../../hooks/useInView';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 

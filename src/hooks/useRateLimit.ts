@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export type RateLimitOptions = {
   maxAttempts?: number;
@@ -85,10 +85,8 @@ export const useRateLimit = (options: RateLimitOptions = {}) => {
   useEffect(() => {
     const limiter = limiterRef.current;
 
-    let remaining: number | null = null;
     const interval = setInterval(() => {
       const next = limiter.check();
-      remaining = 'remaining' in next ? next.remaining : null;
       setStatus(next);
     }, 1000);
 

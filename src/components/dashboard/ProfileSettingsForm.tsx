@@ -11,7 +11,7 @@ type ProfileSettingsFormProps = {
   onSubmit: (data: ProfileInput) => Promise<string | null>;
 };
 
-export const ProfileSettingsForm = ({ userId, initial, onSubmit }: ProfileSettingsFormProps) => {
+export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit }: ProfileSettingsFormProps) => {
   const { isLoading, successMsg, errorMsg, submit } = useProfileSettings(onSubmit);
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),

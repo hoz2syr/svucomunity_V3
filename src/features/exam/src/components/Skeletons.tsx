@@ -1,62 +1,15 @@
 "use client";
 
 import { cn } from '../lib/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface SkeletonVariantProps extends React.ComponentProps<'div'> {
   shimmer?: boolean;
   variant?: 'default' | 'icon' | 'button' | 'card';
 }
 
-const shimmerStyles = `
-.skeleton-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.skeleton-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.04) 40%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 60%,
-    transparent 100%
-  );
-  animation: shimmer 1.6s ease-in-out infinite;
-}
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.skeleton-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-`;
-
-let styleInjected = false;
-
-function useSkeletonStyles() {
-  useEffect(() => {
-    if (typeof document !== 'undefined' && !styleInjected) {
-      styleInjected = true;
-      const style = document.createElement('style');
-      style.id = 'skeleton-shimmer-styles';
-      style.textContent = shimmerStyles;
-      document.head.appendChild(style);
-    }
-  }, []);
-}
-
 export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonVariantProps>(
   ({ className, shimmer = true, variant = 'default', ...props }, ref) => {
-    useSkeletonStyles();
     return (
       <div
         ref={ref}

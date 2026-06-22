@@ -1,25 +1,14 @@
-export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
-interface ValidationResult {
-  isValid: boolean;
-  error: string;
-}
-
-export function validateEmail(val: string): ValidationResult {
-  if (!val) return { isValid: false, error: 'البريد الإلكتروني مطلوب' };
-  if (!emailRegex.test(val)) return { isValid: false, error: 'صيغة البريد الإلكتروني غير صحيحة' };
-  return { isValid: true, error: '' };
-}
-
-export function validatePassword(val: string): ValidationResult {
-  if (!val) return { isValid: false, error: 'كلمة المرور مطلوبة' };
-  if (val.length < 8) return { isValid: false, error: 'كلمة المرور يجب أن تتكون من 8 أحرف على الأقل' };
-  if (!passwordRegex.test(val)) return { isValid: false, error: 'تحتاج إلى حرف كبير وحرف صغير ورقم ورمز خاص' };
-  return { isValid: true, error: '' };
-}
-
-export function validateName(val: string): ValidationResult {
-  if (!val.trim()) return { isValid: false, error: 'الاسم الكامل مطلوب' };
-  return { isValid: true, error: '' };
-}
+/**
+ * @deprecated This module is deprecated as part of duplicate-validation cleanup.
+ *
+ * All field validation rules (email, password, name) are now defined exclusively
+ * in Zod schemas under `src/schemas/auth.schema.ts` and consumed via
+ * `zodResolver` in React Hook Form. Keeping this file risks rule drift.
+ *
+ * Migration examples:
+ *   Before:        validateEmail(email).isValid
+ *   After (Zod):   loginSchema.safeParse({ email, password }).success
+ *
+ * If you need standalone validation outside RHF, import the relevant Zod schema
+ * directly from `src/schemas/auth.schema.ts` and call `.safeParse()`.
+ */

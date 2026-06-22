@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { type FormEvent, type ReactNode, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { InputField } from '../ui/InputField';
-import { ServerError } from '../ui/ServerError';
 import { AuthButton } from '../ui/AuthButton';
+import { ServerError } from '../ui/ServerError';
 import { ArrowRight } from 'lucide-react';
 import { useParticleCanvas } from '../../hooks/useParticleCanvas';
 
@@ -12,12 +11,12 @@ type LogoGradient = 'from-cyan-400 to-indigo-500' | 'from-purple-500 to-indigo-5
 interface AuthCardProps {
   title: string;
   subtitle?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   footerText?: string;
   footerLinkText?: string;
   footerLinkTo?: string;
   showBackLink?: boolean;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: FormEvent) => void;
   submitText: string;
   loadingText?: string;
   isLoading: boolean;

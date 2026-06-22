@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { TestModel } from '../types';
 import { localStorageTestStorage } from '../core/adapters/localStorageTestStorage';
 import { supabaseStorage } from '../core/adapters/supabaseTestStorage';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { fetchTestsPage, upsertTestToSupabase, deleteTestFromSupabase } from '../services/exam.supabase';
+import { fetchTestsPage, upsertTestToSupabase } from '../services/exam.supabase';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { useTestActions } from './useTestActions';
 import { useTestMigration } from './useTestMigration';
@@ -45,6 +45,8 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
   const [tests, setTests] = useState<TestModel[]>([]);
   const [isLoadingState, setIsLoading] = useState(true);
   const [errorState, setError] = useState<string | null>(null);
+  const prevUserIdRef = useRef<string | null>(null);
+  const localTestsAtLoginRef = useRef<TestModel[]>([]);
 
   useTestMigration({ userId, envMissing });
 
@@ -84,14 +86,28 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
       setTests(localStorageTestStorage.getTests());
       setIsLoading(false);
       setError(null);
+      prevUserIdRef.current = userId;
       return;
     }
-    if (serverTests) {
-      supabaseStorage.hydrateFromServer(userId, serverTests);
-      setTests(serverTests);
-      setIsLoading(false);
-      setError(null);
+
+    const localTests = localStorageTestStorage.getTests();
+    if (prevUserIdRef.current === null || prevUserIdRef.current !== userId) {
+      localTestsAtLoginRef.current = localTests;
     }
+
+    const merged = Array.from(
+      new Map([
+        ...localTestsAtLoginRef.current.map(t => [t.id, t] as [string, TestModel]),
+        ...serverTests.map(t => [t.id, t] as [string, TestModel]),
+      ]).values(),
+    );
+
+    supabaseStorage.hydrateFromServer(userId, merged);
+    setTests(merged);
+    setIsLoading(false);
+    setError(null);
+
+    prevUserIdRef.current = userId;
   }, [serverTests, userId, envMissing]);
 
   useEffect(() => {
@@ -133,21 +149,18 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
     if (userId && hasSupabaseEnv() && !envMissing) {
       await upsertTestToSupabase({ ...updated, userId });
       queryClient.invalidateQueries({ queryKey: ['tests', userId] });
+      queryClient.invalidateQueries({ queryKey: ['published-tests'] });
     }
   }, [userId, queryClient, storage, envMissing]);
 
   const executeDelete = useCallback(async (id: string) => {
-    localStorageTestStorage.deleteTest(id);
-    if (userId && hasSupabaseEnv() && !envMissing) {
-      await deleteTestFromSupabase({ testId: id, userId });
-    }
-    const remaining = localStorageTestStorage.getTests();
+    storage.deleteTest(id);
+    const remaining = storage.getTests();
     setTests(remaining);
-    queryClient.setQueryData<TestModel[][]>(['tests', userId], (old) => {
-      if (!old) return old;
-      return old.map((page: TestModel[]) => page.filter((t) => t.id !== id));
-    });
-  }, [userId, queryClient, envMissing]);
+    if (userId && hasSupabaseEnv() && !envMissing) {
+      queryClient.invalidateQueries({ queryKey: ['tests', userId] });
+    }
+  }, [userId, queryClient, storage, envMissing]);
 
   const actions = useTestActions({
     onPublish: handlePublish,

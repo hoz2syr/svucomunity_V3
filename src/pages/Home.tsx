@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import {
   HeroAddition, ScrollIndicator, ProblemsSection, SolutionBridge,
   FeaturesSection, HowItWorksSection, ComingSoonSection, FinalCTASection,

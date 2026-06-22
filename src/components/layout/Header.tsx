@@ -1,4 +1,3 @@
-import React from 'react';
 import { AuthButton } from '../ui/AuthButton';
 
 type User = {

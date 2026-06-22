@@ -1,3 +1,26 @@
+/**
+ * @module stores/notificationStore
+ *
+ * @deprecated Zustand store for in-app notifications.
+ *
+ * PLANNED — not wired to any component yet. Currently only exported; no consumer
+ * in `src/` imports `useNotificationStore`. This is intentional "Zustand drift":
+ * the store is reserved for a future in-app notification system that will be
+ * populated by `src/services/notification.service.ts`.
+ *
+ * NOTE: The store API surface (`items`, `unreadCount`, `add`, `markRead`, etc.)
+ * differs from the `Notification` type exported by `src/types/notification.ts`.
+ * Before wiring up, reconcile the two interfaces.
+ *
+ * When wiring up:
+ *   1. Align store shape with the `Notification` type in `src/types/notification.ts`.
+ *   2. Connect `add` to real-time Supabase notifications subscription.
+ *   3. Remove or promote this file once a consumer exists.
+ *
+ * Do NOT delete this file until a component actually uses it — removing it will
+ * silently break any planned feature that imports it.
+ */
+
 import { create } from 'zustand';
 
 export type Notification = {

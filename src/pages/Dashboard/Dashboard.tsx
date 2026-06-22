@@ -5,7 +5,6 @@ import { Home } from 'lucide-react';
 import { DeleteAccountModal, LogoutModal, SettingsModal } from '../../components/dashboard';
 import { SkipLink } from '../../components/accessibility/SkipLink';
 import { useAuth } from '../../contexts/AuthContext';
-import { useGuest } from '../../contexts/GuestContext';
 import { deleteOwnAccount, signOutCurrentUser } from '../../services/account.service';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
@@ -25,7 +24,6 @@ const getUser = (session: ReturnType<typeof useAuth>['session'], profile: Return
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const { session, profile, loading: authLoading } = useAuth();
-  const { isGuest, enableGuestMode } = useGuest();
   const {
     profileMenuRef,
     isProfileMenuOpen,
@@ -59,11 +57,6 @@ export const DashboardPage = () => {
 
   const user = getUser(session, profile);
   const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const handleGuestLoginPrompt = () => {
-    enableGuestMode();
-    navigate('/login', { replace: true });
-  };
 
   const handleSignOut = async () => {
     const result = await signOutCurrentUser();

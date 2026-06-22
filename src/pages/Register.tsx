@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Mail } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuthForm } from '../hooks/useAuthForm';
@@ -11,7 +11,6 @@ import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environme
 import { loginWithGoogle, registerWithEmail } from '../services/auth.service';
 
 export const RegisterPage = () => {
-  const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
   const auth = useAuthForm({ mode: 'register' });
 

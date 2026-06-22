@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
-import { validateEmail } from '../../utils/validators';
+import { resetPasswordSchema } from '../../schemas/auth.schema';
 import { getErrorMessage } from '../../services/environment.service';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../../services/environment.service';
 import { resetPassword } from '../../services/auth.service';
@@ -40,7 +40,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
     setResetError('');
     setResetSuccess(false);
 
-    if (!validateEmail(resetEmail).isValid) {
+    if (!resetPasswordSchema.safeParse({ email: resetEmail }).success) {
       setResetError('يرجى إدخال بريد إلكتروني صحيح');
       return;
     }

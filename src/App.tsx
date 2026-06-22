@@ -7,7 +7,6 @@ import { Home } from './pages/Home';
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
 import { DashboardPage } from './pages/Dashboard';
-import { DashboardLayout } from './pages/Dashboard/DashboardLayout';
 import { AuthCallback } from './pages/AuthCallback';
 import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';

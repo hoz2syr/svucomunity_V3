@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Clock, X, MousePointer2 } from 'lucide-react';
 
 export const InteractiveMapSimulation = () => {

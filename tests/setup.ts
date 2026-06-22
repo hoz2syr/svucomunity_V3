@@ -29,6 +29,16 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+Object.defineProperty(window, 'alert', {
+  value: vi.fn(),
+  configurable: true,
+});
+
+Object.defineProperty(window, 'open', {
+  value: vi.fn(),
+  configurable: true,
+});
+
 vi.mock('html2pdf.js', () => {
   const save = vi.fn().mockResolvedValue(undefined);
   return {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Particle, TextParticle, LinkState, MouseState } from '../types';
+import type { TextParticle, LinkState, MouseState } from '../types';
 import {
   measureTextTargets,
   resizeCanvas,

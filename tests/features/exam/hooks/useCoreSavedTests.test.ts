@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCoreSavedTests } from '@/src/features/exam/src/hooks/useCoreSavedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
 import { localStorageTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
 import { supabaseStorage } from '@/src/features/exam/src/core/adapters/supabaseTestStorage';
 import * as examSupabase from '@/src/features/exam/src/services/exam.supabase';
-import { TestWrapper } from '@/tests/setup';
+import { TestWrapper, testQueryClient } from '@/tests/setup';
 
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   id: 'test-1',
@@ -31,30 +31,37 @@ vi.mock('@/src/contexts/AuthContext', () => ({
 }));
 
 beforeEach(() => {
+  testQueryClient.clear();
   mockAuth = createMockAuth();
   localStorage.clear();
-  supabaseStorage.setCurrentUserId(null);
-  supabaseStorage.hydrateFromServer('', []);
+  supabaseStorage.currentUserId = null;
+  supabaseStorage.cachedTests = [];
+  localStorageTestStorage.currentUserId = null;
   vi.clearAllMocks();
 
-  const fetchSpy = vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockResolvedValue({ data: [], error: null });
-  vi.spyOn(examSupabase, 'fetchTestsPage').mockImplementation(async (_userId: string, _cursor?: any, limit = 9) => {
-    const cached = supabaseStorage.getTests();
-    const page = cached.slice(0, limit);
-    const hasMore = cached.length > limit;
-    const nextCursor = hasMore && page.length > 0
-      ? { created_at: new Date(page[page.length - 1].createdAt).toISOString(), id: page[page.length - 1].id }
-      : undefined;
-    return { data: page, error: null, nextCursor, hasMore };
+  supabaseStorage.setCurrentUserId('user-1');
+
+  vi.spyOn(examSupabase, 'fetchTestsFromSupabase').mockImplementation((uid: string) => {
+    if (supabaseStorage.currentUserId !== uid) return Promise.resolve({ data: [], error: null });
+    return Promise.resolve({ data: [...supabaseStorage.cachedTests], error: null });
   });
 
-  fetchSpy.mockImplementation(async (userId: string) => {
-    const cached = supabaseStorage.getTests();
-    if (cached.length > 0) {
-      return { data: cached, error: null };
-    }
-    return { data: [], error: null };
+  vi.spyOn(examSupabase, 'fetchTestsPage').mockImplementation((uid: string, cursor: any, limit = 9) => {
+    if (supabaseStorage.currentUserId !== uid) return Promise.resolve({ data: [], error: null, hasMore: false, nextCursor: undefined });
+    const all = [...supabaseStorage.cachedTests];
+    const startIdx = cursor
+      ? all.findIndex(t => t.id === cursor.id && new Date(t.createdAt).toISOString() === cursor.created_at)
+      : -1;
+    const slice = startIdx >= 0 ? all.slice(startIdx + 1, startIdx + 1 + limit) : all.slice(0, limit);
+    const hasMore = all.length > (startIdx >= 0 ? startIdx + 1 : 0) + limit;
+    const nextCursor = hasMore && slice.length > 0
+      ? { created_at: new Date(slice[slice.length - 1].createdAt).toISOString(), id: slice[slice.length - 1].id }
+      : undefined;
+    return Promise.resolve({ data: slice, error: null, hasMore, nextCursor });
   });
+
+  vi.spyOn(examSupabase, 'upsertTestToSupabase').mockResolvedValue(undefined);
+  vi.spyOn(examSupabase, 'deleteTestFromSupabase').mockResolvedValue(undefined);
 });
 
 describe('useCoreSavedTests', () => {
@@ -79,6 +86,46 @@ describe('useCoreSavedTests', () => {
     expect(result.current.tests[0].id).toBe('local');
     expect(result.current.error).toBeNull();
     expect(result.current.canDelete).toBe(false);
+  });
+
+  it('preserves guest tests when logging in with empty server (new account)', async () => {
+    const guestTest = buildTest({ id: 'guest-1', title: 'اختبار ضيف' });
+    localStorageTestStorage.saveTest(guestTest);
+
+    mockAuth.session = { user: { id: 'user-1' } } as any;
+
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    console.debug('[TST1] after fetchTests', { tests: result.current.tests.map(t => t.id), sbCached: supabaseStorage.cachedTests.map(t => t.id), localLen: localStorageTestStorage.getTests().length });
+
+    await waitFor(() => {
+      expect(result.current.tests.some(t => t.id === 'guest-1')).toBe(true);
+    }, { timeout: 5000 });
+    expect(result.current.tests.some(t => t.title === 'اختبار ضيف')).toBe(true);
+    expect(result.current.canDelete).toBe(true);
+  });
+
+  it('merges guest tests with existing server tests on login', async () => {
+    const guestTest = buildTest({ id: 'guest-only' });
+    const serverTest = buildTest({ id: 'server-only' });
+    localStorageTestStorage.saveTest(guestTest);
+    supabaseStorage.hydrateFromServer('user-1', [serverTest]);
+
+    mockAuth.session = { user: { id: 'user-1' } } as any;
+
+    const { result } = renderHook(() => useCoreSavedTests(), { wrapper: TestWrapper });
+    await act(async () => {
+      await result.current.fetchTests();
+    });
+
+    console.debug('[TST2] after fetchTests', { tests: result.current.tests.map(t => t.id), sbCached: supabaseStorage.cachedTests.map(t => t.id), localLen: localStorageTestStorage.getTests().length });
+
+    await waitFor(() => {
+      expect(result.current.tests.map(t => t.id).sort()).toEqual(['guest-only', 'server-only'].sort());
+    }, { timeout: 5000 });
   });
 
   it('uses localStorage path when userId is empty string', async () => {

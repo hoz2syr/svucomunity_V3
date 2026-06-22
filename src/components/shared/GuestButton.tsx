@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../../contexts/GuestContext';
 import { UserRound } from 'lucide-react';

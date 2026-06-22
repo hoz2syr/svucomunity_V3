@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { FadeIn } from '../ui/FadeIn';
 import { useInView } from '../../hooks/useInView';
 import { GuestButton } from '../shared/GuestButton';
 

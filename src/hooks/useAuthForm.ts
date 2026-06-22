@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useForm, SubmitHandler, UseFormReturn, FieldError } from 'react-hook-form';
+import { useForm, UseFormReturn, FieldError, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, registerSchema, LoginInput, RegisterInput } from '../schemas/auth.schema';
 
@@ -29,6 +29,18 @@ export type UseAuthFormReturn = {
   setLoading: (loading: boolean) => void;
 };
 
+const FIELD_KEYS = ['email', 'password', 'name'] as const;
+
+const extractFieldErrors = (errors: FieldErrors<LoginInput | RegisterInput>): AuthFieldErrors => {
+  const mapped: AuthFieldErrors = {};
+  for (const key of FIELD_KEYS) {
+    const fieldErrors = errors as Record<string, FieldError | undefined>;
+    const err = fieldErrors[key];
+    if (err?.message) mapped[key] = err.message;
+  }
+  return mapped;
+};
+
 export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAuthFormReturn {
   const schema = mode === 'login' ? loginSchema : registerSchema;
   const [isLoading, setIsLoading] = useState(false);
@@ -52,25 +64,17 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
   const handleSubmit = useCallback(async (): Promise<LoginInput | RegisterInput | null> => {
     return new Promise((resolve) => {
       rhfHandleSubmit(
-        (values) => {
-          setFieldErrors({});
-          setServerError('');
-          setIsLoading(true);
-          resolve(values);
-        },
-         (errors) => {
-          const mapped: AuthFieldErrors = {};
-          const mapError = (err: FieldError | undefined, key: 'email' | 'password' | 'name') => {
-            if (err?.message) mapped[key] = err.message;
-          };
-          const allErrors = errors as Record<string, FieldError | undefined>;
-          mapError(allErrors.email, 'email');
-          mapError(allErrors.password, 'password');
-          mapError(allErrors.name, 'name');
-          setFieldErrors(mapped);
-          setIsLoading(false);
-          resolve(null);
-        }
+          (values) => {
+            setFieldErrors({});
+            setServerError('');
+            setIsLoading(true);
+            resolve(values);
+          },
+          (errors) => {
+            setFieldErrors(extractFieldErrors(errors as FieldErrors<LoginInput | RegisterInput>));
+            setIsLoading(false);
+            resolve(null);
+          }
       )();
     });
   }, [rhfHandleSubmit]);

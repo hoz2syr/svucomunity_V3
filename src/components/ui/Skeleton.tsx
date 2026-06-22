@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * A Skeleton component used to simulate loading state for UI blocks.

@@ -35,4 +35,8 @@ export const deleteAccountSchema = z.object({
   confirmation: z.string().min(1, 'يرجى كتابة اسم المستخدم للتأكيد').max(100),
 }) satisfies z.ZodType<DeleteAccountInput>;
 
+export const resetPasswordSchema = z.object({
+  email: z.string().min(1, 'البريد الإلكتروني مطلوب').email('صيغة البريد غير صحيحة').max(255),
+}) satisfies z.ZodType<{ email: string }>;
+
 export type { LoginInput, RegisterInput, ProfileInput, SecurityInput, DeleteAccountInput };

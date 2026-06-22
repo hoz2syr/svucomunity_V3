@@ -1,5 +1,5 @@
 import type { Particle, TextParticle, LinkState } from '../types';
-import { easeInOutQuad, easeInCubic, easeOutCubic, easeInOutCubic, spring } from '../utils/animation';
+import { easeInOutQuad, easeInCubic, easeOutCubic } from '../utils/animation';
 
 export function measureTextTargets(
   charRefs: (HTMLSpanElement | null)[],

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useId, useState, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useId, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';

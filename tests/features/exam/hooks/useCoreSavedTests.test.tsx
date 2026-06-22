@@ -1,13 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { TestWrapper, testQueryClient } from '@/tests/setup';
 import { useCoreSavedTests } from '@/src/features/exam/src/hooks/useCoreSavedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
 import { localStorageTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
 import { supabaseStorage } from '@/src/features/exam/src/core/adapters/supabaseTestStorage';
 import * as examSupabase from '@/src/features/exam/src/services/exam.supabase';
-import type { TestRow } from '@/src/features/exam/src/services/exam.supabase';
 
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
   id: 'test-1',
@@ -33,6 +31,7 @@ vi.mock('@/src/contexts/AuthContext', () => ({
 }));
 
 beforeEach(() => {
+  testQueryClient.clear();
   mockAuth = createMockAuth();
   localStorage.clear();
   supabaseStorage.setCurrentUserId(null);
@@ -58,13 +57,11 @@ beforeEach(() => {
       : undefined;
     return { data: page, error: null, nextCursor, hasMore };
   });
+
+  vi.spyOn(examSupabase, 'upsertTestToSupabase').mockResolvedValue(undefined);
 });
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+const wrapper = TestWrapper;
 
 describe('useCoreSavedTests', () => {
   it('starts with loading true and empty tests', () => {
