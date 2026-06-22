@@ -67,7 +67,10 @@ export function useSavedTests(): UseSavedTestsReturn {
     setTests(stored.map(t => (t.id === testId ? updated : t)));
 
     if (hasSupabaseEnv() && session?.user?.id) {
-      await upsertTestToSupabase({ ...updated, userId: session.user.id });
+      const result = await upsertTestToSupabase({ ...updated, userId: session.user.id });
+      if (result.error) {
+        throw new Error(result.error.message || 'فشل نشر الاختبار.');
+      }
     }
   }, [session]);
 
