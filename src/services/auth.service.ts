@@ -41,33 +41,47 @@ const classifyAuthFunctionError = (
   const message = (raw.message ?? '').toLowerCase();
   const status = raw.status;
 
-  if (message.includes('network') || message.includes('fetch failed')) {
-    return 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+  if (import.meta.env.DEV) {
+    console.error('[AuthError]', raw);
   }
-  if (message.includes('edge function')) {
-    return 'تعذر الوصول إلى خدمة المصادقة. قد تكون الخدمة متوقفة حالياً.';
-  }
-  if (status === 429 || message.includes('too many attempts')) {
-    return 'طلبات كثيرة جداً. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.';
-  }
-  if (status === 403) {
-    return 'ليس لديك صلاحية كافية.';
-  }
-  if (status === 401 || message.includes('invalid credentials') || message.includes('invalid login')) {
+
+  if (status === 401 || message.includes('invalid credentials') || message.includes('invalid login') || message.includes('invalid email or password')) {
     return 'بريد إلكتروني أو كلمة مرور غير صحيحة.';
+  }
+  if (message.includes('user not found') || message.includes('no user found')) {
+    return 'لا يوجد حساب بهذا البريد الإلكتروني.';
   }
   if (message.includes('email not confirmed')) {
     return 'يرجى تفعيل حسابك عبر رابط التأكيد المرسل إلى بريدك الإلكتروني.';
   }
-  if (message.includes('user already registered') || message.includes('already been registered') || message.includes('email already exists')) {
+  if (message.includes('user already registered') || message.includes('already been registered') || message.includes('email already exists') || message.includes('duplicate key')) {
     return 'هذا البريد الإلكتروني مسجل مسبقاً.';
   }
   if (message.includes('password must be at least')) {
     return 'كلمة المرور قصيرة جداً. يجب أن تكون 8 أحرف على الأقل.';
   }
+  if (status === 429 || message.includes('too many attempts') || message.includes('rate limit')) {
+    return 'طلبات كثيرة جداً. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.';
+  }
+  if (status === 403) {
+    return 'ليس لديك صلاحية كافية.';
+  }
   if (status && status >= 500) {
     return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
   }
+  if (message.includes('network') || message.includes('fetch failed')) {
+    return 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+  }
+
+  const specificError = message.replace(/.*edge function\s*[-:]?\s*/i, '').trim();
+  if (specificError && specificError !== message) {
+    return specificError;
+  }
+
+  if (message.includes('edge function')) {
+    return 'تعذر الوصول إلى خدمة المصادقة. قد تكون الخدمة متوقفة حالياً.';
+  }
+
   return fallback;
 };
 
