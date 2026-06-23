@@ -63,14 +63,28 @@ const classifyAuthFunctionError = (
   if (status === 429 || message.includes('too many attempts') || message.includes('rate limit')) {
     return 'طلبات كثيرة جداً. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.';
   }
-  if (status === 403) {
-    return 'ليس لديك صلاحية كافية.';
+  if (status === 403 || message.includes('forbidden') || message.includes('permission denied')) {
+    return 'ليس لديك صلاحية كافية. يرجى التحقق من إعدادات التطبيق.';
+  }
+  if (status === 404 || message.includes('not found')) {
+    return 'خدمة المصادقة غير متاحة حالياً. يرجى المحاولة لاحقاً.';
   }
   if (status && status >= 500) {
     return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
   }
   if (message.includes('network') || message.includes('fetch failed')) {
     return 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+  }
+
+  const statusMatch = message.match(/non-2xx\s*(?:status\s*code)?[\s:]*(\d{3})/);
+  if (statusMatch) {
+    const code = parseInt(statusMatch[1], 10);
+    if (code === 401) return 'بريد إلكتروني أو كلمة مرور غير صحيحة.';
+    if (code === 403) return 'ليس لديك صلاحية كافية. يرجى التحقق من إعدادات التطبيق.';
+    if (code === 404) return 'خدمة المصادقة غير متاحة حالياً.';
+    if (code === 429) return 'طلبات كثيرة جداً. يرجى الانتظار قليلاً.';
+    if (code >= 500) return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
+    return `طلب مرفوض (كود الخطأ: ${code}). يرجى المحاولة لاحقاً.`;
   }
 
   const specificError = message.replace(/.*edge function\s*[-:]?\s*/i, '').trim();
