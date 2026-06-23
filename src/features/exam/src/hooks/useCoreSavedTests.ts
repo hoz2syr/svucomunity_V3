@@ -6,7 +6,7 @@ import type { TestModel } from '../types';
 import { localStorageTestStorage } from '../core/adapters/localStorageTestStorage';
 import { supabaseStorage } from '../core/adapters/supabaseTestStorage';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { fetchTestsPage, upsertTestToSupabase } from '../services/exam.supabase';
+import { fetchTestsPage } from '../services/exam.supabase';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { useTestActions } from './useTestActions';
 import { useTestMigration } from './useTestMigration';
