@@ -75,7 +75,7 @@ jobs:
       - name: Set Edge Function secrets
         run: |
           supabase secrets set \
-            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }} \
+            ALLOWED_ORIGINS="http://localhost:5173,https://svucomunity-v3.pages.dev" \
             SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
