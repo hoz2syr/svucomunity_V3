@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, Mail } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuthForm } from '../hooks/useAuthForm';
 import { RegisterInput } from '../schemas/auth.schema';
@@ -87,21 +87,20 @@ export const RegisterPage = () => {
               <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 size={32} />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">تم إرسال رابط التأكيد</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">تم إنشاء الحساب بنجاح!</h3>
               <p className="text-slate-400 leading-relaxed mb-8">
-                تم إرسال رابط تأكيد إلى <span className="text-cyan-400 font-medium">{form.getValues('email')}</span>.
-                يرجى التحقق من صندوق الوارد والنقر على الرابط لتفعيل حسابك.
+                مرحباً بك في <span className="text-cyan-400 font-medium">SVU Community</span>.
+                يمكنك الآن تسجيل الدخول والدخول إلى لوحة التحكم.
               </p>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-slate-400 flex items-start gap-3">
-                <Mail size={18} className="text-cyan-400 shrink-0 mt-0.5" />
-                <p className="text-right">
-                  إذا لم تجد الرسالة، تحقق من مجلد البريد العشوائي (Spam).
-                  بعد التأكيد، يمكنك تسجيل الدخول مباشرة.
-                </p>
-              </div>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center w-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white font-bold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
+              >
+                الدخول إلى لوحة التحكم
+              </Link>
               <button
                 onClick={() => setSuccess(false)}
-                className="mt-8 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors"
+                className="mt-4 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors"
               >
                 العودة لإنشاء حساب آخر
               </button>
