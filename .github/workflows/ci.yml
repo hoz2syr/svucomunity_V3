@@ -75,7 +75,13 @@ jobs:
       - name: Set Edge Function secrets
         run: |
           supabase secrets set \
-            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }} \
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Deploy Edge Functions
-        run: supabase functions deploy delete-account --no-verify-jwt
+        run: |
+          supabase functions deploy auth-login --no-verify-jwt
+          supabase functions deploy auth-register --no-verify-jwt
+          supabase functions deploy delete-account --no-verify-jwt
+          supabase functions deploy rate-test --no-verify-jwt
