@@ -13,6 +13,7 @@ import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
 import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests } from './features/exam';
+import { StudyGroupsLayout, StudyGroupsHome } from './features/study-groups';
 
 function App() {
   return (
@@ -99,6 +100,24 @@ function App() {
                       <ExamLayout>
                         <BrowsePublishedTests />
                       </ExamLayout>
+                    </GuestRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/study-groups"
+                  element={
+                    <GuestRoute>
+                      <StudyGroupsLayout>
+                        <StudyGroupsHome />
+                      </StudyGroupsLayout>
+                    </GuestRoute>
+                  }
+                />
+                <Route
+                  path="/study-groups"
+                  element={
+                    <GuestRoute>
+                      <Navigate to="/dashboard/study-groups" replace />
                     </GuestRoute>
                   }
                 />

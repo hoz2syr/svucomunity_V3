@@ -1,0 +1,18 @@
+﻿export { StudyGroupsLayout } from './components/StudyGroupsLayout';
+export { StudyGroupsNavbar } from './components/StudyGroupsNavbar';
+export { StudyGroupsFilters } from './components/StudyGroupsFilters';
+export { GroupCard } from './components/GroupCard';
+export { CreateGroupModal } from './components/CreateGroupModal';
+export { GroupDetailsModal } from './components/GroupDetailsModal';
+export { Dropdown } from './components/Dropdown';
+export { ProgressBar } from './components/ProgressBar';
+export { ModalShell } from './components/ModalShell';
+export { ErrorBoundary } from './components/ErrorBoundary';
+export { ErrorState } from './components/ErrorState';
+export { StudyGroupCardSkeleton } from './components/StudyGroupCardSkeleton';
+export { PrimaryButton } from './components/PrimaryButton';
+export { default as StudyGroupsHome } from './src/pages/StudyGroupsHome';
+export { useStudyGroups } from './src/hooks/useStudyGroups';
+export { useStudyGroupsPage } from './src/hooks/useStudyGroupsPage';
+export { studyGroupService, getSupabase } from './src/core/services';
+export type { StudyGroup, StudyGroupFilters, StudyGroupStatus, Course, GroupMember, CreateGroupData } from './src/types';
