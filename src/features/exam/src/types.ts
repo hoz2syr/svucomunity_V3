@@ -14,6 +14,8 @@ export interface Question {
 export interface TestSettings {
   showExplanations: boolean;
   globalTimeLimitMinutes?: number;
+  major?: string;
+  courseCode?: string;
 }
 
 export type TestPublishStatus = 'private_local' | 'private_synced' | 'published';

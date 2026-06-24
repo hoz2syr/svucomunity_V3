@@ -1,12 +1,17 @@
 "use client";
 
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileJson, AlertCircle } from 'lucide-react';
 import { useTestCreator } from '../hooks';
+import { Dropdown } from '@/src/features/study-groups/components/Dropdown';
 
 export default function CreateTest() {
   const navigate = useNavigate();
-  const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
+  const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, selectedMajor, setSelectedMajor, selectedCourse, setSelectedCourse, majors, courses, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
+
+  const majorOptions = useMemo(() => majors.map(m => ({ label: m, value: m })), [majors]);
+  const courseOptions = useMemo(() => courses.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code })), [courses]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animation-fade-in-up mt-6">
@@ -38,6 +43,27 @@ export default function CreateTest() {
                 إظهار التفسيرات والشروحات عند التصدير واللعب
               </label>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <Dropdown
+            searchable
+            value={selectedMajor}
+            onChange={(v: string) => { setSelectedMajor(v); setSelectedCourse(''); }}
+            options={majorOptions}
+            placeholder="كل التخصصات"
+            searchPlaceholder="ابحث بتخصص..."
+            className="min-w-[140px]"
+          />
+            <Dropdown
+            searchable
+            value={selectedCourse}
+            onChange={(v: string) => setSelectedCourse(v)}
+            options={courseOptions}
+            placeholder="كل المواد"
+            searchPlaceholder="ابحث بمادة أو كود..."
+            className="min-w-[140px]"
+          />
           </div>
         </div>
 

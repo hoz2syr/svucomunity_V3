@@ -6,6 +6,7 @@ import type { TestModel } from '../types';
 import { fetchPublishedTests } from '../services/exam.supabase';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/src/services/courseCatalog';
 
 export interface UsePublishedTestsReturn {
   tests: TestModel[];
@@ -15,6 +16,15 @@ export interface UsePublishedTestsReturn {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   refetch: () => void;
+  majors: string[];
+  selectedMajor: string;
+  selectedCourse: string;
+  searchQuery: string;
+  setSelectedMajor: (v: string) => void;
+  setSelectedCourse: (v: string) => void;
+  setSearchQuery: (v: string) => void;
+  clearFilters: () => void;
+  courses: { code: string; name: string }[];
 }
 
 const PAGE_LIMIT = 9;
@@ -23,6 +33,11 @@ export function usePublishedTests(): UsePublishedTestsReturn {
   const queryClient = useQueryClient();
   const { envMissing } = useAuth();
   const [errorState, setError] = useState<string | null>(null);
+  const [majors, setMajors] = useState<string[]>([]);
+  const [selectedMajor, setSelectedMajor] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [courses, setCourses] = useState<{ code: string; name: string }[]>([]);
 
   const {
     data,
@@ -51,7 +66,20 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     gcTime: 5 * 60_000,
   });
 
-  const tests = useMemo(() => (data?.pages.flat() as TestModel[]) ?? [], [data]);
+  const allTests = useMemo(() => (data?.pages.flat() as TestModel[]) ?? [], [data]);
+
+  const tests = useMemo(() => {
+    return allTests.filter(test => {
+      const search = searchQuery.toLowerCase();
+      if (search) {
+        const haystack = `${test.title} ${test.description ?? ''}`.toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+      if (selectedMajor && test.settings?.major !== selectedMajor) return false;
+      if (selectedCourse && test.settings?.courseCode !== selectedCourse) return false;
+      return true;
+    });
+  }, [allTests, searchQuery, selectedMajor, selectedCourse]);
 
   useEffect(() => {
     if (queryError) {
@@ -62,6 +90,26 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     }
   }, [queryError]);
 
+  useEffect(() => {
+    let cancelled = false;
+    getAllMajorsStatic().then((list: string[]) => {
+      if (!cancelled) setMajors(list);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMajor) {
+      setCourses([]);
+      return;
+    }
+    let cancelled = false;
+    getCoursesByMajorStatic(selectedMajor).then((list: { code: string; name: string }[]) => {
+      if (!cancelled) setCourses(list);
+    });
+    return () => { cancelled = true; };
+  }, [selectedMajor]);
+
   const fetchNextPage = useCallback(async () => {
     await fetchNextPageRaw();
   }, [fetchNextPageRaw]);
@@ -69,6 +117,12 @@ export function usePublishedTests(): UsePublishedTestsReturn {
   const refetchHandler = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['published-tests'] });
   }, [queryClient]);
+
+  const clearFilters = useCallback(() => {
+    setSelectedMajor('');
+    setSelectedCourse('');
+    setSearchQuery('');
+  }, []);
 
   return {
     tests,
@@ -78,5 +132,14 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     hasNextPage: hasNextPage ?? false,
     isFetchingNextPage: isFetchingNextPage ?? false,
     refetch: refetchHandler,
+    majors,
+    selectedMajor,
+    selectedCourse,
+    searchQuery,
+    setSelectedMajor,
+    setSelectedCourse,
+    setSearchQuery,
+    clearFilters,
+    courses,
   };
 }

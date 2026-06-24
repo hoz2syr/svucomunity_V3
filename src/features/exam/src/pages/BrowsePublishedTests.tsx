@@ -7,13 +7,14 @@ import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { StarRating } from '../components/StarRating';
 import { PrivacyBadge } from '../components/PrivacyBadge';
+import { PublishedTestsFilters } from '../../components/PublishedTestsFilters';
 import type { TestModel } from '../types';
 
 export default function BrowsePublishedTests() {
-  const { tests, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = usePublishedTests();
+  const { tests, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, majors, selectedMajor, selectedCourse, searchQuery, setSelectedMajor, setSelectedCourse, setSearchQuery, clearFilters, courses } = usePublishedTests();
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animation-fade-in-up mt-6">
+    <div className="max-w-6xl mx-auto space-y-6 animation-fade-in-up mt-6">
       <div className="text-center">
         <div className="flex items-center justify-center gap-3 mb-2">
           <Globe className="w-8 h-8 text-cyan-400" />
@@ -21,6 +22,18 @@ export default function BrowsePublishedTests() {
         </div>
         <p className="text-secondary-400">تصفح الاختبارات المنشورة من قبل المستخدمين</p>
       </div>
+
+      <PublishedTestsFilters
+        majors={majors}
+        courses={courses}
+        selectedMajor={selectedMajor}
+        selectedCourse={selectedCourse}
+        searchQuery={searchQuery}
+        onMajorChange={setSelectedMajor}
+        onCourseChange={setSelectedCourse}
+        onSearchChange={setSearchQuery}
+        onClearFilters={clearFilters}
+      />
 
       {error ? (
         <ErrorState title="خطأ في تحميل البيانات" message={error} onRetry={() => refetch()} />

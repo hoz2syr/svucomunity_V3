@@ -7,6 +7,8 @@ import { upsertTestToSupabase } from '../services/exam.supabase';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
+import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/src/services/courseCatalog';
+import type { Course } from '@/src/features/study-groups/src/types';
 
 export interface CreateTestState {
   jsonText: string;
@@ -15,6 +17,8 @@ export interface CreateTestState {
   error: string;
   showExplanations: boolean;
   globalTimeLimit: number;
+  selectedMajor: string;
+  selectedCourse: string;
 }
 
 export interface UseTestCreatorReturn extends CreateTestState {
@@ -25,6 +29,10 @@ export interface UseTestCreatorReturn extends CreateTestState {
   setError: (v: string) => void;
   setShowExplanations: (v: boolean) => void;
   setGlobalTimeLimit: (v: number) => void;
+  setSelectedMajor: (v: string) => void;
+  setSelectedCourse: (v: string) => void;
+  majors: string[];
+  courses: Course[];
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCreate: (navigate?: (path: string) => void) => void;
   handlePublish: (testId: string, navigate: (path: string, options?: { replace?: boolean }) => void) => Promise<void>;
@@ -40,6 +48,10 @@ export function useTestCreator(): UseTestCreatorReturn {
   const [error, setError] = useState('');
   const [showExplanations, setShowExplanations] = useState(true);
   const [globalTimeLimit, setGlobalTimeLimit] = useState(0);
+  const [selectedMajor, setSelectedMajor] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [majors, setMajors] = useState<string[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -48,6 +60,26 @@ export function useTestCreator(): UseTestCreatorReturn {
   useEffect(() => {
     userIdRef.current = session?.user?.id ?? null;
   }, [session]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAllMajorsStatic().then((list: string[]) => {
+      if (!cancelled) setMajors(list);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMajor) {
+      setCourses([]);
+      return;
+    }
+    let cancelled = false;
+    getCoursesByMajorStatic(selectedMajor).then((list: Course[]) => {
+      if (!cancelled) setCourses(list);
+    });
+    return () => { cancelled = true; };
+  }, [selectedMajor]);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,6 +132,8 @@ export function useTestCreator(): UseTestCreatorReturn {
         settings: {
           showExplanations,
           globalTimeLimitMinutes: globalTimeLimit || undefined,
+          major: selectedMajor || undefined,
+          courseCode: selectedCourse || undefined,
         },
         questions,
         published: false,
@@ -110,7 +144,7 @@ export function useTestCreator(): UseTestCreatorReturn {
     } catch {
       setError('صيغة JSON غير صالحة. تأكد من صحة الملف.');
     }
-  }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit]);
+  }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit, selectedMajor, selectedCourse, courses]);
 
   const handlePublish = useCallback(async (testId: string, navigate?: (path: string, options?: { replace?: boolean }) => void) => {
     setPublishError(null);
@@ -170,7 +204,7 @@ export function useTestCreator(): UseTestCreatorReturn {
       setPublishError(message);
       setPublishingId(null);
     }
-  }, []); // navigate is passed as argument, not from closure
+  }, []);
 
   return {
     jsonText, setJsonText,
@@ -179,6 +213,9 @@ export function useTestCreator(): UseTestCreatorReturn {
     error, setError,
     showExplanations, setShowExplanations,
     globalTimeLimit, setGlobalTimeLimit,
+    selectedMajor, setSelectedMajor,
+    selectedCourse, setSelectedCourse,
+    majors, courses,
     fileInputRef,
     handleFileUpload,
     handleCreate,
