@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Plus, Loader2 } from 'lucide-react';
+import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Loader2 } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
-import type { Course } from '../src/types';
+import type { StudyGroup, Course } from '../src/types';
 import { ModalShell } from './ModalShell';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { CLASSES } from '../src/constants';
 
-interface CreateGroupModalProps {
+interface EditGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: {
@@ -21,21 +21,19 @@ interface CreateGroupModalProps {
     whatsapp_link: string;
     group_link?: string;
   }) => Promise<void>;
-  currentUser: { major?: string; first_name?: string; last_name?: string; username?: string; id: string } | null;
+  group: StudyGroup | null;
   getCoursesByMajor: (major: string) => Promise<Course[]>;
   availableMajors: string[];
-  mounted?: boolean;
 }
 
-export function CreateGroupModal({
+export function EditGroupModal({
   isOpen,
   onClose,
   onSubmit,
-  currentUser,
+  group,
   getCoursesByMajor,
   availableMajors,
-  mounted = true,
-}: CreateGroupModalProps) {
+}: EditGroupModalProps) {
   const [groupName, setGroupName] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedClass, setSelectedClass] = useState('');
@@ -48,37 +46,31 @@ export function CreateGroupModal({
   const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    if (isOpen) {
-      setGroupName('');
-      setSelectedCourse(null);
-      setSelectedClass('');
-      setSelectedMajor('');
-      setMaxMembers(5);
-      setWhatsappLink('');
-      setGroupLink('');
+    if (isOpen && group) {
+      setGroupName(group.name);
+      setSelectedClass(group.class_number || '');
+      setSelectedMajor(group.major);
+      setMaxMembers(group.max_members);
+      setWhatsappLink(group.whatsapp_link);
+      setGroupLink(group.group_link || '');
       setErrors({});
       setIsSubmitting(false);
-      setCourses([]);
-
-      if (currentUser?.major) {
-        setSelectedMajor(currentUser.major);
-        getCoursesByMajor(currentUser.major).then(setCourses);
-      }
+      getCoursesByMajor(group.major).then(setCourses);
     }
-  }, [isOpen, currentUser, getCoursesByMajor]);
+  }, [isOpen, group, getCoursesByMajor]);
 
   useEffect(() => {
-    if (selectedMajor) {
+    if (selectedMajor && isOpen) {
       getCoursesByMajor(selectedMajor).then(setCourses);
-    } else {
+    } else if (!isOpen) {
       setCourses([]);
     }
-  }, [selectedMajor, getCoursesByMajor]);
+  }, [selectedMajor, getCoursesByMajor, isOpen]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!groupName.trim()) newErrors.name = 'يرجى إدخال اسم المجموعة';
-    if (!selectedCourse) newErrors.course = 'يرجى اختيار المادة';
+    if (!selectedCourse && courses.length > 0) newErrors.course = 'يرجى اختيار المادة';
     if (!selectedClass) newErrors.class_ = 'يرجى اختيار الصف';
     if (!selectedMajor) newErrors.major = 'الرجاء اختيار التخصص';
     if (maxMembers < 2 || maxMembers > 20) newErrors.maxMembers = 'العدد يجب أن يكون بين 2 و 20';
@@ -89,14 +81,14 @@ export function CreateGroupModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !currentUser) return;
+    if (!validate() || !group) return;
 
     setIsSubmitting(true);
     try {
       await onSubmit({
         name: groupName.trim(),
-        course_name: selectedCourse!.name,
-        course_code: selectedCourse!.code,
+        course_name: selectedCourse ? selectedCourse.name : group.course_name,
+        course_code: selectedCourse ? selectedCourse.code : group.course_code,
         class_number: selectedClass,
         major: selectedMajor,
         max_members: maxMembers,
@@ -105,13 +97,13 @@ export function CreateGroupModal({
       });
       onClose();
     } catch (err) {
-      setErrors({ submit: err instanceof Error ? err.message : 'فشل إنشاء المجموعة' });
+      setErrors({ submit: err instanceof Error ? err.message : 'فشل تحديث المجموعة' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!isOpen || !mounted) return null;
+  if (!isOpen || !group) return null;
 
   const courseOptions = courses.map((c) => ({ value: c.code, label: c.name, sublabel: c.code }));
   const classOptions = CLASSES.map((c) => ({ value: c, label: c }));
@@ -124,7 +116,7 @@ export function CreateGroupModal({
   return (
     <ModalShell isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg" closeButton>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white">إنشاء مجموعة جديدة</h3>
+        <h3 className="text-xl font-bold text-white">تعديل بيانات المجموعة</h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -153,7 +145,7 @@ export function CreateGroupModal({
               المادة <span className="text-rose-400">*</span>
             </label>
             <Dropdown
-              value={selectedCourse?.code || ''}
+              value={selectedCourse?.code || group.course_code}
               onChange={(code) => {
                 const course = courses.find((c) => c.code === code) || null;
                 setSelectedCourse(course);
@@ -258,9 +250,9 @@ export function CreateGroupModal({
           type="submit"
           disabled={isSubmitting}
           className={submitButtonClassName}
-          icon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+          icon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : undefined}
         >
-          {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
+          {isSubmitting ? 'جاري التحديث...' : 'تحديث المجموعة'}
         </PrimaryButton>
       </form>
     </ModalShell>

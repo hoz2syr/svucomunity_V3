@@ -10,7 +10,25 @@
   checkIsAdmin,
   getCreators,
   getSupabase,
+  leaveGroup,
+  updateGroup,
+  getMyGroups as getMyGroupsDirect,
 } from '../../services/studyGroup.supabase';
+
+import {
+  getAllWithCreators as apiGetAllWithCreators,
+  getMyGroups as apiGetMyGroups,
+  createGroup as apiCreateGroup,
+  joinGroup as apiJoinGroup,
+  leaveGroup as apiLeaveGroup,
+  updateGroup as apiUpdateGroup,
+  deleteGroup as apiDeleteGroup,
+  getGroupMembers as apiGetGroupMembers,
+  checkMembership as apiCheckMembership,
+  checkIsAdmin as apiCheckIsAdmin,
+  getCoursesByMajor as apiGetCoursesByMajor,
+  getAvailableMajors as apiGetAvailableMajors,
+} from '../../services/studyGroupsApi';
 
 export {
   getAllWithCreators,
@@ -24,6 +42,24 @@ export {
   checkIsAdmin,
   getCreators,
   getSupabase,
+  leaveGroup,
+  updateGroup,
+  getMyGroupsDirect,
+};
+
+export {
+  apiGetAllWithCreators,
+  apiGetMyGroups,
+  apiCreateGroup,
+  apiJoinGroup,
+  apiLeaveGroup,
+  apiUpdateGroup,
+  apiDeleteGroup,
+  apiGetGroupMembers,
+  apiCheckMembership,
+  apiCheckIsAdmin,
+  apiGetCoursesByMajor,
+  apiGetAvailableMajors,
 };
 
 export const studyGroupService = {
@@ -37,4 +73,22 @@ export const studyGroupService = {
   checkMembership,
   checkIsAdmin,
   getSupabase,
+  leaveGroup,
+  updateGroup,
+  getMyGroups: getMyGroupsDirect,
+};
+
+export const studyGroupsApi = {
+  getAllWithCreators: apiGetAllWithCreators,
+  getMyGroups: apiGetMyGroups,
+  createGroup: apiCreateGroup,
+  joinGroup: apiJoinGroup,
+  leaveGroup: apiLeaveGroup,
+  updateGroup: apiUpdateGroup,
+  deleteGroup: apiDeleteGroup,
+  getGroupMembers: apiGetGroupMembers,
+  checkMembership: apiCheckMembership,
+  checkIsAdmin: apiCheckIsAdmin,
+  getCoursesByMajor: apiGetCoursesByMajor,
+  getAvailableMajors: apiGetAvailableMajors,
 };

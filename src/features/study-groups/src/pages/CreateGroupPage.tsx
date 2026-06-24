@@ -1,41 +1,16 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Plus, Loader2 } from 'lucide-react';
+import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Loader2 } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
-import type { Course } from '../src/types';
-import { ModalShell } from './ModalShell';
+import type { Course } from '../types';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
-import { CLASSES } from '../src/constants';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { studyGroupService } from '../core/services';
 
-interface CreateGroupModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: {
-    name: string;
-    course_name: string;
-    course_code: string;
-    class_number: string;
-    major: string;
-    max_members: number;
-    whatsapp_link: string;
-    group_link?: string;
-  }) => Promise<void>;
-  currentUser: { major?: string; first_name?: string; last_name?: string; username?: string; id: string } | null;
-  getCoursesByMajor: (major: string) => Promise<Course[]>;
-  availableMajors: string[];
-  mounted?: boolean;
-}
-
-export function CreateGroupModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  currentUser,
-  getCoursesByMajor,
-  availableMajors,
-  mounted = true,
-}: CreateGroupModalProps) {
+export default function CreateGroupPage() {
+  const { session } = useAuth();
+  const userId = session?.user?.id;
   const [groupName, setGroupName] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedClass, setSelectedClass] = useState('');
@@ -46,34 +21,44 @@ export function CreateGroupModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [courses, setCourses] = useState<Course[]>([]);
+  const [majors, setMajors] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ major?: string; first_name?: string; last_name?: string; username?: string; id: string } | null>(null);
+
+  const CLASSES = ['C1', 'C2', 'C3', 'C4', 'C5'];
 
   useEffect(() => {
-    if (isOpen) {
-      setGroupName('');
-      setSelectedCourse(null);
-      setSelectedClass('');
-      setSelectedMajor('');
-      setMaxMembers(5);
-      setWhatsappLink('');
-      setGroupLink('');
-      setErrors({});
-      setIsSubmitting(false);
-      setCourses([]);
-
-      if (currentUser?.major) {
-        setSelectedMajor(currentUser.major);
-        getCoursesByMajor(currentUser.major).then(setCourses);
+    const loadMajors = async () => {
+      const cached = localStorage.getItem('svu_courses_cache');
+      if (cached) {
+        try {
+          setMajors(Object.keys(JSON.parse(cached)));
+        } catch {}
       }
+    };
+    loadMajors();
+
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+      try {
+        setCurrentUser(JSON.parse(stored));
+      } catch {}
     }
-  }, [isOpen, currentUser, getCoursesByMajor]);
+  }, []);
+
+  useEffect(() => {
+    if (currentUser?.major) {
+      setSelectedMajor(currentUser.major);
+      studyGroupService.getCoursesByMajor(currentUser.major).then(setCourses);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (selectedMajor) {
-      getCoursesByMajor(selectedMajor).then(setCourses);
+      studyGroupService.getCoursesByMajor(selectedMajor).then(setCourses);
     } else {
       setCourses([]);
     }
-  }, [selectedMajor, getCoursesByMajor]);
+  }, [selectedMajor]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -89,11 +74,11 @@ export function CreateGroupModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !currentUser) return;
+    if (!validate() || !userId || !currentUser) return;
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
+      await studyGroupService.createGroup({
         name: groupName.trim(),
         course_name: selectedCourse!.name,
         course_code: selectedCourse!.code,
@@ -102,8 +87,15 @@ export function CreateGroupModal({
         max_members: maxMembers,
         whatsapp_link: whatsappLink.trim(),
         group_link: groupLink.trim() || undefined,
+        doctor_name: '',
+        creator_id: userId,
+        creator_name: [
+          currentUser?.first_name,
+          currentUser?.last_name,
+          currentUser?.username,
+        ].filter(Boolean).join(' ') || 'مستخدم',
       });
-      onClose();
+      window.location.href = '/dashboard/study-groups';
     } catch (err) {
       setErrors({ submit: err instanceof Error ? err.message : 'فشل إنشاء المجموعة' });
     } finally {
@@ -111,23 +103,22 @@ export function CreateGroupModal({
     }
   };
 
-  if (!isOpen || !mounted) return null;
-
   const courseOptions = courses.map((c) => ({ value: c.code, label: c.name, sublabel: c.code }));
   const classOptions = CLASSES.map((c) => ({ value: c, label: c }));
-  const majorOptions = availableMajors.map((m) => ({ value: m, label: m }));
-  const submitButtonClassName = `
-    w-full bg-gradient-to-r from-cyan-600 to-indigo-600
-    hover:from-cyan-500 hover:to-indigo-500
-  `;
+  const majorOptions = majors.map((m) => ({ value: m, label: m }));
 
   return (
-    <ModalShell isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg" closeButton>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white">إنشاء مجموعة جديدة</h3>
+    <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-6 pb-8">
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+          إنشاء مجموعة جديدة
+        </h1>
+        <p className="text-slate-400 text-sm">
+          أنشئ مجموعة دراسية للتعاون مع زملائك
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-slate-300 text-sm mb-2 font-medium">
             <Users className="w-4 h-4 inline-block ml-1.5 text-cyan-400" />
@@ -254,15 +245,24 @@ export function CreateGroupModal({
           </div>
         )}
 
-        <PrimaryButton
-          type="submit"
-          disabled={isSubmitting}
-          className={submitButtonClassName}
-          icon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-        >
-          {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
-        </PrimaryButton>
+        <div className="flex gap-3 pt-4">
+          <PrimaryButton
+            type="submit"
+            disabled={isSubmitting}
+            className="flex-1 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500"
+          >
+            {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
+          </PrimaryButton>
+
+          <PrimaryButton
+            type="button"
+            onClick={() => window.location.href = '/dashboard/study-groups'}
+            className="flex-1 bg-slate-700 hover:bg-slate-600 !text-white"
+          >
+            إلغاء
+          </PrimaryButton>
+        </div>
       </form>
-    </ModalShell>
+    </div>
   );
 }

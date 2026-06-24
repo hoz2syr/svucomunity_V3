@@ -44,6 +44,18 @@ export interface CreateGroupData {
   group_link?: string;
 }
 
+export interface UpdateGroupData {
+  name?: string;
+  course_name?: string;
+  course_code?: string;
+  class_number?: string;
+  doctor_name?: string;
+  major?: string;
+  max_members?: number;
+  whatsapp_link?: string;
+  group_link?: string;
+}
+
 export interface Course {
   code: string;
   name: string;

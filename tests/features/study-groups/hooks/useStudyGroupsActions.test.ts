@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { ToastProvider } from '@/src/components/ui/Toast';
 import { useStudyGroupsActions } from '@/src/features/study-groups/src/hooks/useStudyGroupsActions';
 
 vi.mock('@/src/contexts/AuthContext', () => ({
@@ -39,12 +40,16 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should return userId from session', () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
     expect(result.current.userId).toBe('user-1');
   });
 
   it('should create group and reload', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
 
     await act(async () => {
       await result.current.handleCreateGroup({
@@ -70,7 +75,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should find group by id from groups array', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
     const groups = [
       { id: '1', name: 'Group A' },
       { id: '2', name: 'Group B' },
@@ -81,7 +88,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should return undefined when group not found', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
     const groups = [{ id: '1', name: 'Group A' }] as any;
 
     const found = await result.current.handleOpenDetails('999', groups);
@@ -89,7 +98,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should join group and reload', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
     const onJoinComplete = vi.fn();
 
     await act(async () => {
@@ -102,7 +113,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should delete group and reload', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
     const onComplete = vi.fn();
 
     await act(async () => {
@@ -115,7 +128,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should get courses by major', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
 
     let courses: any;
     await act(async () => {
@@ -139,7 +154,9 @@ describe('useStudyGroupsActions hook', () => {
       })
     );
 
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
 
     await waitFor(() => {
       expect(result.current.currentUser).toBeDefined();
@@ -148,7 +165,9 @@ describe('useStudyGroupsActions hook', () => {
   });
 
   it('should have null currentUser when not in localStorage', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload));
+    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
+      wrapper: ToastProvider,
+    });
 
     await waitFor(() => {
       expect(result.current.currentUser).toBeNull();

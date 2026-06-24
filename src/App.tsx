@@ -13,118 +13,141 @@ import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
 import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests } from './features/exam';
-import { StudyGroupsLayout, StudyGroupsHome } from './features/study-groups';
+import { StudyGroupsLayout, StudyGroupsHome, MyGroupsPage, CreateGroupPage } from './features/study-groups';
+import { ToastProvider } from './components/ui/Toast';
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <GuestProvider>
-          <Router>
-            <ErrorBoundary>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <GuestRoute>
-                      <DashboardPage />
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam"
-                  element={
-                    <GuestRoute>
-                      <Navigate to="/exam/saved" replace />
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/home"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <ExamHome />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/create"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <CreateTest />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/saved"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <SavedTests />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/play/:id"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <PlayTest />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/shared/:id"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <PlayTestShared />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/exam/browse"
-                  element={
-                    <GuestRoute>
-                      <ExamLayout>
-                        <BrowsePublishedTests />
-                      </ExamLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/study-groups"
-                  element={
-                    <GuestRoute>
-                      <StudyGroupsLayout>
-                        <StudyGroupsHome />
-                      </StudyGroupsLayout>
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/study-groups"
-                  element={
-                    <GuestRoute>
-                      <Navigate to="/dashboard/study-groups" replace />
-                    </GuestRoute>
-                  }
-                />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </ErrorBoundary>
-          </Router>
+          <ToastProvider>
+            <Router>
+              <ErrorBoundary>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <GuestRoute>
+                        <DashboardPage />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam"
+                    element={
+                      <GuestRoute>
+                        <Navigate to="/exam/saved" replace />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/home"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <ExamHome />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/create"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <CreateTest />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/saved"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <SavedTests />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/play/:id"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <PlayTest />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/shared/:id"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <PlayTestShared />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/browse"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <BrowsePublishedTests />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/study-groups"
+                    element={
+                      <GuestRoute>
+                        <StudyGroupsLayout>
+                          <StudyGroupsHome />
+                        </StudyGroupsLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/study-groups/my"
+                    element={
+                      <GuestRoute>
+                        <StudyGroupsLayout>
+                          <MyGroupsPage />
+                        </StudyGroupsLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/study-groups/create"
+                    element={
+                      <GuestRoute>
+                        <StudyGroupsLayout>
+                          <CreateGroupPage />
+                        </StudyGroupsLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/study-groups"
+                    element={
+                      <GuestRoute>
+                        <Navigate to="/dashboard/study-groups" replace />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </ErrorBoundary>
+            </Router>
+          </ToastProvider>
         </GuestProvider>
       </AuthProvider>
     </QueryClientProvider>

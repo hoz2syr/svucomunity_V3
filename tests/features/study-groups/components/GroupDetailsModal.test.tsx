@@ -27,7 +27,9 @@ const defaultProps = {
   canDelete: false,
   onJoin: vi.fn(),
   onDelete: vi.fn(),
+  onLeave: vi.fn(),
   joiningId: null,
+  leavingId: null,
 };
 
 describe('GroupDetailsModal component', () => {
@@ -116,5 +118,38 @@ describe('GroupDetailsModal component', () => {
     fireEvent.click(screen.getByText('حذف المجموعة'));
     await waitFor(() => fireEvent.click(screen.getByText('نعم، احذف')));
     expect(onDelete).toHaveBeenCalledWith('1');
+  });
+
+  it('should show leave button when isMember is true and canDelete is false', () => {
+    render(<GroupDetailsModal {...defaultProps} isMember={true} canDelete={false} />);
+    expect(screen.getByText('مغادرة المجموعة')).toBeDefined();
+  });
+
+  it('should not show leave button when canDelete is true', () => {
+    render(<GroupDetailsModal {...defaultProps} isMember={true} canDelete={true} />);
+    expect(screen.queryByText('مغادرة المجموعة')).toBeNull();
+  });
+
+  it('should show leave confirmation when leave button clicked', async () => {
+    render(<GroupDetailsModal {...defaultProps} isMember={true} canDelete={false} />);
+    fireEvent.click(screen.getByText('مغادرة المجموعة'));
+    await waitFor(() => expect(screen.getByText('نعم، مغادرة')).toBeDefined());
+  });
+
+  it('should call onLeave when leave confirmed', async () => {
+    const onLeave = vi.fn();
+    render(<GroupDetailsModal {...defaultProps} isMember={true} canDelete={false} onLeave={onLeave} />);
+    fireEvent.click(screen.getByText('مغادرة المجموعة'));
+    await waitFor(() => fireEvent.click(screen.getByText('نعم، مغادرة')));
+    expect(onLeave).toHaveBeenCalledWith('1', 'مجموعة مراجعة C1');
+  });
+
+  it('should show loading state during leave', async () => {
+    const onLeave = vi.fn(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+    render(<GroupDetailsModal {...defaultProps} isMember={true} canDelete={false} onLeave={onLeave} leavingId="1" />);
+    fireEvent.click(screen.getByText('مغادرة المجموعة'));
+    await waitFor(() => expect(screen.getByText('جاري المغادرة...')).toBeDefined());
   });
 });

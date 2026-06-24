@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { BookOpen, Calendar, User, GraduationCap, MessageCircle, Link2, Trash2, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { BookOpen, Calendar, User, GraduationCap, MessageCircle, Link2, Trash2, AlertTriangle, CheckCircle2, Loader2, LogOut, Edit2 } from 'lucide-react';
 import type { StudyGroup } from '../src/types';
 import { ProgressBar } from './ProgressBar';
 import { ModalShell } from './ModalShell';
@@ -15,7 +15,10 @@ interface GroupDetailsModalProps {
   currentUserMajor?: string;
   onJoin: (groupId: string) => Promise<void>;
   onDelete: (groupId: string) => void;
+  onLeave: (groupId: string, groupName: string) => Promise<void>;
+  onEdit: (groupId: string, groupName: string) => void;
   joiningId: string | null;
+  leavingId: string | null;
 }
 
 export function GroupDetailsModal({
@@ -27,9 +30,13 @@ export function GroupDetailsModal({
   currentUserMajor,
   onJoin,
   onDelete,
+  onLeave,
+  onEdit,
   joiningId,
+  leavingId,
 }: GroupDetailsModalProps) {
   const [showConfirmJoin, setShowConfirmJoin] = useState(false);
+  const [showConfirmLeave, setShowConfirmLeave] = useState(false);
   const [majorMismatch, setMajorMismatch] = useState<{ groupMajor: string; userMajor: string } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -55,6 +62,11 @@ export function GroupDetailsModal({
   const handleConfirmDelete = () => {
     onDelete(group.id);
     onClose();
+  };
+
+  const handleConfirmLeave = async () => {
+    setShowConfirmLeave(false);
+    await onLeave(group.id, group.name);
   };
 
   return (
@@ -226,6 +238,44 @@ export function GroupDetailsModal({
           </div>
         )}
 
+        {isMember && !canDelete && !showConfirmLeave && (
+          <button
+            onClick={() => setShowConfirmLeave(true)}
+            className="
+              w-full py-3 rounded-xl font-semibold text-white text-sm
+              bg-slate-700 hover:bg-slate-600
+              flex items-center justify-center gap-2
+              transition-colors duration-200
+            "
+          >
+            <LogOut className="w-5 h-5" />
+            مغادرة المجموعة
+          </button>
+        )}
+
+        {isMember && !canDelete && showConfirmLeave && (
+          <div className="p-4 bg-slate-500/10 border border-slate-500/20 rounded-xl">
+            <p className="text-slate-400 text-sm font-semibold text-center mb-3">
+              هل أنت متأكد من مغادرة هذه المجموعة؟
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleConfirmLeave}
+                disabled={leavingId === group.id}
+                className="flex-1 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {leavingId === group.id ? 'جاري المغادرة...' : 'نعم، مغادرة'}
+              </button>
+              <button
+                onClick={() => setShowConfirmLeave(false)}
+                className="flex-1 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        )}
+
         {!isMember && isFull && (
           <div className="
             w-full py-3 rounded-xl font-semibold text-sm text-center
@@ -233,6 +283,22 @@ export function GroupDetailsModal({
           ">
             المجموعة ممتلئة
           </div>
+        )}
+
+        {canDelete && !showDeleteConfirm && (
+          <button
+            onClick={() => onEdit(group.id, group.name)}
+            className="
+              w-full py-3 rounded-xl font-semibold text-white text-sm
+              bg-gradient-to-r from-cyan-600 to-indigo-600
+              hover:from-cyan-500 hover:to-indigo-500
+              flex items-center justify-center gap-2
+              transition-all duration-200
+            "
+          >
+            <Edit2 className="w-5 h-5" />
+            تعديل المجموعة
+          </button>
         )}
 
         {canDelete && !showDeleteConfirm && (

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { studyGroupService } from '../core/services';
+import { useStudyGroupsToast } from './useStudyGroupsToast';
 import type { StudyGroup, Course } from '../types';
 
 export function useStoredUser() {
@@ -13,8 +14,10 @@ export function useStoredUser() {
     username?: string;
     id: string;
   } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (typeof localStorage === 'undefined') return;
     try {
       const stored = localStorage.getItem('currentUser');
@@ -24,13 +27,14 @@ export function useStoredUser() {
     }
   }, []);
 
-  return currentUser;
+  return { currentUser, mounted };
 }
 
 export function useStudyGroupsActions(reload: () => Promise<void>) {
   const { session } = useAuth();
   const userId = session?.user?.id;
-  const currentUser = useStoredUser();
+  const { currentUser, mounted } = useStoredUser();
+  const { notifyError, notifyLeaveSuccess, notifyEditSuccess } = useStudyGroupsToast();
 
   const handleCreateGroup = useCallback(async (data: {
     name: string;
@@ -70,9 +74,44 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
       reload();
     } catch (err) {
       console.error('Failed to join:', err);
-      alert(err instanceof Error ? err.message : 'فشل الانضمام');
+      notifyError(err instanceof Error ? err.message : 'فشل الانضمام');
     }
-  }, [userId, reload]);
+  }, [userId, reload, notifyError]);
+
+  const handleLeaveGroup = useCallback(async (groupId: string, groupName: string, onLeaveComplete: () => void) => {
+    if (!userId) return;
+    try {
+      await studyGroupService.leaveGroup(groupId, userId);
+      notifyLeaveSuccess(groupName);
+      onLeaveComplete();
+      reload();
+    } catch (err) {
+      console.error('Failed to leave:', err);
+      notifyError(err instanceof Error ? err.message : 'فشل مغادرة المجموعة');
+    }
+  }, [userId, reload, notifyError, notifyLeaveSuccess]);
+
+  const handleEditGroup = useCallback(async (groupId: string, updates: {
+    name?: string;
+    course_name?: string;
+    course_code?: string;
+    class_number?: string;
+    doctor_name?: string;
+    major?: string;
+    max_members?: number;
+    whatsapp_link?: string;
+    group_link?: string;
+  }, groupName: string) => {
+    if (!groupId) return;
+    try {
+      await studyGroupService.updateGroup(groupId, updates);
+      notifyEditSuccess();
+      reload();
+    } catch (err) {
+      console.error('Failed to edit:', err);
+      notifyError(err instanceof Error ? err.message : 'فشل تحديث المجموعة');
+    }
+  }, [reload, notifyError, notifyEditSuccess]);
 
   const handleDeleteGroup = useCallback(async (selectedGroup: StudyGroup | null, onComplete: () => void) => {
     if (!selectedGroup) return;
@@ -88,9 +127,12 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
   return {
     userId,
     currentUser,
+    mounted,
     handleCreateGroup,
     handleOpenDetails,
     handleJoinGroup,
+    handleLeaveGroup,
+    handleEditGroup,
     handleDeleteGroup,
     handleGetCoursesByMajor,
   };

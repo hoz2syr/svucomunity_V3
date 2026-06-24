@@ -40,6 +40,8 @@ const baseActionsReturn = {
   handleCreateGroup: vi.fn(),
   handleOpenDetails: vi.fn(),
   handleJoinGroup: vi.fn(),
+  handleLeaveGroup: vi.fn(),
+  handleEditGroup: vi.fn(),
   handleDeleteGroup: vi.fn(),
   handleGetCoursesByMajor: vi.fn(),
 };
@@ -133,6 +135,34 @@ describe('useStudyGroupsPage hook', () => {
     await waitFor(() => {
       expect(deleteGroup).toHaveBeenCalledWith(group, expect.any(Function));
       expect(result.current.selectedGroupId).toBeNull();
+    });
+  });
+
+  it('should leave group and update isMember', async () => {
+    const leaveGroup = vi.fn(async (_groupId: string, _groupName: string, onComplete: () => void) => {
+      onComplete();
+    });
+    const group = { id: '1', name: 'Group A', creator_id: 'other-user' } as any;
+    const openDetails = vi.fn(async () => group);
+    mockUseStudyGroupsActions.mockReturnValue({
+      ...baseActionsReturn,
+      handleOpenDetails: openDetails,
+      handleLeaveGroup: leaveGroup,
+    });
+
+    const { result } = renderHook(() => useStudyGroupsPage('user-1'));
+    await act(async () => {
+      await result.current.handleOpenDetails('1', [group]);
+    });
+    await waitFor(() => {
+      expect(result.current.isMember).toBe(false);
+    });
+    act(() => {
+      result.current.handleLeave('1', 'Group A');
+    });
+    await waitFor(() => {
+      expect(leaveGroup).toHaveBeenCalledWith('1', 'Group A', expect.any(Function));
+      expect(result.current.isMember).toBe(false);
     });
   });
 

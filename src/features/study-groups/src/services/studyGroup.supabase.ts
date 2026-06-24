@@ -183,3 +183,86 @@ export async function checkIsAdmin(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function leaveGroup(groupId: string, userId: string): Promise<void> {
+  const { error: memberError } = await getSupabase()
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', userId);
+
+  if (memberError) throw new Error(memberError.message);
+
+  const { data: group, error: groupFetchError } = await getSupabase()
+    .from('groups')
+    .select('current_members, max_members')
+    .eq('id', groupId)
+    .single();
+
+  if (groupFetchError) throw new Error(groupFetchError.message);
+
+  const newCount = Math.max(0, (group?.current_members || 0) - 1);
+  const isFull = newCount >= (group?.max_members || 1);
+
+  const { error: updateError } = await getSupabase()
+    .from('groups')
+    .update({ current_members: newCount, is_full: isFull })
+    .eq('id', groupId);
+
+  if (updateError) throw new Error(updateError.message);
+}
+
+export async function updateGroup(groupId: string, updates: {
+  name?: string;
+  course_name?: string;
+  course_code?: string;
+  class_number?: string;
+  doctor_name?: string;
+  major?: string;
+  max_members?: number;
+  whatsapp_link?: string;
+  group_link?: string;
+}): Promise<StudyGroup> {
+  const { data, error } = await getSupabase()
+    .from('groups')
+    .update(updates)
+    .eq('id', groupId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error('فشل تحديث المجموعة');
+  return data as StudyGroup;
+}
+
+export async function getMyGroups(userId: string): Promise<{ created: StudyGroup[]; joined: StudyGroup[] }> {
+  const { data: created, error: createdError } = await getSupabase()
+    .from('groups')
+    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+    .eq('creator_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (createdError) throw new Error(createdError.message);
+
+  const { data: memberships, error: memberError } = await getSupabase()
+    .from('group_members')
+    .select('group_id')
+    .eq('user_id', userId);
+
+  if (memberError) throw new Error(memberError.message);
+
+  const createdIds = new Set((created || []).map(g => g.id));
+  const joinedGroupIds = [...new Set((memberships || []).map(m => m.group_id))].filter(id => !createdIds.has(id));
+
+  let joined: StudyGroup[] = [];
+  if (joinedGroupIds.length > 0) {
+    const { data: joinedData, error: joinedError } = await getSupabase()
+      .from('groups')
+      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+      .in('id', joinedGroupIds);
+    if (joinedError) throw new Error(joinedError.message);
+    joined = joinedData || [];
+  }
+
+  return { created: created || [], joined };
+}

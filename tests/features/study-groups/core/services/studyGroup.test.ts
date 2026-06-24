@@ -13,6 +13,9 @@ vi.mock('@/src/features/study-groups/src/services/studyGroup.supabase', () => ({
   checkIsAdmin: vi.fn(),
   getCreators: vi.fn(),
   getSupabase: vi.fn(),
+  leaveGroup: vi.fn(),
+  updateGroup: vi.fn(),
+  getMyGroups: vi.fn(),
 }));
 
 import {
@@ -26,6 +29,9 @@ import {
   checkMembership,
   checkIsAdmin,
   getSupabase,
+  leaveGroup,
+  updateGroup,
+  getMyGroups,
 } from '@/src/features/study-groups/src/services/studyGroup.supabase';
 
 describe('studyGroupService', () => {
@@ -105,5 +111,26 @@ describe('studyGroupService', () => {
     const client = studyGroupService.getSupabase();
     expect(getSupabase).toHaveBeenCalledOnce();
     expect(client).toBe(mockClient);
+  });
+
+  it('should delegate leaveGroup to supabase module', async () => {
+    (leaveGroup as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    await (studyGroupService as any).leaveGroup('group1', 'user1');
+    expect(leaveGroup).toHaveBeenCalledWith('group1', 'user1');
+  });
+
+  it('should delegate updateGroup to supabase module', async () => {
+    const updated = { id: 'group1', name: 'Updated' };
+    (updateGroup as ReturnType<typeof vi.fn>).mockResolvedValue(updated);
+    const result = await (studyGroupService as any).updateGroup('group1', { name: 'Updated' });
+    expect(updateGroup).toHaveBeenCalledWith('group1', { name: 'Updated' });
+    expect(result).toEqual(updated);
+  });
+
+  it('should delegate getMyGroups to supabase module', async () => {
+    (getMyGroups as ReturnType<typeof vi.fn>).mockResolvedValue({ created: [], joined: [] });
+    const result = await (studyGroupService as any).getMyGroups('user1');
+    expect(getMyGroups).toHaveBeenCalledWith('user1');
+    expect(result).toEqual({ created: [], joined: [] });
   });
 });

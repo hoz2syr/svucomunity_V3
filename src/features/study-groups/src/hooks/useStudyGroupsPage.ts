@@ -20,20 +20,15 @@ export function useStudyGroupsPage(userId: string | undefined) {
     onSearchChange,
   } = useStudyGroups(userId);
 
-  const {
-    currentUser,
-    handleCreateGroup,
-    handleOpenDetails: openDetails,
-    handleJoinGroup,
-    handleDeleteGroup: deleteGroupAction,
-    handleGetCoursesByMajor,
-  } = useStudyGroupsActions(reload);
+  const { currentUser, mounted, handleCreateGroup, handleOpenDetails: openDetails, handleJoinGroup, handleLeaveGroup, handleEditGroup, handleDeleteGroup: deleteGroupAction, handleGetCoursesByMajor, } = useStudyGroupsActions(reload);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<StudyGroupEnriched | null>(null);
   const [isMember, setIsMember] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
+  const [leavingId, setLeavingId] = useState<string | null>(null);
   const [majors, setMajors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -69,6 +64,8 @@ export function useStudyGroupsPage(userId: string | undefined) {
 
   const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), []);
   const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), []);
+  const handleOpenEditModal = useCallback(() => setShowEditModal(true), []);
+  const handleCloseEditModal = useCallback(() => setShowEditModal(false), []);
 
   const handleOpenDetails = useCallback(async (groupId: string, groups: StudyGroup[]) => {
     const group = await openDetails(groupId, groups);
@@ -89,6 +86,7 @@ export function useStudyGroupsPage(userId: string | undefined) {
     setSelectedGroupId(null);
     setIsMember(false);
     setJoiningId(null);
+    setLeavingId(null);
   }, []);
 
   const handleJoin = useCallback(async (groupId: string) => {
@@ -104,16 +102,33 @@ export function useStudyGroupsPage(userId: string | undefined) {
     });
   }, [selectedGroup, deleteGroupAction, handleCloseDetails]);
 
+  const handleLeave = useCallback(async (groupId: string, groupName: string) => {
+    setLeavingId(groupId);
+    await handleLeaveGroup(groupId, groupName, () => {
+      setIsMember(false);
+    });
+    setLeavingId(null);
+  }, [handleLeaveGroup]);
+
+  const handleEdit = useCallback(async (updates: Parameters<typeof handleEditGroup>[1]) => {
+    if (!selectedGroup) return;
+    await handleEditGroup(selectedGroup.id, updates, selectedGroup.name);
+  }, [selectedGroup, handleEditGroup]);
+
   const canDelete = selectedGroup ? (isAdmin || selectedGroup.creator_id === userId) : false;
 
   return {
     showCreateModal,
     handleOpenCreateModal,
     handleCloseCreateModal,
+    showEditModal,
+    handleOpenEditModal,
+    handleCloseEditModal,
     selectedGroupId,
     selectedGroup,
     isMember,
     joiningId,
+    leavingId,
     majors,
     classes: CLASSES,
     currentUser,
@@ -122,6 +137,8 @@ export function useStudyGroupsPage(userId: string | undefined) {
     handleOpenDetails,
     handleCloseDetails,
     handleJoin,
+    handleLeave,
+    handleEdit,
     handleDelete,
     handleGetCoursesByMajor,
     canDelete,
@@ -134,5 +151,6 @@ export function useStudyGroupsPage(userId: string | undefined) {
     courses,
     reload,
     onSearchChange,
+    mounted,
   } as const;
 }
