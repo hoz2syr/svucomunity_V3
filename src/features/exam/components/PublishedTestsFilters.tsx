@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { X, Search } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
-import { useDebounce } from '@/src/features/study-groups/src/hooks/useDebounce';
 
 interface SelectOption {
   label: string;
@@ -16,10 +15,13 @@ interface PublishedTestsFiltersProps {
   selectedMajor: string;
   selectedCourse: string;
   searchQuery: string;
+  searchInput: string;
   onMajorChange: (value: string) => void;
   onCourseChange: (value: string) => void;
-  onSearchChange: (value: string) => void;
+  onSearchInputChange: (value: string) => void;
+  onSearchTrigger: () => void;
   onClearFilters: () => void;
+  showSearch?: boolean;
 }
 
 export function PublishedTestsFilters({
@@ -28,57 +30,60 @@ export function PublishedTestsFilters({
   selectedMajor,
   selectedCourse,
   searchQuery,
+  searchInput,
   onMajorChange,
   onCourseChange,
-  onSearchChange,
+  onSearchInputChange,
+  onSearchTrigger,
   onClearFilters,
+  showSearch = true,
 }: PublishedTestsFiltersProps) {
-  const [localSearch, setLocalSearch] = useState(searchQuery);
-
-  const { debouncedFn: debouncedSearch, cancel: cancelSearch } = useDebounce((value: string) => {
-    onSearchChange(value);
-  }, 300);
-
-  useEffect(() => {
-    return () => {
-      cancelSearch();
-    };
-  }, [cancelSearch]);
-
   const majorOptions = useMemo<SelectOption[]>(() => majors.map(m => ({ label: m, value: m })), [majors]);
   const courseOptions = useMemo<SelectOption[]>(() => courses.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code })), [courses]);
 
-  const hasActiveFilters = searchQuery || selectedMajor || selectedCourse;
-
-  const handleSearchChange = (value: string) => {
-    setLocalSearch(value);
-    debouncedSearch(value);
-  };
+  const hasActiveFilters = showSearch ? searchQuery || selectedMajor || selectedCourse : selectedMajor || selectedCourse;
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 space-y-3">
-      <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          value={localSearch}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="ابحث باسم الاختبار أو الوصف..."
-          className="input-field w-full pr-10 pl-4 py-2.5 rounded-xl text-white text-sm placeholder:text-slate-500"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => {
-              setLocalSearch('');
-              onSearchChange('');
+      {showSearch && (
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => onSearchInputChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onSearchTrigger();
+              }
             }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+            placeholder="ابحث باسم الاختبار أو الوصف..."
+            className="input-field w-full pr-10 pl-20 py-2.5 rounded-xl text-white text-sm placeholder:text-slate-500"
+          />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSearchInputChange('');
+                  onSearchTrigger();
+                }}
+                className="text-slate-400 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onSearchTrigger}
+              className="text-primary-400 hover:text-primary-300 transition"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <Dropdown

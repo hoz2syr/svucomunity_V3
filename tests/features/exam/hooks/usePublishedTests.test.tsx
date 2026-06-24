@@ -26,26 +26,27 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
+const chain: any = {};
+chain.select = () => chain;
+chain.eq = () => chain;
+chain.filter = () => chain;
+chain.or = () => chain;
+chain.order = () => chain;
+chain.limit = async () => ({ data: [], error: null });
+chain.maybeSingle = async () => ({ data: null, error: null });
+chain.upsert = () => ({ error: null });
+chain.delete = () => ({ eq: () => chain });
+
 vi.mock('@/src/lib/supabase', () => {
-  const mock: any = {
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          order: () => ({
-            order: () => ({
-              limit: async () => ({ data: [], error: null }),
-            }),
-          }),
-        }),
-      }),
-    }),
-  };
+  const client: any = {};
+  client.from = () => chain;
+
   return {
     hasSupabaseEnv: () => true,
-    getSupabaseClient: () => mock,
+    getSupabaseClient: () => client,
     missingSupabaseEnvMessage: 'missing',
     getErrorMessage: (error: unknown, fallback = 'حدث خطأ غير متوقع.') => (error instanceof Error ? error.message : typeof error === 'string' ? error : fallback),
-    __setMock: (m: any) => { Object.assign(mock, m); },
+    __setMock: (m: any) => { Object.assign(client, m); },
   };
 });
 

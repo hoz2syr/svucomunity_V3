@@ -188,6 +188,9 @@ export const fetchPublishedTestById = async (testId: string): Promise<{ data: Te
 export const fetchPublishedTests = async (
   limit = 20,
   cursor?: { created_at: string; id: string },
+  major?: string,
+  courseCode?: string,
+  searchQuery?: string,
 ): Promise<FetchTestsPageResult> => {
   if (!hasSupabaseEnv()) {
     return { data: [], error: { message: missingSupabaseEnvMessage }, hasMore: false };
@@ -196,7 +199,7 @@ export const fetchPublishedTests = async (
   try {
     const q = getSupabaseClient()
       .from('tests')
-      .select('id, title, description, settings, questions, rating, published, created_at, updated_at')
+      .select('id, title, description, settings, rating, published, created_at, updated_at')
       .eq('published', true)
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
@@ -205,6 +208,19 @@ export const fetchPublishedTests = async (
     if (cursor) {
       const cursorDate = new Date(cursor.created_at).toISOString();
       q.or(`created_at.lt.${cursorDate},and(created_at.eq.${cursorDate},id.lt.${cursor.id})`);
+    }
+
+    if (major) {
+      q.eq('major', major);
+    }
+
+    if (courseCode) {
+      q.eq('course_code', courseCode);
+    }
+
+    if (searchQuery) {
+      const pattern = `%${searchQuery}%`;
+      q.or(`title.ilike.${pattern},description.ilike.${pattern}`);
     }
 
     const { data, error } = await q;
@@ -216,7 +232,7 @@ export const fetchPublishedTests = async (
     const rows = (data ?? []) as TestRow[];
     const items = rows.map(row => {
       const model = toTestModel(row);
-      return { ...model, questions: stripCorrectAnswers(model.questions) };
+      return { ...model, questions: [] };
     });
     const hasMore = items.length > limit;
     const sliced = hasMore ? items.slice(0, limit) : items;

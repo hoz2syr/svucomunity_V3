@@ -12,7 +12,7 @@ import { PublishedTestsFilters } from '../../components/PublishedTestsFilters';
 import type { TestModel } from '../types';
 
 export default function BrowsePublishedTests() {
-  const { tests, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, majors, selectedMajor, selectedCourse, searchQuery, setSelectedMajor, setSelectedCourse, setSearchQuery, clearFilters, courses } = usePublishedTests();
+  const { tests, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, majors, selectedMajor, selectedCourse, searchQuery, searchInput, setSelectedMajor, setSelectedCourse, setSearchInput, triggerSearch, clearFilters, courses } = usePublishedTests();
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animation-fade-in-up mt-6">
@@ -30,9 +30,11 @@ export default function BrowsePublishedTests() {
         selectedMajor={selectedMajor}
         selectedCourse={selectedCourse}
         searchQuery={searchQuery}
+        searchInput={searchInput}
         onMajorChange={setSelectedMajor}
         onCourseChange={setSelectedCourse}
-        onSearchChange={setSearchQuery}
+        onSearchInputChange={setSearchInput}
+        onSearchTrigger={triggerSearch}
         onClearFilters={clearFilters}
       />
 

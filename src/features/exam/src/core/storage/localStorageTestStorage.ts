@@ -120,3 +120,4 @@ export class LocalFirstTestStorage implements ITestStorage {
 }
 
 export const testStorage = new LocalFirstTestStorage();
+export const localStorageTestStorage = testStorage;

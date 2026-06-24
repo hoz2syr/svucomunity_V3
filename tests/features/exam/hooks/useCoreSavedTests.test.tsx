@@ -3,7 +3,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { TestWrapper, testQueryClient } from '@/tests/setup';
 import { useCoreSavedTests } from '@/src/features/exam/src/hooks/useCoreSavedTests';
 import type { TestModel } from '@/src/features/exam/src/types';
-import { localStorageTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
+import { localStorageTestStorage } from '@/src/features/exam/src/core/storage/localStorageTestStorage';
 import { supabaseStorage } from '@/src/features/exam/src/core/adapters/supabaseTestStorage';
 import * as examSupabase from '@/src/features/exam/src/services/exam.supabase';
 

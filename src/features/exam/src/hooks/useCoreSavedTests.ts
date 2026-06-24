@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { TestModel } from '../types';
-import { localStorageTestStorage } from '../core/adapters/localStorageTestStorage';
+import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
 import { supabaseStorage } from '../core/adapters/supabaseTestStorage';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { fetchTestsPage } from '../services/exam.supabase';

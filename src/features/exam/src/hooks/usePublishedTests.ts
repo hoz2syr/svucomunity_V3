@@ -20,9 +20,12 @@ export interface UsePublishedTestsReturn {
   selectedMajor: string;
   selectedCourse: string;
   searchQuery: string;
+  searchInput: string;
   setSelectedMajor: (v: string) => void;
   setSelectedCourse: (v: string) => void;
+  setSearchInput: (v: string) => void;
   setSearchQuery: (v: string) => void;
+  triggerSearch: () => void;
   clearFilters: () => void;
   courses: { code: string; name: string }[];
 }
@@ -37,6 +40,7 @@ export function usePublishedTests(): UsePublishedTestsReturn {
   const [selectedMajor, setSelectedMajor] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [courses, setCourses] = useState<{ code: string; name: string }[]>([]);
 
   const {
@@ -47,11 +51,17 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     isLoading: queryLoading,
     error: queryError,
   } = useInfiniteQuery<TestModel[]>({
-    queryKey: ['published-tests'],
+    queryKey: ['published-tests', selectedMajor, selectedCourse, searchQuery],
     initialPageParam: undefined,
     queryFn: async ({ pageParam }): Promise<TestModel[]> => {
       const cursor = pageParam as { created_at: string; id: string } | undefined;
-      const { data, error } = await fetchPublishedTests(PAGE_LIMIT, cursor);
+      const { data, error } = await fetchPublishedTests(
+        PAGE_LIMIT,
+        cursor,
+        selectedMajor || undefined,
+        selectedCourse || undefined,
+        searchQuery || undefined,
+      );
       if (error) throw new Error(error.message);
       return data ?? [];
     },
@@ -68,18 +78,7 @@ export function usePublishedTests(): UsePublishedTestsReturn {
 
   const allTests = useMemo(() => (data?.pages.flat() as TestModel[]) ?? [], [data]);
 
-  const tests = useMemo(() => {
-    return allTests.filter(test => {
-      const search = searchQuery.toLowerCase();
-      if (search) {
-        const haystack = `${test.title} ${test.description ?? ''}`.toLowerCase();
-        if (!haystack.includes(search)) return false;
-      }
-      if (selectedMajor && test.settings?.major !== selectedMajor) return false;
-      if (selectedCourse && test.settings?.courseCode !== selectedCourse) return false;
-      return true;
-    });
-  }, [allTests, searchQuery, selectedMajor, selectedCourse]);
+  const tests = useMemo(() => allTests, [allTests]);
 
   useEffect(() => {
     if (queryError) {
@@ -118,9 +117,14 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     queryClient.invalidateQueries({ queryKey: ['published-tests'] });
   }, [queryClient]);
 
+  const triggerSearch = useCallback(() => {
+    setSearchQuery(searchInput);
+  }, [searchInput]);
+
   const clearFilters = useCallback(() => {
     setSelectedMajor('');
     setSelectedCourse('');
+    setSearchInput('');
     setSearchQuery('');
   }, []);
 
@@ -136,9 +140,12 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     selectedMajor,
     selectedCourse,
     searchQuery,
+    searchInput,
     setSelectedMajor,
     setSelectedCourse,
+    setSearchInput,
     setSearchQuery,
+    triggerSearch,
     clearFilters,
     courses,
   };

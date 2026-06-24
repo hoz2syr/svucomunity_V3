@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { LocalFirstTestStorage } from '@/src/features/exam/src/core/adapters/localStorageTestStorage';
+import { LocalFirstTestStorage } from '@/src/features/exam/src/core/storage/localStorageTestStorage';
 import type { TestModel } from '@/src/features/exam/src/types';
 
 const buildTest = (overrides: Partial<TestModel> = {}): TestModel => ({
@@ -52,12 +52,14 @@ describe('LocalFirstTestStorage', () => {
     expect(storage.getTestById('missing')).toBeUndefined();
   });
 
-  it('hydrateFromServer overwrites local storage', () => {
+  it('hydrateFromServer merges local and server data', () => {
     storage.saveTest(buildTest({ id: 'local' }));
     const serverTests = [buildTest({ id: 'server' })];
     storage.hydrateFromServer('user-1', serverTests);
-    expect(storage.getTests()).toHaveLength(1);
-    expect(storage.getTests()[0].id).toBe('server');
+    expect(storage.getTests()).toHaveLength(2);
+    const ids = storage.getTests().map(t => t.id);
+    expect(ids).toContain('local');
+    expect(ids).toContain('server');
   });
 
   it('manages current user id', () => {

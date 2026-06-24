@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { TestModel, Question } from '../types';
-import { localStorageTestStorage } from '../core/adapters/localStorageTestStorage';
+import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
 import { fetchPublishedTestById, rateTestInSupabase } from '../services/exam.supabase';
 
 export interface UseCorePlayTestReturn {

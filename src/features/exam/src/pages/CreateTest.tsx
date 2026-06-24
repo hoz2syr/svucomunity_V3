@@ -1,18 +1,19 @@
 "use client";
 
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileJson, AlertCircle } from 'lucide-react';
 import { useTestCreator } from '../hooks';
-import { Dropdown } from '@/src/components/ui/Dropdown';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { PublishedTestsFilters } from '@/src/features/exam/components/PublishedTestsFilters';
 
 export default function CreateTest() {
   const navigate = useNavigate();
   const { jsonText, setJsonText, testTitle, setTestTitle, testDesc, setTestDesc, error, showExplanations, setShowExplanations, globalTimeLimit, setGlobalTimeLimit, selectedMajor, setSelectedMajor, selectedCourse, setSelectedCourse, majors, courses, fileInputRef, handleFileUpload, handleCreate } = useTestCreator();
 
-  const majorOptions = useMemo(() => majors.map(m => ({ label: m, value: m })), [majors]);
-  const courseOptions = useMemo(() => courses.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code })), [courses]);
+  const clearFilters = () => {
+    setSelectedMajor('');
+    setSelectedCourse('');
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animation-fade-in-up mt-6">
@@ -46,26 +47,20 @@ export default function CreateTest() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <Dropdown
-            searchable
-            value={selectedMajor}
-            onChange={(v: string) => { setSelectedMajor(v); setSelectedCourse(''); }}
-            options={majorOptions}
-            placeholder="كل التخصصات"
-            searchPlaceholder="ابحث بتخصص..."
-            className="min-w-[140px]"
+          <PublishedTestsFilters
+            majors={majors}
+            courses={courses}
+            selectedMajor={selectedMajor}
+            selectedCourse={selectedCourse}
+            searchQuery=""
+            searchInput=""
+            onMajorChange={(v: string) => { setSelectedMajor(v); setSelectedCourse(''); }}
+            onCourseChange={(v: string) => setSelectedCourse(v)}
+            onSearchInputChange={() => {}}
+            onSearchTrigger={() => {}}
+            onClearFilters={clearFilters}
+            showSearch={false}
           />
-            <Dropdown
-            searchable
-            value={selectedCourse}
-            onChange={(v: string) => setSelectedCourse(v)}
-            options={courseOptions}
-            placeholder="كل المواد"
-            searchPlaceholder="ابحث بمادة أو كود..."
-            className="min-w-[140px]"
-          />
-          </div>
         </div>
 
         <div>
