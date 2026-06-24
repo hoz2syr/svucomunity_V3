@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Plus, Loader2 } from 'lucide-react';
-import { Dropdown } from './Dropdown';
+import { Dropdown } from '@/src/components/ui/Dropdown';
 import type { Course } from '../src/types';
 import { ModalShell } from './ModalShell';
-import { PrimaryButton } from './PrimaryButton';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { CLASSES } from '../src/constants';
 
 interface CreateGroupModalProps {

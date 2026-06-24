@@ -3,6 +3,7 @@
 import { Link } from 'react-router-dom';
 import { usePublishedTests } from '../hooks';
 import { FileText, ChevronDown, Loader2, Globe } from 'lucide-react';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { StarRating } from '../components/StarRating';
@@ -50,9 +51,9 @@ export default function BrowsePublishedTests() {
           </div>
           <h3 className="text-xl font-bold text-white mb-2">لا توجد اختبارات منشورة بعد</h3>
           <p className="text-secondary-400 mb-6">كن أول من ينشر اختباراً!</p>
-          <Link to="/exam/create" className="btn-primary flex items-center gap-2">
+          <PrimaryButton to="/exam/create" className="flex items-center gap-2">
             إنشاء اختبار
-          </Link>
+          </PrimaryButton>
         </div>
       ) : (
         <>

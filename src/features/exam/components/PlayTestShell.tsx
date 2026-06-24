@@ -16,6 +16,7 @@ import {
 import { cn } from '../src/lib/utils';
 import { ErrorState } from '../src/components/ErrorState';
 import { PlayTestSkeleton } from '../src/components/Skeletons';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import type { UseCorePlayTestReturn } from '../src/hooks/useCorePlayTest';
 import type { ReactNode } from 'react';
 
@@ -137,10 +138,10 @@ export function PlayTestShell({
           )}
 
           <div className="pt-3 sm:pt-4">
-            <button onClick={() => setHasStarted(true)} className="btn-primary w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 sm:py-3.5 text-sm sm:text-base sm:text-lg">
+            <PrimaryButton onClick={() => setHasStarted(true)} className="w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 sm:py-3.5 text-sm sm:text-base sm:text-lg">
               <Play className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>ابدأ الاختبار الآن</span>
-            </button>
+               <span>ابدأ الاختبار الآن</span>
+             </PrimaryButton>
           </div>
         </div>
       </div>
@@ -316,8 +317,8 @@ export function PlayTestShell({
 
                 return (
                   <button key={val} onClick={() => handleSelect(val)} disabled={isAnswerRevealed} className={cn('w-full text-center p-3 sm:p-4 rounded-xl border transition-all text-white font-bold text-sm sm:text-lg', isAnswerRevealed && 'cursor-default', btnStateClass)}>
-                    {val === 'true' ? 'صح' : 'خطأ'}
-                  </button>
+                     {val === 'true' ? 'صح' : 'خطأ'}
+              </button>
                 );
               })}
             </div>
@@ -353,15 +354,15 @@ export function PlayTestShell({
         )}
 
         <div className="mt-5 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex justify-end">
-          <button
+          <PrimaryButton
             onClick={handleNext}
             disabled={!selectedAnswers[currentQ.id] && currentQ.type !== 'essay'}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] text-sm sm:text-base"
+            className="min-w-[140px] text-sm sm:text-base"
           >
             {immediateFeedback && !isAnswerRevealed && currentQ.type !== 'essay'
               ? 'تأكيد الإجابة'
               : currentIdx === test.questions.length - 1 ? 'إنهاء الاختبار' : 'السؤال التالي'}
-          </button>
+          </PrimaryButton>
         </div>
       </div>
     </div>

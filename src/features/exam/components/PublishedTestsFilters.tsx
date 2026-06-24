@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { X, Search } from 'lucide-react';
-import { Dropdown } from '../../study-groups/components/Dropdown';
+import { Dropdown } from '@/src/components/ui/Dropdown';
 import { useDebounce } from '@/src/features/study-groups/src/hooks/useDebounce';
 
 interface SelectOption {

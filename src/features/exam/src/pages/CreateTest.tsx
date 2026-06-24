@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileJson, AlertCircle } from 'lucide-react';
 import { useTestCreator } from '../hooks';
-import { Dropdown } from '@/src/features/study-groups/components/Dropdown';
+import { Dropdown } from '@/src/components/ui/Dropdown';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 
 export default function CreateTest() {
   const navigate = useNavigate();
@@ -87,10 +88,9 @@ export default function CreateTest() {
         )}
 
         <div className="pt-4 border-t border-white/10">
-          <button onClick={() => handleCreate(navigate)} className="btn-primary w-full flex items-center justify-center gap-2">
-            <FileJson className="w-5 h-5" />
-            <span>توليد الاختبار</span>
-          </button>
+          <PrimaryButton onClick={() => handleCreate(navigate)} className="w-full flex items-center justify-center gap-2" icon={<FileJson className="w-5 h-5" />}>
+          <span>توليد الاختبار</span>
+        </PrimaryButton>
         </div>
       </div>
     </div>

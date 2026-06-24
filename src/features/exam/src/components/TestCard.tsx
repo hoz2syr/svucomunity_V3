@@ -5,6 +5,7 @@ import { FileText, Clock, Play, Printer, Download, Trash2, Share2 } from 'lucide
 import { TestModel } from '../types';
 import { StarRating } from './StarRating';
 import { PrivacyBadge } from './PrivacyBadge';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 
 interface TestCardProps {
   test: TestModel;
@@ -76,14 +77,14 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         </Link>
 
         <div className="grid grid-cols-3 gap-2">
-          <button
+          <PrimaryButton
             onClick={() => onPrintPdf(test)}
             disabled={loadingPdf === test.id}
-            className="btn-primary flex-1 py-2.5 text-sm flex items-center justify-center gap-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 text-sm flex items-center justify-center gap-1.5 rounded-xl"
+            icon={<Printer className="w-3.5 h-3.5" />}
           >
-            <Printer className="w-3.5 h-3.5" />
             <span>{loadingPdf === test.id ? '...' : 'PDF'}</span>
-          </button>
+          </PrimaryButton>
           <button
             onClick={() => onExportWord(test)}
             className="btn-glass flex-1 py-2.5 text-sm flex items-center justify-center gap-1.5 rounded-xl"

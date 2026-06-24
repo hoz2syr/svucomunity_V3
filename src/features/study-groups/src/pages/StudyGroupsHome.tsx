@@ -9,7 +9,7 @@ import { GroupDetailsModal } from '../../components/GroupDetailsModal';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ErrorState } from '../../components/ErrorState';
 import { StudyGroupCardSkeleton } from '../../components/StudyGroupCardSkeleton';
-import { PrimaryButton } from '../../components/PrimaryButton';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 

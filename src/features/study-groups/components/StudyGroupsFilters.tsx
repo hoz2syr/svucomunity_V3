@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { X, Search } from 'lucide-react';
 import type { StudyGroupFilters, Course } from '../src/types';
-import { Dropdown } from './Dropdown';
+import { Dropdown } from '@/src/components/ui/Dropdown';
 import { useDebounce } from '../src/hooks/useDebounce';
 
 interface SelectOption {

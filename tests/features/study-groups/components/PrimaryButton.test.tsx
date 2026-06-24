@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { PrimaryButton } from '@/src/features/study-groups/components/PrimaryButton';
+import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 
 describe('PrimaryButton component', () => {
   it('should render children', () => {

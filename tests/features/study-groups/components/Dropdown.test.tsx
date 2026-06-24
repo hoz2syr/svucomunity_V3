@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Dropdown } from '@/src/features/study-groups/components/Dropdown';
+import { Dropdown } from '@/src/components/ui/Dropdown';
 
 const mockOptions = [
   { value: 'cs', label: 'Computer Science' },
