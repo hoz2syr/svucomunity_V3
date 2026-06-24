@@ -7,7 +7,7 @@ import { localStorageTestStorage } from '../core/storage/localStorageTestStorage
 import { supabaseStorage } from '../core/adapters/supabaseTestStorage';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { fetchTestsPage } from '../services/exam.supabase';
-import { hasSupabaseEnv } from '@/src/lib/supabase';
+import { hasSupabaseEnv, getCurrentSession } from '@/src/lib/supabase';
 import { useTestActions } from './useTestActions';
 import { useTestMigration } from './useTestMigration';
 
@@ -131,7 +131,19 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
   }, [userId, refetch, envMissing]);
 
   const handlePublish = useCallback(async (testId: string) => {
-    const currentTests = storage.getTests();
+    let effectiveStorage = storage;
+    let effectiveUserId = userId;
+
+    if (!effectiveUserId && !envMissing && hasSupabaseEnv()) {
+      const freshSession = await getCurrentSession();
+      effectiveUserId = freshSession?.user?.id ?? null;
+      if (effectiveUserId) {
+        effectiveStorage = supabaseStorage;
+        supabaseStorage.setCurrentUserId(effectiveUserId);
+      }
+    }
+
+    const currentTests = effectiveStorage.getTests();
     const existing = currentTests.find(t => t.id === testId);
     if (!existing) {
       throw new Error('الاختبار غير موجود');
@@ -143,11 +155,11 @@ export function useCoreSavedTests(): UseSavedTestsReturn {
       publishedAt: existing.publishedAt ?? new Date().toISOString(),
     };
 
-    await storage.saveTest(updated);
+    await effectiveStorage.saveTest(updated);
     setTests(currentTests.map(t => (t.id === testId ? updated : t)));
 
-    if (userId && hasSupabaseEnv() && !envMissing) {
-      queryClient.invalidateQueries({ queryKey: ['tests', userId] });
+    if (effectiveUserId && hasSupabaseEnv() && !envMissing) {
+      queryClient.invalidateQueries({ queryKey: ['tests', effectiveUserId] });
       queryClient.invalidateQueries({ queryKey: ['published-tests'] });
     }
   }, [userId, queryClient, storage, envMissing]);

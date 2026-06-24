@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
 import type { SupabaseOperationError } from '../types/supabase';
 
 type EnvConfig = {
@@ -35,6 +35,26 @@ export const getSupabaseClient = (): SupabaseClient => {
   }
   return _supabase;
 };
+
+export const getCurrentSession = async (): Promise<Session | null> => {
+  try {
+    const { data } = await getSupabaseClient().auth.getSession();
+    return data.session;
+  } catch {
+    return null;
+  }
+};
+
+export const refreshCurrentSession = async (): Promise<Session | null> => {
+  try {
+    const { data } = await getSupabaseClient().auth.refreshSession();
+    return data.session;
+  } catch {
+    return null;
+  }
+};
+
+export const refreshSession = refreshCurrentSession;
 
 export const getErrorMessage = (error: unknown, fallback = 'حدث خطأ غير متوقع.'): string => {
   if (error instanceof Error) return error.message;

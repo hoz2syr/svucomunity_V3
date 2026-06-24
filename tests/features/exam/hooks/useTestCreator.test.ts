@@ -16,16 +16,21 @@ vi.mock('@/src/features/exam/src/services/exam.supabase', () => ({
   upsertTestToSupabase: (...args: unknown[]) => upsertImpl(...args),
 }));
 
+const mockGetCurrentSession = vi.fn(async () => null);
+
 vi.mock('@/src/lib/supabase', () => ({
   hasSupabaseEnv: (...args: unknown[]) => mockHasSupabaseEnvFn(...args),
   missingSupabaseEnvMessage: 'Missing Supabase environment variables',
   saveTest: vi.fn(),
+  getCurrentSession: (...args: unknown[]) => mockGetCurrentSession(...args),
 }));
 
-const resetSupabaseMock = () => {
-  upsertImpl.mockClear();
-  upsertImpl.mockImplementation(async () => ({ error: null }));
-};
+  const resetSupabaseMock = () => {
+    upsertImpl.mockClear();
+    upsertImpl.mockImplementation(async () => ({ error: null }));
+    mockGetCurrentSession.mockClear();
+    mockGetCurrentSession.mockImplementation(async () => null);
+  };
 
 describe('useTestCreator: existing behaviour', () => {
   beforeEach(() => {
@@ -144,8 +149,9 @@ describe('useTestCreator: handlePublish', () => {
     return test;
   };
 
-  it('redirects to login when user is not authenticated', async () => {
+  it('redirects to login when user is not authenticated and session is not refreshable', async () => {
     mockSession = null;
+    mockGetCurrentSession.mockImplementation(async () => null);
     seedTest();
     const { result } = renderHook(() => useTestCreator());
     await act(async () => {
@@ -153,6 +159,21 @@ describe('useTestCreator: handlePublish', () => {
     });
     expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
     expect(upsertImpl).not.toHaveBeenCalled();
+  });
+
+  it('uses refreshed session when local session is missing but getCurrentSession succeeds', async () => {
+    mockSession = null;
+    mockGetCurrentSession.mockImplementation(async () => ({ user: { id: 'refreshed-user' } } as { user: { id: string } }));
+    seedTest();
+    const { result } = renderHook(() => useTestCreator());
+    await act(async () => {
+      await result.current.handlePublish('test-1', mockNavigate);
+    });
+    expect(mockNavigate).not.toHaveBeenCalledWith('/login', { replace: true });
+    expect(upsertImpl).toHaveBeenCalledTimes(1);
+    const arg = upsertImpl.mock.calls[0][0] as { userId: string; published: boolean };
+    expect(arg.userId).toBe('refreshed-user');
+    expect(arg.published).toBe(true);
   });
 
   it('shows env error when Supabase env is missing', async () => {

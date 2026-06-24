@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { hasSupabaseEnv, getErrorMessage } from '../services/environment.service';
+import { hasSupabaseEnv, getErrorMessage, refreshSession } from '../services/environment.service';
 import { completeAuthCallback, listenAuthChanges } from '../services/auth.service';
 import { refreshProfile as refreshProfileService } from '../services/profile.service';
 import type { Profile } from '../types/profile';
@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [sessionExpiring, setSessionExpiring] = useState(false);
   const [sessionExpiryTime, setSessionExpiryTime] = useState<number | null>(null);
+  const refreshingRef = useRef(false);
 
   const refreshProfileForUser = useCallback(async (userId: string) => {
     if (!hasSupabaseEnv()) {
@@ -92,6 +93,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const interval = setInterval(checkSessionExpiry, 30_000);
     return () => clearInterval(interval);
   }, [session, checkSessionExpiry]);
+
+  useEffect(() => {
+    if (!sessionExpiring || !session?.access_token || refreshingRef.current) return;
+
+    refreshingRef.current = true;
+
+    const timer = setTimeout(async () => {
+      try {
+        await refreshSession();
+      } catch {
+        // refresh failed; let Supabase SDK handle eventual expiry
+      } finally {
+        refreshingRef.current = false;
+      }
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      refreshingRef.current = false;
+    };
+  }, [sessionExpiring, session, refreshSession]);
 
   const clearError = useCallback(() => setError(null), []);
 

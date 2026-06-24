@@ -1,4 +1,4 @@
-import { getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
+import { getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage, refreshSession } from '@/src/lib/supabase';
 import type { TestModel } from '@/src/features/exam/src/types';
 
 export interface TestRow {
@@ -118,16 +118,37 @@ export const upsertTestToSupabase = async (test: TestModel & { userId: string })
     return { error: { message: missingSupabaseEnvMessage } };
   }
 
-  try {
-    const row = toTestRow(test);
-    const { error } = await getSupabaseClient().from('tests').upsert(row, { onConflict: 'id' });
-    if (error) {
-      return { error: { message: error.message } };
+  const attemptUpsert = async (): Promise<{ error: ExamSupabaseError | null }> => {
+    try {
+      const row = toTestRow(test);
+      const { error } = await getSupabaseClient().from('tests').upsert(row, { onConflict: 'id' });
+      if (error) {
+        return { error: { message: error.message } };
+      }
+      return { error: null };
+    } catch (error) {
+      return { error: { message: String(error) } };
     }
-    return { error: null };
-  } catch (error) {
-    return { error: { message: String(error) } };
+  };
+
+  const isAuthError = (error: unknown): boolean => {
+    const err = error as { message?: string; code?: string; status?: number } | null;
+    if (!err) return false;
+    if (err.status === 401) return true;
+    if (typeof err.message !== 'string') return false;
+    const msg = err.message.toLowerCase();
+    return msg.includes('jwt') || msg.includes('expired') || msg.includes('invalid') || msg.includes('token');
+  };
+
+  const result = await attemptUpsert();
+  if (result.error && isAuthError(result.error)) {
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      return attemptUpsert();
+    }
   }
+
+  return result;
 };
 
 export const deleteTestFromSupabase = async ({ testId, userId }: { testId: string; userId: string }): Promise<{ error: ExamSupabaseError | null }> => {
@@ -135,20 +156,41 @@ export const deleteTestFromSupabase = async ({ testId, userId }: { testId: strin
     return { error: { message: missingSupabaseEnvMessage } };
   }
 
-  try {
-    const { error } = await getSupabaseClient()
-      .from('tests')
-      .delete()
-      .eq('id', testId)
-      .eq('user_id', userId);
+  const attemptDelete = async (): Promise<{ error: ExamSupabaseError | null }> => {
+    try {
+      const { error } = await getSupabaseClient()
+        .from('tests')
+        .delete()
+        .eq('id', testId)
+        .eq('user_id', userId);
 
-    if (error) {
-      return { error: { message: error.message } };
+      if (error) {
+        return { error: { message: error.message } };
+      }
+      return { error: null };
+    } catch (error) {
+      return { error: { message: String(error) } };
     }
-    return { error: null };
-  } catch (error) {
-    return { error: { message: String(error) } };
+  };
+
+  const isAuthError = (error: unknown): boolean => {
+    const err = error as { message?: string; code?: string; status?: number } | null;
+    if (!err) return false;
+    if (err.status === 401) return true;
+    if (typeof err.message !== 'string') return false;
+    const msg = err.message.toLowerCase();
+    return msg.includes('jwt') || msg.includes('expired') || msg.includes('invalid') || msg.includes('token');
+  };
+
+  const result = await attemptDelete();
+  if (result.error && isAuthError(result.error)) {
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      return attemptDelete();
+    }
   }
+
+  return result;
 };
 
 const stripCorrectAnswers = (questions: TestModel['questions']): TestModel['questions'] =>

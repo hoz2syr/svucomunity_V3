@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { TestModel, Question } from '../types';
 import { saveTest } from '../lib/store';
 import { upsertTestToSupabase } from '../services/exam.supabase';
-import { hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
+import { hasSupabaseEnv, missingSupabaseEnvMessage, getCurrentSession } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/src/services/courseCatalog';
@@ -150,7 +150,15 @@ export function useTestCreator(): UseTestCreatorReturn {
     setPublishError(null);
     setPublishingId(testId);
 
-    const uid = userIdRef.current;
+    let uid = userIdRef.current;
+
+    if (!uid) {
+      const freshSession = await getCurrentSession();
+      uid = freshSession?.user?.id ?? null;
+      if (freshSession?.user?.id) {
+        userIdRef.current = freshSession.user.id;
+      }
+    }
 
     if (!uid) {
       setPublishingId(null);

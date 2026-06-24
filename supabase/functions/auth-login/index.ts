@@ -15,7 +15,10 @@ const getClientIp = (req: Request) =>
 
 const getAllowedOrigin = (origin: string | null | undefined) => {
   if (!origin) return null;
-  return getAllowedOrigins().includes(origin) ? origin : null;
+  const whitelist = getAllowedOrigins();
+  if (whitelist.includes(origin)) return origin;
+  if (origin.endsWith('.pages.dev')) return origin;
+  return null;
 };
 
 const corsHeaders = (origin: string | null | undefined) => {
