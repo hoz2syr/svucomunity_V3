@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthForm } from '../hooks/useAuthForm';
 import { RegisterInput } from '../schemas/auth.schema';
 import { AuthCard } from '../components/shared/AuthCard';
@@ -9,15 +6,16 @@ import { InputField } from '../components/ui/InputField';
 import { GuestButton } from '../components/shared/GuestButton';
 import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
 import { loginWithGoogle, registerWithEmail } from '../services/auth.service';
+import { useGuest } from '../contexts/GuestContext';
 
 export const RegisterPage = () => {
-  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
   const auth = useAuthForm({ mode: 'register' });
+  const { disableGuestMode } = useGuest();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     auth.clearServerError();
-    setSuccess(false);
 
     if (!hasSupabaseEnv()) {
       auth.setServerError(missingSupabaseEnvMessage);
@@ -37,8 +35,8 @@ export const RegisterPage = () => {
         return;
       }
 
-      setSuccess(true);
-      auth.reset();
+      disableGuestMode();
+      navigate('/dashboard');
     } catch {
       auth.setServerError('حدث خطأ غير متوقع أثناء إنشاء الحساب.');
       auth.setLoading(false);
@@ -57,71 +55,6 @@ export const RegisterPage = () => {
   };
 
   const { form } = auth;
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0a0f2e] relative overflow-hidden font-sans" dir="rtl">
-        <div className="w-full max-w-md relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
-          >
-            <a href="/" className="inline-flex items-center justify-center mb-5 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-transform group-hover:scale-105 group-hover:-rotate-3 duration-300">
-                <span className="text-white font-extrabold text-2xl font-display">SVU</span>
-              </div>
-            </a>
-            <h1 className="text-3xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">إنشاء حساب جديد</h1>
-            <p className="text-slate-400 text-sm mt-2 tracking-wide font-display">انضم إلى SVU Community اليوم</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(34,211,238,0.1)] relative"
-          >
-            <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 size={32} />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">تم إنشاء الحساب بنجاح!</h3>
-              <p className="text-slate-400 leading-relaxed mb-8">
-                مرحباً بك في <span className="text-cyan-400 font-medium">SVU Community</span>.
-                يمكنك الآن تسجيل الدخول والدخول إلى لوحة التحكم.
-              </p>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center w-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white font-bold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
-              >
-                الدخول إلى لوحة التحكم
-              </Link>
-              <button
-                onClick={() => setSuccess(false)}
-                className="mt-4 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors"
-              >
-                العودة لإنشاء حساب آخر
-              </button>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mt-6"
-          >
-            <Link to="/" className="text-slate-400 flex items-center justify-center gap-2 hover:text-white transition-colors text-sm group">
-              <ArrowRight size={16} className="transition-transform group-hover:-translate-x-1" />
-              العودة للرئيسية
-            </Link>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <AuthCard
