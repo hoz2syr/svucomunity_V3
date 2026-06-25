@@ -90,12 +90,80 @@
 
 ---
 
+### 5. `public.groups`
+
+مجموعات الدراسة للتعاون بين الطلاب.
+
+| الحقل | النوع | القيود | ملاحظات |
+|---|---|---|---|
+| `id` | `uuid` | Primary Key | `default uuid_generate_v4()` |
+| `name` | `text` | not null | اسم المجموعة |
+| `course_name` | `text` | not null | اسم المادة |
+| `course_code` | `text` | not null | رمز المادة |
+| `class_number` | `text` | nullable | رقم الفصل (C1-C50) |
+| `doctor_name` | `text` | nullable | اسم الدكتور |
+| `major` | `text` | not null | التخصص الدراسي |
+| `max_members` | `integer` | not null، default `5` | الحد الأقصى للأعضاء |
+| `current_members` | `integer` | not null، default `1` | عدد الأعضاء الحالي |
+| `whatsapp_link` | `text` | not null | رابط مجموعة الواتساب |
+| `group_link` | `text` | nullable | رابط المجموعة الإضافي |
+| `is_full` | `boolean` | not null، default `false` | هل المجموعة ممتلئة؟ |
+| `creator_id` | `uuid` | not null | FK → `auth.users.id` مع `ON DELETE CASCADE` |
+| `creator_name` | `text` | not null | اسم منشئ المجموعة |
+| `created_at` | `timestamptz` | default `now()` | |
+| `updated_at` | `timestamptz` | default `now()` | |
+
+**قيود إضافية:**
+- `CHECK constraint`: `max_members >= 2 AND max_members <= 20`
+- Index on `creator_id` for fast lookup of user's groups
+- Index on `major` for filtering by major
+
+**سياسات RLS (Row Level Security):**
+- `groups_select_all`: أي شخص يمكنه عرض جميع المجموعات (للتصفح)
+- `groups_insert_authenticated`: المستخدمون المسجلون فقط يمكنهم إنشاء مجموعة
+- `groups_update_creator`: المنشئ فقط يمكنه تعديل مجموعته
+- `groups_delete_creator`: المنشئ فقط يمكنه حذف مجموعته
+
+**يُضاف عبر Migration:**
+- `20250625000000_create_study_groups_tables.sql`
+
+---
+
+### 6. `public.group_members`
+
+عضوية المستخدمين في المجموعات.
+
+| الحقل | النوع | القيود | ملاحظات |
+|---|---|---|---|
+| `id` | `uuid` | Primary Key | `default uuid_generate_v4()` |
+| `group_id` | `uuid` | not null | FK → `public.groups.id` مع `ON DELETE CASCADE` |
+| `user_id` | `uuid` | not null | FK → `auth.users.id` مع `ON DELETE CASCADE` |
+| `joined_at` | `timestamptz` | default `now()` | تاريخ الانضمام |
+
+**قيود إضافية:**
+- `UNIQUE(group_id, user_id)`: منع الانضمام المزدوج لنفس المجموعة
+- Index on `group_id` for fast membership queries
+- Index on `user_id` for fast lookup of user's groups
+
+**سياسات RLS:**
+- `group_members_select`: أي شخص يمكنه عرض عضوية المجموعات
+- `group_members_insert_authenticated`: المستخدمون المسجلون يمكنهم الانضمام
+- `group_members_delete_own`: العضو يمكنه مغادرة مجموعته
+
+**يُضاف عبر Migration:**
+- `20250625000000_create_study_groups_tables.sql`
+
+---
+
 ## العلاقات
 
 ```
 auth.users (1) ──────── (N) public.profiles          [id → id, CASCADE]
 auth.users (1) ──────── (N) public.notifications      [id → user_id, CASCADE]
 auth.users (1) ──────── (N) public.admin_audit_log    [id → caller_id, CASCADE]
+auth.users (1) ──────── (N) public.groups             [id → creator_id, CASCADE]
+public.groups (1) ───── (N) public.group_members     [id → group_id, CASCADE]
+auth.users (1) ──────── (N) public.group_members      [id → user_id, CASCADE]
 ```
 
 ---

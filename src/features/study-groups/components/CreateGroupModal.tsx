@@ -21,20 +21,18 @@ interface CreateGroupModalProps {
     whatsapp_link: string;
     group_link?: string;
   }) => Promise<void>;
-  currentUser: { major?: string; first_name?: string; last_name?: string; username?: string; id: string } | null;
   getCoursesByMajor: (major: string) => Promise<Course[]>;
   availableMajors: string[];
-  mounted?: boolean;
+  userMajor?: string;
 }
 
 export function CreateGroupModal({
   isOpen,
   onClose,
   onSubmit,
-  currentUser,
   getCoursesByMajor,
   availableMajors,
-  mounted = true,
+  userMajor,
 }: CreateGroupModalProps) {
   const [groupName, setGroupName] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -60,12 +58,12 @@ export function CreateGroupModal({
       setIsSubmitting(false);
       setCourses([]);
 
-      if (currentUser?.major) {
-        setSelectedMajor(currentUser.major);
-        getCoursesByMajor(currentUser.major).then(setCourses);
+      if (userMajor) {
+        setSelectedMajor(userMajor);
+        getCoursesByMajor(userMajor).then(setCourses);
       }
     }
-  }, [isOpen, currentUser, getCoursesByMajor]);
+  }, [isOpen, userMajor, getCoursesByMajor]);
 
   useEffect(() => {
     if (selectedMajor) {
@@ -89,7 +87,7 @@ export function CreateGroupModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !currentUser) return;
+    if (!validate()) return;
 
     setIsSubmitting(true);
     try {
@@ -111,7 +109,7 @@ export function CreateGroupModal({
     }
   };
 
-  if (!isOpen || !mounted) return null;
+  if (!isOpen) return null;
 
   const courseOptions = courses.map((c) => ({ value: c.code, label: c.name, sublabel: c.code }));
   const classOptions = CLASSES.map((c) => ({ value: c, label: c }));

@@ -17,7 +17,7 @@ export async function getAllWithCreators(): Promise<StudyGroup[]> {
   return callEdgeFunction<StudyGroup[]>('getAll');
 }
 
-export async function getMyGroups(userId: string): Promise<{ created: StudyGroup[]; joined: StudyGroup[] }> {
+export async function getMyGroups(_userId: string): Promise<{ created: StudyGroup[]; joined: StudyGroup[] }> {
   return callEdgeFunction<{ created: StudyGroup[]; joined: StudyGroup[] }>('getMyGroups');
 }
 
@@ -37,11 +37,11 @@ export async function createGroup(groupData: {
   return callEdgeFunction<StudyGroup>('create', groupData);
 }
 
-export async function joinGroup(groupId: string, userId: string): Promise<void> {
+export async function joinGroup(groupId: string, _userId: string): Promise<void> {
   await callEdgeFunction<void>('join', { groupId });
 }
 
-export async function leaveGroup(groupId: string, userId: string): Promise<void> {
+export async function leaveGroup(groupId: string, _userId: string): Promise<void> {
   await callEdgeFunction<void>('leave', { groupId });
 }
 
@@ -67,11 +67,11 @@ export async function getGroupMembers(groupId: string): Promise<GroupMember[]> {
   return callEdgeFunction<GroupMember[]>('getMembers', { groupId });
 }
 
-export async function checkMembership(groupId: string, userId: string): Promise<boolean> {
+export async function checkMembership(groupId: string, _userId: string): Promise<boolean> {
   return callEdgeFunction<boolean>('checkMembership', { groupId });
 }
 
-export async function checkIsAdmin(userId: string): Promise<boolean> {
+export async function checkIsAdmin(_userId: string): Promise<boolean> {
   return callEdgeFunction<boolean>('checkIsAdmin');
 }
 

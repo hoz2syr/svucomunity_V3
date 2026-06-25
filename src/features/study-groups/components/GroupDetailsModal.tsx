@@ -5,6 +5,7 @@ import { BookOpen, Calendar, User, GraduationCap, MessageCircle, Link2, Trash2, 
 import type { StudyGroup } from '../src/types';
 import { ProgressBar } from './ProgressBar';
 import { ModalShell } from './ModalShell';
+import { Button } from '@/src/components/ui/Button';
 
 interface GroupDetailsModalProps {
   group: StudyGroup | null;
@@ -16,7 +17,7 @@ interface GroupDetailsModalProps {
   onJoin: (groupId: string) => Promise<void>;
   onDelete: (groupId: string) => void;
   onLeave: (groupId: string, groupName: string) => Promise<void>;
-  onEdit: (groupId: string, groupName: string) => void;
+  onEdit: () => void;
   joiningId: string | null;
   leavingId: string | null;
 }
@@ -160,72 +161,56 @@ export function GroupDetailsModal({
           </a>
         )}
 
-        {majorMismatch && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-            <p className="text-amber-400 text-sm font-semibold text-center mb-2">
-              <AlertTriangle className="w-5 h-5 inline-block ml-1.5" />
-              هذه المجموعة لتخصص {majorMismatch.groupMajor}
-            </p>
-            <p className="text-amber-300/80 text-xs text-center mb-3">
-              تخصصك: {majorMismatch.userMajor} - هل تريد المتابعة؟
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleConfirmJoin}
-                className="flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold transition-colors"
-              >
-                متابعة
-              </button>
-              <button
-                onClick={() => setMajorMismatch(null)}
-                className="flex-1 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-semibold transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        )}
+{majorMismatch && (
+           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+             <p className="text-amber-400 text-sm font-semibold text-center mb-2">
+               <AlertTriangle className="w-5 h-5 inline-block ml-1.5" />
+               هذه المجموعة لتخصص {majorMismatch.groupMajor}
+             </p>
+             <p className="text-amber-300/80 text-xs text-center mb-3">
+               تخصصك: {majorMismatch.userMajor} - هل تريد المتابعة؟
+             </p>
+             <div className="flex gap-2">
+               <Button onClick={handleConfirmJoin} className="flex-1">
+                 متابعة
+               </Button>
+               <Button variant="secondary" onClick={() => setMajorMismatch(null)} className="flex-1">
+                 إلغاء
+               </Button>
+             </div>
+           </div>
+         )}
 
-        {!isMember && !isFull && !showConfirmJoin && (
-          <button
-            onClick={handleJoinClick}
-            className="
-              w-full py-3 rounded-xl font-semibold text-white text-sm
-              bg-gradient-to-r from-amber-500 to-rose-500
-              hover:from-amber-400 hover:to-rose-400
-              shadow-[0_0_16px_rgba(245,158,11,0.25)]
-              hover:shadow-[0_0_24px_rgba(245,158,11,0.4)]
-              flex items-center justify-center gap-2
-              transition-all duration-200
-            "
-          >
-            <CheckCircle2 className="w-5 h-5" />
-            انضم للمجموعة
-          </button>
-        )}
+{!isMember && !isFull && !showConfirmJoin && (
+           <Button 
+             onClick={handleJoinClick}
+             className="
+               w-full
+               bg-gradient-to-r from-amber-500 to-rose-500
+               hover:from-amber-400 hover:to-rose-400
+               shadow-[0_0_16px_rgba(245,158,11,0.25)]
+               hover:shadow-[0_0_24px_rgba(245,158,11,0.4)]
+             "
+           >
+             <CheckCircle2 className="w-5 h-5" />
+             انضم للمجموعة
+           </Button>
+         )}
 
-        {!isMember && !isFull && showConfirmJoin && (
-          <button
-            onClick={handleConfirmJoin}
-            disabled={joiningId === group.id}
-            className="
-              w-full py-3 rounded-xl font-semibold text-white text-sm
-              bg-gradient-to-r from-emerald-600 to-emerald-500
-              hover:from-emerald-500 hover:to-emerald-400
-              shadow-[0_0_20px_rgba(16,185,129,0.25)]
-              flex items-center justify-center gap-2
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all duration-200
-            "
-          >
-            {joiningId === group.id ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <CheckCircle2 className="w-5 h-5" />
-            )}
-            {joiningId === group.id ? 'جاري الانضمام...' : 'تأكيد الانضمام'}
-          </button>
-        )}
+         {!isMember && !isFull && showConfirmJoin && (
+           <Button 
+             onClick={handleConfirmJoin}
+             disabled={joiningId === group.id}
+             className="w-full"
+           >
+             {joiningId === group.id ? (
+               <Loader2 className="w-5 h-5 animate-spin" />
+             ) : (
+               <CheckCircle2 className="w-5 h-5" />
+             )}
+             {joiningId === group.id ? 'جاري الانضمام...' : 'تأكيد الانضمام'}
+           </Button>
+         )}
 
         {isMember && (
           <div className="
@@ -238,43 +223,28 @@ export function GroupDetailsModal({
           </div>
         )}
 
-        {isMember && !canDelete && !showConfirmLeave && (
-          <button
-            onClick={() => setShowConfirmLeave(true)}
-            className="
-              w-full py-3 rounded-xl font-semibold text-white text-sm
-              bg-slate-700 hover:bg-slate-600
-              flex items-center justify-center gap-2
-              transition-colors duration-200
-            "
-          >
-            <LogOut className="w-5 h-5" />
-            مغادرة المجموعة
-          </button>
-        )}
+{isMember && !canDelete && !showConfirmLeave && (
+           <Button variant="secondary" onClick={() => setShowConfirmLeave(true)} className="w-full">
+             <LogOut className="w-5 h-5" />
+             مغادرة المجموعة
+           </Button>
+         )}
 
-        {isMember && !canDelete && showConfirmLeave && (
-          <div className="p-4 bg-slate-500/10 border border-slate-500/20 rounded-xl">
-            <p className="text-slate-400 text-sm font-semibold text-center mb-3">
-              هل أنت متأكد من مغادرة هذه المجموعة؟
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleConfirmLeave}
-                disabled={leavingId === group.id}
-                className="flex-1 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {leavingId === group.id ? 'جاري المغادرة...' : 'نعم، مغادرة'}
-              </button>
-              <button
-                onClick={() => setShowConfirmLeave(false)}
-                className="flex-1 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-semibold transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        )}
+         {isMember && !canDelete && showConfirmLeave && (
+           <div className="p-4 bg-slate-500/10 border border-slate-500/20 rounded-xl">
+             <p className="text-slate-400 text-sm font-semibold text-center mb-3">
+               هل أنت متأكد من مغادرة هذه المجموعة؟
+             </p>
+             <div className="flex gap-2">
+               <Button variant="secondary" onClick={handleConfirmLeave} disabled={leavingId === group.id} className="flex-1">
+                 {leavingId === group.id ? 'جاري المغادرة...' : 'نعم، مغادرة'}
+               </Button>
+               <Button variant="secondary" onClick={() => setShowConfirmLeave(false)} className="flex-1">
+                 إلغاء
+               </Button>
+             </div>
+           </div>
+         )}
 
         {!isMember && isFull && (
           <div className="
@@ -285,58 +255,35 @@ export function GroupDetailsModal({
           </div>
         )}
 
-        {canDelete && !showDeleteConfirm && (
-          <button
-            onClick={() => onEdit(group.id, group.name)}
-            className="
-              w-full py-3 rounded-xl font-semibold text-white text-sm
-              bg-gradient-to-r from-cyan-600 to-indigo-600
-              hover:from-cyan-500 hover:to-indigo-500
-              flex items-center justify-center gap-2
-              transition-all duration-200
-            "
-          >
-            <Edit2 className="w-5 h-5" />
-            تعديل المجموعة
-          </button>
-        )}
+{canDelete && !showDeleteConfirm && (
+           <Button onClick={onEdit} className="w-full">
+             <Edit2 className="w-5 h-5" />
+             تعديل المجموعة
+           </Button>
+          )}
 
-        {canDelete && !showDeleteConfirm && (
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="
-              w-full py-3 rounded-xl font-semibold text-white text-sm
-              bg-rose-600 hover:bg-rose-500
-              flex items-center justify-center gap-2
-              transition-colors duration-200
-            "
-          >
-            <Trash2 className="w-5 h-5" />
-            حذف المجموعة
-          </button>
-        )}
+         {canDelete && !showDeleteConfirm && (
+           <Button variant="danger" onClick={() => setShowDeleteConfirm(true)} className="w-full">
+             <Trash2 className="w-5 h-5" />
+             حذف المجموعة
+           </Button>
+         )}
 
-        {canDelete && showDeleteConfirm && (
-          <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-            <p className="text-rose-400 text-sm font-semibold text-center mb-3">
-              هل أنت متأكد من حذف هذه المجموعة؟
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleConfirmDelete}
-                className="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-semibold transition-colors"
-              >
-                نعم، احذف
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-semibold transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        )}
+         {canDelete && showDeleteConfirm && (
+           <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+             <p className="text-rose-400 text-sm font-semibold text-center mb-3">
+               هل أنت متأكد من حذف هذه المجموعة؟
+             </p>
+             <div className="flex gap-2">
+               <Button variant="danger" onClick={handleConfirmDelete} className="flex-1">
+                 نعم، احذف
+               </Button>
+               <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} className="flex-1">
+                 إلغاء
+               </Button>
+             </div>
+           </div>
+         )}
       </div>
     </ModalShell>
   );

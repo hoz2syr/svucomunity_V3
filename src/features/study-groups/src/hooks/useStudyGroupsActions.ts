@@ -1,40 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { studyGroupService } from '../core/services';
 import { useStudyGroupsToast } from './useStudyGroupsToast';
 import type { StudyGroup, Course } from '../types';
 
-export function useStoredUser() {
-  const [currentUser, setCurrentUser] = useState<{
-    major?: string;
-    first_name?: string;
-    last_name?: string;
-    username?: string;
-    id: string;
-  } | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    if (typeof localStorage === 'undefined') return;
-    try {
-      const stored = localStorage.getItem('currentUser');
-      if (stored) setCurrentUser(JSON.parse(stored));
-    } catch {
-      // ignore parse errors
-    }
-  }, []);
-
-  return { currentUser, mounted };
-}
-
 export function useStudyGroupsActions(reload: () => Promise<void>) {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const userId = session?.user?.id;
-  const { currentUser, mounted } = useStoredUser();
-  const { notifyError, notifyLeaveSuccess, notifyEditSuccess } = useStudyGroupsToast();
+  const { notifyError, notifyLeaveSuccess, notifyEditSuccess, notifyJoinSuccess, notifyCreateSuccess, notifyDeleteSuccess } = useStudyGroupsToast();
 
   const handleCreateGroup = useCallback(async (data: {
     name: string;
@@ -47,18 +22,20 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
     group_link?: string;
   }) => {
     if (!userId) return;
-    await studyGroupService.createGroup({
-      ...data,
-      doctor_name: '',
-      creator_id: userId,
-      creator_name: [
-        currentUser?.first_name,
-        currentUser?.last_name,
-        currentUser?.username,
-      ].filter(Boolean).join(' ') || 'مستخدم',
-    });
-    reload();
-  }, [userId, currentUser, reload]);
+    try {
+      await studyGroupService.createGroup({
+        ...data,
+        doctor_name: '',
+        creator_id: userId,
+        creator_name: profile?.full_name || profile?.username || 'مستخدم',
+      });
+      notifyCreateSuccess(data.name);
+      reload();
+    } catch (err) {
+      console.error('Failed to create:', err);
+      notifyError(err instanceof Error ? err.message : 'فشل إنشاء المجموعة');
+    }
+  }, [userId, profile, reload, notifyCreateSuccess, notifyError]);
 
   const handleOpenDetails = useCallback(async (groupId: string, groups: StudyGroup[]) => {
     const group = groups.find((g) => String(g.id) === String(groupId));
@@ -101,7 +78,7 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
     max_members?: number;
     whatsapp_link?: string;
     group_link?: string;
-  }, groupName: string) => {
+  }) => {
     if (!groupId) return;
     try {
       await studyGroupService.updateGroup(groupId, updates);
@@ -115,10 +92,16 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
 
   const handleDeleteGroup = useCallback(async (selectedGroup: StudyGroup | null, onComplete: () => void) => {
     if (!selectedGroup) return;
-    await studyGroupService.deleteGroup(selectedGroup.id);
-    onComplete();
-    reload();
-  }, [reload]);
+    try {
+      await studyGroupService.deleteGroup(selectedGroup.id);
+      notifyDeleteSuccess();
+      onComplete();
+      reload();
+    } catch (err) {
+      console.error('Failed to delete:', err);
+      notifyError(err instanceof Error ? err.message : 'فشل حذف المجموعة');
+    }
+  }, [reload, notifyDeleteSuccess, notifyError]);
 
   const handleGetCoursesByMajor = useCallback(async (major: string): Promise<Course[]> => {
     return studyGroupService.getCoursesByMajor(major);
@@ -126,8 +109,6 @@ export function useStudyGroupsActions(reload: () => Promise<void>) {
 
   return {
     userId,
-    currentUser,
-    mounted,
     handleCreateGroup,
     handleOpenDetails,
     handleJoinGroup,

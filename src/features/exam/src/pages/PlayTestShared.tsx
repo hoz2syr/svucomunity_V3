@@ -7,7 +7,7 @@ import { PlayTestShell } from '../../components/PlayTestShell';
 export default function PlayTestShared() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const state = useCorePlayTest(id, navigate, { publicTestId: id });
+  const state = useCorePlayTest(id, navigate, { publicTestId: id, backPath: '/exam/browse' });
 
   return (
     <PlayTestShell

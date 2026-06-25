@@ -15,8 +15,9 @@ import { Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function StudyGroupsHome() {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const userId = session?.user?.id;
+  const userMajor = profile?.major || undefined;
 
   const page = useStudyGroupsPage(userId);
 
@@ -92,39 +93,38 @@ export default function StudyGroupsHome() {
         icon={<Users className="w-6 h-6" />}
       />
 
-      <CreateGroupModal
-        isOpen={page.showCreateModal}
-        onClose={page.handleCloseCreateModal}
-        onSubmit={page.handleCreateGroup}
-        currentUser={page.currentUser}
-        getCoursesByMajor={page.handleGetCoursesByMajor}
-        availableMajors={page.majors}
-        mounted={page.mounted}
-      />
+<CreateGroupModal
+         isOpen={page.showCreateModal}
+         onClose={page.handleCloseCreateModal}
+         onSubmit={page.handleCreateGroup}
+         getCoursesByMajor={page.handleGetCoursesByMajor}
+         availableMajors={page.majors}
+         userMajor={userMajor}
+       />
 
-      <GroupDetailsModal
-        group={page.selectedGroup as StudyGroupEnriched | null}
-        isOpen={!!page.selectedGroupId}
-        onClose={page.handleCloseDetails}
-        isMember={page.isMember}
-        canDelete={page.canDelete}
-        currentUserMajor={page.currentUser?.major}
-        onJoin={page.handleJoin}
-        onLeave={page.handleLeave}
-        onEdit={page.handleEdit}
-        onDelete={page.handleDelete}
-        joiningId={page.joiningId}
-        leavingId={page.leavingId}
-      />
+       <GroupDetailsModal
+         group={page.selectedGroup as StudyGroupEnriched | null}
+         isOpen={!!page.selectedGroupId}
+         onClose={page.handleCloseDetails}
+         isMember={page.isMember}
+         canDelete={page.canDelete}
+         currentUserMajor={userMajor}
+         onJoin={page.handleJoin}
+         onLeave={page.handleLeave}
+         onEdit={page.handleEdit}
+         onDelete={page.handleDelete}
+         joiningId={page.joiningId}
+         leavingId={page.leavingId}
+       />
 
-      <EditGroupModal
-        isOpen={page.showEditModal}
-        onClose={page.handleCloseEditModal}
-        onSubmit={page.handleEdit}
-        group={page.selectedGroup as StudyGroupEnriched | null}
-        getCoursesByMajor={page.handleGetCoursesByMajor}
-        availableMajors={page.majors}
-      />
+<EditGroupModal
+         isOpen={page.showEditModal}
+         onClose={page.handleCloseEditModal}
+         onSubmit={page.handleEditSubmit}
+         group={page.selectedGroup as StudyGroupEnriched | null}
+         getCoursesByMajor={page.handleGetCoursesByMajor}
+         availableMajors={page.majors}
+       />
     </ErrorBoundary>
   );
 }

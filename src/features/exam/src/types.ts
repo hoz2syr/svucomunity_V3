@@ -32,3 +32,13 @@ export interface TestModel {
   published: boolean;
   publishedAt?: string;
 }
+
+export interface TestAttempt {
+  id: string;
+  testId: string;
+  userId: string | null;
+  score: number;
+  total: number;
+  answers: Record<string, string>;
+  completedAt: string;
+}

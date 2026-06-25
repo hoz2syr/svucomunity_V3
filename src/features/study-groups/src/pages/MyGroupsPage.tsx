@@ -6,17 +6,21 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { studyGroupService } from '../core/services';
 import { GroupCard } from '../../components/GroupCard';
 import { StudyGroupCardSkeleton } from '../../components/StudyGroupCardSkeleton';
+import { GroupDetailsModal } from '../../components/GroupDetailsModal';
+import type { StudyGroupEnriched } from '../hooks/useStudyGroups';
 import type { StudyGroup } from '../types';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { useStudyGroupsPage } from '../hooks/useStudyGroupsPage';
 import { ErrorState } from '../../components/ErrorState';
 
 export default function MyGroupsPage() {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const [createdGroups, setCreatedGroups] = useState<StudyGroup[]>([]);
   const [joinedGroups, setJoinedGroups] = useState<StudyGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const page = useStudyGroupsPage(userId);
 
   useEffect(() => {
     if (!userId) return;
@@ -37,6 +41,11 @@ export default function MyGroupsPage() {
 
     loadMyGroups();
   }, [userId]);
+
+  const handleGroupClick = (groupId: string) => {
+    const allGroups = [...createdGroups, ...joinedGroups] as StudyGroupEnriched[];
+    page.handleOpenDetails(groupId, allGroups);
+  };
 
   if (!userId) {
     return (
@@ -90,7 +99,7 @@ export default function MyGroupsPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {createdGroups.map((group) => (
-              <GroupCard key={group.id} group={group} onClick={() => {}} />
+              <GroupCard key={group.id} group={group} onClick={handleGroupClick} />
             ))}
           </div>
         </div>
@@ -104,11 +113,26 @@ export default function MyGroupsPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {joinedGroups.map((group) => (
-              <GroupCard key={group.id} group={group} onClick={() => {}} />
+              <GroupCard key={group.id} group={group} onClick={handleGroupClick} />
             ))}
           </div>
         </div>
       )}
+
+<GroupDetailsModal
+         group={page.selectedGroup as StudyGroupEnriched | null}
+         isOpen={!!page.selectedGroupId}
+         onClose={page.handleCloseDetails}
+         isMember={page.isMember}
+         canDelete={page.canDelete}
+         currentUserMajor={profile?.major || undefined}
+         onJoin={page.handleJoin}
+         onLeave={page.handleLeave}
+         onEdit={page.handleEdit}
+         onDelete={page.handleDelete}
+         joiningId={page.joiningId}
+         leavingId={page.leavingId}
+       />
     </div>
   );
 }

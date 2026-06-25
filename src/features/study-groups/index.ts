@@ -15,6 +15,6 @@ export { default as MyGroupsPage } from './src/pages/MyGroupsPage';
 export { default as CreateGroupPage } from './src/pages/CreateGroupPage';
 export { useStudyGroups } from './src/hooks/useStudyGroups';
 export { useStudyGroupsPage } from './src/hooks/useStudyGroupsPage';
-export { studyGroupService, getSupabase } from './src/core/services';
+export { studyGroupService } from './src/core/services';
 export { useStudyGroupsToast } from './src/hooks/useStudyGroupsToast';
 export type { StudyGroup, StudyGroupFilters, StudyGroupStatus, Course, GroupMember, CreateGroupData } from './src/types';

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Loader2 } from 'lucide-react';
+import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2 } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
 import type { Course } from '../types';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
@@ -9,7 +9,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { studyGroupService } from '../core/services';
 
 export default function CreateGroupPage() {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const [groupName, setGroupName] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -22,35 +22,27 @@ export default function CreateGroupPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [courses, setCourses] = useState<Course[]>([]);
   const [majors, setMajors] = useState<string[]>([]);
-  const [currentUser, setCurrentUser] = useState<{ major?: string; first_name?: string; last_name?: string; username?: string; id: string } | null>(null);
 
   const CLASSES = ['C1', 'C2', 'C3', 'C4', 'C5'];
 
   useEffect(() => {
     const loadMajors = async () => {
-      const cached = localStorage.getItem('svu_courses_cache');
-      if (cached) {
-        try {
-          setMajors(Object.keys(JSON.parse(cached)));
-        } catch {}
+      try {
+        const majorsData = await studyGroupService.getAvailableMajors();
+        setMajors(majorsData);
+      } catch {
+        setMajors([]);
       }
     };
     loadMajors();
-
-    const stored = localStorage.getItem('currentUser');
-    if (stored) {
-      try {
-        setCurrentUser(JSON.parse(stored));
-      } catch {}
-    }
   }, []);
 
   useEffect(() => {
-    if (currentUser?.major) {
-      setSelectedMajor(currentUser.major);
-      studyGroupService.getCoursesByMajor(currentUser.major).then(setCourses);
+    if (profile?.major) {
+      setSelectedMajor(profile.major || '');
+      studyGroupService.getCoursesByMajor(profile.major || '').then(setCourses);
     }
-  }, [currentUser]);
+  }, [profile]);
 
   useEffect(() => {
     if (selectedMajor) {
@@ -74,7 +66,7 @@ export default function CreateGroupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !userId || !currentUser) return;
+    if (!validate() || !userId || !profile) return;
 
     setIsSubmitting(true);
     try {
@@ -89,11 +81,7 @@ export default function CreateGroupPage() {
         group_link: groupLink.trim() || undefined,
         doctor_name: '',
         creator_id: userId,
-        creator_name: [
-          currentUser?.first_name,
-          currentUser?.last_name,
-          currentUser?.username,
-        ].filter(Boolean).join(' ') || 'مستخدم',
+        creator_name: profile?.full_name || profile?.username || 'مستخدم',
       });
       window.location.href = '/dashboard/study-groups';
     } catch (err) {

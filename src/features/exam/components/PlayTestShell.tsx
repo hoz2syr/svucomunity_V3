@@ -57,6 +57,7 @@ export function PlayTestShell({
     currentQ,
     isCurrentCorrect,
     handleSelect,
+    handleToggleOption,
     handleNext,
     formatTime,
     setCurrentIdx,
@@ -265,11 +266,16 @@ export function PlayTestShell({
 
         <div className="space-y-2.5 sm:space-y-3">
           {currentQ.type === 'multiple_choice' && currentQ.options?.map((opt, i) => {
-            const isSelected = selectedAnswers[currentQ.id] === opt;
+            const isMulti = currentQ.correctAnswers && currentQ.correctAnswers.length > 0;
+            const currentSelected = selectedAnswers[currentQ.id];
+            const isSelected = isMulti && Array.isArray(currentSelected)
+              ? currentSelected.includes(opt)
+              : currentSelected === opt;
+            const correctList = isMulti ? currentQ.correctAnswers : (currentQ.correctAnswer ? [currentQ.correctAnswer] : []);
             let btnStateClass = 'bg-secondary-800 border-secondary-700 hover:border-secondary-500';
 
             if (isAnswerRevealed) {
-              const isCorrectOption = opt === currentQ.correctAnswer;
+              const isCorrectOption = correctList.includes(opt);
               if (isCorrectOption) {
                 btnStateClass = 'bg-green-500/20 border-green-500 text-green-400 ring-2 ring-green-500';
               } else if (isSelected) {
@@ -282,13 +288,12 @@ export function PlayTestShell({
             }
 
             return (
-              <button key={i} onClick={() => handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
+              <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
                 <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className={cn('w-4 h-4 sm:w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition',
-                    isSelected ? (!isAnswerRevealed ? 'border-primary-500' : (opt === currentQ.correctAnswer ? 'border-green-500' : 'border-red-500')) : 'border-secondary-500',
-                    isAnswerRevealed && opt === currentQ.correctAnswer && 'border-green-500')}>
-                    {isSelected && <div className={cn('w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full', !isAnswerRevealed ? 'bg-primary-500' : (opt === currentQ.correctAnswer ? 'bg-green-500' : 'bg-red-500'))} />}
-                    {!isSelected && isAnswerRevealed && opt === currentQ.correctAnswer && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-500" />}
+                  <div className={cn('w-4 h-4 sm:w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition border-2',
+                    isSelected ? (!isAnswerRevealed ? 'border-primary-500 bg-primary-500' : 'border-green-500 bg-green-500') : 'border-secondary-500',
+                    isAnswerRevealed && correctList.includes(opt) && 'border-green-500 bg-green-500')}>
+                    {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
                   </div>
                   <span className="text-sm sm:text-base">{opt}</span>
                 </div>
@@ -325,7 +330,7 @@ export function PlayTestShell({
           )}
 
           {currentQ.type === 'essay' && (
-            <textarea className="input-field min-h-[100px] sm:min-h-[120px] text-sm sm:text-base" placeholder="اكتب إجابتك هنا..." value={selectedAnswers[currentQ.id] || ''} onChange={(e) => handleSelect(e.target.value)} disabled={isAnswerRevealed} />
+            <textarea className="input-field min-h-[100px] sm:min-h-[120px] text-sm sm:text-base" placeholder="اكتب إجابتك هنا..." value={typeof selectedAnswers[currentQ.id] === 'string' ? (selectedAnswers[currentQ.id] as string) : ''} onChange={(e) => handleSelect(e.target.value)} disabled={isAnswerRevealed} />
           )}
         </div>
 
@@ -339,8 +344,10 @@ export function PlayTestShell({
                 <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-green-400' : 'text-red-400')}>
                   {isCurrentCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
                 </h4>
-                {!isCurrentCorrect && currentQ.correctAnswer && currentQ.type !== 'essay' && (
-                  <p className="text-xs sm:text-sm text-secondary-300 mb-1.5 sm:mb-2">الإجابة الصحيحة هي: <span className="text-white font-bold">{currentQ.correctAnswer}</span></p>
+                {!isCurrentCorrect && !isEssay && (
+                  <p className="text-xs sm:text-sm text-secondary-300 mb-1.5 sm:mb-2">الإجابة الصحيحة: <span className="text-white font-bold">
+                    {currentQ.correctAnswers && currentQ.correctAnswers.length > 0 ? currentQ.correctAnswers.join(' / ') : currentQ.correctAnswer}
+                  </span></p>
                 )}
                 {test.settings.showExplanations && currentQ.explanation && (
                   <p className="text-secondary-300 text-xs sm:text-sm leading-relaxed mt-1.5 sm:mt-2 p-2.5 sm:p-3 bg-secondary-900/50 rounded-lg">
@@ -356,7 +363,7 @@ export function PlayTestShell({
         <div className="mt-5 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex justify-end">
           <PrimaryButton
             onClick={handleNext}
-            disabled={!selectedAnswers[currentQ.id] && currentQ.type !== 'essay'}
+            disabled={(() => { const ans = selectedAnswers[currentQ.id]; if (currentQ.type === 'essay') return false; if (Array.isArray(ans)) return ans.length === 0; return !ans; })()}
             className="min-w-[140px] text-sm sm:text-base"
           >
             {immediateFeedback && !isAnswerRevealed && currentQ.type !== 'essay'

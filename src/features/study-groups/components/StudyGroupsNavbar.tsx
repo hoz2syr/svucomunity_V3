@@ -1,7 +1,9 @@
-﻿import { Link } from 'react-router-dom';
-import { GraduationCap, Home } from 'lucide-react';
+﻿import { Link, useLocation } from 'react-router-dom';
+import { GraduationCap, Home, User } from 'lucide-react';
 
 export function StudyGroupsNavbar() {
+  const location = useLocation();
+  const isMyGroups = location.pathname === '/dashboard/study-groups/my';
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#030612]/80 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.35)]">
@@ -18,6 +20,17 @@ export function StudyGroupsNavbar() {
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link
+              to="/dashboard/study-groups/my"
+              className={`px-3 py-1.5 text-sm rounded-xl transition flex items-center gap-1.5 ${
+                isMyGroups
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">مجموعاتي</span>
+            </Link>
             <Link
               to="/dashboard"
               className="p-2 text-slate-400 hover:text-white transition rounded-xl hover:bg-white/5"

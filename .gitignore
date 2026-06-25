@@ -9,3 +9,5 @@ tsc-errors.txt
 .env*
 !.env.example
 assets/.aistudio/
+
+ite_comunety/

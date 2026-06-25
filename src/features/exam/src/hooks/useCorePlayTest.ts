@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useAuth } from '@/src/contexts/AuthContext';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { TestModel, Question } from '../types';
 import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
-import { fetchPublishedTestById, rateTestInSupabase } from '../services/exam.supabase';
+import { fetchPublishedTestById, fetchTestByIdFromSupabase, rateTestInSupabase } from '../services/exam.supabase';
 
 export interface UseCorePlayTestReturn {
   test: TestModel | null;
@@ -15,14 +16,15 @@ export interface UseCorePlayTestReturn {
   immediateFeedback: boolean;
   setImmediateFeedback: (v: boolean) => void;
   currentIdx: number;
-  selectedAnswers: Record<string, string>;
+  selectedAnswers: Record<string, string | string[]>;
   showResults: boolean;
   isAnswerRevealed: boolean;
   timeLeft: number | null;
   score: number;
   currentQ: Question | null;
   isCurrentCorrect: boolean;
-  handleSelect: (answer: string) => void;
+  handleSelect: (answer: string | string[]) => void;
+  handleToggleOption: (option: string) => void;
   handleNext: () => void;
   formatTime: (seconds: number) => string;
   handleKeyDown: React.KeyboardEventHandler;
@@ -33,16 +35,22 @@ export interface UseCorePlayTestReturn {
 
 export interface UseCorePlayTestOptions {
   publicTestId?: string;
+  backPath?: string;
+  onComplete?: (result: { testId: string; score: number; total: number; answers: Record<string, string | string[]> }) => void;
 }
 
 export function useCorePlayTest(testId: string | undefined, navigate: (path: string) => void, options?: UseCorePlayTestOptions): UseCorePlayTestReturn {
+  const { session, envMissing } = useAuth();
+  const userId = session?.user?.id ?? null;
+  const backPath = options?.backPath ?? '/exam/saved';
+  const onComplete = options?.onComplete;
   const [test, setTest] = useState<TestModel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [immediateFeedback, setImmediateFeedback] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string | string[]>>({});
   const [showResults, setShowResults] = useState(false);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const initialTimeRef = useRef<number | null>(null);
@@ -69,6 +77,15 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
           const found = localStorageTestStorage.getTestById(testId);
           if (found) {
             setTest(found);
+          } else if (userId && !envMissing) {
+            const { data: serverTest, error: serverError } = await fetchTestByIdFromSupabase(testId, userId);
+            if (serverError) {
+              setError(serverError.message);
+            } else if (serverTest) {
+              setTest(serverTest);
+            } else {
+              setError('عذراً، لم يتم العثور على هذا الاختبار. ربما تم حذفه أو أن الرابط غير صحيح.');
+            }
           } else {
             setError('عذراً، لم يتم العثور على هذا الاختبار. ربما تم حذفه أو أن الرابط غير صحيح.');
           }
@@ -80,7 +97,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       }
     };
     fetchTestDetails();
-  }, [testId, publicTestId, navigate]);
+  }, [testId, publicTestId, navigate, userId, envMissing]);
 
   useEffect(() => {
     if (hasStarted && test?.settings.globalTimeLimitMinutes && initialTimeRef.current === null) {
@@ -110,16 +127,43 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [hasStarted, showResults]);
+  }, [hasStarted, showResults, timeLeft]);
 
   const currentQ = test ? test.questions[currentIdx] : null;
-  const isCurrentCorrect = currentQ ? selectedAnswers[currentQ.id] === currentQ.correctAnswer : false;
+  const isMultiSelect = currentQ?.correctAnswers && currentQ.correctAnswers.length > 0;
+  const selectedValue = selectedAnswers[currentQ?.id ?? ''] as string | string[] | undefined;
+  const isCurrentCorrect = useMemo(() => {
+    if (!currentQ) return false;
+    if (currentQ.type === 'essay') return false;
+    if (isMultiSelect && Array.isArray(selectedValue)) {
+      const correct = currentQ.correctAnswers ?? [];
+      if (correct.length === 0) return false;
+      const sortedSelected = [...selectedValue].sort();
+      const sortedCorrect = [...correct].sort();
+      return sortedSelected.length === sortedCorrect.length && sortedSelected.every((v, i) => v === sortedCorrect[i]);
+    }
+    return selectedValue === currentQ.correctAnswer;
+  }, [currentQ, selectedValue, isMultiSelect]);
 
   const handleSelect = useCallback((answer: string) => {
     if (!isAnswerRevealed && test) {
+      if (isMultiSelect) {
+        setSelectedAnswers(prev => {
+          const current = (prev[test.questions[currentIdx].id] as string[]) ?? [];
+          if (current.includes(answer)) {
+            return { ...prev, [test.questions[currentIdx].id]: current.filter(a => a !== answer) };
+          }
+          return { ...prev, [test.questions[currentIdx].id]: [...current, answer] };
+        });
+        return;
+      }
       setSelectedAnswers(prev => ({ ...prev, [test.questions[currentIdx].id]: answer }));
     }
-  }, [isAnswerRevealed, test, currentIdx]);
+  }, [isAnswerRevealed, test, currentIdx, isMultiSelect]);
+
+  const handleToggleOption = useCallback((option: string) => {
+    handleSelect(option);
+  }, [handleSelect]);
 
   const handleNext = useCallback(() => {
     if (!test) return;
@@ -144,8 +188,8 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
   const handleEscapeOnWindow = useCallback((e: globalThis.KeyboardEvent) => {
     if (!hasStarted || showResults) return;
     if (e.key !== 'Escape') return;
-    navigate('/exam/saved');
-  }, [hasStarted, showResults, navigate]);
+    navigate(backPath);
+  }, [hasStarted, showResults, navigate, backPath]);
 
   useEffect(() => {
     if (!hasStarted || showResults) return;
@@ -230,18 +274,37 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
 
   const score = useMemo(() => {
     if (!test) return 0;
-    return test.questions.reduce((acc, q) => acc + (selectedAnswers[q.id] === q.correctAnswer ? 1 : 0), 0);
+    return test.questions.reduce((acc, q) => {
+      const answer = selectedAnswers[q.id];
+      if (q.type === 'essay') return acc;
+      if (q.correctAnswers && q.correctAnswers.length > 0 && Array.isArray(answer)) {
+        const correct = [...q.correctAnswers].sort();
+        const given = [...answer].sort();
+        return acc + (correct.length === given.length && correct.every((v, i) => v === given[i]) ? 1 : 0);
+      }
+      return acc + (answer === q.correctAnswer ? 1 : 0);
+    }, 0);
   }, [test, selectedAnswers, showResults]);
 
   const answeredCount = useMemo(() => {
     if (!test) return 0;
     return Object.keys(selectedAnswers).filter(id => {
       const answer = selectedAnswers[id];
+      if (Array.isArray(answer)) return answer.length > 0;
       return !!answer && answer.trim() !== '';
     }).length;
   }, [test, selectedAnswers]);
 
   const canRate = useMemo(() => answeredCount >= 1, [answeredCount]);
+
+  useEffect(() => {
+    if (!showResults || !test || !onComplete) return;
+    const answers: Record<string, string> = {};
+    for (const [qId, value] of Object.entries(selectedAnswers)) {
+      answers[qId] = Array.isArray(value) ? JSON.stringify(value) : value;
+    }
+    onComplete({ testId: test.id, score, total: test.questions.length, answers });
+  }, [showResults, test, selectedAnswers, score, onComplete]);
 
   return {
     test,
@@ -260,6 +323,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
     currentQ,
     isCurrentCorrect,
     handleSelect,
+    handleToggleOption,
     handleNext,
     formatTime,
     handleKeyDown,

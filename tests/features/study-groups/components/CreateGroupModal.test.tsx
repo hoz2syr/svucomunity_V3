@@ -15,7 +15,7 @@ const defaultProps = {
   isOpen: true,
   onClose: mockOnClose,
   onSubmit: mockOnSubmit,
-  currentUser: { major: 'علوم الحاسب', first_name: 'أحمد', last_name: 'محمد', username: 'ahmed', id: '1' },
+  userMajor: 'علوم الحاسب',
   getCoursesByMajor: mockGetCoursesByMajor,
   availableMajors: ['علوم الحاسب', 'هندسة'],
 };

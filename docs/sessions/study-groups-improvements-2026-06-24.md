@@ -115,10 +115,56 @@ npm test -- --run src/components/ui/Toast.test.tsx
 ---
 
 ## الحالة
-✅ المراحل 1-6 مكتملة ومتحقق منها | جاري التنفيذ - المرحلة 7
-
-## الحالة
 ✅ المراحل 1-7 مكتملة ومتحقق منها
+
+### المرحلة 1: نظام إشعارات Toast
+- [x] إنشاء `src/components/ui/Toast.tsx`
+- [x] إنشاء `src/features/study-groups/src/hooks/useStudyGroupsToast.ts`
+- [x] تعديل `src/App.tsx` لإضافة ToastContainer
+- [x] تعديل `src/features/study-groups/index.ts`
+- [x] إنشاء `tests/components/Toast.test.tsx`
+- [x] تشغيل البناء والاختبارات (99 test files, 615 tests passed)
+
+### المرحلة 2: حماية localStorage من SSR
+- [x] تعديل `useStudyGroupsActions.ts` (useStoredUser) — إضافة `mounted`
+- [x] تعديل `useStudyGroupsPage.ts` — استخدام `mounted`
+- [x] تعديل `CreateGroupModal.tsx` — شرط `!mounted`
+- [x] تحديث الاختبارات
+- [x] تشغيل البناء والاختبارات
+
+### المرحلة 3: طبقة API خلفية (Supabase Edge Functions)
+- [x] إنشاء `supabase/functions/study-groups/index.ts`
+- [x] إنشاء `src/features/study-groups/src/services/studyGroupsApi.ts`
+- [x] تعديل `src/features/study-groups/src/core/services/index.ts`
+- [x] تعديل `src/features/study-groups/src/services/studyGroup.supabase.ts` (إضافة `leaveGroup`, `updateGroup`, `getMyGroups`)
+- [x] تعديل `src/features/study-groups/src/types/index.ts` (إضافة `UpdateGroupData`)
+- [x] إنشاء `tests/features/study-groups/hooks/useStudyGroupsActions.extended.test.ts`
+- [x] تشغيل البناء والاختبارات
+
+### المرحلة 4: زر "مغادرة المجموعة"
+- [x] تعديل `GroupDetailsModal.tsx` — إضافة زر Leave
+- [x] تعديل `useStudyGroupsActions.ts` — إضافة handleLeaveGroup
+- [x] تعديل `useStudyGroupsPage.ts` — إضافة leavingId و onLeave
+- [x] تعديل `StudyGroupsHome.tsx` — تمرير Props
+- [x] تحديث الاختبارات
+- [x] تشغيل البناء والاختبارات
+
+### المرحلة 5: تعديل بيانات المجموعة
+- [x] إنشاء `EditGroupModal.tsx`
+- [x] تعديل `GroupDetailsModal.tsx` — إضافة زر Edit
+- [x] تعديل `useStudyGroupsActions.ts` — إضافة handleEditGroup
+- [x] تعديل `useStudyGroupsPage.ts` — إضافة edit states
+- [x] الـ Edge Function يدعم PATCH endpoint بالفعل
+- [x] إنشاء `tests/features/study-groups/components/EditGroupModal.test.tsx`
+- [x] تشغيل البناء والاختبارات
+
+### المرحلة 6: تبويبة "مجموعاتي"
+- [x] إنشاء `MyGroupsPage.tsx`
+- [x] تعديل `studyGroupService` بإضافة `getMyGroups`
+- [x] تعديل `App.tsx` — إضافة route `/dashboard/study-groups/my`
+- [x] تعديل `index.ts` — تصدير MyGroupsPage
+- [x] إنشاء `tests/features/study-groups/pages/MyGroupsPage.test.tsx`
+- [x] تشغيل البناء والاختبارات (22 test files, 178 tests passed)
 
 ### المرحلة 7: تحويل "إنشاء مجموعة" إلى صفحة
 - [x] إنشاء `CreateGroupPage.tsx`
@@ -126,23 +172,3 @@ npm test -- --run src/components/ui/Toast.test.tsx
 - [x] تعديل `index.ts` — تصدير CreateGroupPage
 - [x] إنشاء `tests/features/study-groups/pages/CreateGroupPage.test.tsx`
 - [x] تشغيل البناء والاختبارات النهائية (23 test files, 183 tests passed)
-
-### المرحلة 6: تبويبة "مجموعاتي"
-- [ ] إنشاء `MyGroupsPage.tsx`
-- [ ] إنشاء `useMyGroups.ts`
-- [ ] تعديل `StudyGroupsNavbar.tsx` — إضافة تبويبات
-- [ ] تعديل `StudyGroupsHome.tsx` — دعم التبويبات
-- [ ] تحديث Edge Function (GET /my-groups)
-- [ ] تحديث API client (getMyGroups)
-- [ ] تعديل `index.ts`
-- [ ] إنشاء اختبارات
-- [ ] تشغيل البناء والاختبارات
-
-### المرحلة 7: تحويل "إنشاء مجموعة" إلى صفحة
-- [ ] إنشاء `CreateGroupPage.tsx`
-- [ ] تعديل `CreateGroupModal.tsx` — استخراج AlpineForm مشترك أو تبسيط
-- [ ] تعديل `StudyGroupsHome.tsx` — إزالة النافذة المنبثقة، إضافة الشرط
-- [ ] تعديل `StudyGroupsNavbar.tsx` (من المرحلة 6)
-- [ ] تعديل `index.ts`
-- [ ] إنشاء اختبارات
-- [ ] تشغيل البناء والاختبارات النهائية

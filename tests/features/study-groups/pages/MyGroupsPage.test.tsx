@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { ToastProvider } from '@/src/components/ui/Toast';
 import MyGroupsPage from '@/src/features/study-groups/src/pages/MyGroupsPage';
 
 const mockGroups = [
@@ -25,6 +26,7 @@ vi.mock('@/src/contexts/AuthContext', () => ({
 vi.mock('@/src/features/study-groups/src/core/services', () => ({
   studyGroupService: {
     getMyGroups: vi.fn(),
+    checkIsAdmin: vi.fn(),
   },
 }));
 
@@ -40,7 +42,11 @@ describe('MyGroupsPage component', () => {
       created: [],
       joined: [],
     });
-    render(<MyGroupsPage />);
+    render(
+      <ToastProvider>
+        <MyGroupsPage />
+      </ToastProvider>
+    );
     await waitFor(() => {
       expect(screen.getByText('أنت لست عضو في أي مجموعة بعد')).toBeDefined();
     });
@@ -51,7 +57,11 @@ describe('MyGroupsPage component', () => {
       created: [mockGroups[0]],
       joined: [],
     });
-    render(<MyGroupsPage />);
+    render(
+      <ToastProvider>
+        <MyGroupsPage />
+      </ToastProvider>
+    );
     await waitFor(() => {
       expect(screen.getByText(/المجموعات التي أنشأتها/)).toBeDefined();
     });

@@ -12,7 +12,7 @@ import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
-import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests } from './features/exam';
+import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests, AttemptHistory } from './features/exam';
 import { StudyGroupsLayout, StudyGroupsHome, MyGroupsPage, CreateGroupPage } from './features/study-groups';
 import { ToastProvider } from './components/ui/Toast';
 
@@ -101,6 +101,16 @@ function App() {
                       <GuestRoute>
                         <ExamLayout>
                           <BrowsePublishedTests />
+                        </ExamLayout>
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/exam/attempts"
+                    element={
+                      <GuestRoute>
+                        <ExamLayout>
+                          <AttemptHistory />
                         </ExamLayout>
                       </GuestRoute>
                     }

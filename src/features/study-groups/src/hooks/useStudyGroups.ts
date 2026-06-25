@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { StudyGroup, StudyGroupFilters, StudyGroupStatus, Course } from '../types';
-import { studyGroupService, getCreators } from '../core/services';
+import { studyGroupService } from '../core/services';
 import { useDebounce } from './useDebounce';
 
 export interface StudyGroupEnriched extends StudyGroup {
@@ -43,30 +43,11 @@ export function useStudyGroups(userId: string | undefined) {
     setError(null);
     try {
       const data = await studyGroupService.getAllWithCreators();
-
-      if (!data || data.length === 0) {
-        setGroups([]);
-        setLoading(false);
-        return;
-      }
-
-      const creatorIds = [...new Set(data.map((g: StudyGroup) => g.creator_id).filter(Boolean))] as string[];
-      const creators = creatorIds.length > 0
-        ? await getCreators(creatorIds)
-        : {};
-
-      const enriched: StudyGroupEnriched[] = data.map((group: StudyGroup) => {
-        const creator = creators[group.creator_id];
-        return {
-          ...group,
-          _creatorFullName: creator
-            ? `${creator.first_name || ''} ${creator.last_name || ''}`.trim() || group.creator_name
-            : group.creator_name || 'غير معروف',
-          _creatorUsername: creator?.username || '',
-        };
-      });
-
-      setGroups(enriched);
+      setGroups(data.map((g: StudyGroup) => ({
+        ...g,
+        _creatorFullName: g.creator_name || 'غير معروف',
+        _creatorUsername: '',
+      })));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل تحميل المجموعات');
     } finally {

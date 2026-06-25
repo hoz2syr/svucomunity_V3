@@ -1,6 +1,66 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const MAX_REQUESTS_PER_MINUTE = 10;
+
+function checkRateLimit(clientIp: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(clientIp);
+  
+  if (!record || record.resetTime < now) {
+    rateLimitStore.set(clientIp, { count: 1, resetTime: now + 60000 });
+    return true;
+  }
+  
+  if (record.count >= MAX_REQUESTS_PER_MINUTE) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+function validateUrl(url: string | undefined): boolean {
+  if (!url) return true;
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function validateGroupPayload(body: any): string | null {
+  if (!body.name || typeof body.name !== 'string' || body.name.trim().length < 3) {
+    return 'اسم المجموعة مطلوب (3 أحرف على الأقل)';
+  }
+  if (!body.course_name || typeof body.course_name !== 'string') {
+    return 'اسم المادة مطلوب';
+  }
+  if (!body.course_code || typeof body.course_code !== 'string') {
+    return 'رمز المادة مطلوب';
+  }
+  if (!body.major || typeof body.major !== 'string') {
+    return 'التخصص مطلوب';
+  }
+  if (!body.whatsapp_link || typeof body.whatsapp_link !== 'string') {
+    return 'رابط الواتساب مطلوب';
+  }
+  if (!validateUrl(body.whatsapp_link)) {
+    return 'رابط الواتساب غير صالح';
+  }
+  if (body.group_link && !validateUrl(body.group_link)) {
+    return 'رابط المجموعة غير صالح';
+  }
+  if (body.max_members < 2 || body.max_members > 20) {
+    return 'عدد الأعضاء يجب أن يكون بين 2 و 20';
+  }
+  return null;
+}
+
+interface Course { code: string; name: string; }
+
 const getAllowedOrigins = () =>
   (Deno.env.get("ALLOWED_ORIGINS") ?? "")
     .split(",")
@@ -70,11 +130,13 @@ async function handleGetAll(supabaseAdmin: SupabaseClient) {
 async function handleGetMyGroups(supabaseAdmin: SupabaseClient, userId: string) {
   const { data: created, error: createdError } = await supabaseAdmin
     .from("groups")
-    .select("*")
+    .select("id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at")
     .eq("creator_id", userId)
     .order("created_at", { ascending: false });
 
   if (createdError) throw new Error(createdError.message);
+
+  const createdIds = new Set((created || []).map((g) => g.id));
 
   const { data: memberships, error: memberError } = await supabaseAdmin
     .from("group_members")
@@ -83,16 +145,14 @@ async function handleGetMyGroups(supabaseAdmin: SupabaseClient, userId: string) 
 
   if (memberError) throw new Error(memberError.message);
 
-  const joinedGroupIds = new Set((memberships || []).map((m) => m.group_id));
-  const createdIds = new Set((created || []).map((g) => g.id));
-  const joinedOnlyIds = [...joinedGroupIds].filter((id) => !createdIds.has(id));
+  const joinedGroupIds = [...new Set((memberships || []).map((m) => m.group_id))].filter(id => !createdIds.has(id));
 
   let joined: any[] = [];
-  if (joinedOnlyIds.length > 0) {
+  if (joinedGroupIds.length > 0) {
     const { data: joinedData, error: joinedError } = await supabaseAdmin
       .from("groups")
-      .select("*")
-      .in("id", joinedOnlyIds);
+      .select("id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at")
+      .in("id", joinedGroupIds);
     if (joinedError) throw new Error(joinedError.message);
     joined = joinedData || [];
   }
@@ -100,16 +160,21 @@ async function handleGetMyGroups(supabaseAdmin: SupabaseClient, userId: string) 
   return { created: created || [], joined };
 }
 
-async function handleCreate(supabaseAdmin: SupabaseClient, body: any) {
-  const { data, error } = await supabaseAdmin
-    .from("groups")
-    .insert({
-      ...body,
-      current_members: 1,
-      is_full: false,
-    })
-    .select()
-    .single();
+async function handleCreate(supabaseAdmin: SupabaseClient, body: any, userId: string) {
+   const validationError = validateGroupPayload(body);
+   if (validationError) throw new Error(validationError);
+   
+   const { data, error } = await supabaseAdmin
+     .from("groups")
+     .insert({
+       ...body,
+       current_members: 1,
+       is_full: false,
+       creator_id: userId,
+       creator_name: body.creator_name || userId,
+     })
+     .select()
+     .single();
 
   if (error) throw new Error(error.message);
   if (!data) throw new Error("فشل إنشاء المجموعة");
@@ -122,10 +187,10 @@ async function handleCreate(supabaseAdmin: SupabaseClient, body: any) {
   return data;
 }
 
-async function handleJoin(supabaseAdmin: SupabaseClient, groupId: string) {
+async function handleJoin(supabaseAdmin: SupabaseClient, groupId: string, userId: string) {
   const { error: memberError } = await supabaseAdmin
     .from("group_members")
-    .insert({ group_id: groupId, user_id: "" });
+    .insert({ group_id: groupId, user_id: userId });
 
   if (memberError) throw new Error(memberError.message);
 
@@ -148,11 +213,12 @@ async function handleJoin(supabaseAdmin: SupabaseClient, groupId: string) {
   if (updateError) throw new Error(updateError.message);
 }
 
-async function handleLeave(supabaseAdmin: SupabaseClient, groupId: string) {
+async function handleLeave(supabaseAdmin: SupabaseClient, groupId: string, userId: string) {
   const { error: memberError } = await supabaseAdmin
     .from("group_members")
     .delete()
-    .eq("group_id", groupId);
+    .eq("group_id", groupId)
+    .eq("user_id", userId);
 
   if (memberError) throw new Error(memberError.message);
 
@@ -175,23 +241,54 @@ async function handleLeave(supabaseAdmin: SupabaseClient, groupId: string) {
   if (updateError) throw new Error(updateError.message);
 }
 
-async function handleUpdate(supabaseAdmin: SupabaseClient, groupId: string, updates: any) {
-  const { data, error } = await supabaseAdmin
-    .from("groups")
-    .update(updates)
-    .eq("id", groupId)
-    .select()
-    .single();
+async function handleUpdate(supabaseAdmin: SupabaseClient, groupId: string, updates: any, userId: string) {
+   if (updates.whatsapp_link && !validateUrl(updates.whatsapp_link)) {
+     throw new Error('رابط الواتساب غير صالح');
+   }
+   if (updates.group_link && !validateUrl(updates.group_link)) {
+     throw new Error('رابط المجموعة غير صالح');
+   }
+   
+   const { data: group, error: checkError } = await supabaseAdmin
+     .from("groups")
+     .select("creator_id")
+     .eq("id", groupId)
+     .single();
+   
+   if (checkError || !group || group.creator_id !== userId) {
+     throw new Error('غير مخول لتعديل هذه المجموعة');
+   }
+   
+   const { data, error } = await supabaseAdmin
+     .from("groups")
+     .update(updates)
+     .eq("id", groupId)
+     .select()
+     .single();
 
   if (error) throw new Error(error.message);
   return data;
 }
 
-async function handleDelete(supabaseAdmin: SupabaseClient, groupId: string) {
-  const { error: memberError } = await supabaseAdmin
-    .from("group_members")
-    .delete()
-    .eq("group_id", groupId);
+async function handleDelete(supabaseAdmin: SupabaseClient, groupId: string, userId: string, isAdmin: boolean) {
+   const { data: group, error: checkError } = await supabaseAdmin
+     .from("groups")
+     .select("creator_id")
+     .eq("id", groupId)
+     .single();
+   
+   if (checkError || !group) {
+     throw new Error('المجموعة غير موجودة');
+   }
+   
+   if (!isAdmin && group.creator_id !== userId) {
+     throw new Error('غير مخول لحذف هذه المجموعة');
+   }
+   
+   const { error: memberError } = await supabaseAdmin
+     .from("group_members")
+     .delete()
+     .eq("group_id", groupId);
 
   if (memberError) throw new Error(memberError.message);
 
@@ -228,109 +325,145 @@ async function handleCheckMembership(supabaseAdmin: SupabaseClient, groupId: str
 async function handleCheckIsAdmin(supabaseAdmin: SupabaseClient, userId: string) {
   try {
     const { data } = await supabaseAdmin
-      .from("users")
-      .select("is_admin")
+      .from("profiles")
+      .select("role")
       .eq("id", userId)
       .single();
-    return !!data?.is_admin;
+    return data?.role === 'admin';
   } catch {
     return false;
   }
 }
 
-serve(async (req) => {
-  const origin = req.headers.get("Origin");
-
-  if (req.method === "OPTIONS") {
-    if (origin && !getAllowedOrigin(origin)) {
-      return new Response(null, { status: 403, headers: corsHeaders(origin) });
-    }
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
-  }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    return jsonResponse({ error: "Server configuration error" }, 500, origin);
-  }
-
-  const allowedOrigin = getAllowedOrigin(origin);
-  if (origin && !allowedOrigin) {
-    return jsonResponse({ error: "Forbidden origin" }, 403, origin);
-  }
-
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-  const userId = await getAuthUserId(req, supabaseAdmin);
-
+async function handleGetCoursesByMajor(supabaseAdmin: SupabaseClient, major: string): Promise<Course[]> {
   try {
-    let body: any = {};
-    try {
-      body = await req.json();
-    } catch {
-      body = {};
+    const res = await fetch("https://raw.githubusercontent.com/svu-community/svu-courses/main/svu_courses.json");
+    if (res.ok) {
+      const catalog: Record<string, { name: string; code: string }[]> = await res.json();
+      const raw = catalog[major];
+      if (raw) return raw.map((c) => ({ code: c.code, name: c.name }));
     }
+  } catch {}
+  
+  const { data, error } = await supabaseAdmin
+    .from("groups")
+    .select("course_code, course_name")
+    .eq("major", major);
+  
+  if (error) return [];
+  return [...new Map(data.map(g => [g.course_code, { code: g.course_code, name: g.course_name }]))]
+    .map(([_, v]) => v as Course);
+}
 
-    const action = body.action as string;
-    const payload = body.payload || body;
+async function handleGetAvailableMajors(supabaseAdmin: SupabaseClient): Promise<string[]> {
+  const { data, error } = await supabaseAdmin
+    .from("groups")
+    .select("major")
+    .not("major", "is", null);
+  
+  if (error) return [];
+  return [...new Set(data.map(g => g.major).filter(Boolean))].sort();
+}
 
-    let result: any;
+serve(async (req) => {
+   const origin = req.headers.get("Origin");
+   const clientIp = getClientIp(req);
 
-    switch (action) {
-      case "getAll":
-        result = await handleGetAll(supabaseAdmin);
-        break;
-      case "getMyGroups":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleGetMyGroups(supabaseAdmin, userId);
-        break;
-      case "create":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleCreate(supabaseAdmin, { ...payload, creator_id: userId });
-        break;
-      case "join":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        await handleJoin(supabaseAdmin, payload.groupId);
-        result = { success: true };
-        break;
-      case "leave":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        await handleLeave(supabaseAdmin, payload.groupId);
-        result = { success: true };
-        break;
-      case "update":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleUpdate(supabaseAdmin, payload.groupId, payload.updates);
-        break;
-      case "delete":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        await handleDelete(supabaseAdmin, payload.groupId);
-        result = { success: true };
-        break;
-      case "getMembers":
-        result = await handleGetMembers(supabaseAdmin, payload.groupId);
-        break;
-      case "checkMembership":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleCheckMembership(supabaseAdmin, payload.groupId, userId);
-        break;
-      case "checkIsAdmin":
-        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleCheckIsAdmin(supabaseAdmin, userId);
-        break;
-      case "getCoursesByMajor":
-        result = payload.courses || [];
-        break;
-      case "getAvailableMajors":
-        result = payload.majors || [];
-        break;
-      default:
-        return jsonResponse({ error: "Invalid action" }, 400, origin);
-    }
+   if (!checkRateLimit(clientIp)) {
+     return jsonResponse({ error: "Rate limit exceeded" }, 429, origin);
+   }
 
-    return jsonResponse({ data: result }, 200, origin);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    return jsonResponse({ error: message }, 500, origin);
-  }
+   if (req.method === "OPTIONS") {
+     if (origin && !getAllowedOrigin(origin)) {
+       return new Response(null, { status: 403, headers: corsHeaders(origin) });
+     }
+     return new Response(null, { status: 204, headers: corsHeaders(origin) });
+   }
+
+   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+   if (!supabaseUrl || !supabaseServiceKey) {
+     return jsonResponse({ error: "Server configuration error" }, 500, origin);
+   }
+
+   const allowedOrigin = getAllowedOrigin(origin);
+   if (origin && !allowedOrigin) {
+     return jsonResponse({ error: "Forbidden origin" }, 403, origin);
+   }
+
+   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+   const userId = await getAuthUserId(req, supabaseAdmin);
+   const isAdmin = userId ? await handleCheckIsAdmin(supabaseAdmin, userId) : false;
+
+   try {
+     let body: any = {};
+     try {
+       body = await req.json();
+     } catch {
+       body = {};
+     }
+
+     const action = body.action as string;
+     const payload = body.payload || body;
+
+     let result: any;
+
+     switch (action) {
+       case "getAll":
+         result = await handleGetAll(supabaseAdmin);
+         break;
+       case "getMyGroups":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         result = await handleGetMyGroups(supabaseAdmin, userId);
+         break;
+       case "create":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         result = await handleCreate(supabaseAdmin, payload, userId);
+         break;
+       case "join":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         await handleJoin(supabaseAdmin, payload.groupId, userId);
+         result = { success: true };
+         break;
+       case "leave":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         await handleLeave(supabaseAdmin, payload.groupId, userId);
+         result = { success: true };
+         break;
+       case "update":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         result = await handleUpdate(supabaseAdmin, payload.groupId, payload.updates, userId);
+         break;
+       case "delete":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         await handleDelete(supabaseAdmin, payload.groupId, userId, isAdmin);
+         result = { success: true };
+         break;
+       case "getMembers":
+         result = await handleGetMembers(supabaseAdmin, payload.groupId);
+         break;
+       case "checkMembership":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         result = await handleCheckMembership(supabaseAdmin, payload.groupId, userId);
+         break;
+       case "checkIsAdmin":
+         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+         result = await handleCheckIsAdmin(supabaseAdmin, userId);
+         break;
+       case "getCoursesByMajor":
+         result = await handleGetCoursesByMajor(supabaseAdmin, payload.major);
+         break;
+       case "getAvailableMajors":
+         result = await handleGetAvailableMajors(supabaseAdmin);
+         break;
+       default:
+         return jsonResponse({ error: "Invalid action" }, 400, origin);
+     }
+
+     return jsonResponse({ data: result }, 200, origin);
+   } catch (err) {
+     const message = err instanceof Error ? err.message : "Internal server error";
+     return jsonResponse({ error: message }, 500, origin);
+   }
 });

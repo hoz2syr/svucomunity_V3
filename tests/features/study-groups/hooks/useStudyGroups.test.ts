@@ -24,7 +24,7 @@ const mockGroups = [
     whatsapp_link: 'https://wa.me/1',
     group_link: '',
     creator_id: 'user1',
-    creator_name: 'Ali',
+    creator_name: 'Ali Hassan',
     created_at: '2024-01-01T00:00:00Z',
   },
   {

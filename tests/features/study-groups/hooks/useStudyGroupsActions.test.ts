@@ -141,36 +141,4 @@ describe('useStudyGroupsActions hook', () => {
     expect(courses).toHaveLength(1);
     expect(courses[0].code).toBe('CS101');
   });
-
-  it('should expose currentUser when stored in localStorage', async () => {
-    localStorage.setItem(
-      'currentUser',
-      JSON.stringify({
-        major: 'CS',
-        first_name: 'Test',
-        last_name: 'User',
-        username: 'testuser',
-        id: 'user-1',
-      })
-    );
-
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
-      wrapper: ToastProvider,
-    });
-
-    await waitFor(() => {
-      expect(result.current.currentUser).toBeDefined();
-      expect(result.current.currentUser?.major).toBe('CS');
-    });
-  });
-
-  it('should have null currentUser when not in localStorage', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
-      wrapper: ToastProvider,
-    });
-
-    await waitFor(() => {
-      expect(result.current.currentUser).toBeNull();
-    });
-  });
 });

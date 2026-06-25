@@ -52,13 +52,6 @@ describe('useStudyGroupsActions hook - extended', () => {
     (studyGroupService.checkIsAdmin as ReturnType<typeof vi.fn>).mockResolvedValue(false);
   });
 
-  it('should return mounted state from useStoredUser', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
-      wrapper: ToastProvider,
-    });
-    expect(result.current.mounted).toBe(true);
-  });
-
   it('should call leaveGroup via studyGroupService', async () => {
     const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
       wrapper: ToastProvider,
@@ -81,15 +74,5 @@ describe('useStudyGroupsActions hook - extended', () => {
     });
 
     expect(studyGroupService.updateGroup).toHaveBeenCalledWith('group-1', { name: 'Updated' });
-  });
-
-  it('should expose currentUser as null when not in localStorage', async () => {
-    const { result } = renderHook(() => useStudyGroupsActions(mockReload), {
-      wrapper: ToastProvider,
-    });
-
-    await waitFor(() => {
-      expect(result.current.currentUser).toBeNull();
-    });
   });
 });

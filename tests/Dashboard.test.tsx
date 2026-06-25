@@ -54,6 +54,8 @@ vi.mock('../src/lib/supabase', () => ({
   getErrorMessage: (error: unknown, fallback = 'حدث خطأ غير متوقع.') => error instanceof Error ? error.message : typeof error === 'string' ? error : fallback,
   hasSupabaseEnv: vi.fn(() => true),
   missingSupabaseEnvMessage: 'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local',
+  refreshCurrentSession: vi.fn(() => Promise.resolve({ data: { session: { user: { id: '1', email: 't@t.com' } } }, error: null })),
+  getCurrentSession: vi.fn(() => Promise.resolve({ data: { session: { user: { id: '1', email: 't@t.com' } } }, error: null })),
   getSupabaseClient: vi.fn(() => ({
     auth: {
       signOut: (...args: unknown[]) => supabaseMocks.signOut(...args),

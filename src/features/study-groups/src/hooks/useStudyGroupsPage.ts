@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { studyGroupService } from '../core/services';
 import { useStudyGroupsActions } from './useStudyGroupsActions';
@@ -20,7 +18,7 @@ export function useStudyGroupsPage(userId: string | undefined) {
     onSearchChange,
   } = useStudyGroups(userId);
 
-  const { currentUser, mounted, handleCreateGroup, handleOpenDetails: openDetails, handleJoinGroup, handleLeaveGroup, handleEditGroup, handleDeleteGroup: deleteGroupAction, handleGetCoursesByMajor, } = useStudyGroupsActions(reload);
+  const { handleCreateGroup, handleOpenDetails: openDetails, handleJoinGroup, handleLeaveGroup, handleEditGroup, handleDeleteGroup: deleteGroupAction, handleGetCoursesByMajor, } = useStudyGroupsActions(reload);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -110,10 +108,15 @@ export function useStudyGroupsPage(userId: string | undefined) {
     setLeavingId(null);
   }, [handleLeaveGroup]);
 
-  const handleEdit = useCallback(async (updates: Parameters<typeof handleEditGroup>[1]) => {
+  const handleEdit = useCallback(() => {
+    handleOpenEditModal();
+  }, [handleOpenEditModal]);
+
+  const handleEditSubmit = useCallback(async (updates: Parameters<typeof handleEditGroup>[1]) => {
     if (!selectedGroup) return;
-    await handleEditGroup(selectedGroup.id, updates, selectedGroup.name);
-  }, [selectedGroup, handleEditGroup]);
+    await handleEditGroup(selectedGroup.id, updates);
+    handleCloseEditModal();
+  }, [selectedGroup, handleEditGroup, handleCloseEditModal]);
 
   const canDelete = selectedGroup ? (isAdmin || selectedGroup.creator_id === userId) : false;
 
@@ -131,7 +134,6 @@ export function useStudyGroupsPage(userId: string | undefined) {
     leavingId,
     majors,
     classes: CLASSES,
-    currentUser,
     isAdmin,
     handleCreateGroup,
     handleOpenDetails,
@@ -139,6 +141,7 @@ export function useStudyGroupsPage(userId: string | undefined) {
     handleJoin,
     handleLeave,
     handleEdit,
+    handleEditSubmit,
     handleDelete,
     handleGetCoursesByMajor,
     canDelete,
@@ -151,6 +154,5 @@ export function useStudyGroupsPage(userId: string | undefined) {
     courses,
     reload,
     onSearchChange,
-    mounted,
   } as const;
 }

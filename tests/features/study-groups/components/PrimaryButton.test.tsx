@@ -30,7 +30,7 @@ describe('PrimaryButton component', () => {
   it('should apply default classes', () => {
     render(<PrimaryButton>زر</PrimaryButton>);
     const button = screen.getByText('زر');
-    expect(button.className).toContain('bg-cyan-600');
+    expect(button.className).toContain('from-cyan-600');
     expect(button.className).toContain('rounded-xl');
   });
 
