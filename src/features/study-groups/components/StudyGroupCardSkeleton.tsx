@@ -22,7 +22,7 @@ export function StudyGroupCardSkeleton({ count = 1 }: StudyGroupCardSkeletonProp
             <div className="h-3 w-16 bg-white/10 rounded" />
             <div className="h-3 w-12 bg-white/10 rounded" />
           </div>
-          <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-[var(--color-bg-elevated)]/80 rounded-full overflow-hidden">
             <div className="h-full bg-white/10 rounded-full" style={{ width: '60%' }} />
           </div>
         </div>

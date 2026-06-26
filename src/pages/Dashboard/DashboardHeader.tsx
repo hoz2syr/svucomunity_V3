@@ -30,7 +30,7 @@ export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, er
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
         transition={reducedMotion ? { duration: 0 } : { duration: 0.15 }}
-        className="absolute left-0 mt-3 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
+        className="absolute left-0 mt-3 w-80 bg-[var(--color-bg-primary)]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
         role="menu"
       >
         <div className="px-4 py-3.5 border-b border-white/5 flex items-center justify-between">
@@ -111,7 +111,7 @@ export const ProfileMenu = ({ isProfileMenuOpen, user, onClose, onOpenSettings, 
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={reducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.95 }}
         transition={reducedMotion ? { duration: 0 } : { duration: 0.15 }}
-        className="absolute left-0 mt-3 w-64 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
+        className="absolute left-0 mt-3 w-64 bg-[var(--color-bg-primary)]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
         role="menu"
       >
         <div className="px-4 py-3.5 border-b border-white/5">
@@ -237,7 +237,7 @@ export const DashboardHeader = ({
         marginRight: expanded ? 16 : 24,
       }}
       transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      className="sticky top-0 z-30 bg-[#030612]/75 backdrop-blur-2xl border border-cyan-500/10 shadow-lg shadow-cyan-900/10 flex items-center justify-between px-5 lg:px-8"
+      className="sticky top-0 z-30 bg-[var(--color-bg-tertiary)]/75 backdrop-blur-2xl border border-cyan-500/10 shadow-lg shadow-cyan-900/10 flex items-center justify-between px-5 lg:px-8"
     >
       <div className="flex items-center gap-3">
         <a href="/dashboard" className="flex items-center gap-3 group">

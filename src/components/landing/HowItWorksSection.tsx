@@ -12,7 +12,7 @@ const STEPS = [
 export const HowItWorksSection = () => {
   const { ref, isInView } = useInView({ threshold: 0.1 });
   return (
-    <section id="how" className="py-24 px-4 bg-[#0a0f2e]/50 border-y border-indigo-950/50" ref={ref}>
+    <section id="how" className="py-24 px-4 bg-[var(--color-bg-secondary)]/50 border-y border-indigo-950/50" ref={ref}>
       <div className="max-w-4xl mx-auto">
         <FadeIn className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">كيف تبدأ؟</h2>
@@ -40,7 +40,7 @@ export const HowItWorksSection = () => {
                     </div>
 
                     <div className="relative flex justify-center w-full md:w-auto">
-                      <div className={`flex-shrink-0 w-16 h-16 rounded-full bg-[#0a0f2e] border-2 ${borderColor} flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)] relative z-10`}>
+                       <div className={`flex-shrink-0 w-16 h-16 rounded-full bg-[var(--color-bg-secondary)] border-2 ${borderColor} flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)] relative z-10`}>
                         <s.icon size={26} className={iconColor} />
                       </div>
                       <div className={`absolute top-0 md:top-2 md:-right-8 text-6xl font-black text-slate-800/30 select-none pointer-events-none z-0`}>{s.num}</div>

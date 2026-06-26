@@ -68,7 +68,7 @@ export const ModalOverlay = ({ children, onClose, titleId, descriptionId, ariaLa
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-[#050815]/80 backdrop-blur-md"
+        className="absolute inset-0 bg-[var(--color-bg-overlay)] backdrop-blur-md"
         onClick={onClose}
       />
       <motion.div
@@ -82,7 +82,7 @@ export const ModalOverlay = ({ children, onClose, titleId, descriptionId, ariaLa
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="relative z-10 w-full max-w-md bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
+        className="relative z-10 w-full max-w-md bg-[var(--color-bg-primary)] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
         dir="rtl"
       >
         {children}

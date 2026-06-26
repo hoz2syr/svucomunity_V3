@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 export const NotFoundPage = () => (
-  <main className="min-h-screen bg-[#060a1f] text-slate-100 flex items-center justify-center p-6" dir="rtl">
+  <main className="min-h-screen bg-[var(--color-bg-primary)] text-slate-100 flex items-center justify-center p-6" dir="rtl">
     <div className="max-w-xl w-full text-center space-y-6">
       <p className="text-cyan-400 font-display font-extrabold text-7xl">404</p>
       <h1 className="text-3xl font-bold text-white">الصفحة غير موجودة</h1>

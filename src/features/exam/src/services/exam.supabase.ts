@@ -405,7 +405,7 @@ export const rateTestInSupabase = async (testId: string, rating: number): Promis
 export const toTestAttempt = (row: TestAttemptRow): TestAttempt => ({
   id: row.id,
   testId: row.test_id,
-  userId: row.user_id ?? undefined,
+  userId: row.user_id ?? null,
   score: row.score,
   total: row.total,
   answers: row.answers,

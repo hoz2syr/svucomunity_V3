@@ -78,9 +78,9 @@ export default function SavedTests() {
         </div>
       ) : tests.length === 0 && !isLoading ? (
         <div className="glass-card flex flex-col items-center justify-center p-12 text-center">
-          <div className="w-20 h-20 rounded-full bg-secondary-800 flex items-center justify-center mb-4">
-            <FileText className="w-10 h-10 text-secondary-500" />
-          </div>
+        <div className="w-20 h-20 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center mb-4">
+          <FileText className="w-10 h-10 text-secondary-500" />
+        </div>
           <h3 className="text-xl font-bold text-white mb-2">لا يوجد اختبارات بعد</h3>
           <p className="text-secondary-400 mb-6">قم بإنشاء اختبارك الأول من ملف JSON الآن</p>
           <PrimaryButton to="/exam/create" className="flex items-center gap-2">

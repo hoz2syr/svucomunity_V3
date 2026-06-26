@@ -4,7 +4,7 @@ import { GlassCard } from '../ui/GlassCard';
 import { InteractiveMapSimulation } from '../InteractiveMap';
 
 export const FeaturesSection = () => (
-  <section id="features" className="py-24 px-4 bg-[#0a0f2e]/20 border-y border-white/5 relative overflow-hidden">
+  <section id="features" className="py-24 px-4 bg-[var(--color-bg-secondary)]/20 border-y border-white/5 relative overflow-hidden">
     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-20"></div>
     
     <div className="max-w-7xl mx-auto relative z-10">
@@ -31,7 +31,7 @@ export const FeaturesSection = () => (
                 </p>
               </div>
               <div className="w-full md:w-1/2 h-full relative min-h-[200px]">
-                <div className="absolute inset-0 bg-[#060a1f] rounded-xl border border-white/10 p-4 overflow-hidden">
+                 <div className="absolute inset-0 bg-[var(--color-bg-primary)] rounded-xl border border-white/10 p-4 overflow-hidden">
                   <div className="w-full h-10 bg-white/5 rounded-lg mb-4 flex items-center px-4 border border-white/5">
                     <Search size={16} className="text-slate-500 mr-2" />
                     <div className="w-24 h-2 bg-slate-700/50 rounded-full"></div>

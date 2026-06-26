@@ -79,7 +79,7 @@ export function Dropdown({
       </button>
 
       {open && (
-        <div className="absolute z-50 w-full mt-2 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-[var(--color-bg-elevated)] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
           {searchable && (
             <div className="p-2">
               <div className="relative">

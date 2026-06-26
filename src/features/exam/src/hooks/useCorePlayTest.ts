@@ -145,8 +145,10 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
     return selectedValue === currentQ.correctAnswer;
   }, [currentQ, selectedValue, isMultiSelect]);
 
-  const handleSelect = useCallback((answer: string) => {
+  const handleSelect = useCallback((rawAnswer: string | string[]) => {
     if (!isAnswerRevealed && test) {
+      const answer = typeof rawAnswer === 'string' ? rawAnswer : rawAnswer[0];
+      if (!answer) return;
       if (isMultiSelect) {
         setSelectedAnswers(prev => {
           const current = (prev[test.questions[currentIdx].id] as string[]) ?? [];

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { hasSupabaseEnv, getErrorMessage, refreshSession } from '../services/environment.service';
+import { hasSupabaseEnv, refreshCurrentSession, getErrorMessage } from '../lib/supabase';
 import { completeAuthCallback, listenAuthChanges } from '../services/auth.service';
 import { refreshProfile as refreshProfileService } from '../services/profile.service';
 import type { Profile } from '../types/profile';
@@ -101,9 +101,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const timer = setTimeout(async () => {
       try {
-        await refreshSession();
+        const refreshed = await refreshCurrentSession();
+        if (!refreshed) {
+          setSession(null);
+        }
       } catch {
-        // refresh failed; let Supabase SDK handle eventual expiry
+        setSession(null);
       } finally {
         refreshingRef.current = false;
       }
@@ -113,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       clearTimeout(timer);
       refreshingRef.current = false;
     };
-  }, [sessionExpiring, session, refreshSession]);
+  }, [sessionExpiring, session]);
 
   const clearError = useCallback(() => setError(null), []);
 

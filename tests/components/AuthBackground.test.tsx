@@ -11,7 +11,7 @@ describe('AuthBackground', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
-    mockUseParticleCanvas.mockReturnValue({ canvasRef: { current: null }, reducedMotion: true });
+    mockUseParticleCanvas.mockReturnValue({ canvasRef: { current: null }, reducedMotion: false });
   });
 
   it('should be importable', async () => {

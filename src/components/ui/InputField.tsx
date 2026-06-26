@@ -59,7 +59,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password";
-  const baseClasses = "w-full bg-[#050815]/50 border rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 transition-all font-sans";
+  const baseClasses = "w-full bg-[var(--color-bg-input)]/50 border rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 transition-all font-sans";
   const stateClasses = error
     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
     : "border-white/10 focus:border-cyan-400 focus:ring-cyan-400/20";

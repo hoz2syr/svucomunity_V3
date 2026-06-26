@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '@/src/contexts/AuthContext';
 
 const mockUseAuthForm = vi.fn();
 const mockUseRateLimit = vi.fn();
@@ -31,8 +32,32 @@ vi.mock('@/src/contexts/GuestContext', () => ({
   useGuest: () => ({ isGuest: false, enableGuestMode: vi.fn(), disableGuestMode: vi.fn() }),
 }));
 
+vi.mock('@/src/contexts/AuthContext', async () => {
+  const actual = await vi.importActual<typeof import('@/src/contexts/AuthContext')>('@/src/contexts/AuthContext');
+  return {
+    ...actual,
+    useAuth: () => ({
+      clearError: vi.fn(),
+      session: null,
+      profile: null,
+      loading: false,
+      envMissing: false,
+      error: null,
+      sessionExpiring: false,
+      sessionExpiryTime: null,
+      refreshProfile: vi.fn(),
+    }),
+  };
+});
+
 const renderWithRouter = (ui: React.ReactElement) =>
-  render(<MemoryRouter>{ui}</MemoryRouter>);
+  render(
+    <MemoryRouter>
+      <AuthProvider>
+        {ui}
+      </AuthProvider>
+    </MemoryRouter>
+  );
 
 describe('AuthPage', () => {
   beforeEach(() => {

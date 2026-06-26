@@ -23,7 +23,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#060a1f]">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg-primary)]">
         <div className="text-cyan-400 text-lg">جاري التحقق من الجلسة...</div>
       </div>
     );

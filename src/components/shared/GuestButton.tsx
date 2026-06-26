@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../../contexts/GuestContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { UserRound } from 'lucide-react';
 
 type GuestButtonProps = {
@@ -10,8 +11,10 @@ type GuestButtonProps = {
 export const GuestButton = ({ className = '', label = 'تجربة المخطط كزائر' }: GuestButtonProps) => {
   const navigate = useNavigate();
   const { enableGuestMode } = useGuest();
+  const { clearError } = useAuth();
 
   const handleClick = () => {
+    clearError();
     enableGuestMode();
     navigate('/dashboard', { replace: true });
   };

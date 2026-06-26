@@ -91,7 +91,7 @@ export const DashboardPage = () => {
     return (
       <DashboardLayout>
         <div className="flex flex-col h-screen w-full">
-          <div className="sticky top-0 z-30 bg-[#030612]/75 backdrop-blur-2xl border-b border-cyan-500/10 px-5 lg:px-8">
+          <div className="sticky top-0 z-30 bg-[var(--color-bg-tertiary)]/75 backdrop-blur-2xl border-b border-cyan-500/10 px-5 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-3">
                 <Skeleton className="w-10 h-10 rounded-xl" />

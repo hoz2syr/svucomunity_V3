@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
-    <footer className="w-full bg-[#030614] border-t border-slate-800/50 py-10 px-4 md:px-8">
+    <footer className="w-full bg-[var(--color-bg-tertiary)] border-t border-slate-800/50 py-10 px-4 md:px-8">
        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-right w-full md:w-1/3">
              <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-l from-cyan-400 to-indigo-500 mb-2 font-display" dir="ltr">SVU Community</div>

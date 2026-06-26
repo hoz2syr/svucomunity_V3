@@ -25,7 +25,7 @@ export default function AttemptHistory() {
           <span className="text-sm sm:text-base">العودة للاختبارات</span>
         </button>
 
-        <PrimaryButton onClick={refetch} variant="secondary" className="px-4 py-2.5 text-sm">
+        <PrimaryButton onClick={refetch} className="px-4 py-2.5 text-sm">
           تحديث
         </PrimaryButton>
       </div>

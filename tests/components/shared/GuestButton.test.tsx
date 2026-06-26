@@ -2,9 +2,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '@/src/contexts/AuthContext';
 
 const mockEnableGuestMode = vi.fn();
 const mockNavigate = vi.fn();
+const mockClearError = vi.fn();
+
+vi.mock('@/src/contexts/AuthContext', async () => {
+  const actual = await vi.importActual<typeof import('@/src/contexts/AuthContext')>('@/src/contexts/AuthContext');
+  return {
+    ...actual,
+    useAuth: () => ({
+      clearError: mockClearError,
+      session: null,
+      profile: null,
+      loading: false,
+      envMissing: false,
+      error: null,
+      sessionExpiring: false,
+      sessionExpiryTime: null,
+      refreshProfile: vi.fn(),
+    }),
+  };
+});
 
 vi.mock('@/src/contexts/GuestContext', () => ({
   useGuest: () => ({
@@ -22,7 +42,13 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const renderWithRouter = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
+const renderWithRouter = (ui: React.ReactElement) => render(
+  <MemoryRouter>
+    <AuthProvider>
+      {ui}
+    </AuthProvider>
+  </MemoryRouter>
+);
 
 describe('GuestButton', () => {
   beforeEach(() => {

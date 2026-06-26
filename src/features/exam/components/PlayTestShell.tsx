@@ -114,14 +114,14 @@ export function PlayTestShell({
           </div>
 
           {showSettingsInPreStart && (
-            <div className="text-right space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto bg-secondary-800/50 p-4 sm:p-5 rounded-2xl border border-secondary-700/50">
+            <div className="text-right space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto bg-[var(--color-bg-elevated)]/50 p-4 sm:p-5 rounded-2xl border border-secondary-700/50">
               <div className="flex items-center gap-2 text-white font-medium mb-3 sm:mb-4">
                 <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
                 <h3 className="text-sm sm:text-base">إعدادات بدء الاختبار</h3>
               </div>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
-                <input type="radio" name="feedbackType" checked={!immediateFeedback} onChange={() => setImmediateFeedback(false)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-secondary-900 border-secondary-600" />
+                <input type="radio" name="feedbackType" checked={!immediateFeedback} onChange={() => setImmediateFeedback(false)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-[var(--color-bg-primary)] border-secondary-600" />
                 <div>
                   <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح في النهاية (وضع الاختبار)</p>
                   <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">إظهار الإجابات الصحيحة والشروح والنتيجة بعد الانتهاء من جميع الأسئلة.</p>
@@ -129,7 +129,7 @@ export function PlayTestShell({
               </label>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
-                <input type="radio" name="feedbackType" checked={immediateFeedback} onChange={() => setImmediateFeedback(true)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-secondary-900 border-secondary-600" />
+                <input type="radio" name="feedbackType" checked={immediateFeedback} onChange={() => setImmediateFeedback(true)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-[var(--color-bg-primary)] border-secondary-600" />
                 <div>
                   <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح فوري (وضع التعلم)</p>
                   <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">تأكيد كل إجابة وإظهار صحتها مع الشرح التوضيحي فوراً لغرض المراجعة.</p>
@@ -200,7 +200,7 @@ export function PlayTestShell({
                         إجابتك: <span className="text-white font-bold">{userAnswer || '(تم التخطي)'}</span>
                       </p>
                       {isEssay && correctAnswers.length > 0 && (
-                        <div className="mt-2 p-3 rounded-lg border border-secondary-700 bg-secondary-800/50">
+                        <div className="mt-2 p-3 rounded-lg border border-secondary-700 bg-[var(--color-bg-elevated)]/50">
                           <p className="text-xs text-secondary-400 mb-1">الإجابة الصحيحة / الحل</p>
                           <p className="text-sm text-green-300">{correctAnswers.join(' / ')}</p>
                         </div>
@@ -209,7 +209,7 @@ export function PlayTestShell({
                         <p className="text-sm text-secondary-300 text-green-400">الإجابة الصحيحة: {q.correctAnswer}</p>
                       )}
                       {q.explanation && test.settings.showExplanations && (
-                        <div className="mt-3 bg-secondary-800/50 p-4 rounded-lg border border-secondary-700">
+                        <div className="mt-3 bg-[var(--color-bg-elevated)]/50 p-4 rounded-lg border border-secondary-700">
                           <span className="text-primary-400 font-bold text-sm block mb-1">الشرح:</span>
                           <span className="text-secondary-300 text-sm">{q.explanation}</span>
                         </div>
@@ -271,7 +271,7 @@ export function PlayTestShell({
             const isSelected = isMulti && Array.isArray(currentSelected)
               ? currentSelected.includes(opt)
               : currentSelected === opt;
-            const correctList = isMulti ? currentQ.correctAnswers : (currentQ.correctAnswer ? [currentQ.correctAnswer] : []);
+            const correctList = isMulti ? (currentQ.correctAnswers ?? []) : (currentQ.correctAnswer ? [currentQ.correctAnswer] : []);
             let btnStateClass = 'bg-secondary-800 border-secondary-700 hover:border-secondary-500';
 
             if (isAnswerRevealed) {
@@ -344,7 +344,7 @@ export function PlayTestShell({
                 <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-green-400' : 'text-red-400')}>
                   {isCurrentCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
                 </h4>
-                {!isCurrentCorrect && !isEssay && (
+                {!isCurrentCorrect && currentQ.type !== 'essay' && (
                   <p className="text-xs sm:text-sm text-secondary-300 mb-1.5 sm:mb-2">الإجابة الصحيحة: <span className="text-white font-bold">
                     {currentQ.correctAnswers && currentQ.correctAnswers.length > 0 ? currentQ.correctAnswers.join(' / ') : currentQ.correctAnswer}
                   </span></p>

@@ -18,11 +18,7 @@ export const AuthCallback = () => {
         const result = await completeAuthCallback();
         if (controller.signal.aborted) return;
 
-        if (result.error) {
-          if (result.data?.session) {
-            navigate('/dashboard', { replace: true });
-            return;
-          }
+        if (result.error && !result.data?.session) {
           setStatus('error');
           setMessage(result.error.message || 'حدث خطأ أثناء تسجيل الدخول.');
           return;
@@ -68,7 +64,7 @@ export const AuthCallback = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#060a1f] flex-col gap-4 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg-primary)] flex-col gap-4 px-4">
       <div className={`text-lg ${status === 'error' ? 'text-red-400' : 'text-cyan-400'}`}>
         {message}
       </div>

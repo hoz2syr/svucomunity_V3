@@ -57,7 +57,7 @@ export const AuthCard = ({
   const [googleLogoError, setGoogleLogoError] = useState(false);
   const shadowColor = gradientShadow[logoGradient];
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#0a0f2e] relative overflow-hidden font-sans" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-secondary)] relative overflow-hidden font-sans" dir="rtl">
       {!reducedMotion && (
         <canvas
           ref={canvasRef}
@@ -65,7 +65,7 @@ export const AuthCard = ({
         />
       )}
       {reducedMotion && (
-        <div className="absolute inset-0 bg-[#0a0f2e] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-[var(--color-bg-secondary)] pointer-events-none z-0" />
       )}
       <div className="w-full max-w-md relative z-10">
         <motion.div
@@ -87,7 +87,7 @@ export const AuthCard = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(34,211,238,0.1)] relative"
+          className="bg-[var(--color-bg-primary)]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(34,211,238,0.1)] relative"
         >
           <ServerError error={serverError} />
 
@@ -107,7 +107,7 @@ export const AuthCard = ({
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-900/60 text-slate-400">أو</span>
+               <span className="px-2 bg-[var(--color-bg-primary)]/60 text-slate-400">أو</span>
             </div>
           </div>
 

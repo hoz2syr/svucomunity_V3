@@ -44,7 +44,7 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
           label=""
           type="text"
           {...register('confirmation')}
-          className="w-full bg-[#050815]/50 flex-1 border border-red-500/30 rounded-xl px-4 py-3.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all mb-8 font-sans"
+           className="w-full bg-[var(--color-bg-overlay)]/50 flex-1 border border-red-500/30 rounded-xl px-4 py-3.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all mb-8 font-sans"
           placeholder={username}
           error={errors.confirmation?.message}
         />

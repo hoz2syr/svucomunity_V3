@@ -88,7 +88,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-slate-900 border border-white/10 rounded-[2rem] p-8 max-w-md w-full relative z-10 shadow-2xl"
+            className="bg-[var(--color-bg-primary)] border border-white/10 rounded-[2rem] p-8 max-w-md w-full relative z-10 shadow-2xl"
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">استعادة كلمة المرور</h3>
@@ -119,7 +119,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
                     setResetEmail(e.target.value);
                     if (resetError) setResetError('');
                   }}
-                  className="w-full bg-[#050815]/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans"
+                   className="w-full bg-[var(--color-bg-overlay)]/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans"
                   placeholder="email@example.com"
                 />
               </div>

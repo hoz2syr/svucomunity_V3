@@ -19,7 +19,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
     <motion.button 
       whileTap={{ scale: 0.98 }}
       disabled={isLoading || disabled}
-      className={`w-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all flex items-center justify-center gap-2 group relative overflow-hidden disabled:opacity-80 disabled:cursor-not-allowed ${className}`}
+      className={`w-full bg-gradient-to-r from-[var(--color-primary-400)] to-[var(--color-secondary-400)] text-white font-bold py-3.5 px-4 rounded-xl shadow-[var(--shadow-glow-cyan)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all flex items-center justify-center gap-2 group relative overflow-hidden disabled:opacity-80 disabled:cursor-not-allowed ${className}`}
       {...props}
     >
       <span className="relative z-10 transition-transform group-hover:scale-105 flex items-center gap-2">

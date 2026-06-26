@@ -18,7 +18,7 @@ export const ComingSoonSection = () => {
   };
 
   return (
-    <section className="py-24 px-4 bg-[#050714] text-center w-full relative">
+    <section className="py-24 px-4 bg-[var(--color-bg-tertiary)] text-center w-full relative">
       <div className="max-w-5xl mx-auto">
         <FadeIn>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-sm font-medium tracking-wide mb-8">
@@ -34,15 +34,15 @@ export const ComingSoonSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-16 relative">
           {FEATURES.map((item, i) => (
              <FadeIn key={i} delay={i*200} blurLayer={true} className="h-full">
-               <div className="group overflow-hidden rounded-2xl relative bg-slate-900 border border-slate-800 p-6 flex flex-col items-center justify-center min-h-[160px] h-full">
-                <div className="absolute inset-0 bg-[#0a0f2e]/60 backdrop-blur-[2px] transition-all duration-500 z-10 flex items-center justify-center pointer-events-none">
-                   <div className="bg-slate-800/80 text-white text-xs px-3 py-1 rounded shadow-lg">قريباً</div>
+                <div className="group overflow-hidden rounded-2xl relative bg-[var(--color-bg-primary)] border border-slate-800 p-6 flex flex-col items-center justify-center min-h-[160px] h-full">
+                 <div className="absolute inset-0 bg-[var(--color-bg-secondary)]/60 backdrop-blur-[2px] transition-all duration-500 z-10 flex items-center justify-center pointer-events-none">
+                    <div className="bg-[var(--color-bg-elevated)]/80 text-white text-xs px-3 py-1 rounded shadow-lg">قريباً</div>
+                  </div>
+                 <div className="relative z-0 text-center transition-all duration-500 opacity-40 group-hover:opacity-100 scale-95 group-hover:scale-100">
+                   <item.icon size={32} className="text-slate-500 group-hover:text-cyan-400 mx-auto mb-4 transition-colors" />
+                   <div className="font-bold text-slate-300 group-hover:text-white transition-colors">{item.t}</div>
+                 </div>
                 </div>
-                <div className="relative z-0 text-center transition-all duration-500 opacity-40 group-hover:opacity-100 scale-95 group-hover:scale-100">
-                  <item.icon size={32} className="text-slate-500 group-hover:text-cyan-400 mx-auto mb-4 transition-colors" />
-                  <div className="font-bold text-slate-300 group-hover:text-white transition-colors">{item.t}</div>
-                </div>
-               </div>
              </FadeIn>
           ))}
         </div>
@@ -62,7 +62,7 @@ export const ComingSoonSection = () => {
                 type="email"
                 placeholder="أدخل بريدك الإلكتروني"
                 required
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-right"
+                className="flex-1 bg-[var(--color-bg-primary)] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-right"
                 dir="auto"
               />
               <button

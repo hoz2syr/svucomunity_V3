@@ -112,7 +112,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-[#050815]/80 backdrop-blur-md"
+        className="absolute inset-0 bg-[var(--color-bg-overlay)] backdrop-blur-md"
         onClick={step === 'confirm' ? onCancel : undefined}
       />
       <motion.div
@@ -124,7 +124,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="relative z-10 w-full max-w-md bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
+        className="relative z-10 w-full max-w-md bg-[var(--color-bg-primary)] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
         dir="rtl"
       >
         {step === 'confirm' && !showSuccess && (
@@ -149,7 +149,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
               <button
                 onClick={onCancel}
                 disabled={isLoading}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-secondary-800 text-secondary-200 border border-white/10 hover:bg-secondary-700 transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-white/10 hover:bg-[var(--color-bg-elevated)]/80 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 إلغاء
               </button>
@@ -182,7 +182,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
             </div>
 
             <div className="px-6 pb-4">
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary-800/60 border border-white/10">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-[var(--color-bg-elevated)]/60 border border-white/10">
                 <ExternalLink className="w-4 h-4 text-secondary-400 flex-shrink-0" />
                 <p className="text-xs text-secondary-300 truncate flex-1 select-all" dir="ltr">
                   {shareUrl}
@@ -209,7 +209,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
             <div className="px-6 pb-6">
               <button
                 onClick={handleDone}
-                className="w-full py-2.5 rounded-xl text-sm font-medium bg-secondary-800 text-secondary-200 border border-white/10 hover:bg-secondary-700 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-xl text-sm font-medium bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-white/10 hover:bg-[var(--color-bg-elevated)]/80 transition-colors cursor-pointer"
               >
                 إغلاق
               </button>

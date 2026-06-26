@@ -40,7 +40,7 @@ export default function CreateTest() {
             </div>
 
             <div className="flex items-center gap-3 mt-8">
-              <input type="checkbox" id="showExplanations" checked={showExplanations} onChange={(e) => setShowExplanations(e.target.checked)} className="w-5 h-5 rounded border-secondary-600 bg-secondary-800 text-primary-500 focus:ring-primary-500 focus:ring-offset-secondary-900 focus:ring-offset-2" />
+               <input type="checkbox" id="showExplanations" checked={showExplanations} onChange={(e) => setShowExplanations(e.target.checked)} className="w-5 h-5 rounded border-secondary-600 bg-[var(--color-bg-elevated)] text-primary-500 focus:ring-primary-500 focus:ring-offset-secondary-900 focus:ring-offset-2" />
               <label htmlFor="showExplanations" className="text-sm font-medium text-secondary-300 cursor-pointer">
                 إظهار التفسيرات والشروحات عند التصدير واللعب
               </label>

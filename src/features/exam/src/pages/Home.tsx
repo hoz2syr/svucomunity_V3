@@ -20,7 +20,7 @@ export default function Home() {
           </h1>
           <div className="relative group">
             <HelpCircle className="w-6 h-6 text-secondary-400 cursor-help" />
-            <div className="absolute top-full left-0 mt-2 w-72 p-3 bg-secondary-800 border border-secondary-700 rounded-xl text-xs text-secondary-300 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
+            <div className="absolute top-full left-0 mt-2 w-72 p-3 bg-[var(--color-bg-elevated)] border border-secondary-700 rounded-xl text-xs text-secondary-300 leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
               <strong className="text-white mb-1 block">لماذا JSON؟</strong>
               JSON هو التنسيق الموثوب الوحيد اليوم الذي يولّده الذكاء الاصطناعي بدقة عالية، ويتحقق منه آلياً بدون مكتبات خارجية، ويتعامل معه المتصفح مباشرة عبر <code className="text-emerald-400">JSON.parse</code> — مما يجعله الجسر الأمثل بين الـ AI والمنصة.
             </div>
@@ -54,7 +54,7 @@ export default function Home() {
             تستخدم المنصة ملفات JSON كمدخلات لإنشاء الاختبارات. يمكنك تخصيص طلبك (البرومت) أدناه ونسخه لأي أداة ذكاء اصطناعي (مثل ChatGPT أو Gemini) للحصول على ملف مطابق للمواصفات.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 bg-secondary-800/30 p-4 sm:p-5 rounded-2xl border border-white/5">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 bg-[var(--color-bg-elevated)]/30 p-4 sm:p-5 rounded-2xl border border-white/5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-secondary-300 block">موضوع الاختبار</label>
               <input type="text" className="input-field py-2 sm:py-2.5 text-sm sm:text-base" value={prefs.topic} onChange={e => update('topic', e.target.value)} placeholder="مثال: الشبكات، التاريخ..." />
@@ -82,14 +82,14 @@ export default function Home() {
             </div>
             <div className="space-y-2 flex items-center h-full pt-6 sm:pt-8">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" checked={prefs.includeExplanations} onChange={e => update('includeExplanations', e.target.checked)} className="w-5 h-5 rounded border-secondary-600 bg-secondary-800 text-primary-500 focus:ring-primary-500 focus:ring-offset-secondary-900" />
+                <input type="checkbox" checked={prefs.includeExplanations} onChange={e => update('includeExplanations', e.target.checked)} className="w-5 h-5 rounded border-secondary-600 bg-[var(--color-bg-elevated)] text-primary-500 focus:ring-primary-500 focus:ring-offset-secondary-900" />
                 <span className="text-sm font-medium group-hover:text-white transition">شرح أسباب الإجابة</span>
               </label>
             </div>
           </div>
 
-          <div className="bg-secondary-900/60 flex flex-col border border-secondary-700 rounded-xl relative overflow-hidden">
-            <div className="bg-secondary-800/80 px-4 py-3 border-b border-secondary-700 flex flex-wrap items-center justify-between gap-3">
+           <div className="bg-[var(--color-bg-primary)]/60 flex flex-col border border-secondary-700 rounded-xl relative overflow-hidden">
+             <div className="bg-[var(--color-bg-elevated)]/80 px-4 py-3 border-b border-secondary-700 flex flex-wrap items-center justify-between gap-3">
               <span className="text-sm font-medium text-secondary-300">البرومت المخصص (انسخه للـ AI):</span>
               <div className="flex items-center gap-2">
                 <button onClick={save} className="flex items-center gap-1.5 text-xs bg-secondary-700/80 hover:bg-secondary-600 text-white px-3 py-2 rounded-lg transition" title="حفظ الإعدادات للمرات القادمة">

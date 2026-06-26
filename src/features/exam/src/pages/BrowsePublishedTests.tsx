@@ -48,7 +48,7 @@ export default function BrowsePublishedTests() {
         </div>
       ) : tests.length === 0 && !isLoading ? (
         <div className="glass-card flex flex-col items-center justify-center p-12 text-center">
-          <div className="w-20 h-20 rounded-full bg-secondary-800 flex items-center justify-center mb-4">
+          <div className="w-20 h-20 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center mb-4">
             <FileText className="w-10 h-10 text-secondary-500" />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">لا توجد اختبارات منشورة بعد</h3>
@@ -95,7 +95,7 @@ export default function BrowsePublishedTests() {
 function PublishedTestCard({ test }: { test: TestModel }) {
   return (
     <div
-      className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-secondary-900/50 border border-white/[0.06]"
+      className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-[var(--color-bg-primary)]/50 border border-white/[0.06]"
     >
       <div className="flex-1 p-5 pb-4">
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -110,11 +110,11 @@ function PublishedTestCard({ test }: { test: TestModel }) {
         )}
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 bg-secondary-800/70 text-secondary-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <FileText className="w-3.5 h-3.5 text-primary-400" />
             <span>{test.questions.length} سؤال</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-secondary-800/70 text-secondary-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <Globe className="w-3.5 h-3.5 text-primary-400" />
             <span>{new Date(test.createdAt).toLocaleDateString('ar-SA')}</span>
           </span>
@@ -123,14 +123,14 @@ function PublishedTestCard({ test }: { test: TestModel }) {
         <div className="mt-3 flex items-center justify-between">
           <StarRating rating={test.rating ?? 0} readonly size={16} onRate={() => {}} />
           {test.rating ? (
-            <span className="text-xs text-secondary-400">{test.rating}/5</span>
+            <span className="text-xs text-[var(--color-text-muted)]">{test.rating}/5</span>
           ) : (
-            <span className="text-xs text-secondary-500">غير مقيم</span>
+            <span className="text-xs text-[var(--color-text-muted)]">غير مقيم</span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-secondary-900/30">
+        <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-[var(--color-bg-primary)]/30">
         <Link
           to={`/exam/shared/${test.id}`}
           className="btn-accent w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl shadow-lg shadow-primary-900/20 hover:shadow-primary-800/30 transition-all"

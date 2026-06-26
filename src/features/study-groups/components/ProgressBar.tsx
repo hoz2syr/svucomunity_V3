@@ -19,7 +19,7 @@ export function ProgressBar({ current, max, size = 'md', className = '' }: Progr
           {current} / {max}
         </span>
       </div>
-      <div className={`${size === 'sm' ? 'h-1.5' : 'h-2'} bg-slate-800/80 rounded-full overflow-hidden`}>
+      <div className={`${size === 'sm' ? 'h-1.5' : 'h-2'} bg-[var(--color-bg-elevated)]/80 rounded-full overflow-hidden`}>
         <div
           className={`
             h-full rounded-full

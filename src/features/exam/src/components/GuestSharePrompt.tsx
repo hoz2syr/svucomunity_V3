@@ -40,12 +40,12 @@ export const GuestSharePrompt = ({ testTitle, open = true, onClose }: GuestShare
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-sm bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden" dir="rtl">
+      <div className="relative z-10 w-full max-w-sm bg-[var(--color-bg-primary)] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden" dir="rtl">
         <div className="flex items-center justify-between p-4 pb-2">
           <h3 className="text-base font-bold text-white">مشاركة الاختبار</h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-secondary-800 text-secondary-300 hover:bg-secondary-700 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]/80 transition-colors cursor-pointer"
             aria-label="إغلاق"
           >
             <X className="w-4 h-4" />

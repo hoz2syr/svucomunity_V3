@@ -35,7 +35,7 @@ export const ExamNavbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#030612]/80 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.35)]">
+    <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-[var(--color-bg-tertiary)]/80 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.35)]">
       <div className="max-w-6xl mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-2">
           <Link

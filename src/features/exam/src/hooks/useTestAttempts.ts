@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { fetchUserAttemptHistory, saveTestAttempt, type ExamSupabaseError } from '../services/exam.supabase';
+import { fetchUserAttemptHistory, saveTestAttempt } from '../services/exam.supabase';
 
 export interface UseTestAttemptsReturn {
   attempts: import('../types').TestAttempt[];

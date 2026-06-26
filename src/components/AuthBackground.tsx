@@ -7,7 +7,7 @@ export const AuthBackground: React.FC = () => {
   });
 
   if (reducedMotion) {
-    return <div className="absolute inset-0 bg-[#0a0f2e] pointer-events-none" />;
+    return <div className="absolute inset-0 bg-[var(--color-bg-secondary)] pointer-events-none" />;
   }
 
   return (

@@ -82,7 +82,7 @@ export const ConfirmDialog = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-[#050815]/80 backdrop-blur-md"
+        className="absolute inset-0 bg-[var(--color-bg-overlay)] backdrop-blur-md"
         onClick={onCancel}
       />
       <motion.div
@@ -94,7 +94,7 @@ export const ConfirmDialog = ({
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="relative z-10 w-full max-w-md bg-slate-900 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
+        className="relative z-10 w-full max-w-md bg-[var(--color-bg-primary)] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden font-sans"
         dir="rtl"
       >
         <div className="p-6 pb-4">
@@ -110,7 +110,7 @@ export const ConfirmDialog = ({
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-secondary-800 text-secondary-200 border border-white/10 hover:bg-secondary-700 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-white/10 hover:bg-[var(--color-bg-elevated)]/80 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {cancelLabel}
           </button>

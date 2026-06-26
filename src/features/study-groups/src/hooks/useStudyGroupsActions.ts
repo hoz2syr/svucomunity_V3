@@ -9,7 +9,7 @@ import type { StudyGroup, Course } from '../types';
 export function useStudyGroupsActions(reload: () => Promise<void>) {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
-  const { notifyError, notifyLeaveSuccess, notifyEditSuccess, notifyJoinSuccess, notifyCreateSuccess, notifyDeleteSuccess } = useStudyGroupsToast();
+  const { notifyError, notifyLeaveSuccess, notifyEditSuccess, notifyCreateSuccess, notifyDeleteSuccess } = useStudyGroupsToast();
 
   const handleCreateGroup = useCallback(async (data: {
     name: string;

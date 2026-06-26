@@ -25,8 +25,8 @@ describe('Button component', () => {
   it('should render with primary variant by default', () => {
     const { container } = render(<Button>Click me</Button>);
     const button = container.querySelector('button');
-    expect(button?.className).toContain('from-cyan-600');
-    expect(button?.className).toContain('to-indigo-600');
+    expect(button?.className).toContain('from-[var(--color-primary-500)]');
+    expect(button?.className).toContain('to-[var(--color-secondary-400)]');
   });
 
   it('should render with secondary variant', () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { X, Search } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
 

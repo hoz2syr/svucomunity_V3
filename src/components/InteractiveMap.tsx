@@ -40,12 +40,12 @@ export const InteractiveMapSimulation = () => {
   const MapNode = ({ title, code, top, left, isActive, isCompleted }: MapNodeProps) => (
     <div 
       className={`absolute w-36 md:w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl p-4 border transition-all duration-500 backdrop-blur-xl flex flex-col items-center justify-center 
-        ${isActive ? 'border-cyan-400 bg-[#0a102e]/90 shadow-[0_0_40px_rgba(34,211,238,0.3)] scale-[1.15] z-20 ring-1 ring-cyan-400/50' : 
-          isCompleted ? 'border-indigo-500/50 bg-[#0c1230]/90 z-10 shadow-lg' : 
-          'border-slate-700/60 bg-[#050815]/90 opacity-70 z-10 grayscale-[0.5]'}`}
+        ${isActive ? 'border-cyan-400 bg-[var(--color-bg-secondary)]/90 shadow-[0_0_40px_rgba(34,211,238,0.3)] scale-[1.15] z-20 ring-1 ring-cyan-400/50' : 
+          isCompleted ? 'border-indigo-500/50 bg-[var(--color-bg-secondary)]/90 z-10 shadow-lg' : 
+          'border-slate-700/60 bg-[var(--color-bg-overlay)]/90 opacity-70 z-10 grayscale-[0.5]'}`}
       style={{ top, left }}
     >
-      <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-800 text-slate-400'}`}>
+      <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-cyan-500/20 text-cyan-300' : 'bg-[var(--color-bg-elevated)] text-slate-400'}`}>
          <BookOpen size={14} /> {code}
       </div>
       <h5 className={`font-extrabold text-center text-sm md:text-base mb-1 ${isActive ? 'text-white' : 'text-slate-300'}`}>{title}</h5>
@@ -88,10 +88,10 @@ export const InteractiveMapSimulation = () => {
          <MapNode title="البيانات" code="BCG601" top="75%" left="75%" isCompleted={false} />
        </div>
 
-        <div 
-          className={`absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-72 bg-[#060a1f]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] p-4 sm:p-5 rounded-3xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] z-30 flex flex-col ${isZoomed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
-          dir="rtl"
-        >
+         <div 
+           className={`absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-72 bg-[var(--color-bg-primary)]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] p-4 sm:p-5 rounded-3xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] z-30 flex flex-col ${isZoomed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
+           dir="rtl"
+         >
          <div className="flex justify-between items-start mb-4 w-full">
            <div className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md font-mono shrink-0">BNA401</div>
             <button aria-label="إغلاق لوحة المعلومات" className="text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-1.5 rounded-lg border border-white/5"><X size={14}/></button>

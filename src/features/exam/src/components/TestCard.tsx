@@ -22,7 +22,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
   const isPublishing = publishingId === test.id;
 
   return (
-    <div className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-secondary-900/50 border border-white/[0.06]">
+    <div className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-[var(--color-bg-primary)]/50 border border-white/[0.06]">
       <div className="flex-1 p-5 pb-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">{test.title}</h3>
@@ -36,11 +36,11 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         )}
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 bg-secondary-800/70 text-secondary-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <FileText className="w-3.5 h-3.5 text-primary-400" />
             <span>{test.questions.length} سؤال</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-secondary-800/70 text-secondary-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <Clock className="w-3.5 h-3.5 text-primary-400" />
             <span>{new Date(test.createdAt).toLocaleDateString('ar-SA')}</span>
           </span>
@@ -49,14 +49,14 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         <div className="mt-3 flex items-center justify-between">
           <StarRating rating={test.rating ?? 0} readonly size={16} onRate={() => {}} />
           {test.rating ? (
-            <span className="text-xs text-secondary-400">{test.rating}/5</span>
+            <span className="text-xs text-[var(--color-text-muted)]">{test.rating}/5</span>
           ) : (
-            <span className="text-xs text-secondary-500">غير مقيم</span>
+            <span className="text-xs text-[var(--color-text-muted)]">غير مقيم</span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-secondary-900/30">
+      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-[var(--color-bg-primary)]/30">
         {!test.published && onPublish && (
           <button
             onClick={() => onPublish(test.id)}

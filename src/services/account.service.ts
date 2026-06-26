@@ -126,13 +126,23 @@ export const deleteOwnAccount = async (): Promise<DeleteOwnAccountResult> => {
 
 export const signOutCurrentUser = async (): Promise<{ ok: true } | { ok: false; error: string }> => {
   if (!hasSupabaseEnv()) {
+    try {
+      sessionStorage.removeItem('svu-guest-mode');
+      sessionStorage.removeItem('svu-guest-profile');
+    } catch { /* ignore */ }
     return { ok: false, error: missingSupabaseEnvMessage };
   }
 
   try {
     await getSupabaseClient().auth.signOut();
+    sessionStorage.removeItem('svu-guest-mode');
+    sessionStorage.removeItem('svu-guest-profile');
     return { ok: true };
   } catch (error) {
+    try {
+      sessionStorage.removeItem('svu-guest-mode');
+      sessionStorage.removeItem('svu-guest-profile');
+    } catch { /* ignore */ }
     return { ok: false, error: getErrorMessage(error) };
   }
 };

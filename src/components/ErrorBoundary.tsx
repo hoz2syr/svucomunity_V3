@@ -66,7 +66,7 @@ export class ErrorBoundary extends Component<Props, BoundaryState> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 bg-[#060a1f]/80 backdrop-blur-md rounded-2xl border border-red-500/20 text-center m-4">
+        <div className="flex flex-col items-center justify-center p-8 bg-[var(--color-bg-primary)]/80 backdrop-blur-md rounded-2xl border border-red-500/20 text-center m-4">
           <h2 className="text-2xl font-bold text-red-400 mb-4">عذراً، حدث خطأ غير متوقع.</h2>
           <p className="text-slate-400">نحن نعمل على حل هذه المشكلة.</p>
           <button

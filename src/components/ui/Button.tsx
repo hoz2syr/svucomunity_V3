@@ -33,8 +33,8 @@ export function Button({
 
   const variants = {
     primary: `
-      bg-gradient-to-r from-cyan-600 to-indigo-600
-      hover:from-cyan-500 hover:to-indigo-500
+      bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-secondary-400)]
+      hover:from-[var(--color-primary-400)] hover:to-[var(--color-secondary-300)]
     `,
     secondary: `
       bg-slate-700 hover:bg-slate-600
@@ -47,8 +47,8 @@ export function Button({
   const baseClassName = `
     inline-flex items-center justify-center gap-2
     px-4 py-3 rounded-xl text-sm font-medium
-    text-white shadow-[0_0_20px_rgba(6,182,212,0.25)]
-    hover:shadow-[0_0_28px_rgba(6,182,212,0.4)]
+    text-white shadow-[var(--shadow-glow-cyan)]
+    hover:shadow-[var(--shadow-glow-cyan-strong)]
     transition-all duration-200
     disabled:opacity-50 disabled:cursor-not-allowed
     ${variants[variant]}
