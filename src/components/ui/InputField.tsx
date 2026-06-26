@@ -1,7 +1,7 @@
 import React, { useId, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/src/lib/utils';
 
 interface SafeInputAttrs {
   id?: string;
