@@ -96,7 +96,7 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
     if (!hasSupabaseEnv()) return;
     const client = getSupabaseClient();
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESH') && session && isGuestRef.current) {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && isGuestRef.current) {
         disableGuestMode();
       }
     });

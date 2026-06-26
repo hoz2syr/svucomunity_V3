@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useCoreSavedTests } from '../hooks';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { FileText, ChevronDown, Loader2 } from 'lucide-react';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { TestCardSkeleton } from '../components/Skeletons';
