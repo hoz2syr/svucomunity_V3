@@ -5,7 +5,7 @@ import { AnimatePresence } from 'motion/react';
 import { useCoreSavedTests } from '../hooks';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FileText, ChevronDown, Loader2 } from 'lucide-react';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { TestCard } from '../components/TestCard';
@@ -83,9 +83,9 @@ export default function SavedTests() {
         </div>
           <h3 className="text-xl font-bold text-white mb-2">لا يوجد اختبارات بعد</h3>
           <p className="text-secondary-400 mb-6">قم بإنشاء اختبارك الأول من ملف JSON الآن</p>
-          <PrimaryButton to="/exam/create" className="flex items-center gap-2">
+          <Button to="/exam/create" variant="primary" className="flex items-center gap-2">
             إنشاء اختبار
-          </PrimaryButton>
+          </Button>
         </div>
       ) : (
         <>

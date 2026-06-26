@@ -1,47 +1,47 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 
-describe('PrimaryButton component', () => {
+describe('Button component', () => {
   it('should render children', () => {
-    render(<PrimaryButton>إنشاء</PrimaryButton>);
+    render(<Button variant="primary">إنشاء</Button>);
     expect(screen.getByText('إنشاء')).toBeTruthy();
   });
 
   it('should call onClick when clicked', () => {
     const onClick = vi.fn();
-    render(<PrimaryButton onClick={onClick}>انقر</PrimaryButton>);
+    render(<Button variant="primary" onClick={onClick}>انقر</Button>);
     fireEvent.click(screen.getByText('انقر'));
     expect(onClick).toHaveBeenCalledOnce();
   });
 
   it('should not call onClick when disabled', () => {
     const onClick = vi.fn();
-    render(<PrimaryButton onClick={onClick} disabled>مُعطّل</PrimaryButton>);
+    render(<Button variant="primary" onClick={onClick} disabled>مُعطّل</Button>);
     fireEvent.click(screen.getByText('مُعطّل'));
     expect(onClick).not.toHaveBeenCalled();
   });
 
   it('should render with icon', () => {
-    render(<PrimaryButton icon={<span data-testid="icon">+</span>}>إضافة</PrimaryButton>);
+    render(<Button variant="primary" icon={<span data-testid="icon">+</span>}>إضافة</Button>);
     expect(screen.getByTestId('icon')).toBeTruthy();
   });
 
   it('should apply default classes', () => {
-    render(<PrimaryButton>زر</PrimaryButton>);
+    render(<Button variant="primary">زر</Button>);
     const button = screen.getByText('زر');
     expect(button.className).toContain('from-[var(--color-primary-500)]');
-    expect(button.className).toContain('rounded-xl');
+    expect(button.className).toContain('rounded-[var(--radius-button)]');
   });
 
   it('should merge custom className', () => {
-    render(<PrimaryButton className="custom-class">زر</PrimaryButton>);
+    render(<Button variant="primary" className="custom-class">زر</Button>);
     const button = screen.getByText('زر');
     expect(button.className).toContain('custom-class');
   });
 
   it('should render as submit type when specified', () => {
-    render(<PrimaryButton type="submit">إرسال</PrimaryButton>);
+    render(<Button variant="primary" type="submit">إرسال</Button>);
     const button = screen.getByText('إرسال');
     expect(button.getAttribute('type')).toBe('submit');
   });

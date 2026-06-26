@@ -16,21 +16,21 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
       className="w-full text-right group"
     >
       <div className="
-        relative overflow-hidden
-        bg-white/[0.03] backdrop-blur-xl
-        border border-white/[0.08]
-        rounded-2xl p-5
-        transition-all duration-300 ease-out
-        hover:border-white/15
-        hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]
-        hover:-translate-y-1
-      ">
-        {/* Subtle gradient overlay on hover */}
-        <div className="
-          absolute inset-0 opacity-0 group-hover:opacity-100
-          bg-gradient-to-br from-cyan-500/[0.03] to-indigo-500/[0.03]
-          transition-opacity duration-300
-        " />
+         relative overflow-hidden
+         bg-[var(--color-bg-card)] backdrop-blur-xl
+         border border-[var(--color-glass-border)]
+         rounded-2xl p-5
+         transition-all duration-300 ease-out
+         hover:border-[var(--color-glass-hover-border)]
+         hover:shadow-[var(--shadow-glow-cyan)]
+         hover:-translate-y-1
+       ">
+         {/* Subtle gradient overlay on hover */}
+         <div className="
+           absolute inset-0 opacity-0 group-hover:opacity-100
+           bg-gradient-to-br from-[var(--color-primary-400)]/10 to-[var(--color-accent-purple)]/10
+           transition-opacity duration-300
+         " />
 
         <div className="relative">
           {/* Header */}
@@ -38,13 +38,13 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
             <span className={`
               px-2.5 py-1 rounded-lg text-xs font-medium
               ${group.current_members >= group.max_members
-                ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20'
-                : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                ? 'bg-[var(--color-danger-light)] text-[var(--color-danger-400)] border border-[var(--color-danger-border)]'
+                : 'bg-[var(--color-success-light)] text-[var(--color-success-400)] border border-[var(--color-success-border)]'
               }
             `}>
               {group.current_members >= group.max_members ? '● ممتلئة' : '● متاحة'}
             </span>
-            <span className="px-2.5 py-1 bg-cyan-500/15 text-cyan-400 rounded-lg text-xs font-mono border border-cyan-500/20">
+            <span className="px-2.5 py-1 bg-[var(--color-info-light)] text-[var(--color-info-400)] rounded-lg text-xs font-mono border border-[var(--color-info-border)]">
               {group.course_code}
             </span>
           </div>

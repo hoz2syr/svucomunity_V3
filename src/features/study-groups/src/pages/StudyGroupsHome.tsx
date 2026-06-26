@@ -10,7 +10,7 @@ import { GroupDetailsModal } from '../../components/GroupDetailsModal';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ErrorState } from '../../components/ErrorState';
 import { StudyGroupCardSkeleton } from '../../components/StudyGroupCardSkeleton';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -33,10 +33,10 @@ export default function StudyGroupsHome() {
               تصفح المجموعات المتاحة أو أنشئ مجموعة جديدة
             </p>
           </div>
-          <PrimaryButton onClick={page.handleOpenCreateModal} className="hidden sm:flex">
+          <Button onClick={page.handleOpenCreateModal} className="hidden sm:flex">
             <Users className="w-4 h-4" />
             إنشاء مجموعة
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
 
@@ -68,9 +68,9 @@ export default function StudyGroupsHome() {
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">لا توجد مجموعات</h3>
             <p className="text-slate-400 mb-4 text-sm">كن أول من يُنشئ مجموعة!</p>
-            <PrimaryButton onClick={page.handleOpenCreateModal} className="hidden sm:inline-flex">
+            <Button onClick={page.handleOpenCreateModal} className="hidden sm:inline-flex">
               إنشاء مجموعة
-            </PrimaryButton>
+            </Button>
           </div>
         )}
 
@@ -87,7 +87,7 @@ export default function StudyGroupsHome() {
         )}
       </div>
 
-      <PrimaryButton
+      <Button
         onClick={page.handleOpenCreateModal}
         className="sm:hidden fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full !p-0 shadow-[0_0_24px_rgba(6,182,212,0.4)]"
         icon={<Users className="w-6 h-6" />}

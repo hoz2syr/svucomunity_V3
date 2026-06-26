@@ -1,4 +1,4 @@
-import { AuthButton } from '../ui/AuthButton';
+import { Button } from '../ui/Button';
 
 type User = {
   name: string;
@@ -28,12 +28,18 @@ export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps
         {user ? (
           <>
             <span className="hidden text-sm text-slate-300 sm:inline">مرحباً، {user.name}</span>
-            <AuthButton defaultText="تسجيل الخروج" onClick={onLogout} className="w-auto py-2 px-4 text-sm" />
+            <Button variant="auth" onClick={onLogout} className="w-auto py-2 px-4 text-sm">
+              تسجيل الخروج
+            </Button>
           </>
         ) : (
           <>
-            <AuthButton defaultText="تسجيل الدخول" onClick={onLogin} className="w-auto py-2 px-4 text-sm" />
-            <AuthButton defaultText="إنشاء حساب" onClick={onCreateAccount} className="w-auto py-2 px-4 text-sm" />
+            <Button variant="auth" onClick={onLogin} className="w-auto py-2 px-4 text-sm">
+              تسجيل الدخول
+            </Button>
+            <Button variant="auth" onClick={onCreateAccount} className="w-auto py-2 px-4 text-sm">
+              إنشاء حساب
+            </Button>
           </>
         )}
       </div>

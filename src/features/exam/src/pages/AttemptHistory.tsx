@@ -3,7 +3,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Clock, Target, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { useTestAttempts } from '../hooks';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 
 const formatDate = (iso: string) => {
   const d = new Date(iso);
@@ -25,9 +25,9 @@ export default function AttemptHistory() {
           <span className="text-sm sm:text-base">العودة للاختبارات</span>
         </button>
 
-        <PrimaryButton onClick={refetch} className="px-4 py-2.5 text-sm">
+        <Button onClick={refetch} className="px-4 py-2.5 text-sm">
           تحديث
-        </PrimaryButton>
+        </Button>
       </div>
 
       <div className="text-center space-y-2">
@@ -44,7 +44,7 @@ export default function AttemptHistory() {
       {error && (
         <div className="glass-card p-6 text-center space-y-4">
           <p className="text-[var(--color-danger-400)]">{error}</p>
-          <PrimaryButton onClick={refetch} className="mx-auto">إعادة المحاولة</PrimaryButton>
+          <Button onClick={refetch} className="mx-auto">إعادة المحاولة</Button>
         </div>
       )}
 
@@ -53,7 +53,7 @@ export default function AttemptHistory() {
           <FileText className="w-12 h-12 text-secondary-500 mx-auto" />
           <h2 className="text-xl font-bold text-white">لا توجد محاولات بعد</h2>
           <p className="text-secondary-400 text-sm">قم بإجراء اختبار لرؤية نتائجك هنا</p>
-          <PrimaryButton onClick={() => navigate('/exam/browse')} className="mx-auto">تصفح الاختبارات</PrimaryButton>
+          <Button onClick={() => navigate('/exam/browse')} className="mx-auto">تصفح الاختبارات</Button>
         </div>
       )}
 

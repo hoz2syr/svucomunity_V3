@@ -16,7 +16,7 @@ import {
 import { cn } from '../src/lib/utils';
 import { ErrorState } from '../src/components/ErrorState';
 import { PlayTestSkeleton } from '../src/components/Skeletons';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import type { UseCorePlayTestReturn } from '../src/hooks/useCorePlayTest';
 import type { ReactNode } from 'react';
 
@@ -139,10 +139,10 @@ export function PlayTestShell({
           )}
 
           <div className="pt-3 sm:pt-4">
-            <PrimaryButton onClick={() => setHasStarted(true)} className="w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 sm:py-3.5 text-sm sm:text-base sm:text-lg">
+            <Button onClick={() => setHasStarted(true)} variant="primary" className="w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 sm:py-3.5 text-sm sm:text-base sm:text-lg">
               <Play className="w-5 h-5 sm:w-6 sm:h-6" />
                <span>ابدأ الاختبار الآن</span>
-             </PrimaryButton>
+             </Button>
           </div>
         </div>
       </div>
@@ -361,15 +361,16 @@ export function PlayTestShell({
         )}
 
         <div className="mt-5 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex justify-end">
-          <PrimaryButton
-            onClick={handleNext}
-            disabled={(() => { const ans = selectedAnswers[currentQ.id]; if (currentQ.type === 'essay') return false; if (Array.isArray(ans)) return ans.length === 0; return !ans; })()}
-            className="min-w-[140px] text-sm sm:text-base"
-          >
+            <Button
+              onClick={handleNext}
+              disabled={(() => { const ans = selectedAnswers[currentQ.id]; if (currentQ.type === 'essay') return false; if (Array.isArray(ans)) return ans.length === 0; return !ans; })()}
+              variant="primary"
+             className="min-w-[140px] text-sm sm:text-base"
+            >
             {immediateFeedback && !isAnswerRevealed && currentQ.type !== 'essay'
               ? 'تأكيد الإجابة'
               : currentIdx === test.questions.length - 1 ? 'إنهاء الاختبار' : 'السؤال التالي'}
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2 } from 'lucide-react';
 import { Dropdown } from '@/src/components/ui/Dropdown';
 import type { Course } from '../types';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { studyGroupService } from '../core/services';
 
@@ -234,21 +234,21 @@ export default function CreateGroupPage() {
         )}
 
         <div className="flex gap-3 pt-4">
-          <PrimaryButton
+          <Button
             type="submit"
             disabled={isSubmitting}
             className="flex-1 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500"
           >
             {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
-          </PrimaryButton>
+          </Button>
 
-          <PrimaryButton
+          <Button
             type="button"
             onClick={() => window.location.href = '/dashboard/study-groups'}
             className="flex-1 bg-slate-700 hover:bg-slate-600 !text-white"
           >
             إلغاء
-          </PrimaryButton>
+          </Button>
         </div>
       </form>
     </div>

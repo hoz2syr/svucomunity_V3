@@ -34,9 +34,9 @@ const FeatureCard = ({
     >
     <Link
       to={linkTo}
-      className="group relative block h-full rounded-3xl bg-[var(--color-bg-secondary)]/80 backdrop-blur-2xl border border-[var(--color-info)]/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-info-400)]/25 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-info-400)]/60 animate-border-glow"
+      className="group relative block h-full rounded-[var(--radius-card)] bg-[var(--color-bg-card)] backdrop-blur-2xl border border-[var(--color-glass-border)] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-glass-hover-border)] hover:shadow-[var(--shadow-glow-cyan)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-info-400)]/60"
     >
-      <div className="absolute -inset-px bg-gradient-to-br from-[var(--color-info-400)]/10 to-[var(--color-purple-400)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-md mix-blend-screen pointer-events-none" />
+      <div className="absolute -inset-px bg-gradient-to-br from-[var(--color-primary-400)]/10 to-[var(--color-accent-purple)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[var(--radius-card)] blur-md mix-blend-screen pointer-events-none" />
 
       <div className="relative z-10 flex flex-col gap-5 h-full">
         <div
@@ -50,7 +50,7 @@ const FeatureCard = ({
           <h3 className="text-xl font-extrabold text-white leading-snug tracking-wide">
             {title}
           </h3>
-          <p className="text-sm leading-relaxed text-slate-400">
+          <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
             {description}
           </p>
         </div>

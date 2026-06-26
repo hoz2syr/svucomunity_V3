@@ -1,7 +1,7 @@
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { AuthButton } from '../ui/AuthButton';
+import { Button } from '../ui/Button';
 import { ServerError } from '../ui/ServerError';
 import { ArrowRight } from 'lucide-react';
 import { useParticleCanvas } from '../../hooks/useParticleCanvas';
@@ -94,12 +94,15 @@ export const AuthCard = ({
           <form onSubmit={onSubmit} className="space-y-5" noValidate>
             {children}
 
-            <AuthButton
+            <Button
               type="submit"
+              variant="auth"
               isLoading={isLoading}
               loadingText={loadingText}
-              defaultText={submitText}
-            />
+              disabled={isLoading}
+            >
+              {submitText}
+            </Button>
           </form>
 
           <div className="relative my-6">

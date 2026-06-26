@@ -3,7 +3,7 @@
 import { Link } from 'react-router-dom';
 import { usePublishedTests } from '../hooks';
 import { FileText, ChevronDown, Loader2, Globe } from 'lucide-react';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { TestCardSkeleton } from '../components/Skeletons';
 import { ErrorState } from '../components/ErrorState';
 import { StarRating } from '../components/StarRating';
@@ -53,9 +53,9 @@ export default function BrowsePublishedTests() {
           </div>
           <h3 className="text-xl font-bold text-white mb-2">لا توجد اختبارات منشورة بعد</h3>
           <p className="text-secondary-400 mb-6">كن أول من ينشر اختباراً!</p>
-          <PrimaryButton to="/exam/create" className="flex items-center gap-2">
+          <Button to="/exam/create" variant="primary" className="flex items-center gap-2">
             إنشاء اختبار
-          </PrimaryButton>
+          </Button>
         </div>
       ) : (
         <>
@@ -95,7 +95,7 @@ export default function BrowsePublishedTests() {
 function PublishedTestCard({ test }: { test: TestModel }) {
   return (
     <div
-      className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-[var(--color-bg-primary)]/50 border border-white/[0.06]"
+      className="bg-[var(--color-bg-card)] backdrop-blur-xl border border-[var(--color-glass-border)] flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-glow-cyan)] hover:border-[var(--color-glass-hover-border)]"
     >
       <div className="flex-1 p-5 pb-4">
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -130,7 +130,7 @@ function PublishedTestCard({ test }: { test: TestModel }) {
         </div>
       </div>
 
-        <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-[var(--color-bg-primary)]/30">
+        <div className="flex flex-col gap-2 p-5 pt-2 border-t border-[var(--color-glass-border)] bg-[var(--color-bg-card)]">
         <Link
           to={`/exam/shared/${test.id}`}
           className="btn-accent w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl shadow-lg shadow-primary-900/20 hover:shadow-primary-800/30 transition-all"

@@ -52,7 +52,12 @@
   /* ── Accent: Indigo (Secondary) ───────────── */
   --color-indigo-400: #818cf8;
   --color-indigo-500: #6366f1;
-  --color-indigo-600: #6366f1;
+  --color-indigo-600: #4f46e5;
+
+  /* ── Brand (Navbar primary blue) ──────────── */
+  --color-brand-300: #91BAF8;
+  --color-brand-400: #6199f6;
+  --color-brand-500: #4f4f80;
 
   /* ── Accent: Purple ───────────────────────── */
   --color-purple-400: #c084fc;
@@ -225,30 +230,6 @@
   --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
 
-  /* Surfaces */
-  --color-bg-primary: var(--color-bg-primary);
-  --color-bg-secondary: var(--color-bg-secondary);
-  --color-bg-tertiary: var(--color-bg-tertiary);
-  --color-bg-card: var(--color-bg-card);
-  --color-bg-glass: var(--color-bg-glass);
-  --color-bg-overlay: var(--color-bg-overlay);
-  --color-bg-elevated: var(--color-bg-elevated);
-  --color-bg-input: var(--color-bg-input);
-  --color-bg-input-hover: var(--color-bg-input-hover);
-
-  /* Text */
-  --color-text-primary: var(--color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-muted: var(--color-text-muted);
-
-  /* Borders */
-  --color-border-default: var(--color-border-default);
-  --color-border-subtle: var(--color-border-subtle);
-  --color-border-hover: var(--color-border-hover);
-  --color-border-focus: var(--color-border-focus);
-  --color-border-glow-cyan: var(--color-border-glow-cyan);
-  --color-border-glow-cyan-strong: var(--color-border-glow-cyan-strong);
-
   /* Semantic palette (primary/secondary mapped to brand colors) */
   --color-primary-300: var(--color-cyan-300);
   --color-primary-400: var(--color-cyan-400);
@@ -274,13 +255,12 @@
   --color-danger-hover: var(--color-danger-hover);
   --color-info: var(--color-info);
 
-  /* Radii aliases */
+  /* Component aliases */
   --radius-input: var(--radius-input);
   --radius-button: var(--radius-button);
   --radius-card: var(--radius-card);
   --radius-modal: var(--radius-modal);
 
-  /* Shadows aliases */
   --shadow-glow-cyan: var(--shadow-glow-cyan);
   --shadow-glow-cyan-strong: var(--shadow-glow-cyan-strong);
   --shadow-glow-indigo: var(--shadow-glow-indigo);
@@ -294,55 +274,19 @@
   --shadow-glow-cyan-border: var(--shadow-glow-cyan-border);
   --shadow-glow-cyan-border-inset: var(--shadow-glow-cyan-border-inset);
 
-  /* Spacing aliases */
   --space-section: var(--space-section);
   --space-card: var(--space-card);
   --space-input: var(--space-input);
   --space-button-x: var(--space-button-x);
   --space-button-y: var(--space-button-y);
 
-  /* Typography aliases */
-  --text-xs: var(--text-xs);
-  --text-sm: var(--text-sm);
-  --text-base: var(--text-base);
-  --text-lg: var(--text-lg);
-  --text-xl: var(--text-xl);
-  --text-2xl: var(--text-2xl);
-  --text-3xl: var(--text-3xl);
-  --text-4xl: var(--text-4xl);
-  --text-5xl: var(--text-5xl);
-  --text-6xl: var(--text-6xl);
-  --text-7xl: var(--text-7xl);
-  --text-8xl: var(--text-8xl);
-
-  --font-weight-light: var(--font-weight-light);
-  --font-weight-normal: var(--font-weight-normal);
-  --font-weight-medium: var(--font-weight-medium);
-  --font-weight-semibold: var(--font-weight-semibold);
-  --font-weight-bold: var(--font-weight-bold);
-  --font-weight-extrabold: var(--font-weight-extrabold);
-  --font-weight-black: var(--font-weight-black);
-
-  --leading-tight: var(--leading-tight);
-  --leading-snug: var(--leading-snug);
-  --leading-normal: var(--leading-normal);
-  --leading-relaxed: var(--leading-relaxed);
-
-  --tracking-tighter: var(--tracking-tighter);
-  --tracking-tight: var(--tracking-tight);
-  --tracking-normal: var(--tracking-normal);
-  --tracking-wide: var(--tracking-wide);
-  --tracking-wider: var(--tracking-wider);
-  --tracking-widest: var(--tracking-widest);
-
-  /* Z-index aliases */
   --z-base: var(--z-base);
   --z-dropdown: var(--z-dropdown);
   --z-modal: var(--z-modal);
   --z-toast: var(--z-toast);
   --z-tooltip: var(--z-tooltip);
 
-  /* ── Spacing scale ── */
+  /* Spacing scale for Tailwind utilities */
   --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -358,7 +302,7 @@
   --spacing-24: 6rem;
   --spacing-32: 8rem;
 
-  /* ── Font size scale ── */
+  /* Font size scale for Tailwind utilities */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -372,7 +316,7 @@
   --text-7xl: 4.5rem;
   --text-8xl: 6rem;
 
-  /* ── Font weight scale ── */
+  /* Font weight scale for Tailwind utilities */
   --font-weight-thin: 100;
   --font-weight-extralight: 200;
   --font-weight-light: 300;

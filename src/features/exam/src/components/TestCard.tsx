@@ -5,7 +5,7 @@ import { FileText, Clock, Play, Printer, Download, Trash2, Share2 } from 'lucide
 import { TestModel } from '../types';
 import { StarRating } from './StarRating';
 import { PrivacyBadge } from './PrivacyBadge';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 
 interface TestCardProps {
   test: TestModel;
@@ -22,7 +22,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
   const isPublishing = publishingId === test.id;
 
   return (
-    <div className="glass-card flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] hover:border-white/15 bg-[var(--color-bg-primary)]/50 border border-white/[0.06]">
+    <div className="bg-[var(--color-bg-card)] backdrop-blur-xl border border-[var(--color-glass-border)] flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-glow-cyan)] hover:border-[var(--color-glass-hover-border)]">
       <div className="flex-1 p-5 pb-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">{test.title}</h3>
@@ -56,7 +56,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/[0.06] bg-[var(--color-bg-primary)]/30">
+      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-[var(--color-glass-border)] bg-[var(--color-bg-card)]">
         {!test.published && onPublish && (
           <button
             onClick={() => onPublish(test.id)}
@@ -77,14 +77,15 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         </Link>
 
         <div className="grid grid-cols-3 gap-2">
-          <PrimaryButton
+          <Button
             onClick={() => onPrintPdf(test)}
             disabled={loadingPdf === test.id}
+            variant="primary"
             className="flex-1 py-2.5 text-sm flex items-center justify-center gap-1.5 rounded-xl"
             icon={<Printer className="w-3.5 h-3.5" />}
           >
             <span>{loadingPdf === test.id ? '...' : 'PDF'}</span>
-          </PrimaryButton>
+          </Button>
           <button
             onClick={() => onExportWord(test)}
             className="btn-glass flex-1 py-2.5 text-sm flex items-center justify-center gap-1.5 rounded-xl"

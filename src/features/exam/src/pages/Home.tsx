@@ -2,7 +2,7 @@
 
 import { Link } from 'react-router-dom';
 import { Sparkles, Box, Settings, Copy, CheckCircle2, Save, HelpCircle } from 'lucide-react';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { usePromptPreferences, usePromptGenerator } from '../hooks';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 
@@ -31,10 +31,10 @@ export default function Home() {
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-        <PrimaryButton to="/exam/create" className="flex items-center gap-2">
+        <Button to="/exam/create" variant="primary" className="flex items-center gap-2">
           <Sparkles className="w-5 h-5" />
           <span>توليد اختبار جديد</span>
-        </PrimaryButton>
+        </Button>
         <Link to="/exam/saved" className="btn-glass flex items-center gap-2">
           <Box className="w-5 h-5" />
           <span>عرض الاختبارات السابقة</span>

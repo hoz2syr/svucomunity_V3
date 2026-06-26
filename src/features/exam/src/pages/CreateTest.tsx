@@ -3,7 +3,7 @@
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileJson, AlertCircle } from 'lucide-react';
 import { useTestCreator } from '../hooks';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { PublishedTestsFilters } from '@/src/features/exam/components/PublishedTestsFilters';
 
 export default function CreateTest() {
@@ -83,9 +83,9 @@ export default function CreateTest() {
         )}
 
         <div className="pt-4 border-t border-white/10">
-          <PrimaryButton onClick={() => handleCreate(navigate)} className="w-full flex items-center justify-center gap-2" icon={<FileJson className="w-5 h-5" />}>
+          <Button onClick={() => handleCreate(navigate)} variant="primary" className="w-full flex items-center justify-center gap-2" icon={<FileJson className="w-5 h-5" />}>
           <span>توليد الاختبار</span>
-        </PrimaryButton>
+        </Button>
         </div>
       </div>
     </div>

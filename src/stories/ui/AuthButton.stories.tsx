@@ -1,31 +1,48 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { AuthButton } from '../../components/ui/AuthButton';
+import { Button } from '../../components/ui/Button';
 
 const meta = {
-  title: 'Components/AuthButton',
-  component: AuthButton,
+  title: 'Components/Button',
+  component: Button,
   tags: ['autodocs'],
   args: {
-    defaultText: 'تسجيل الدخول',
+    variant: 'auth',
+    children: 'تسجيل الدخول',
     onClick: fn(),
   },
-} satisfies Meta<typeof AuthButton>;
+} satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const AuthDefault: Story = {};
 
-export const Loading: Story = {
+export const AuthLoading: Story = {
   args: {
     isLoading: true,
     loadingText: 'جاري التسجيل...',
   },
 };
 
-export const Disabled: Story = {
+export const AuthDisabled: Story = {
   args: {
     disabled: true,
+  },
+};
+
+export const Primary: Story = {
+  args: {
+    variant: 'primary',
+    children: 'إجراء',
+    onClick: fn(),
+  },
+};
+
+export const Danger: Story = {
+  args: {
+    variant: 'danger',
+    children: 'حذف',
+    onClick: fn(),
   },
 };

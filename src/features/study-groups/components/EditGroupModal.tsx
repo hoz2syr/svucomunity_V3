@@ -5,7 +5,7 @@ import { Users, BookOpen, Calendar, GraduationCap, MessageCircle, Link2, Loader2
 import { Dropdown } from '@/src/components/ui/Dropdown';
 import type { StudyGroup, Course } from '../src/types';
 import { ModalShell } from './ModalShell';
-import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
+import { Button } from '@/src/components/ui/Button';
 import { CLASSES } from '../src/constants';
 
 interface EditGroupModalProps {
@@ -246,14 +246,15 @@ export function EditGroupModal({
           </div>
         )}
 
-        <PrimaryButton
+        <Button
           type="submit"
           disabled={isSubmitting}
           className={submitButtonClassName}
+          variant="primary"
           icon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : undefined}
         >
           {isSubmitting ? 'جاري التحديث...' : 'تحديث المجموعة'}
-        </PrimaryButton>
+        </Button>
       </form>
     </ModalShell>
   );
