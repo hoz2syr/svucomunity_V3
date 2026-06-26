@@ -87,7 +87,7 @@ export function PlayTestShell({
         <BackButton label="العودة للاختبارات" />
 
         <div className="glass-card p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 border border-cyan-500/20">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-[var(--color-info-light)] flex items-center justify-center mb-2 border border-[var(--color-info-border)]">
             {preStartIcon || <FileText className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-cyan-400" />}
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 px-2">{test.title}</h1>
@@ -172,7 +172,7 @@ export function PlayTestShell({
                   aria-label={`تقييم ${star} من 5`}
                 >
                   <Star
-                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${star <= (test.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-secondary-500'}`}
+                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${star <= (test.rating || 0) ? 'text-[var(--color-warning-400)] fill-[var(--color-warning-400)]' : 'text-secondary-500'}`}
                   />
                 </button>
               ))}
@@ -193,7 +193,7 @@ export function PlayTestShell({
               return (
                 <div key={q.id} className={cn('glass-card border-s-4', borderClass)}>
                   <div className="flex items-start gap-4">
-                    {isEssay ? <span className="mt-1 text-xs font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />)}
+                    {isEssay ? <span className="mt-1 text-xs font-bold bg-[var(--color-warning-light)] text-[var(--color-warning-400)] border border-[var(--color-warning-border)] px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-[var(--color-success-400)] mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-[var(--color-danger-400)] mt-1 flex-shrink-0" />)}
                     <div>
                       <h4 className="text-white font-medium mb-2">السؤال {i + 1}: {q.text}</h4>
                       <p className="text-sm text-secondary-300 mb-1">
@@ -202,11 +202,11 @@ export function PlayTestShell({
                       {isEssay && correctAnswers.length > 0 && (
                         <div className="mt-2 p-3 rounded-lg border border-secondary-700 bg-[var(--color-bg-elevated)]/50">
                           <p className="text-xs text-secondary-400 mb-1">الإجابة الصحيحة / الحل</p>
-                          <p className="text-sm text-green-300">{correctAnswers.join(' / ')}</p>
+                          <p className="text-sm text-[var(--color-success-300)]">{correctAnswers.join(' / ')}</p>
                         </div>
                       )}
                       {!isEssay && !isCorrect && (
-                        <p className="text-sm text-secondary-300 text-green-400">الإجابة الصحيحة: {q.correctAnswer}</p>
+                        <p className="text-sm text-secondary-300 text-[var(--color-success-400)]">الإجابة الصحيحة: {q.correctAnswer}</p>
                       )}
                       {q.explanation && test.settings.showExplanations && (
                         <div className="mt-3 bg-[var(--color-bg-elevated)]/50 p-4 rounded-lg border border-secondary-700">
@@ -234,7 +234,7 @@ export function PlayTestShell({
       <div className="flex items-center justify-between font-medium text-secondary-300 px-2 lg:px-0">
         <span className="text-xs sm:text-sm md:text-base">السؤال {currentIdx + 1} من {test.questions.length}</span>
         {timeLeft !== null && (
-          <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-red-400 animate-pulse' : 'text-white')}>
+          <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-[var(--color-danger-400)] animate-pulse' : 'text-white')}>
             <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
             {formatTime(timeLeft)}
           </span>
@@ -277,9 +277,9 @@ export function PlayTestShell({
             if (isAnswerRevealed) {
               const isCorrectOption = correctList.includes(opt);
               if (isCorrectOption) {
-                btnStateClass = 'bg-green-500/20 border-green-500 text-green-400 ring-2 ring-green-500';
+                 btnStateClass = 'bg-[var(--color-success-light)] border-[var(--color-success-border)] text-[var(--color-success-400)] ring-2 ring-[var(--color-success-border)]';
               } else if (isSelected) {
-                btnStateClass = 'bg-red-500/20 border-red-500 text-red-400';
+                 btnStateClass = 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)] text-[var(--color-danger-400)]';
               } else {
                 btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
               }
@@ -291,8 +291,8 @@ export function PlayTestShell({
               <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
                 <div className="flex items-center gap-2.5 sm:gap-3">
                   <div className={cn('w-4 h-4 sm:w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition border-2',
-                    isSelected ? (!isAnswerRevealed ? 'border-primary-500 bg-primary-500' : 'border-green-500 bg-green-500') : 'border-secondary-500',
-                    isAnswerRevealed && correctList.includes(opt) && 'border-green-500 bg-green-500')}>
+                    isSelected ? (!isAnswerRevealed ? 'border-[var(--color-info-border)] bg-[var(--color-info)]' : 'border-[var(--color-success-border)] bg-[var(--color-success)]') : 'border-secondary-500',
+                    isAnswerRevealed && correctList.includes(opt) && 'border-[var(--color-success-border)] bg-[var(--color-success)]')}>
                     {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
                   </div>
                   <span className="text-sm sm:text-base">{opt}</span>
@@ -310,14 +310,14 @@ export function PlayTestShell({
                 if (isAnswerRevealed) {
                   const isCorrectOption = val === currentQ.correctAnswer?.toLowerCase();
                   if (isCorrectOption) {
-                    btnStateClass = 'bg-green-500/20 border-green-500 text-green-400 ring-2 ring-green-500';
+                    btnStateClass = 'bg-[var(--color-success-light)] border-[var(--color-success-border)] text-[var(--color-success-400)] ring-2 ring-[var(--color-success-border)]';
                   } else if (isSelected) {
-                    btnStateClass = 'bg-red-500/20 border-red-500 text-red-400';
+                    btnStateClass = 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)] text-[var(--color-danger-400)]';
                   } else {
                     btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
                   }
                 } else if (isSelected) {
-                  btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-[0_0_0_2px_rgba(14,165,233,0.2)]';
+                  btnStateClass = 'bg-[var(--color-info-light)] border-[var(--color-info-border)] shadow-[0_0_0_2px_rgba(14,165,233,0.2)]';
                 }
 
                 return (
@@ -335,13 +335,13 @@ export function PlayTestShell({
         </div>
 
         {isAnswerRevealed && (
-          <div className={cn('mt-3 sm:mt-4 md:mt-6 p-3 sm:p-4 rounded-xl border', isCurrentCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30')}>
+          <div className={cn('mt-3 sm:mt-4 md:mt-6 p-3 sm:p-4 rounded-xl border', isCurrentCorrect ? 'bg-[var(--color-success-light)] border-[var(--color-success-border)]' : 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)]')}>
             <div className="flex items-start gap-2.5 sm:gap-3">
-              <div className={cn('w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0', isCurrentCorrect ? 'text-green-400' : 'text-red-400')}>
+              <div className={cn('w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0', isCurrentCorrect ? 'text-[var(--color-success-400)]' : 'text-[var(--color-danger-400)]')}>
                 {isCurrentCorrect ? '✓' : '✗'}
               </div>
               <div>
-                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-green-400' : 'text-red-400')}>
+                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-[var(--color-success-400)]' : 'text-[var(--color-danger-400)]')}>
                   {isCurrentCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
                 </h4>
                 {!isCurrentCorrect && currentQ.type !== 'essay' && (

@@ -11,7 +11,7 @@ export const SolutionBridge = () => (
     <div className="max-w-4xl mx-auto text-center">
       <FadeIn>
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-sm font-medium tracking-wide mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-indigo-400)]"></span>
           الحل
         </div>
         <h2 className="text-4xl md:text-6xl font-extrabold mb-8 text-white bg-clip-text text-transparent bg-gradient-to-l from-white to-slate-400">

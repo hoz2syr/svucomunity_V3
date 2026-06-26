@@ -43,7 +43,7 @@ export default function Home() {
 
       <div className="glass-card max-w-4xl mx-auto w-full mt-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="bg-amber-500/20 text-amber-500 p-2 rounded-lg">
+          <div className="bg-[var(--color-warning-light)] text-[var(--color-warning-400)] p-2 rounded-lg">
             <Settings className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold text-white">كيفية إنشاء ملف JSON المطلوب؟</h2>
@@ -92,8 +92,8 @@ export default function Home() {
              <div className="bg-[var(--color-bg-elevated)]/80 px-4 py-3 border-b border-secondary-700 flex flex-wrap items-center justify-between gap-3">
               <span className="text-sm font-medium text-secondary-300">البرومت المخصص (انسخه للـ AI):</span>
               <div className="flex items-center gap-2">
-                <button onClick={save} className="flex items-center gap-1.5 text-xs bg-secondary-700/80 hover:bg-secondary-600 text-white px-3 py-2 rounded-lg transition" title="حفظ الإعدادات للمرات القادمة">
-                  {isSaved ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Save className="w-4 h-4" />}
+                <button onClick={save} className="flex items-center gap-1.5 text-xs bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)]/80 text-white px-3 py-2 rounded-lg transition" title="حفظ الإعدادات للمرات القادمة">
+                  {isSaved ? <CheckCircle2 className="w-4 h-4 text-[var(--color-success-400)]" /> : <Save className="w-4 h-4" />}
                   <span>يحفظ التفضيلات</span>
                 </button>
                 <button className="flex items-center gap-1.5 text-xs bg-primary-600 hover:bg-primary-500 text-white px-3 py-2 rounded-lg transition" onClick={copy}>

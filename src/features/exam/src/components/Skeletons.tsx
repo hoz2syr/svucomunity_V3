@@ -51,7 +51,7 @@ export function TestCardSkeleton() {
         <div className="grid grid-cols-3 gap-2">
           <Skeleton variant="button" className="h-10 rounded-xl" />
           <Skeleton variant="button" className="h-10 rounded-xl" />
-          <Skeleton variant="button" className="h-10 rounded-xl bg-red-900/20" />
+          <Skeleton variant="button" className="h-10 rounded-xl bg-[var(--color-danger-light)]" />
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@ export function PlayTestSkeleton() {
           <Skeleton variant="button" className="h-16 w-full rounded-xl" />
         </div>
         <div className="mt-8 flex justify-end border-t border-white/10 pt-6">
-          <Skeleton variant="button" className="h-12 w-36 rounded-xl bg-primary-900/30" />
+          <Skeleton variant="button" className="h-12 w-36 rounded-xl bg-[var(--color-info)]/30" />
         </div>
       </div>
     </div>

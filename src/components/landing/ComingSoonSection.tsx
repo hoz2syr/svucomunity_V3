@@ -22,7 +22,7 @@ export const ComingSoonSection = () => {
       <div className="max-w-5xl mx-auto">
         <FadeIn>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-sm font-medium tracking-wide mb-8">
-             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-danger)] animate-pulse"></span>
              قريباً &nbsp;•&nbsp; Coming Soon
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">الاختبارات التفاعلية</h2>

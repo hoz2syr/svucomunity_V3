@@ -1,24 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const MAX_REQUESTS_PER_MINUTE = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_ATTEMPTS = 10;
 
-function checkRateLimit(clientIp: string): boolean {
-  const now = Date.now();
-  const record = rateLimitStore.get(clientIp);
-  
-  if (!record || record.resetTime < now) {
-    rateLimitStore.set(clientIp, { count: 1, resetTime: now + 60000 });
-    return true;
-  }
-  
-  if (record.count >= MAX_REQUESTS_PER_MINUTE) {
-    return false;
-  }
-  
-  record.count++;
-  return true;
+async function checkRateLimit(supabaseAdmin: SupabaseClient, key: string): Promise<{ allowed: boolean; retryAfterMs: number }> {
+  const { data, error } = await supabaseAdmin.rpc('check_and_increment_rate_limit', {
+    p_key: key,
+    p_window_ms: RATE_LIMIT_WINDOW_MS,
+    p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
+  });
+  if (error) return { allowed: true, retryAfterMs: 0 };
+  const allowed = (data?.[0]?.allowed as boolean | undefined) ?? false;
+  const retryAfterMs = (data?.[0]?.retry_after_ms as number | undefined) ?? 0;
+  return { allowed, retryAfterMs };
 }
 
 function validateUrl(url: string | undefined): boolean {
@@ -117,7 +112,7 @@ async function getAuthUserId(req: Request, supabaseAdmin: SupabaseClient) {
   return data.user.id;
 }
 
-async function handleGetAll(supabaseAdmin: SupabaseClient) {
+async function handleGetAll(supabaseAdmin: SupabaseClient, userId: string | null) {
   const { data, error } = await supabaseAdmin
     .from("groups")
     .select("id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at")
@@ -163,29 +158,32 @@ async function handleGetMyGroups(supabaseAdmin: SupabaseClient, userId: string) 
 async function handleCreate(supabaseAdmin: SupabaseClient, body: any, userId: string) {
    const validationError = validateGroupPayload(body);
    if (validationError) throw new Error(validationError);
-   
+
+   const { name, course_name, course_code, class_number, doctor_name, major, whatsapp_link, group_link, max_members, creator_name } = body;
+
    const { data, error } = await supabaseAdmin
      .from("groups")
      .insert({
-       ...body,
+       name, course_name, course_code, class_number, doctor_name, major,
+       whatsapp_link, group_link, max_members,
        current_members: 1,
        is_full: false,
        creator_id: userId,
-       creator_name: body.creator_name || userId,
+       creator_name: creator_name || userId,
      })
      .select()
      .single();
 
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("فشل إنشاء المجموعة");
+   if (error) throw new Error(error.message);
+   if (!data) throw new Error("فشل إنشاء المجموعة");
 
-  await supabaseAdmin.from("group_members").insert({
-    group_id: data.id,
-    user_id: body.creator_id,
-  });
+   await supabaseAdmin.from("group_members").insert({
+     group_id: data.id,
+     user_id: userId,
+   });
 
-  return data;
-}
+   return data;
+ }
 
 async function handleJoin(supabaseAdmin: SupabaseClient, groupId: string, userId: string) {
   const { error: memberError } = await supabaseAdmin
@@ -300,7 +298,9 @@ async function handleDelete(supabaseAdmin: SupabaseClient, groupId: string, user
   if (groupError) throw new Error(groupError.message);
 }
 
-async function handleGetMembers(supabaseAdmin: SupabaseClient, groupId: string) {
+async function handleGetMembers(supabaseAdmin: SupabaseClient, groupId: string, userId: string) {
+  if (!userId) throw new Error("Unauthorized");
+
   const { data, error } = await supabaseAdmin
     .from("group_members")
     .select("id, user_id, joined_at")
@@ -367,11 +367,6 @@ async function handleGetAvailableMajors(supabaseAdmin: SupabaseClient): Promise<
 
 serve(async (req) => {
    const origin = req.headers.get("Origin");
-   const clientIp = getClientIp(req);
-
-   if (!checkRateLimit(clientIp)) {
-     return jsonResponse({ error: "Rate limit exceeded" }, 429, origin);
-   }
 
    if (req.method === "OPTIONS") {
      if (origin && !getAllowedOrigin(origin)) {
@@ -393,6 +388,13 @@ serve(async (req) => {
    }
 
    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+   const clientIp = getClientIp(req);
+   const rateLimit = await checkRateLimit(supabaseAdmin, `study-groups:${clientIp}`);
+   if (!rateLimit.allowed) {
+     return jsonResponse({ error: "Rate limit exceeded", retryAfterMs: rateLimit.retryAfterMs }, 429, origin);
+   }
+
+   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
    const userId = await getAuthUserId(req, supabaseAdmin);
    const isAdmin = userId ? await handleCheckIsAdmin(supabaseAdmin, userId) : false;
 
@@ -410,9 +412,10 @@ serve(async (req) => {
      let result: any;
 
      switch (action) {
-       case "getAll":
-         result = await handleGetAll(supabaseAdmin);
-         break;
+        case "getAll":
+          if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+          result = await handleGetAll(supabaseAdmin, userId);
+          break;
        case "getMyGroups":
          if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
          result = await handleGetMyGroups(supabaseAdmin, userId);
@@ -440,9 +443,10 @@ serve(async (req) => {
          await handleDelete(supabaseAdmin, payload.groupId, userId, isAdmin);
          result = { success: true };
          break;
-       case "getMembers":
-         result = await handleGetMembers(supabaseAdmin, payload.groupId);
-         break;
+        case "getMembers":
+          if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+          result = await handleGetMembers(supabaseAdmin, payload.groupId, userId);
+          break;
        case "checkMembership":
          if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
          result = await handleCheckMembership(supabaseAdmin, payload.groupId, userId);

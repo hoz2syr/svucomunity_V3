@@ -81,7 +81,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--color-bg-primary)]/80 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
@@ -124,7 +124,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
                 />
               </div>
 
-              {resetError && <p className="text-red-400 text-xs">{resetError}</p>}
+               {resetError && <p className="text-[var(--color-danger-400)] text-xs">{resetError}</p>}
 
               {resetSuccess && (
                 <p className="text-emerald-400 text-xs flex items-center gap-2">

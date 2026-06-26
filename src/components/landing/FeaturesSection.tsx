@@ -22,7 +22,7 @@ export const FeaturesSection = () => (
           <GlassCard className="p-8 md:p-10 flex flex-col justify-between w-full">
             <div className="flex flex-col md:flex-row gap-8 items-center h-full">
               <div className="w-full md:w-1/2 space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-6">
+                <div className="w-12 h-12 rounded-xl bg-[var(--color-info-light)] text-[var(--color-info-400)] flex items-center justify-center mb-6">
                   <MessageSquareDashed size={24} />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white">مجموعات الواتساب بضغطة زر</h3>
@@ -43,7 +43,7 @@ export const FeaturesSection = () => (
                            <div className="w-16 h-3 bg-white/20 rounded-full mb-2"></div>
                            <div className="w-10 h-2 bg-white/10 rounded-full"></div>
                          </div>
-                         <div className="bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg text-xs font-bold">انضم</div>
+                         <div className="bg-[var(--color-success-light)] text-[var(--color-success-400)] px-3 py-1.5 rounded-lg text-xs font-bold">انضم</div>
                       </div>
                     ))}
                   </div>
@@ -77,9 +77,9 @@ export const FeaturesSection = () => (
 
         <FadeIn delay={300} className="h-full flex">
           <GlassCard className="p-8 md:p-10 flex flex-col w-full h-full group overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-info-light)] blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
             <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-[var(--color-info-light)] text-[var(--color-info-400)] flex items-center justify-center mb-6">
                 <Brain size={24} />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">الذكاء الاصطناعي</h3>
@@ -106,7 +106,7 @@ export const FeaturesSection = () => (
                 </p>
               </div>
               <div className="w-full md:w-1/3 flex md:justify-end">
-                <button className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 shadow-[0_0_20px_rgba(147,51,234,0.3)]">
+                <button className="bg-[var(--color-purple-500)] hover:bg-[var(--color-purple-400)] text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 shadow-[0_0_20px_rgba(147,51,234,0.3)]">
                   جرب المخطط الآن <Rocket size={18} />
                 </button>
               </div>

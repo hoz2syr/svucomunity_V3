@@ -38,7 +38,7 @@ describe('Button component', () => {
   it('should render with danger variant', () => {
     const { container } = render(<Button variant="danger">Click me</Button>);
     const button = container.querySelector('button');
-    expect(button?.className).toContain('bg-rose-600');
+    expect(button?.className).toContain('bg-[var(--color-danger)]');
   });
 
   it('should render icon when provided', () => {

@@ -6,8 +6,8 @@ export const CourseMaterialsCard = () => (
     title="Course Materials"
     description="Browse your courses"
     icon={<BookOpen />}
-    iconBg="#a16207"
-    iconColor="#facc15"
+    iconBgClass="bg-[var(--color-warning)]"
+    iconColorClass="var(--color-warning-400)"
     linkTo="/dashboard/courses"
     linkLabel="تصفّح المقررات"
     index={1}

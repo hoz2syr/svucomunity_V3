@@ -147,6 +147,21 @@ serve(async (req) => {
       );
     }
 
+    const { data: existingRating, error: existingError } = await supabaseAdmin
+      .from("test_ratings")
+      .select("rating")
+      .eq("test_id", testId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingError) {
+      console.error("Rating lookup error:", existingError);
+    }
+
+    if (existingRating) {
+      return jsonResponse({ error: "لقد قمت بتقييم هذا الاختبار مسبقاً." }, 409, origin);
+    }
+
     const { data: test, error: fetchError } = await supabaseAdmin
       .from("tests")
       .select("id, rating, rating_count")
@@ -164,16 +179,30 @@ serve(async (req) => {
       ((existingRating ?? 0) * existingCount + rating) / newCount,
     );
 
-    const { error: updateError } = await supabaseAdmin
+    const { data: updated, error: updateError } = await supabaseAdmin
       .from("tests")
-      .update({ rating: updatedRating, rating_count: newCount })
-      .eq("id", testId);
+      .update({
+        rating: Math.round(
+          ((test.rating ?? 0) * (test.rating_count ?? 0) + rating) /
+          ((test.rating_count ?? 0) + 1),
+        ),
+        rating_count: (test.rating_count ?? 0) + 1,
+      })
+      .eq("id", testId)
+      .select("rating, rating_count")
+      .single();
 
     if (updateError) {
       return jsonResponse({ error: updateError.message }, 500, origin);
     }
 
-    return jsonResponse({ success: true, updatedRating }, 200, origin);
+    await supabaseAdmin.from("test_ratings").insert({
+      test_id: testId,
+      user_id: user.id,
+      rating,
+    });
+
+    return jsonResponse({ success: true, updatedRating: updated.rating }, 200, origin);
   } catch (err) {
     return jsonResponse({ error: String(err) }, 500, origin);
   }

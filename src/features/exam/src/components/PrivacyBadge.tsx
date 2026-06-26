@@ -7,7 +7,7 @@ interface PrivacyBadgeProps {
 export const PrivacyBadge = ({ published }: PrivacyBadgeProps) => {
   if (published) {
     return (
-      <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+      <span className="inline-flex items-center gap-1.5 bg-[var(--color-success-light)] text-[var(--color-success-400)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-[var(--color-success-border)]">
         <Globe className="w-3.5 h-3.5" />
         <span>منشور</span>
       </span>

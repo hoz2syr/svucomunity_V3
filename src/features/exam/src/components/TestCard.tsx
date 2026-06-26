@@ -61,7 +61,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
           <button
             onClick={() => onPublish(test.id)}
             disabled={isPublishing}
-            className="w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)] hover:bg-[var(--color-info-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Share2 className="w-4 h-4" />
             <span>{isPublishing ? 'جاري النشر...' : 'نشر ومشاركة'}</span>

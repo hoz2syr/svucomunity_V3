@@ -73,8 +73,8 @@ export const ConfirmDialog = ({
 
   const confirmBtnClass =
     confirmVariant === 'danger'
-      ? 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20'
-      : 'bg-primary-500 hover:bg-primary-400 text-white shadow-lg shadow-primary-900/20';
+      ? 'bg-[var(--color-danger)] hover:bg-[var(--color-danger-400)] text-white shadow-lg shadow-[var(--color-danger)]/20'
+      : 'bg-[var(--color-info)] hover:bg-[var(--color-info-400)] text-white shadow-lg shadow-[var(--color-info)]/20';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

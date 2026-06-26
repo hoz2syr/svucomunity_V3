@@ -17,8 +17,8 @@ export const ProblemsSection = () => (
       {PROBS.map((p, i) => (
         <FadeIn key={i} delay={i * 150} className="w-full h-full">
            <GlassCard className="p-8 flex flex-col items-center text-center h-full group !bg-[var(--color-bg-primary)]/60 hover:!bg-[var(--color-bg-primary)]/80">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-500/10 group-hover:text-cyan-300 transition-all duration-300 border border-white/5 relative">
-              <div className="absolute inset-0 bg-cyan-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 text-cyan-400 group-hover:scale-110 group-hover:bg-[var(--color-info-light)] group-hover:text-[var(--color-info-400)] transition-all duration-300 border border-white/5 relative">
+              <div className="absolute inset-0 bg-[var(--color-info-400)]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <p.icon size={32} strokeWidth={1.5} className="relative z-10" />
             </div>
             <h3 className="text-xl font-bold mb-4 text-indigo-100">{p.title}</h3>

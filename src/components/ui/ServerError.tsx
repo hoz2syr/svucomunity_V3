@@ -16,7 +16,7 @@ export const ServerError: React.FC<ServerErrorProps> = ({ error }) => {
           exit={{ opacity: 0, height: 0, marginBottom: 0 }}
           className="overflow-hidden"
         >
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded-xl flex items-center gap-2">
+          <div className="bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[var(--color-danger-400)] text-sm p-3 rounded-xl flex items-center gap-2">
             <AlertCircle size={16} className="shrink-0" />
             <span>{error}</span>
           </div>

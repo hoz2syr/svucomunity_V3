@@ -45,7 +45,7 @@ export const InteractiveMapSimulation = () => {
           'border-slate-700/60 bg-[var(--color-bg-overlay)]/90 opacity-70 z-10 grayscale-[0.5]'}`}
       style={{ top, left }}
     >
-      <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-cyan-500/20 text-cyan-300' : 'bg-[var(--color-bg-elevated)] text-slate-400'}`}>
+      <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-[var(--color-info-light)] text-[var(--color-info-400)]' : 'bg-[var(--color-bg-elevated)] text-slate-400'}`}>
          <BookOpen size={14} /> {code}
       </div>
       <h5 className={`font-extrabold text-center text-sm md:text-base mb-1 ${isActive ? 'text-white' : 'text-slate-300'}`}>{title}</h5>
@@ -93,11 +93,11 @@ export const InteractiveMapSimulation = () => {
            dir="rtl"
          >
          <div className="flex justify-between items-start mb-4 w-full">
-           <div className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md font-mono shrink-0">BNA401</div>
+           <div className="bg-[var(--color-info-light)] border border-[var(--color-info-border)] text-[var(--color-info-400)] text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md font-mono shrink-0">BNA401</div>
             <button aria-label="إغلاق لوحة المعلومات" className="text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-1.5 rounded-lg border border-white/5"><X size={14}/></button>
          </div>
          <h3 className="text-white font-extrabold text-base sm:text-lg mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-info-400)] shrink-0"></span>
             تحليل عددي
          </h3>
          
@@ -114,16 +114,16 @@ export const InteractiveMapSimulation = () => {
 
          <div className="flex flex-col gap-2 mt-auto">
            <div>
-             <div className="bg-purple-900/10 border border-purple-500/10 text-slate-200 p-2 sm:p-2.5 rounded-xl flex justify-between items-center shadow-inner">
-                <span className="text-[10px] sm:text-xs text-purple-400 font-bold flex items-center gap-1.5 truncate"><div className="w-1 h-1 rounded-full bg-purple-400 shrink-0"></div> المتطلبات السابقة: <span className="text-slate-300 font-medium">الجبر الخطي</span></span>
-                <span className="bg-purple-500/20 px-1.5 py-0.5 rounded-md text-[9px] text-purple-300 font-mono font-bold shrink-0">BLA401</span>
+             <div className="bg-[var(--color-purple-600)]/10 border border-[var(--color-purple-400)]/10 text-slate-200 p-2 sm:p-2.5 rounded-xl flex justify-between items-center shadow-inner">
+                <span className="text-[10px] sm:text-xs text-purple-400 font-bold flex items-center gap-1.5 truncate"><div className="w-1 h-1 rounded-full bg-[var(--color-purple-400)] shrink-0"></div> المتطلبات السابقة: <span className="text-slate-300 font-medium">الجبر الخطي</span></span>
+                <span className="bg-[var(--color-purple-400)]/20 px-1.5 py-0.5 rounded-md text-[9px] text-[var(--color-purple-400)] font-mono font-bold shrink-0">BLA401</span>
              </div>
            </div>
 
            <div>
-             <div className="bg-cyan-900/10 border border-cyan-500/10 text-slate-200 p-2 sm:p-2.5 rounded-xl flex justify-between items-center shadow-inner">
-                <span className="text-[10px] sm:text-xs text-cyan-400 font-bold flex items-center gap-1.5 truncate"><div className="w-1 h-1 rounded-full bg-cyan-400 shrink-0"></div> يفتح المقررات: <span className="text-slate-300 font-medium">البيانات</span></span>
-                <span className="bg-cyan-500/20 px-1.5 py-0.5 rounded-md text-[9px] text-cyan-300 font-mono font-bold shrink-0">BCG601</span>
+             <div className="bg-[var(--color-info)]/10 border border-[var(--color-info-border)] text-slate-200 p-2 sm:p-2.5 rounded-xl flex justify-between items-center shadow-inner">
+                <span className="text-[10px] sm:text-xs text-cyan-400 font-bold flex items-center gap-1.5 truncate"><div className="w-1 h-1 rounded-full bg-[var(--color-info-400)] shrink-0"></div> يفتح المقررات: <span className="text-slate-300 font-medium">البيانات</span></span>
+                <span className="bg-[var(--color-info-light)] px-1.5 py-0.5 rounded-md text-[9px] text-[var(--color-info-400)] font-mono font-bold shrink-0">BCG601</span>
              </div>
            </div>
          </div>

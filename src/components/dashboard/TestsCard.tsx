@@ -6,8 +6,8 @@ export const TestsCard = () => (
     title="الاختبارات"
     description="تصفح الاختبارات والامتحانات"
     icon={<TestTube2 />}
-    iconBg="#0e7490"
-    iconColor="#22d3ee"
+    iconBgClass="bg-[var(--color-info)]"
+    iconColorClass="var(--color-info-400)"
     linkTo="/exam"
     linkLabel="بدء اختبار"
     index={3}

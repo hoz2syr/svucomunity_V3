@@ -11,7 +11,7 @@ export const GuestSharePrompt = ({ testTitle, open = true, onClose }: GuestShare
   if (!open) return null;
 
   const content = (
-    <div className="flex flex-col gap-3 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/15">
+    <div className="flex flex-col gap-3 p-4 rounded-xl bg-[var(--color-info-light)] border border-[var(--color-info-border)]">
       <div className="flex items-start gap-2">
         <Share2 className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-cyan-200/80 leading-relaxed">
@@ -27,7 +27,7 @@ export const GuestSharePrompt = ({ testTitle, open = true, onClose }: GuestShare
       </div>
       <Link
         to="/login"
-        className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors cursor-pointer"
+        className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-medium bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)] hover:bg-[var(--color-info-light)] transition-colors cursor-pointer"
       >
         <LogIn className="w-3.5 h-3.5" />
         تسجيل الدخول للمشاركة

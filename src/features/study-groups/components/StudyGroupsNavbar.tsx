@@ -24,7 +24,7 @@ export function StudyGroupsNavbar() {
               to="/dashboard/study-groups/my"
               className={`px-3 py-1.5 text-sm rounded-xl transition flex items-center gap-1.5 ${
                 isMyGroups
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                  ? 'bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)]'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >

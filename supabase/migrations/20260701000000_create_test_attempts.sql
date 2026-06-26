@@ -20,10 +20,10 @@ create index if not exists idx_test_attempts_user_id
 
 alter table public.test_attempts enable row level security;
 
+create policy "Guests can insert attempts for published tests"
+  on public.test_attempts for insert
+  with check (auth.uid() IS NOT NULL);
+
 create policy "Users can view own attempts"
   on public.test_attempts for select
   using (auth.uid() IS NOT NULL AND auth.uid() = user_id);
-
-create policy "Guests can insert attempts for published tests"
-  on public.test_attempts for insert
-  with check (auth.uid() IS NOT NULL OR user_id IS NULL);

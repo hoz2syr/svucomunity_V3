@@ -110,7 +110,7 @@ export function Dropdown({
                     w-full text-right text-sm transition-colors
                     ${searchable ? 'px-3 py-2' : 'px-4 py-2.5'}
                     ${value === opt.value
-                      ? (searchable ? 'text-cyan-400 bg-white/5' : 'bg-cyan-500/15 text-cyan-300')
+                      ? (searchable ? 'text-[var(--color-info-400)] bg-white/5' : 'bg-[var(--color-info-light)] text-[var(--color-info-400)]')
                       : 'text-slate-300 hover:bg-white/5'
                     }
                   `}

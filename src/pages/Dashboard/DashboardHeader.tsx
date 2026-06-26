@@ -35,14 +35,14 @@ export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, er
       >
         <div className="px-4 py-3.5 border-b border-white/5 flex items-center justify-between">
           <span className="font-extrabold text-white tracking-wide">الإشعارات</span>
-          {unreadCount > 0 && <span className="text-xs text-cyan-400 font-bold bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full">{unreadCount} غير مقروء</span>}
+          {unreadCount > 0 && <span className="text-xs text-cyan-400 font-bold bg-[var(--color-info-light)] border border-[var(--color-info-border)] px-2.5 py-1 rounded-full">{unreadCount} غير مقروء</span>}
         </div>
 
         <div className="max-h-80 overflow-y-auto">
           {loading ? (
             <div className="px-4 py-8 text-center text-sm text-slate-400">جاري تحميل الإشعارات…</div>
           ) : error ? (
-            <div className="px-4 py-8 text-center text-sm text-rose-400 bg-rose-500/5 m-2 rounded-xl">{error}</div>
+            <div className="px-4 py-8 text-center text-sm text-[var(--color-danger-400)] bg-[var(--color-danger-light)] m-2 rounded-xl">{error}</div>
           ) : notifications.length === 0 ? (
             <div className="px-4 py-10 text-center">
               <Bell size={26} className="text-slate-600 mx-auto mb-2" />
@@ -83,7 +83,7 @@ export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, er
           <button
             type="button"
             onClick={onClose}
-            className="text-xs text-cyan-400 hover:text-cyan-300 font-bold transition-colors hover:underline underline-offset-4"
+            className="text-xs text-[var(--color-info-400)] hover:text-[var(--color-info-300)] font-bold transition-colors hover:underline underline-offset-4"
           >
             عرض كل الإشعارات
           </button>
@@ -132,7 +132,7 @@ export const ProfileMenu = ({ isProfileMenuOpen, user, onClose, onOpenSettings, 
           <button onClick={() => { onClose(); onOpenLogout(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
             <LogOut size={17} className="text-slate-400" /> تسجيل الخروج
           </button>
-          <button onClick={() => { onClose(); onOpenDelete(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 flex items-center gap-3 transition-all mt-1 rounded-lg mx-2">
+          <button onClick={() => { onClose(); onOpenDelete(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-[var(--color-danger-400)] hover:bg-[var(--color-danger-light)] hover:text-[var(--color-danger-300)] flex items-center gap-3 transition-all mt-1 rounded-lg mx-2">
             <Trash2 size={17} className="text-rose-400/80" /> حذف الحساب نهائياً
           </button>
         </div>
@@ -291,7 +291,7 @@ export const DashboardHeader = ({
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-rose-500 text-white text-[10px] font-extrabold rounded-full shadow-[0_0_12px_rgba(244,63,94,0.7)] px-1">
+              <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-[var(--color-danger)] text-white text-[10px] font-extrabold rounded-full shadow-[0_0_12px_rgba(244,63,94,0.7)] px-1">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

@@ -36,7 +36,7 @@ export const SecuritySettingsForm = ({ onSubmit }: SecuritySettingsFormProps) =>
         </motion.p>
       )}
       {errorMsg && (
-        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-sm font-medium">
+        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-[var(--color-danger-400)] text-sm font-medium">
           {errorMsg}
         </motion.p>
       )}

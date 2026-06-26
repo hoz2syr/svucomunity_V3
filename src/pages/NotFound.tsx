@@ -10,7 +10,7 @@ export const NotFoundPage = () => (
       </p>
       <Link
         to="/dashboard"
-        className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-cyan-600 text-white font-bold hover:bg-cyan-500 transition-colors"
+        className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[var(--color-info-600)] text-white font-bold hover:bg-[var(--color-info-500)] transition-colors"
       >
         العودة إلى لوحة التحكم
       </Link>

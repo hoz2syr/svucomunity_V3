@@ -7,8 +7,8 @@ type FeatureCardProps = {
   title: string;
   description: string;
   icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
+  iconBgClass: string;
+  iconColorClass: string;
   linkTo: string;
   linkLabel: string;
   index?: number;
@@ -18,8 +18,8 @@ const FeatureCard = ({
   title,
   description,
   icon,
-  iconBg,
-  iconColor,
+  iconBgClass,
+  iconColorClass,
   linkTo,
   linkLabel,
   index = 0,
@@ -34,18 +34,16 @@ const FeatureCard = ({
     >
     <Link
       to={linkTo}
-      className="group relative block h-full rounded-3xl bg-[var(--color-bg-secondary)]/80 backdrop-blur-2xl border border-cyan-500/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-cyan-400/25 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 animate-border-glow"
+      className="group relative block h-full rounded-3xl bg-[var(--color-bg-secondary)]/80 backdrop-blur-2xl border border-[var(--color-info)]/10 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-info-400)]/25 hover:shadow-[0_25px_50px_-12px_rgba(34,211,238,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-info-400)]/60 animate-border-glow"
     >
-      <div className="absolute -inset-px bg-gradient-to-br from-cyan-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-md mix-blend-screen pointer-events-none" />
+      <div className="absolute -inset-px bg-gradient-to-br from-[var(--color-info-400)]/10 to-[var(--color-purple-400)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-md mix-blend-screen pointer-events-none" />
 
       <div className="relative z-10 flex flex-col gap-5 h-full">
         <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-lg transition-transform duration-500 group-hover:scale-110"
-          style={{ backgroundColor: iconBg }}
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-lg transition-transform duration-500 group-hover:scale-110 ${iconBgClass}`}
+          style={{ color: iconColorClass }}
         >
-          <span className="[&>svg]:h-6 [&>svg]:w-6" style={{ color: iconColor }}>
-            {icon}
-          </span>
+          {icon}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -58,7 +56,7 @@ const FeatureCard = ({
         </div>
 
         <div className="mt-auto">
-          <span className="inline-flex items-center gap-2 text-sm font-bold text-cyan-400 transition-colors duration-300 group-hover:text-cyan-300">
+          <span className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-info-400)] transition-colors duration-300 group-hover:text-[var(--color-info-300)]">
             {linkLabel}
             <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
           </span>

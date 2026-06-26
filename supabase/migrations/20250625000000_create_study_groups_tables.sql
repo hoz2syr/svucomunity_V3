@@ -77,11 +77,11 @@ create policy "groups_delete_creator"
 
 -- RLS Policies for group_members table
 
--- Allow members to view group memberships
+-- Allow authenticated users to view group memberships
 create policy "group_members_select"
   on public.group_members
   for select
-  using (true);
+  using (auth.uid() IS NOT NULL);
 
 -- Allow authenticated users to join groups (insert membership)
 create policy "group_members_insert_authenticated"

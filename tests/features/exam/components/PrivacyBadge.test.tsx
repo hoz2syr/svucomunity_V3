@@ -15,7 +15,7 @@ describe('PrivacyBadge', () => {
 
   it('renders without crashing for published=true', () => {
     const { container } = render(<PrivacyBadge published={true} />);
-    expect(container.querySelector('[class*="emerald"]')).not.toBeNull();
+    expect(container.querySelector('[class*="success"]')).not.toBeNull();
   });
 
   it('renders without crashing for published=false', () => {

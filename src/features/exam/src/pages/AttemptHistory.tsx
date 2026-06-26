@@ -43,7 +43,7 @@ export default function AttemptHistory() {
 
       {error && (
         <div className="glass-card p-6 text-center space-y-4">
-          <p className="text-red-400">{error}</p>
+          <p className="text-[var(--color-danger-400)]">{error}</p>
           <PrimaryButton onClick={refetch} className="mx-auto">إعادة المحاولة</PrimaryButton>
         </div>
       )}
@@ -69,13 +69,13 @@ export default function AttemptHistory() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isPerfect ? 'bg-green-500/20 border-2 border-green-500' :
-                      isPass ? 'bg-cyan-500/20 border-2 border-cyan-500' :
-                      'bg-red-500/20 border-2 border-red-500'
+                      isPerfect ? 'bg-[var(--color-success-light)] border-2 border-[var(--color-success-border)]' :
+                      isPass ? 'bg-[var(--color-info-light)] border-2 border-[var(--color-info-border)]' :
+                      'bg-[var(--color-danger-light)] border-2 border-[var(--color-danger-border)]'
                     }`}>
-                      {isPerfect ? <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" /> :
-                       isPass ? <Target className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" /> :
-                       <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />}
+                      {isPerfect ? <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--color-success-400)]" /> :
+                       isPass ? <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--color-info-400)]" /> :
+                       <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--color-danger-400)]" />}
                     </div>
                     <div>
                       <h3 className="font-bold text-white text-sm sm:text-base">اختبار #{attempt.testId.slice(0, 8)}</h3>
@@ -88,15 +88,15 @@ export default function AttemptHistory() {
 
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="text-left">
-                      <p className={`text-xl sm:text-2xl font-black ${isPerfect ? 'text-green-400' : isPass ? 'text-cyan-400' : 'text-red-400'}`}>
+                      <p className={`text-xl sm:text-2xl font-black ${isPerfect ? 'text-[var(--color-success-400)]' : isPass ? 'text-[var(--color-info-400)]' : 'text-[var(--color-danger-400)]'}`}>
                         {attempt.score} / {attempt.total}
                       </p>
                       <p className="text-secondary-400 text-[10px] sm:text-xs">{percentage}%</p>
                     </div>
                     <div className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold ${
-                      isPerfect ? 'bg-green-500/20 text-green-300' :
-                      isPass ? 'bg-cyan-500/20 text-cyan-300' :
-                      'bg-red-500/20 text-red-300'
+                      isPerfect ? 'bg-[var(--color-success-light)] text-[var(--color-success-300)]' :
+                      isPass ? 'bg-[var(--color-info-light)] text-[var(--color-info-400)]' :
+                      'bg-[var(--color-danger-light)] text-[var(--color-danger-400)]'
                     }`}>
                       {isPerfect ? 'ممتاز' : isPass ? 'ناجح' : 'راسب'}
                     </div>

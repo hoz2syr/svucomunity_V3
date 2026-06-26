@@ -70,7 +70,7 @@ export const ExamNavbar = () => {
                   <span className="hidden sm:inline">{item.label}</span>
 
                   {active && (
-                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-200" />
+                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-[var(--color-info-400)] shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-200" />
                   )}
                 </Link>
               );

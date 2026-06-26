@@ -24,7 +24,7 @@ export function ProgressBar({ current, max, size = 'md', className = '' }: Progr
           className={`
             h-full rounded-full
             ${size === 'sm' ? 'transition-all duration-500 ease-out' : 'transition-all duration-500'}
-            ${isFull ? 'bg-rose-500' : 'bg-gradient-to-r from-cyan-500 to-indigo-500'}
+            ${isFull ? 'bg-[var(--color-danger)]' : 'bg-gradient-to-r from-cyan-500 to-indigo-500'}
           `}
           style={{ width: `${Math.min(progress, 100)}%` }}
         />

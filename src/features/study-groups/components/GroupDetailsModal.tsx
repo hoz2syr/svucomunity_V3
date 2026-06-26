@@ -74,7 +74,7 @@ export function GroupDetailsModal({
     <ModalShell isOpen={isOpen} onClose={onClose} maxWidth="max-w-md" closeButton>
       <div className="mb-6">
         <h3 className="text-xl font-bold text-white mb-2">{group.name}</h3>
-        <span className="inline-block px-2.5 py-1 bg-cyan-500/15 text-cyan-400 rounded-lg text-xs font-mono border border-cyan-500/20">
+        <span className="inline-block px-2.5 py-1 bg-[var(--color-info-light)] text-[var(--color-info-400)] rounded-lg text-xs font-mono border border-[var(--color-info-border)]">
           {group.course_code}
         </span>
       </div>
@@ -162,12 +162,12 @@ export function GroupDetailsModal({
         )}
 
 {majorMismatch && (
-           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-             <p className="text-amber-400 text-sm font-semibold text-center mb-2">
+           <div className="p-4 bg-[var(--color-warning-light)] border border-[var(--color-warning-border)] rounded-xl">
+              <p className="text-[var(--color-warning-400)] text-sm font-semibold text-center mb-2">
                <AlertTriangle className="w-5 h-5 inline-block ml-1.5" />
                هذه المجموعة لتخصص {majorMismatch.groupMajor}
              </p>
-             <p className="text-amber-300/80 text-xs text-center mb-3">
+              <p className="text-[var(--color-warning-300)]/80 text-xs text-center mb-3">
                تخصصك: {majorMismatch.userMajor} - هل تريد المتابعة؟
              </p>
              <div className="flex gap-2">
@@ -215,7 +215,7 @@ export function GroupDetailsModal({
         {isMember && (
           <div className="
             w-full py-3 rounded-xl font-semibold text-sm text-center
-            bg-emerald-500/10 border border-emerald-500/20 text-emerald-400
+            bg-[var(--color-success-light)] border border-[var(--color-success-border)] text-[var(--color-success-400)]
             flex items-center justify-center gap-2
           ">
             <CheckCircle2 className="w-5 h-5" />
@@ -249,7 +249,7 @@ export function GroupDetailsModal({
         {!isMember && isFull && (
           <div className="
             w-full py-3 rounded-xl font-semibold text-sm text-center
-            bg-rose-500/10 border border-rose-500/20 text-rose-400
+            bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[var(--color-danger-400)]
           ">
             المجموعة ممتلئة
           </div>
@@ -270,8 +270,8 @@ export function GroupDetailsModal({
          )}
 
          {canDelete && showDeleteConfirm && (
-           <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-             <p className="text-rose-400 text-sm font-semibold text-center mb-3">
+<div className="p-4 bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] rounded-xl">
+              <p className="text-[var(--color-danger-400)] text-sm font-semibold text-center mb-3">
                هل أنت متأكد من حذف هذه المجموعة؟
              </p>
              <div className="flex gap-2">

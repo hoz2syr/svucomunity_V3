@@ -121,7 +121,7 @@ export const DashboardPage = () => {
         {activeModal === 'settings' && <SettingsModal user={user} tab={settingsTab} setTab={setSettingsTab} onClose={() => closeModal(null)} />}
       </AnimatePresence>
       {deleteError && (
-        <div role="alert" className="fixed top-4 left-1/2 z-[60] -translate-x-1/2 w-[min(90vw,420px)] rounded-2xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-200">
+        <div role="alert" className="fixed top-4 left-1/2 z-[60] -translate-x-1/2 w-[min(90vw,420px)] rounded-2xl bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] px-4 py-3 text-sm text-[var(--color-danger-400)]">
           {deleteError}
         </div>
       )}

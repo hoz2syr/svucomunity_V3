@@ -65,7 +65,7 @@ export const AuthCallback = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg-primary)] flex-col gap-4 px-4">
-      <div className={`text-lg ${status === 'error' ? 'text-red-400' : 'text-cyan-400'}`}>
+       <div className={`text-lg ${status === 'error' ? 'text-[var(--color-danger-400)]' : 'text-[var(--color-info-400)]'}`}>
         {message}
       </div>
       {status === 'error' && (
@@ -73,7 +73,7 @@ export const AuthCallback = () => {
           <span className="text-slate-500 text-sm">يمكنك المحاولة مرة أخرى أو العودة للرئيسية</span>
           <button
             onClick={handleRetry}
-            className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/30 rounded-lg text-sm transition-colors"
+            className="px-4 py-2 bg-[var(--color-info-light)] hover:bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)] rounded-lg text-sm transition-colors"
           >
             إعادة المحاولة
           </button>

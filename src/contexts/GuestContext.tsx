@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 
 interface GuestProfile {
   name: string;
@@ -80,6 +81,8 @@ const saveGuestProfile = (profile: GuestProfile): void => {
 export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [guestProfile, setGuestProfile] = useState<GuestProfile | null>(null);
+  const isGuestRef = useRef(isGuest);
+  isGuestRef.current = isGuest;
 
   useEffect(() => {
     const stored = sessionStorage.getItem(GUEST_MODE_KEY);
@@ -87,6 +90,17 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
       setIsGuest(true);
       setGuestProfile(readGuestProfile());
     }
+  }, []);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv()) return;
+    const client = getSupabaseClient();
+    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESH') && session && isGuestRef.current) {
+        disableGuestMode();
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const enableGuestMode = (profile?: GuestProfile) => {

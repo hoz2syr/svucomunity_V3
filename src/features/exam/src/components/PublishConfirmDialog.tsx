@@ -139,7 +139,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
                 ليكون متاحاً للجميع عبر رابط عام. هل تريد المتابعة؟
               </p>
               {error && (
-                <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                <div className="mt-3 p-3 rounded-xl bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[var(--color-danger-400)] text-sm">
                   {error}
                 </div>
               )}
@@ -157,7 +157,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
                 ref={confirmButtonRef}
                 onClick={handleConfirm}
                 disabled={isLoading}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-primary-500 text-white hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-900/20"
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-[var(--color-info)] text-white hover:bg-[var(--color-info-400)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[var(--color-info)]/20"
               >
                 {isLoading ? 'جاري النشر...' : 'نشر ومشاركة'}
               </button>
@@ -169,8 +169,8 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
           <>
             <div className="p-6 pb-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-5 h-5 text-green-400" />
+                <div className="w-10 h-10 rounded-full bg-[var(--color-success-light)] flex items-center justify-center flex-shrink-0">
+                  <Check className="w-5 h-5 text-[var(--color-success-400)]" />
                 </div>
                 <h2 id={titleId} className="text-lg font-bold text-white">
                   تم النشر بنجاح!
@@ -190,7 +190,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
               </div>
               <button
                 onClick={handleCopy}
-                className="mt-3 w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors cursor-pointer"
+                className="mt-3 w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)] hover:bg-[var(--color-info-light)] transition-colors cursor-pointer"
               >
                 {isCopied ? (
                   <>

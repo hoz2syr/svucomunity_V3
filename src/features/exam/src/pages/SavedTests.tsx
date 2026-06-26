@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useCoreSavedTests } from '../hooks';
-import { useGuest } from '@/src/contexts/GuestContext';
 import { FileText, ChevronDown, Loader2 } from 'lucide-react';
 import { PrimaryButton } from '@/src/components/ui/PrimaryButton';
 import { TestCardSkeleton } from '../components/Skeletons';
@@ -34,7 +33,7 @@ export default function SavedTests() {
     hasNextPage,
     isFetchingNextPage,
   } = useCoreSavedTests();
-  const { isGuest } = useGuest();
+  const { session } = useAuth();
   const [confirmPublishId, setConfirmPublishId] = useState<string | null>(null);
   const [showGuestPrompt, setShowGuestPrompt] = useState(false);
 
@@ -43,7 +42,7 @@ export default function SavedTests() {
   }, [fetchTests]);
 
   const handleRequestPublish = (testId: string) => {
-    if (isGuest) {
+    if (!session) {
       setShowGuestPrompt(true);
       return;
     }

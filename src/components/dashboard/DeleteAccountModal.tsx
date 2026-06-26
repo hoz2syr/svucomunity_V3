@@ -33,7 +33,7 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
         }}
         className="p-8"
       >
-        <div className="w-14 h-14 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mb-5">
+        <div className="w-14 h-14 rounded-full bg-[var(--color-danger-light)] text-[var(--color-danger-400)] flex items-center justify-center mb-5">
           <AlertTriangle size={26} strokeWidth={2.5} />
         </div>
         <h3 id="delete-account-modal-title" className="text-xl font-bold text-white mb-3">حذف الحساب نهائياً</h3>
@@ -44,13 +44,13 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
           label=""
           type="text"
           {...register('confirmation')}
-           className="w-full bg-[var(--color-bg-overlay)]/50 flex-1 border border-red-500/30 rounded-xl px-4 py-3.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all mb-8 font-sans"
+           className="w-full bg-[var(--color-bg-overlay)]/50 flex-1 border border-[var(--color-danger-border)] rounded-xl px-4 py-3.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-[var(--color-danger)] focus:ring-1 focus:ring-[var(--color-danger-light)] transition-all mb-8 font-sans"
           placeholder={username}
           error={errors.confirmation?.message}
         />
         <div className="flex gap-3">
           <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-300 bg-white/5 hover:bg-white/10 transition-colors">إلغاء</button>
-          <button type="submit" disabled={!isMatch} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(220,38,38,0.2)] transition-colors">حذف نهائي</button>
+          <button type="submit" disabled={!isMatch} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-[var(--color-danger)] hover:bg-[var(--color-danger-400)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(239,68,68,0.2)] transition-colors">حذف نهائي</button>
         </div>
       </form>
     </ModalOverlay>

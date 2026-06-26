@@ -6,8 +6,8 @@ export const StudyGroupsCard = () => (
     title="Study Groups"
     description="Join your study groups"
     icon={<Users />}
-    iconBg="#0e7490"
-    iconColor="#22d3ee"
+    iconBgClass="bg-[var(--color-info)]"
+    iconColorClass="var(--color-info-400)"
     linkTo="/dashboard/study-groups"
     linkLabel="عرض المجموعات"
     index={0}

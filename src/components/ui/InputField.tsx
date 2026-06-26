@@ -1,6 +1,7 @@
 import React, { useId, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface SafeInputAttrs {
   id?: string;
@@ -59,12 +60,24 @@ export const InputField: React.FC<InputFieldProps> = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password";
-  const baseClasses = "w-full bg-[var(--color-bg-input)]/50 border rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 transition-all font-sans";
+  const baseClasses = [
+    'w-full bg-[var(--color-bg-input)]/50 border rounded-xl px-4 py-3',
+    'text-white placeholder:text-slate-500',
+    'focus:outline-none focus:ring-4 transition-all font-sans',
+  ];
   const stateClasses = error
-    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-    : "border-white/10 focus:border-cyan-400 focus:ring-cyan-400/20";
-  const positionClasses = isPassword ? "pl-11 pr-4" : "pr-10";
-  const mergedClassName = [baseClasses, stateClasses, positionClasses, className].filter(Boolean).join(" ");
+    ? [
+        'border-[var(--color-danger)]/50',
+        'focus:border-[var(--color-danger)]',
+        'focus:ring-[var(--color-danger-light)]/20',
+      ]
+    : [
+        'border-white/10',
+        'focus:border-cyan-400',
+        'focus:ring-cyan-400/20',
+      ];
+  const positionClasses = isPassword ? 'pl-11 pr-4' : 'pr-10';
+  const mergedClassName = cn(baseClasses, stateClasses, positionClasses, className);
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
@@ -78,28 +91,28 @@ export const InputField: React.FC<InputFieldProps> = ({
         animate={{ scale: 1 }}
         className="relative"
       >
-          <input
-            id={inputId}
-            name={name}
-            type={inputType}
-            value={value}
-            defaultValue={defaultValue}
-            onChange={onChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            placeholder={placeholder}
-            autoComplete={autoComplete}
-            readOnly={readOnly}
-            disabled={disabled}
-            required={required}
-            maxLength={maxLength}
-            pattern={pattern}
-            inputMode={inputMode}
-            ref={ref}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? errorId : undefined}
-            className={mergedClassName}
-          />
+        <input
+          id={inputId}
+          name={name}
+          type={inputType}
+          value={value}
+          defaultValue={defaultValue}
+          onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          readOnly={readOnly}
+          disabled={disabled}
+          required={required}
+          maxLength={maxLength}
+          pattern={pattern}
+          inputMode={inputMode}
+          ref={ref}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={mergedClassName}
+        />
         
         {/* Success Indicator for Text/Email */}
         {!isPassword && (
@@ -137,7 +150,7 @@ export const InputField: React.FC<InputFieldProps> = ({
             id={errorId}
             role="alert"
             initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
-            className="text-red-400 text-xs mt-1.5"
+            className="text-[var(--color-danger-400)] text-xs mt-1.5"
           >
             {error}
           </motion.p>

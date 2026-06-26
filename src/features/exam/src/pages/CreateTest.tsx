@@ -76,7 +76,7 @@ export default function CreateTest() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl flex items-center gap-3">
+          <div className="bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[var(--color-danger-400)] px-4 py-3 rounded-xl flex items-center gap-3">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
           </div>

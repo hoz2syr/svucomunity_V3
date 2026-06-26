@@ -24,12 +24,12 @@ export const HeroAddition = () => {
 
       <div className={`flex flex-col sm:flex-row w-full sm:w-auto gap-4 transition-all duration-700 relative z-10 ${showSub ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '900ms' }}>
         <a href="#join" className="relative group inline-block w-full sm:w-auto">
-          <div className="absolute inset-0 bg-cyan-400 rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-[var(--color-info-400)] rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative bg-[var(--color-bg-secondary)] group-hover:bg-[var(--color-bg-primary)] border border-cyan-400/50 text-white font-bold py-3.5 px-10 rounded-full transition-all duration-300 w-full text-center flex items-center justify-center gap-2">
             ابدأ الآن <Rocket size={18} className="text-cyan-400" />
           </div>
         </a>
-        <a href="#features" className="border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-900/20 bg-white/5 text-slate-100 font-bold py-3.5 px-10 rounded-full transition-all duration-300 w-full text-center block">
+        <a href="#features" className="border border-[var(--color-indigo-400)]/30 hover:border-[var(--color-indigo-400)]/50 hover:bg-[var(--color-indigo-600)]/20 bg-white/5 text-slate-100 font-bold py-3.5 px-10 rounded-full transition-all duration-300 w-full text-center block">
           اكتشف المنصة
         </a>
       </div>
