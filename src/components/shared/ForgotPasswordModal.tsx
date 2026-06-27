@@ -135,7 +135,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
               <button
                 type="submit"
                 disabled={resetLoading}
-                className="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                 className="w-full bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-secondary-400)] text-white font-bold py-3.5 px-4 rounded-xl shadow-[var(--shadow-glow-cyan-30)] hover:shadow-[var(--shadow-glow-cyan-50)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {resetLoading ? 'جاري الإرسال...' : 'إرسال رابط الاستعادة'}
               </button>

@@ -6,14 +6,14 @@ export function StudyGroupsNavbar() {
   const isMyGroups = location.pathname === '/dashboard/study-groups/my';
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-[var(--color-bg-tertiary)]/80 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.35)]">
+    <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-[var(--color-bg-tertiary)]/80 backdrop-blur-2xl shadow-[var(--shadow-glow-cyan-40)]">
       <div className="max-w-6xl mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-2">
           <Link
             to="/dashboard/study-groups"
             className="flex items-center gap-3 text-white font-bold text-sm sm:text-base shrink-0 group"
           >
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 group-hover:shadow-[0_0_28px_rgba(6,182,212,0.55)] group-hover:scale-105">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center shadow-[var(--shadow-glow-cyan-40)] transition-all duration-300 group-hover:shadow-[var(--shadow-glow-indigo-70)] group-hover:scale-105">
               <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <span className="hidden sm:inline text-[15px] tracking-tight">المجموعات الدراسية</span>

@@ -55,7 +55,7 @@ export function Button({
       'w-full bg-gradient-to-r from-[var(--color-primary-400)] to-[var(--color-secondary-400)]',
       'text-white font-bold rounded-xl',
       'shadow-[var(--shadow-glow-cyan)]',
-      'hover:shadow-[0_0_30px_rgba(34,211,238,0.5)]',
+      'hover:shadow-[var(--shadow-glow-cyan-50)]',
       'transition-all flex items-center justify-center gap-2',
       'group relative overflow-hidden',
       'disabled:opacity-80 disabled:cursor-not-allowed',

@@ -89,7 +89,7 @@ export default function StudyGroupsHome() {
 
       <Button
         onClick={page.handleOpenCreateModal}
-        className="sm:hidden fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full !p-0 shadow-[0_0_24px_rgba(6,182,212,0.4)]"
+        className="sm:hidden fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full !p-0 shadow-[var(--shadow-glow-cyan-40)]"
         icon={<Users className="w-6 h-6" />}
       />
 

@@ -3,6 +3,22 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Head
 import { saveAs } from 'file-saver';
 import { escapeHtml } from './utils';
 
+const EXPORT_COLORS = {
+  text: '#0f172a',
+  textMuted: '#475569',
+  textLight: '#64748b',
+  textFaint: '#94a3b8',
+  heading: '#1e293b',
+  accent: '#0ea5e9',
+  correct: '#059669',
+  correctInverse: '#dc2626',
+  incorrect: '#334155',
+  essayBorder: '#cbd5e1',
+  explanationBg: '#f8fafc',
+  divider: '#e2e8f0',
+  white: '#ffffff',
+} as const;
+
 interface MCQOptionMeta {
   text: string;
   isCorrect: boolean;
@@ -23,7 +39,7 @@ function getMCQOptionMeta(opt: string, correctAnswer: string | undefined, showEx
   return {
     text: opt,
     isCorrect,
-    color: isCorrect ? '#059669' : '#334155',
+    color: isCorrect ? EXPORT_COLORS.correct : EXPORT_COLORS.incorrect,
     weight: isCorrect ? 'bold' : 'normal',
     icon: isCorrect ? '☑ ' : '○ '
   };
@@ -35,8 +51,8 @@ function getTFState(correctAnswer: string | undefined, showExplanations: boolean
   return {
     showT: showExplanations && t,
     showF: showExplanations && f,
-    showTColor: showExplanations && t ? '059669' : '334155',
-    showFColor: showExplanations && f ? 'dc2626' : '334155'
+    showTColor: showExplanations && t ? EXPORT_COLORS.correct : EXPORT_COLORS.incorrect,
+    showFColor: showExplanations && f ? EXPORT_COLORS.correctInverse : EXPORT_COLORS.incorrect
   };
 }
 
@@ -57,12 +73,12 @@ function renderQuestionPdf(test: TestModel, q: Question, _index: number): string
       <strong style="color: ${tf.showFColor}">${tf.showF ? '☑' : '○'} خطأ</strong>
     </div>`);
   } else if (q.type === 'essay') {
-    parts.push('<div style="margin-top: 16px; height: 120px; border: 2px dashed #cbd5e1; border-radius: 8px;"></div>');
+    parts.push(`<div style="margin-top: 16px; height: 120px; border: 2px dashed ${EXPORT_COLORS.essayBorder}; border-radius: 8px;"></div>`);
   }
 
   if (test.settings.showExplanations && q.explanation) {
-    parts.push(`<div style="margin-top: 20px; padding: 16px; background: #f8fafc; border-right: 4px solid #0ea5e9; border-radius: 6px; font-size: 14pt; color: #475569; line-height: 1.6;">
-      <strong style="color: #0ea5e9;">الشرح التوضيحي:</strong> ${escapeHtml(q.explanation)}
+    parts.push(`<div style="margin-top: 20px; padding: 16px; background: ${EXPORT_COLORS.explanationBg}; border-right: 4px solid ${EXPORT_COLORS.accent}; border-radius: 6px; font-size: 14pt; color: ${EXPORT_COLORS.textMuted}; line-height: 1.6;">
+      <strong style="color: ${EXPORT_COLORS.accent};">الشرح التوضيحي:</strong> ${escapeHtml(q.explanation)}
     </div>`);
   }
 
@@ -73,7 +89,7 @@ function renderQuestionWord(test: TestModel, q: Question, index: number, childre
   children.push(new Paragraph({
     bidirectional: true,
     spacing: { before: 400, after: 200 },
-    children: [new TextRun({ text: `${index + 1}. ${q.text}`, bold: true, size: 32, color: '0f172a', font: 'Arial' })]
+    children: [new TextRun({ text: `${index + 1}. ${q.text}`, bold: true, size: 32, color: EXPORT_COLORS.text, font: 'Arial' })]
   }));
 
   if (q.type === 'multiple_choice' && q.options) {
@@ -83,7 +99,7 @@ function renderQuestionWord(test: TestModel, q: Question, index: number, childre
         bidirectional: true,
         spacing: { before: 80, after: 80 },
         indent: { start: 720 },
-        children: [new TextRun({ text: m.icon + m.text, bold: m.isCorrect, color: m.isCorrect ? '059669' : '334155', size: 28, font: 'Arial' })]
+        children: [new TextRun({ text: m.icon + m.text, bold: m.isCorrect, color: m.isCorrect ? EXPORT_COLORS.correct : EXPORT_COLORS.incorrect, size: 28, font: 'Arial' })]
       }));
     });
   } else if (q.type === 'true_false') {
@@ -98,7 +114,7 @@ function renderQuestionWord(test: TestModel, q: Question, index: number, childre
       ]
     }));
   } else if (q.type === 'essay') {
-    children.push(new Paragraph({ bidirectional: true, spacing: { before: 200, after: 200 }, children: [new TextRun({ text: '(مساحة للإجابة)', color: '94a3b8', size: 24, font: 'Arial' })] }));
+    children.push(new Paragraph({ bidirectional: true, spacing: { before: 200, after: 200 }, children: [new TextRun({ text: '(مساحة للإجابة)', color: EXPORT_COLORS.textFaint, size: 24, font: 'Arial' })] }));
     children.push(new Paragraph({ text: '\n\n', bidirectional: true }));
   }
 
@@ -108,8 +124,8 @@ function renderQuestionWord(test: TestModel, q: Question, index: number, childre
       spacing: { before: 200, after: 200 },
       indent: { start: 720 },
       children: [
-        new TextRun({ text: 'الشرح التوضيحي: ', bold: true, color: '0ea5e9', size: 28, font: 'Arial' }),
-        new TextRun({ text: q.explanation, color: '475569', size: 28, font: 'Arial' })
+        new TextRun({ text: 'الشرح التوضيحي: ', bold: true, color: EXPORT_COLORS.accent, size: 28, font: 'Arial' }),
+        new TextRun({ text: q.explanation, color: EXPORT_COLORS.textMuted, size: 28, font: 'Arial' })
       ]
     }));
   }
@@ -154,8 +170,8 @@ function buildPdfHtml(test: TestModel): string {
     .map((q, idx) => {
       const answerBlock = renderQuestionPdf(test, q, idx);
       return `
-        <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
-          <h3 style="font-size: 17pt; margin: 0 0 14px 0; font-weight: 700; color: #0f172a; line-height: 1.6;">${idx + 1}. ${escapeHtml(q.text)}</h3>
+        <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid ${EXPORT_COLORS.divider}; page-break-inside: avoid;">
+          <h3 style="font-size: 17pt; margin: 0 0 14px 0; font-weight: 700; color: ${EXPORT_COLORS.text}; line-height: 1.6;">${idx + 1}. ${escapeHtml(q.text)}</h3>
           ${answerBlock}
         </div>
       `;
@@ -176,8 +192,8 @@ function buildPdfHtml(test: TestModel): string {
       margin: 0;
       font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
       direction: rtl;
-      color: #0f172a;
-      background: #ffffff;
+      color: ${EXPORT_COLORS.text};
+      background: ${EXPORT_COLORS.white};
       padding: 40px 48px;
       line-height: 1.7;
       -webkit-print-color-adjust: exact;
@@ -191,34 +207,34 @@ function buildPdfHtml(test: TestModel): string {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid #0ea5e9;
+      border-bottom: 2px solid ${EXPORT_COLORS.accent};
       padding-bottom: 18px;
       margin-bottom: 32px;
     }
     .brand-name {
       font-size: 20pt;
       font-weight: 800;
-      color: #0f172a;
+      color: ${EXPORT_COLORS.text};
     }
     .brand-meta {
       text-align: left;
       font-size: 10pt;
-      color: #64748b;
+      color: ${EXPORT_COLORS.textLight};
     }
     .brand-meta strong {
-      color: #0ea5e9;
+      color: ${EXPORT_COLORS.accent};
     }
     h1 {
       font-size: 24pt;
       margin: 0 0 14px 0;
       font-weight: 800;
-      color: #1e293b;
+      color: ${EXPORT_COLORS.heading};
       text-align: center;
     }
     .desc {
       text-align: center;
       font-size: 14pt;
-      color: #475569;
+      color: ${EXPORT_COLORS.textMuted};
       margin-bottom: 40px;
     }
   </style>
@@ -256,7 +272,7 @@ export const exportToWord = async (test: TestModel) => {
       bidirectional: true,
       spacing: { after: 400 },
       children: [
-         new TextRun({ text: test.description, size: 32, color: "475569", font: "Arial" })
+         new TextRun({ text: test.description, size: 32, color: EXPORT_COLORS.textMuted, font: "Arial" })
       ]
     }));
   }
@@ -277,7 +293,7 @@ export const exportToWord = async (test: TestModel) => {
                alignment: AlignmentType.CENTER,
                bidirectional: true,
                children: [
-                 new TextRun({ text: "مجتمع SVU", bold: true, color: "0ea5e9", size: 36, font: "Arial" }),
+                 new TextRun({ text: "مجتمع SVU", bold: true, color: EXPORT_COLORS.accent, size: 36, font: "Arial" }),
                ],
              }),
              new Paragraph({
@@ -285,7 +301,7 @@ export const exportToWord = async (test: TestModel) => {
                bidirectional: true,
                spacing: { after: 400 },
                children: [
-                 new TextRun({ text: "svucommunity.social", color: "64748b", size: 24, font: "Arial" }),
+                 new TextRun({ text: "svucommunity.social", color: EXPORT_COLORS.textLight, size: 24, font: "Arial" }),
                ],
              }),
           ]

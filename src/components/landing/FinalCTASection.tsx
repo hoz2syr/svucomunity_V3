@@ -10,7 +10,7 @@ export const FinalCTASection = () => {
        <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight max-w-4xl leading-tight">ابدأ رحلتك الجامعية بشكل صحيح</h2>
        <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl font-light">سجّل الآن وانضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية.</p>
 
-       <Link to="/register" className="shimmer-sweep bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xl px-12 py-5 rounded-full shadow-[0_15px_40px_rgba(6,182,212,0.3)] hover:scale-105 hover:shadow-[0_20px_50px_rgba(6,182,212,0.4)] transition-all duration-300 mb-8 inline-block select-none cursor-pointer">
+        <Link to="/register" className="shimmer-sweep bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-secondary-500)] text-white font-bold text-xl px-12 py-5 rounded-full shadow-[var(--shadow-glow-cyan-30)] hover:scale-105 hover:shadow-[var(--shadow-glow-cyan-50)] transition-all duration-300 mb-8 inline-block select-none cursor-pointer">
          إنشاء حساب مجاني
        </Link>
 

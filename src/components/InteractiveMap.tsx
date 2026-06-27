@@ -40,7 +40,7 @@ export const InteractiveMapSimulation = () => {
   const MapNode = ({ title, code, top, left, isActive, isCompleted }: MapNodeProps) => (
     <div 
       className={`absolute w-36 md:w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl p-4 border transition-all duration-500 backdrop-blur-xl flex flex-col items-center justify-center 
-        ${isActive ? 'border-cyan-400 bg-[var(--color-bg-secondary)]/90 shadow-[0_0_40px_rgba(34,211,238,0.3)] scale-[1.15] z-20 ring-1 ring-cyan-400/50' : 
+        ${isActive ? 'border-cyan-400 bg-[var(--color-bg-secondary)]/90 shadow-[var(--shadow-glow-cyan-40px)] scale-[1.15] z-20 ring-1 ring-cyan-400/50' : 
           isCompleted ? 'border-indigo-500/50 bg-[var(--color-bg-secondary)]/90 z-10 shadow-lg' : 
           'border-slate-700/60 bg-[var(--color-bg-overlay)]/90 opacity-70 z-10 grayscale-[0.5]'}`}
       style={{ top, left }}
@@ -65,19 +65,19 @@ export const InteractiveMapSimulation = () => {
         <div className={`absolute inset-0 z-10 transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] origin-center ${isZoomed ? 'scale-[1.15] md:-translate-x-[10%] -translate-y-[10%]' : 'scale-100 translate-x-0 translate-y-0'}`}>
           
           <svg className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-xl" viewBox="0 0 400 300" preserveAspectRatio="none">
-            <path d="M 100 75 H 150 V 150 H 200" stroke="#1e293b" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 200 150 H 250 V 225 H 300" stroke="#1e293b" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 100 75 H 150 V 150 H 200" stroke="var(--color-border-subtle)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 200 150 H 250 V 225 H 300" stroke="var(--color-border-subtle)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
-            <path d="M 100 75 H 150 V 150 H 200" stroke="rgba(168, 85, 247, 0.6)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" 
+            <path d="M 100 75 H 150 V 150 H 200" stroke="var(--color-purple-500)" strokeOpacity="0.6" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"
                   className={`transition-opacity duration-700 delay-300 ${isZoomed ? 'opacity-100' : 'opacity-0'}`} />
-            <path d="M 200 150 H 250 V 225 H 300" stroke="rgba(34, 211, 238, 0.6)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" 
+            <path d="M 200 150 H 250 V 225 H 300" stroke="var(--color-cyan-400)" strokeOpacity="0.6" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"
                   className={`transition-opacity duration-700 delay-500 ${isZoomed ? 'opacity-100' : 'opacity-0'}`} />
 
-            <path d="M 100 75 H 150 V 150 H 200" stroke="#a855f7" strokeWidth="2.5" fill="none" strokeDasharray="8 8" strokeLinecap="round" strokeLinejoin="round" 
+            <path d="M 100 75 H 150 V 150 H 200" stroke="var(--color-purple-500)" strokeWidth="2.5" fill="none" strokeDasharray="8 8" strokeLinecap="round" strokeLinejoin="round"
                   className={`transition-opacity duration-700 delay-300 ${isZoomed ? 'opacity-100' : 'opacity-0'}`}>
                <animate attributeName="stroke-dashoffset" from="32" to="0" dur="0.8s" repeatCount="indefinite" />
             </path>
-            <path d="M 200 150 H 250 V 225 H 300" stroke="#22d3ee" strokeWidth="2.5" fill="none" strokeDasharray="8 8" strokeLinecap="round" strokeLinejoin="round" 
+            <path d="M 200 150 H 250 V 225 H 300" stroke="var(--color-cyan-400)" strokeWidth="2.5" fill="none" strokeDasharray="8 8" strokeLinecap="round" strokeLinejoin="round"
                   className={`transition-opacity duration-700 delay-500 ${isZoomed ? 'opacity-100' : 'opacity-0'}`}>
                <animate attributeName="stroke-dashoffset" from="32" to="0" dur="0.8s" repeatCount="indefinite" />
             </path>
@@ -89,7 +89,7 @@ export const InteractiveMapSimulation = () => {
        </div>
 
          <div 
-           className={`absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-72 bg-[var(--color-bg-primary)]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] p-4 sm:p-5 rounded-3xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] z-30 flex flex-col ${isZoomed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
+           className={`absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-72 bg-[var(--color-bg-primary)]/80 backdrop-blur-2xl border border-white/10 shadow-[var(--shadow-elevated)] p-4 sm:p-5 rounded-3xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] z-30 flex flex-col ${isZoomed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
            dir="rtl"
          >
          <div className="flex justify-between items-start mb-4 w-full">
@@ -137,7 +137,7 @@ export const InteractiveMapSimulation = () => {
              transform: `translate(-10px, -10px) ${step >= 3 ? 'scale(0.85)' : 'scale(1)'}`
           }}
         >
-          <MousePointer2 className={`w-8 h-8 ${step >= 3 ? 'text-cyan-300 fill-cyan-400/20 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]' : 'text-slate-200 fill-white/10 drop-shadow-lg'} transition-colors duration-300 transform -scale-x-100`} />
+           <MousePointer2 className={`w-8 h-8 ${step >= 3 ? 'text-cyan-300 fill-cyan-400/20 drop-shadow-[var(--shadow-glow-cyan-60)]' : 'text-slate-200 fill-white/10 drop-shadow-lg'} transition-colors duration-300 transform -scale-x-100`} />
         </div>
     </div>
   );

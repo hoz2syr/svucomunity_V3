@@ -24,8 +24,8 @@ export function ErrorState({
           className="
             px-6 py-2.5 rounded-xl text-sm font-medium
             bg-cyan-600 hover:bg-cyan-500 text-white
-            shadow-[0_0_20px_rgba(6,182,212,0.25)]
-            hover:shadow-[0_0_28px_rgba(6,182,212,0.4)]
+            shadow-[var(--shadow-glow-cyan-20)]
+            hover:shadow-[var(--shadow-glow-cyan-40)]
             transition-all duration-200
           "
         >

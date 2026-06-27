@@ -42,7 +42,7 @@ export const SecuritySettingsForm = ({ onSubmit }: SecuritySettingsFormProps) =>
       )}
       <div className="pt-4 flex justify-end gap-3">
         <button type="button" className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 bg-white/5 hover:bg-white/10 transition-colors">إغلاق</button>
-        <button type="submit" disabled={isLoading} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.2)] flex items-center gap-2 transition-all">
+        <button type="submit" disabled={isLoading} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-[var(--shadow-glow-cyan-20)] flex items-center gap-2 transition-all">
           {isLoading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}
         </button>
       </div>

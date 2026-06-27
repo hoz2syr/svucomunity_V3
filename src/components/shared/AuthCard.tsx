@@ -26,10 +26,10 @@ interface AuthCardProps {
   onGoogleClick: () => void;
 }
 
-const gradientShadow: Record<LogoGradient, string> = {
-  'from-cyan-400 to-indigo-500': 'rgba(34,211,238,0.4)',
-  'from-purple-500 to-indigo-500': 'rgba(168,85,247,0.4)',
-  'from-emerald-400 to-cyan-500': 'rgba(52,211,153,0.4)',
+const gradientShadowClass: Record<LogoGradient, string> = {
+  'from-cyan-400 to-indigo-500': 'shadow-[var(--shadow-glow-cyan-40)]',
+  'from-purple-500 to-indigo-500': 'shadow-[var(--shadow-glow-purple-40)]',
+  'from-emerald-400 to-cyan-500': 'shadow-[var(--shadow-glow-emerald-40)]',
 };
 
 export const AuthCard = ({
@@ -55,7 +55,7 @@ export const AuthCard = ({
   });
 
   const [googleLogoError, setGoogleLogoError] = useState(false);
-  const shadowColor = gradientShadow[logoGradient];
+  const logoShadowClass = gradientShadowClass[logoGradient];
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-secondary)] relative overflow-hidden font-sans" dir="rtl">
       {!reducedMotion && (
@@ -75,11 +75,11 @@ export const AuthCard = ({
           className="text-center mb-8"
         >
           <Link to="/" className="inline-flex items-center justify-center mb-5 group">
-            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${logoGradient} flex items-center justify-center shadow-[0_0_30px_${shadowColor}] transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300`}>
+            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${logoGradient} flex items-center justify-center ${logoShadowClass} transition-transform group-hover:scale-105 group-hover:rotate-3 duration-300`}>
               <span className="text-white font-extrabold text-2xl font-display">SVU</span>
             </div>
           </Link>
-          <h1 className="text-3xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{title}</h1>
+          <h1 className="text-3xl font-black text-white drop-shadow-[var(--shadow-glow-white-30)]">{title}</h1>
           {subtitle && <p className="text-slate-400 text-sm mt-2 tracking-wide font-display">{subtitle}</p>}
         </motion.div>
 
@@ -87,7 +87,7 @@ export const AuthCard = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-[var(--color-bg-primary)]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(34,211,238,0.1)] relative"
+          className="bg-[var(--color-bg-primary)]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[var(--shadow-glow-cyan-10)] relative"
         >
           <ServerError error={serverError} />
 

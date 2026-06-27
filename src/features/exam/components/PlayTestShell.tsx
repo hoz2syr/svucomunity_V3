@@ -283,9 +283,9 @@ export function PlayTestShell({
               } else {
                 btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
               }
-            } else if (isSelected) {
-              btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-[0_0_0_2px_rgba(14,165,233,0.2)]';
-            }
+             } else if (isSelected) {
+               btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-[var(--shadow-glow-cyan-20)]';
+             }
 
             return (
               <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
@@ -316,9 +316,9 @@ export function PlayTestShell({
                   } else {
                     btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
                   }
-                } else if (isSelected) {
-                  btnStateClass = 'bg-[var(--color-info-light)] border-[var(--color-info-border)] shadow-[0_0_0_2px_rgba(14,165,233,0.2)]';
-                }
+                 } else if (isSelected) {
+                   btnStateClass = 'bg-[var(--color-info-light)] border-[var(--color-info-border)] shadow-[var(--shadow-glow-cyan-20)]';
+                 }
 
                 return (
                   <button key={val} onClick={() => handleSelect(val)} disabled={isAnswerRevealed} className={cn('w-full text-center p-3 sm:p-4 rounded-xl border transition-all text-white font-bold text-sm sm:text-lg', isAnswerRevealed && 'cursor-default', btnStateClass)}>

@@ -33,7 +33,7 @@ export function StarRating({ rating, onRate, readonly = false, size = 20 }: Star
             className="transition-colors"
             style={{ width: size, height: size }}
             fill={star <= displayRating ? 'currentColor' : 'none'}
-            color={star <= displayRating ? '#facc15' : '#52525b'}
+            color={star <= displayRating ? 'var(--color-warning-400)' : 'var(--color-text-muted)'}
             strokeWidth={star <= displayRating ? 0 : 2}
           />
         </button>

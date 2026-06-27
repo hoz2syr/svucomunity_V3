@@ -40,7 +40,7 @@ export const Home = () => {
         <Navbar />
         <section className="relative w-full h-screen flex flex-col items-center justify-center select-none bg-[var(--color-bg-secondary)] overflow-hidden">
           <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none w-full px-4 pt-16">
-            <h1 className="text-white font-extrabold tracking-tight flex justify-center text-[10vw] sm:text-7xl md:text-8xl lg:text-[7.5rem] z-10 font-display drop-shadow-[0_0_40px_rgba(34,211,238,0.4)] mb-6 text-center w-full flex-nowrap whitespace-nowrap" dir="ltr">
+            <h1 className="text-white font-extrabold tracking-tight flex justify-center text-[10vw] sm:text-7xl md:text-8xl lg:text-[7.5rem] z-10 font-display drop-shadow-[var(--shadow-glow-cyan-40)] mb-6 text-center w-full flex-nowrap whitespace-nowrap" dir="ltr">
               SVU Community
             </h1>
             <HeroAddition />
@@ -74,7 +74,7 @@ export const Home = () => {
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 block w-full h-full" />
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-4">
-          <h1 className="text-white font-extrabold tracking-tight flex justify-center text-[10vw] sm:text-7xl md:text-8xl lg:text-[7.5rem] z-10 font-display drop-shadow-[0_0_40px_rgba(34,211,238,0.4)] mb-2 sm:mb-6 text-center w-full flex-nowrap whitespace-nowrap" dir="ltr">
+           <h1 className="text-white font-extrabold tracking-tight flex justify-center text-[10vw] sm:text-7xl md:text-8xl lg:text-[7.5rem] z-10 font-display drop-shadow-[var(--shadow-glow-cyan-40)] mb-2 sm:mb-6 text-center w-full flex-nowrap whitespace-nowrap" dir="ltr">
             {'SVU Community'.split('').map((char, i) => (
               <span
                 key={i}

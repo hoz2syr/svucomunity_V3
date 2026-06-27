@@ -25,7 +25,7 @@ export const SolutionBridge = () => (
       <div className="flex flex-wrap justify-center gap-4">
         {STATS.map((s, i) => (
           <FadeIn key={i} delay={200 + i * 200}>
-              <div className="px-6 py-3 rounded-full bg-[var(--color-bg-secondary)] border border-cyan-800/40 text-cyan-200 font-medium shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+              <div className="px-6 py-3 rounded-full bg-[var(--color-bg-secondary)] border border-cyan-800/40 text-cyan-200 font-medium shadow-[var(--shadow-glow-cyan-20)]">
                {s}
              </div>
           </FadeIn>

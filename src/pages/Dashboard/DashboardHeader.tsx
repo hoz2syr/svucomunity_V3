@@ -59,7 +59,7 @@ export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, er
                 <div className="flex items-start gap-3">
                   <span
                     className={`mt-2 w-2.5 h-2.5 rounded-full shrink-0 ${
-                      notification.read ? 'bg-slate-600' : 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)]'
+                       notification.read ? 'bg-slate-600' : 'bg-cyan-400 shadow-[var(--shadow-glow-indigo-70)]'
                     }`}
                   />
                   <div className="flex-1 min-w-0">
@@ -241,7 +241,7 @@ export const DashboardHeader = ({
     >
       <div className="flex items-center gap-3">
         <a href="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.35)] transition-all group-hover:scale-105 group-hover:shadow-[0_0_28px_rgba(34,211,238,0.5)]">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-indigo-600 flex items-center justify-center shadow-[var(--shadow-glow-cyan-35)] transition-all group-hover:scale-105 group-hover:shadow-[var(--shadow-glow-cyan-50)]">
             <span className="text-white font-extrabold text-[15px] font-display tracking-tight">SVU</span>
           </div>
           <motion.span
@@ -291,7 +291,7 @@ export const DashboardHeader = ({
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-[var(--color-danger)] text-white text-[10px] font-extrabold rounded-full shadow-[0_0_12px_rgba(244,63,94,0.7)] px-1">
+              <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-[var(--color-danger)] text-white text-[10px] font-extrabold rounded-full shadow-[var(--shadow-glow-rose-70)] px-1">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -317,7 +317,7 @@ export const DashboardHeader = ({
             onClick={onToggleProfile}
             className="flex items-center gap-2 p-1 pl-2.5 pr-1.5 rounded-full hover:bg-white/8 border border-transparent hover:border-cyan-500/20 transition-all"
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-extrabold text-white text-sm shadow-[0_0_16px_rgba(99,102,241,0.35)]">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-extrabold text-white text-sm shadow-[var(--shadow-glow-indigo-35)]">
               {user.name.charAt(0)}
             </div>
             <motion.span

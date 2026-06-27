@@ -67,7 +67,7 @@ export const ComingSoonSection = () => {
               />
               <button
                 type="submit"
-                className="shimmer-sweep bg-gradient-to-r from-cyan-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-colors whitespace-nowrap"
+                className="shimmer-sweep bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-secondary-500)] text-white px-6 py-3 rounded-lg font-medium shadow-[var(--shadow-glow-cyan-30)] transition-colors whitespace-nowrap"
               >
                 أبلغني عند الإطلاق
               </button>

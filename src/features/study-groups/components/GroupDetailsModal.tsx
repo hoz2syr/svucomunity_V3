@@ -135,7 +135,7 @@ export function GroupDetailsModal({
               bg-gradient-to-r from-emerald-600 to-emerald-500
               hover:from-emerald-500 hover:to-emerald-400
               flex items-center justify-center gap-2
-              shadow-[0_0_20px_rgba(16,185,129,0.25)]
+              shadow-[var(--shadow-glow-emerald-25)]
               transition-all duration-200
             "
           >
@@ -188,8 +188,8 @@ export function GroupDetailsModal({
                w-full
                bg-gradient-to-r from-amber-500 to-rose-500
                hover:from-amber-400 hover:to-rose-400
-               shadow-[0_0_16px_rgba(245,158,11,0.25)]
-               hover:shadow-[0_0_24px_rgba(245,158,11,0.4)]
+                shadow-[var(--shadow-glow-amber-25)]
+                hover:shadow-[var(--shadow-glow-amber-40)]
              "
            >
              <CheckCircle2 className="w-5 h-5" />

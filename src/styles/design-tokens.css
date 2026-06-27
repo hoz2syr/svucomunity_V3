@@ -138,10 +138,24 @@
   /* ── Shadows ──────────────────────────────── */
   --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.3);
   --shadow-glow-cyan-strong: 0 0 28px rgba(6, 182, 212, 0.5);
+  --shadow-glow-cyan-15: 0 0 15px rgba(34, 211, 238, 0.15);
+  --shadow-glow-cyan-20: 0 0 15px rgba(34, 211, 238, 0.2);
+  --shadow-glow-cyan-30: 0 0 20px rgba(6, 182, 212, 0.3);
+  --shadow-glow-cyan-40: 0 0 20px rgba(34, 211, 238, 0.4);
+  --shadow-glow-cyan-50: 0 0 30px rgba(34, 211, 238, 0.5);
+  --shadow-glow-cyan-60: 0 0 15px rgba(34, 211, 238, 0.6);
+  --shadow-glow-cyan-40px: 0 0 40px rgba(34, 211, 238, 0.3);
+  --shadow-glow-white-30: 0 0 15px rgba(255, 255, 255, 0.3);
   --shadow-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.35);
-  --shadow-glow-rose: 0 0 12px rgba(244, 63, 94, 0.7);
-  --shadow-glow-amber: 0 0 16px rgba(245, 158, 11, 0.25);
-  --shadow-glow-green: 0 0 16px rgba(34, 197, 94, 0.25);
+  --shadow-glow-indigo-20: 0 0 20px rgba(99, 102, 241, 0.2);
+  --shadow-glow-indigo-35: 0 0 16px rgba(99, 102, 241, 0.35);
+  --shadow-glow-indigo-70: 0 0 28px rgba(34, 211, 238, 0.7);
+  --shadow-glow-purple-40: 0 0 30px rgba(168, 85, 247, 0.4);
+  --shadow-glow-emerald-25: 0 0 20px rgba(16, 185, 129, 0.25);
+  --shadow-glow-emerald-40: 0 0 20px rgba(52, 211, 153, 0.4);
+  --shadow-glow-rose-70: 0 0 12px rgba(244, 63, 94, 0.7);
+  --shadow-glow-amber-25: 0 0 16px rgba(245, 158, 11, 0.25);
+  --shadow-glow-amber-40: 0 0 24px rgba(245, 158, 11, 0.4);
   --shadow-card: 0 20px 40px -12px rgba(0, 0, 0, 0.35);
   --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.5);
 
@@ -263,10 +277,24 @@
 
   --shadow-glow-cyan: var(--shadow-glow-cyan);
   --shadow-glow-cyan-strong: var(--shadow-glow-cyan-strong);
+  --shadow-glow-cyan-15: var(--shadow-glow-cyan-15);
+  --shadow-glow-cyan-20: var(--shadow-glow-cyan-20);
+  --shadow-glow-cyan-30: var(--shadow-glow-cyan-30);
+  --shadow-glow-cyan-40: var(--shadow-glow-cyan-40);
+  --shadow-glow-cyan-50: var(--shadow-glow-cyan-50);
+  --shadow-glow-cyan-60: var(--shadow-glow-cyan-60);
+  --shadow-glow-cyan-40px: var(--shadow-glow-cyan-40px);
+  --shadow-glow-white-30: var(--shadow-glow-white-30);
   --shadow-glow-indigo: var(--shadow-glow-indigo);
-  --shadow-glow-rose: var(--shadow-glow-rose);
-  --shadow-glow-amber: var(--shadow-glow-amber);
-  --shadow-glow-green: var(--shadow-glow-green);
+  --shadow-glow-indigo-20: var(--shadow-glow-indigo-20);
+  --shadow-glow-indigo-35: var(--shadow-glow-indigo-35);
+  --shadow-glow-indigo-70: var(--shadow-glow-indigo-70);
+  --shadow-glow-purple-40: var(--shadow-glow-purple-40);
+  --shadow-glow-emerald-25: var(--shadow-glow-emerald-25);
+  --shadow-glow-emerald-40: var(--shadow-glow-emerald-40);
+  --shadow-glow-rose-70: var(--shadow-glow-rose-70);
+  --shadow-glow-amber-25: var(--shadow-glow-amber-25);
+  --shadow-glow-amber-40: var(--shadow-glow-amber-40);
   --shadow-card: var(--shadow-card);
   --shadow-elevated: var(--shadow-elevated);
   --shadow-glow-amber-hover: var(--shadow-glow-amber-hover);

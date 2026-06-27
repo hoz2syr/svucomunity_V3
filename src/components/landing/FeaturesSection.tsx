@@ -104,14 +104,14 @@ export const FeaturesSection = () => (
                 <p className="text-slate-400 font-light leading-relaxed md:text-lg max-w-3xl">
                   اكتشف مسارك الأكاديمي، افهم ما تفتحه كل مادة وما تتطلبه، بنظرة واحدة على خريطة البرنامج المتكاملة.
                 </p>
-              </div>
-              <div className="w-full md:w-1/3 flex md:justify-end">
-                <button className="bg-[var(--color-purple-500)] hover:bg-[var(--color-purple-400)] text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 shadow-[0_0_20px_rgba(147,51,234,0.3)]">
-                  جرب المخطط الآن <Rocket size={18} />
-                </button>
-              </div>
             </div>
-            <div className="w-full h-[450px] md:h-[600px] relative bg-gradient-to-br from-[#040610] to-[#070b1a] border-t border-white/5 mt-4">
+            <div className="w-full md:w-1/3 flex md:justify-end">
+              <button className="bg-[var(--color-purple-500)] hover:bg-[var(--color-purple-400)] text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 shadow-[var(--shadow-glow-purple-40)]">
+                جرب المخطط الآن <Rocket size={18} />
+              </button>
+            </div>
+          </div>
+          <div className="w-full h-[450px] md:h-[600px] relative bg-[var(--color-bg-primary)] border-t border-white/5 mt-4">
               <InteractiveMapSimulation />
             </div>
           </GlassCard>

@@ -40,7 +40,7 @@ export const HowItWorksSection = () => {
                     </div>
 
                     <div className="relative flex justify-center w-full md:w-auto">
-                       <div className={`flex-shrink-0 w-16 h-16 rounded-full bg-[var(--color-bg-secondary)] border-2 ${borderColor} flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)] relative z-10`}>
+                       <div className={`flex-shrink-0 w-16 h-16 rounded-full bg-[var(--color-bg-secondary)] border-2 ${borderColor} flex items-center justify-center shadow-[var(--shadow-glow-cyan-15)] relative z-10`}>
                         <s.icon size={26} className={iconColor} />
                       </div>
                       <div className={`absolute top-0 md:top-2 md:-right-8 text-6xl font-black text-slate-800/30 select-none pointer-events-none z-0`}>{s.num}</div>

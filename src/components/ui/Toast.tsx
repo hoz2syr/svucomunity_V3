@@ -33,7 +33,7 @@ function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: (id: stri
   const borders = { success: 'border-emerald-500/30', error: 'border-rose-500/30', info: 'border-cyan-500/30' };
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-[#0f172a] border ${borders[t.type]} shadow-2xl shadow-black/40 min-w-[280px] max-w-sm`}>
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--color-bg-primary)] border ${borders[t.type]} shadow-2xl shadow-black/40 min-w-[280px] max-w-sm`}>
       {icons[t.type]}
       <p className="text-white text-sm flex-1 leading-relaxed">{t.message}</p>
       <button onClick={() => onDismiss(t.id)} className="text-slate-400 hover:text-white transition-colors">
