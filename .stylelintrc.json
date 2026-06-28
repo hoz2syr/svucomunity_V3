@@ -1,0 +1,40 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "overrides": [
+    {
+      "files": ["src/styles/design-tokens.css"],
+      "rules": {
+        "at-rule-no-unknown": [
+          true,
+          {
+            "ignoreAtRules": ["theme", "apply", "variants", "responsive", "screen"]
+          }
+        ],
+        "color-function-alias-notation": null,
+        "color-function-notation": null,
+        "alpha-value-notation": null,
+        "color-hex-length": null,
+        "custom-property-empty-line-before": null
+      }
+    },
+    {
+      "files": ["src/index.css"],
+      "rules": {
+        "keyframe-selector-notation": null,
+        "rule-empty-line-before": null,
+        "at-rule-empty-line-before": null,
+        "property-no-vendor-prefix": null,
+        "keyframes-name-pattern": null,
+        "declaration-block-single-line-max-declarations": null
+      }
+    }
+  ],
+  "rules": {
+    "color-no-invalid-hex": true,
+    "declaration-property-value-disallowed-list": {
+      "color": ["/^#/", "/^rgb/"],
+      "background-color": ["/^#/", "/^rgb/"]
+    },
+    "import-notation": "string"
+  }
+}

@@ -27,7 +27,6 @@ describe('exam.supabase mappers', () => {
       settings: { showExplanations: true },
       questions: [],
       rating: null,
-      rating_count: 0,
       published: true,
     });
   });

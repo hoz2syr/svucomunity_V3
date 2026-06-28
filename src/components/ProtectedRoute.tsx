@@ -15,11 +15,19 @@
  * @see GuestRoute — for routes that allow both registered and guest users.
  */
 
+import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
+
+  useEffect(() => {
+    console.warn(
+      '[ProtectedRoute] هذا المكون غير موصول حالياً في App.tsx. ' +
+      'إذا رأيت هذا التحذير في الإنتاج، فهذا يعني أن هناك مساراً محمياً غير مصحح.'
+    );
+  }, []);
 
   if (loading) {
     return (

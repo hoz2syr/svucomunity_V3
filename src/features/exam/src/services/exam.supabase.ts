@@ -3,13 +3,12 @@ import type { TestModel, TestAttempt } from '../types';
 
 export interface TestRow {
   id: string;
-  user_id: string;
+  user_id?: string | null;
   title: string;
   description: string | null;
   settings: TestModel['settings'];
   questions: TestModel['questions'];
   rating: number | null;
-  rating_count: number | null;
   published: boolean;
   created_at: string;
   updated_at: string;
@@ -33,7 +32,6 @@ export const toTestRow = (test: TestModel & { userId: string }): Omit<TestRow, '
   settings: test.settings,
   questions: test.questions,
   rating: test.rating ?? null,
-  rating_count: 0,
   published: test.published ?? false,
 });
 
@@ -58,7 +56,7 @@ export const fetchTestsFromSupabase = async (userId: string): Promise<{ data: Te
   try {
     const { data, error } = await getSupabaseClient()
       .from('tests')
-      .select('*')
+      .select('id, title, description, settings, questions, rating, rating_count, published, created_at, updated_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -92,7 +90,7 @@ export const fetchTestsPage = async (
   try {
     const query = getSupabaseClient()
       .from('tests')
-      .select('*')
+      .select('id, title, description, settings, questions, rating, rating_count, published, created_at, updated_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
@@ -217,7 +215,7 @@ export const fetchTestByIdFromSupabase = async (testId: string, userId: string):
   try {
     const { data, error } = await getSupabaseClient()
       .from('tests')
-      .select('*')
+      .select('id, title, description, settings, questions, rating, rating_count, published, created_at, updated_at')
       .eq('id', testId)
       .eq('user_id', userId)
       .maybeSingle();
@@ -420,7 +418,7 @@ export const fetchTestAttempts = async (testId: string): Promise<{ data: TestAtt
   try {
     const { data, error } = await getSupabaseClient()
       .from('test_attempts')
-      .select('*')
+      .select('id, test_id, user_id, score, total, answers, completed_at')
       .eq('test_id', testId)
       .order('completed_at', { ascending: false });
 
@@ -443,7 +441,7 @@ export const fetchUserAttemptHistory = async (userId: string): Promise<{ data: T
   try {
     const { data, error } = await getSupabaseClient()
       .from('test_attempts')
-      .select('*')
+      .select('id, test_id, user_id, score, total, answers, completed_at')
       .eq('user_id', userId)
       .order('completed_at', { ascending: false });
 

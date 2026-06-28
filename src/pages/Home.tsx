@@ -14,6 +14,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SkipLink } from '../components/accessibility/SkipLink';
 import { CardSkeleton } from '../components/ui/Skeleton';
 import { useParticleCanvas } from '../hooks/useParticleCanvas';
+import { AppBackground } from '../components/AppBackground';
 
 const LandingSections = () => (
   <>
@@ -95,9 +96,7 @@ export const Home = () => {
       </section>
 
       <main id="main-content" className="relative z-10 bg-[var(--color-bg-primary)] w-full pb-20 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen pointer-events-none translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute top-[30%] left-0 w-[600px] h-[600px] bg-cyan-600/10 blur-[150px] rounded-full mix-blend-screen pointer-events-none -translate-x-1/2"></div>
-        <div className="absolute bottom-0 right-[20%] w-[800px] h-[800px] bg-purple-900/20 blur-[150px] rounded-full mix-blend-screen pointer-events-none translate-y-1/2"></div>
+        <AppBackground variant="landing" />
 
         <ErrorBoundary>
           <Suspense fallback={

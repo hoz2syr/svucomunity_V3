@@ -19,7 +19,7 @@ export const fetchNotifications = async (): Promise<FetchNotificationsResult> =>
   try {
     const { data, error } = await getSupabaseClient()
       .from('notifications')
-      .select('*')
+      .select('id, title, body, read, created_at')
       .order('created_at', { ascending: false })
       .limit(20);
 

@@ -65,14 +65,14 @@ describe('studyGroup.supabase service', () => {
 
   describe('getCreators', () => {
     it('should return creator map from user ids', async () => {
-      const users = [
-        { id: '1', first_name: 'Ali', last_name: 'H', username: 'ali_h' },
-        { id: '2', first_name: 'Sara', last_name: 'K', username: 'sara_k' },
+      const profiles = [
+        { id: '1', full_name: 'Ali H', username: 'ali_h' },
+        { id: '2', full_name: 'Sara K', username: 'sara_k' },
       ];
-      mockFrom.mockReturnValue(createChain(users));
+      mockFrom.mockReturnValue(createChain(profiles));
 
       const result = await getCreators(['1', '2']);
-      expect(mockFrom).toHaveBeenCalledWith('users');
+      expect(mockFrom).toHaveBeenCalledWith('profiles');
       expect(result['1']).toEqual({ first_name: 'Ali', last_name: 'H', username: 'ali_h' });
       expect(result['2']).toEqual({ first_name: 'Sara', last_name: 'K', username: 'sara_k' });
     });

@@ -31,6 +31,7 @@ export interface TestModel {
   ratedBySession?: boolean;
   published: boolean;
   publishedAt?: string;
+  userId?: string;
 }
 
 export interface TestAttempt {

@@ -173,7 +173,7 @@ select.input-field:hover:not(:focus) {
 
 /* ── Gradient Text ──────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-accent-purple));
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-accent-teal));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

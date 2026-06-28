@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home as HomeIcon } from 'lucide-react';
 
 export const Navbar = () => {
   const [sticky, setSticky] = useState(false);
@@ -57,7 +57,7 @@ export const Navbar = () => {
 
   const outerClass = `fixed w-full z-50 flex justify-center transition-all duration-500 ${sticky ? 'top-4' : 'top-0'}`;
   const navClass = `w-full relative transition-all duration-500 ${sticky ? 'max-w-80rem rounded-2xl bg-[var(--color-bg-glass)] backdrop-blur-xl border border-white/10 shadow-xl' : 'max-w-80rem bg-transparent border-transparent'}`;
-  const innerClass = `px-4 sm:px-6 lg:px-8 transition-all duration-500 ${sticky ? 'h-16' : 'h-24'}`;
+  const innerClass = `px-4 sm:px-6 lg:px-8 transition-all duration-500 ${sticky ? 'h-16' : 'h-20'}`;
 
   return (
     <div className={outerClass}>
@@ -66,12 +66,14 @@ export const Navbar = () => {
           <div className="flex justify-between items-center h-full">
             {/* Brand */}
             <div className="flex-shrink-0 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg transition-all duration-500 bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-500)]">
-                <span className="font-bold text-sm text-[var(--color-bg-primary)]">S</span>
-              </div>
-              <span className={`font-bold font-display tracking-wide transition-all duration-500 ${sticky ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} bg-gradient-to-r from-[var(--color-brand-400)] to-[var(--color-brand-300)] bg-clip-text text-transparent`} dir="ltr">
-                SVU Community
-              </span>
+              <Link to="/" className="flex items-center gap-3 text-white font-bold text-sm sm:text-base shrink-0 group">
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[var(--color-cyan-400)] to-[var(--color-indigo-600)] flex items-center justify-center shadow-lg transition-all duration-300 group-hover:shadow-[var(--shadow-glow-indigo-70)] group-hover:scale-105">
+                  <HomeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <span className={`font-bold font-display tracking-wide transition-all duration-500 ${sticky ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} bg-gradient-to-r from-[var(--color-cyan-400)] to-[var(--color-indigo-600)] bg-clip-text text-transparent`} dir="ltr">
+                  SVU Community
+                </span>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -79,13 +81,13 @@ export const Navbar = () => {
               {['المشاكل', 'الميزات', 'كيف نبدأ'].map((label, i) => {
                 const href = ['#problems', '#features', '#how'][i];
                 return (
-                  <a
-                    key={href}
-                    href={href}
-                    className="relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 outline-none text-[var(--color-text-muted)] hover:text-[var(--color-brand-400)]"
-                  >
-                    {label}
-                  </a>
+              <a
+                key={href}
+                href={href}
+                className="relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 outline-none text-[var(--color-text-muted)] hover:text-[var(--color-cyan-400)]"
+              >
+                {label}
+              </a>
                 );
               })}
             </div>
@@ -97,11 +99,11 @@ export const Navbar = () => {
                 className="group relative outline-none"
               >
                 <div
-                  className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-75 transition duration-300 bg-gradient-to-br from-[var(--color-brand-400)] to-[var(--color-brand-500)]"
+                  className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-75 transition duration-300 bg-gradient-to-br from-[var(--color-cyan-400)] to-[var(--color-indigo-600)]"
                   style={{ filter: 'blur(8px)' }}
                 />
                 <div
-                  className="relative font-bold px-6 py-2 rounded-full transition-all duration-300 text-sm flex items-center gap-2 bg-[var(--color-bg-primary)] border border-[var(--color-brand-500)]/40 text-[var(--color-text-primary)] group-hover:bg-[var(--color-bg-secondary)]"
+                  className="relative font-bold px-6 py-2 rounded-full transition-all duration-300 text-sm flex items-center gap-2 bg-[var(--color-bg-primary)] border border-[var(--color-cyan-500)]/40 text-[var(--color-text-primary)] group-hover:bg-[var(--color-bg-secondary)]"
                 >
                   سجّل الدخول
                   <span
@@ -120,7 +122,7 @@ export const Navbar = () => {
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
                 aria-expanded={menuOpen}
-                className="hover:text-[var(--color-brand-400)] transition-colors text-[var(--color-text-muted)]"
+                className="hover:text-[var(--color-cyan-400)] transition-colors text-[var(--color-text-muted)]"
               >
                 {menuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -143,7 +145,7 @@ export const Navbar = () => {
                   key={href}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl font-medium transition-colors outline-none text-[var(--color-text-muted)] hover:text-[var(--color-brand-400)] hover:bg-white/5"
+                  className="px-4 py-3 rounded-xl font-medium transition-colors outline-none text-[var(--color-text-muted)] hover:text-[var(--color-cyan-400)] hover:bg-white/5"
                 >
                   {label}
                 </a>
@@ -153,7 +155,7 @@ export const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMenuOpen(false)}
-              className="text-center px-5 py-3 rounded-xl font-bold transition-all bg-gradient-to-r from-[var(--color-brand-400)] to-[var(--color-brand-500)] text-[var(--color-bg-primary)]"
+              className="text-center px-5 py-3 rounded-xl font-bold transition-all bg-gradient-to-r from-[var(--color-cyan-400)] to-[var(--color-indigo-600)] text-[var(--color-bg-primary)]"
             >
               سجّل الدخول
             </Link>

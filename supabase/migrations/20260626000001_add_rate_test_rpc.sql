@@ -17,6 +17,7 @@ begin
   if exists (
     select 1 from public.test_ratings
     where test_id = p_test_id and user_id = p_user_id
+    for update
   ) then
     raise exception 'User has already rated this test';
   end if;

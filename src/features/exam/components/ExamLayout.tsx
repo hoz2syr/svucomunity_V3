@@ -3,6 +3,7 @@ import { ExamNavbar } from './ExamNavbar';
 import { ArrowRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { SkipLink } from '../../../components/accessibility/SkipLink';
+import { AppBackground } from '../../../components/AppBackground';
 
 type ExamLayoutProps = {
   children: ReactNode;
@@ -13,7 +14,8 @@ export const ExamLayout = ({ children }: ExamLayoutProps) => {
   const isOnExamPage = location.pathname.includes('/exam/saved/play/');
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-tertiary)] text-slate-200 font-sans pt-4 px sm:px-4" dir="rtl">
+    <div className="min-h-screen text-slate-200 font-sans relative pt-4 px sm:px-4" dir="rtl">
+      <AppBackground variant="feature" />
       <SkipLink />
       <ExamNavbar />
       <div id="main-content" className="relative z-10 px-3 sm:px-4">

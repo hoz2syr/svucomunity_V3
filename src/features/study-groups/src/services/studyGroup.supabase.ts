@@ -1,25 +1,8 @@
-﻿import { createClient, SupabaseClient } from '@supabase/supabase-js';
+﻿import { getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '@/src/lib/supabase';
 import type { StudyGroup, Course } from '../types';
 import { getCoursesByMajorStatic, getAllMajorsStatic } from './courseCatalog';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-let cachedClient: SupabaseClient | null = null;
-
-function createSupabaseClient(): SupabaseClient {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-  }
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
-
-export function getSupabase(): SupabaseClient {
-  if (!cachedClient) {
-    cachedClient = createSupabaseClient();
-  }
-  return cachedClient;
-}
+export const getSupabase = (): ReturnType<typeof getSupabaseClient> => getSupabaseClient();
 
 export async function getAllWithCreators(): Promise<StudyGroup[]> {
   const { data, error } = await getSupabase()
@@ -33,18 +16,20 @@ export async function getAllWithCreators(): Promise<StudyGroup[]> {
 
 export async function getCreators(userIds: string[]): Promise<Record<string, { first_name: string; last_name: string; username: string }>> {
   const { data, error } = await getSupabase()
-    .from('users')
-    .select('id, first_name, last_name, username')
+    .from('profiles')
+    .select('id, full_name, username')
     .in('id', userIds);
 
   if (error) throw new Error(error.message);
 
   const map: Record<string, { first_name: string; last_name: string; username: string }> = {};
   for (const user of data || []) {
+    const full = user.full_name ?? '';
+    const [first_name, ...rest] = full.split(' ');
     map[user.id] = {
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      username: user.username || '',
+      first_name,
+      last_name: rest.join(' '),
+      username: user.username ?? '',
     };
   }
   return map;
