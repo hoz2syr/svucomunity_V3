@@ -15,22 +15,21 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
       onClick={() => onClick(group.id)}
       className="w-full text-right group"
     >
-      <div className="
-         relative overflow-hidden
-         bg-[var(--color-bg-card)] backdrop-blur-xl
-         border border-[var(--color-glass-border)]
-         rounded-2xl p-5
-         transition-all duration-300 ease-out
-         hover:border-[var(--color-glass-hover-border)]
-         hover:shadow-[var(--shadow-glow-cyan)]
-         hover:-translate-y-1
-       ">
-         {/* Subtle gradient overlay on hover */}
-         <div className="
-           absolute inset-0 opacity-0 group-hover:opacity-100
-           bg-gradient-to-br from-[var(--color-primary-400)]/10 to-[var(--color-accent-purple)]/10
-           transition-opacity duration-300
-         " />
+       <div className="
+          relative overflow-hidden
+          bg-[var(--color-bg-card)] border border-[var(--color-border)]
+          rounded-2xl p-5
+          transition-all duration-150
+          hover:border-[var(--color-border-hover)]
+          hover:shadow-[var(--shadow-card)]
+          hover:-translate-y-1
+        ">
+          {/* Subtle gradient overlay on hover */}
+          <div className="
+            absolute inset-0 opacity-0 group-hover:opacity-100
+            bg-gradient-to-br from-indigo-500/5 to-indigo-600/5
+            transition-opacity duration-150
+          " />
 
         <div className="relative">
           {/* Header */}
@@ -44,7 +43,7 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
             `}>
               {group.current_members >= group.max_members ? '● ممتلئة' : '● متاحة'}
             </span>
-            <span className="px-2.5 py-1 bg-[var(--color-info-light)] text-[var(--color-info-400)] rounded-lg text-xs font-mono border border-[var(--color-info-border)]">
+            <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg text-xs font-mono border border-indigo-500/20">
               {group.course_code}
             </span>
           </div>

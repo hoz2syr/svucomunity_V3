@@ -11,7 +11,7 @@
   checkIsAdmin,
   getCoursesByMajor,
   getAvailableMajors,
-} from '../../services/studyGroupsApi';
+} from '../../services/studyGroup.supabase';
 
 export {
   getAllWithCreators,

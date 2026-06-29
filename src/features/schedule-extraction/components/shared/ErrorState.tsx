@@ -8,10 +8,10 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = 'حدث خطأ في التحميل',
+  title = "حدث خطأ في التحميل",
   message,
   onRetry,
-  retryLabel = 'إعادة المحاولة',
+  retryLabel = "إعادة المحاولة",
 }: ErrorStateProps) {
   return (
     <div className="text-center py-20">

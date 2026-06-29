@@ -135,7 +135,7 @@ export function GroupDetailsModal({
               bg-gradient-to-r from-emerald-600 to-emerald-500
               hover:from-emerald-500 hover:to-emerald-400
               flex items-center justify-center gap-2
-              shadow-[var(--shadow-glow-emerald-25)]
+              shadow-md
               transition-all duration-200
             "
           >
@@ -184,13 +184,13 @@ export function GroupDetailsModal({
 {!isMember && !isFull && !showConfirmJoin && (
            <Button 
              onClick={handleJoinClick}
-             className="
-               w-full
-               bg-gradient-to-r from-amber-500 to-rose-500
-               hover:from-amber-400 hover:to-rose-400
-                shadow-[var(--shadow-glow-amber-25)]
-                hover:shadow-[var(--shadow-glow-amber-40)]
-             "
+              className="
+                w-full
+                bg-gradient-to-r from-amber-500 to-rose-500
+                hover:from-amber-400 hover:to-rose-400
+                 shadow-md
+                 hover:shadow-lg
+              "
            >
              <CheckCircle2 className="w-5 h-5" />
              انضم للمجموعة
