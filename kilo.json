@@ -1,0 +1,81 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "kilo-knowledge-base": {
+      "type": "local",
+      "command": [
+        "python",
+        "C:/Users/hozai/OneDrive/سطح المكتب/kilo code obsidian/05_Automation/mcp_server.py"
+      ],
+      "enabled": true
+    },
+    "shadcn-ui": {
+      "type": "local",
+      "command": [
+        "shadcn-mcp"
+      ],
+      "enabled": true
+    },
+    "design-mcp": {
+      "type": "local",
+      "command": [
+        "C:\\Users\\hozai\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\Scripts\\design-mcp.exe",
+        "serve"
+      ],
+      "enabled": true
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": true
+    },
+    "gemini-design-mcp": {
+      "type": "local",
+      "command": [
+        "C:\\nvm4w\\nodejs\\gemini-design-mcp.ps1"
+      ],
+      "enabled": true
+    }
+  },
+  "instructions": [
+    "C:\\Users\\hozai\\projects\\svu community v3.0.0_cleantree\\.kilo\\rules.md",
+    "C:\\Users\\hozai\\projects\\svu community v3.0.0_cleantree\\.kilo\\rules\\",
+    "C:\\Users\\hozai\\projects\\svu community v3.0.0_cleantree\\.kilo\\agents\\",
+    "C:\\Users\\hozai\\projects\\svu community v3.0.0_cleantree\\.kilo\\commands\\"
+  ],
+  "skills": {
+    "paths": [
+      "C:\\Users\\hozai\\projects\\svu community v3.0.0_cleantree\\.kilo\\skills"
+    ]
+  },
+  "agent": {
+    "context-manager": {
+      "mode": "primary",
+      "description": "Context and rules manager for the SVU Community project",
+      "prompt": "You are the Context Manager. Before any task starts, ensure agents load: `.kilo/rules.md`, `.kilo/rules/*.md`, relevant commands from `.kilo/commands/`, and `AGENTS.md`. Project-local rules take precedence over global rules. Do not load all 207 global rule files — only use the selected subset in `.kilo/rules/`.",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "\\.(md|mdc|mdx)$": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "mcp": "deny"
+      }
+    },
+    "rule-enforcer": {
+      "mode": "primary",
+      "description": "Rule enforcement agent that audits adherence to project rules",
+      "prompt": "You are the Rule Enforcer. Audit code and agent behavior against `.kilo/rules.md` and `.kilo/rules/*.md`. Report violations with file paths and line references. Priority: project-local rules > AGENTS.md > global rules.",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "\\.(md|mdc|mdx)$": "allow",
+          "*": "deny"
+        },
+        "bash": "allow",
+        "mcp": "deny"
+      }
+    }
+  }
+}

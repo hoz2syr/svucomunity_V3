@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { studyGroupService } from '@/src/features/study-groups/src/core/services';
 
-vi.mock('@/src/features/study-groups/src/services/studyGroupsApi', () => ({
+vi.mock('@/src/features/study-groups/src/services/studyGroup.supabase', () => ({
   getAllWithCreators: vi.fn(),
   getMyGroups: vi.fn(),
   createGroup: vi.fn(),
@@ -29,7 +29,7 @@ import {
   checkIsAdmin,
   getCoursesByMajor,
   getAvailableMajors,
-} from '@/src/features/study-groups/src/services/studyGroupsApi';
+} from '@/src/features/study-groups/src/services/studyGroup.supabase';
 
 describe('studyGroupService', () => {
   beforeEach(() => {

@@ -50,7 +50,7 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
         />
         <div className="flex gap-3">
           <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-300 bg-white/5 hover:bg-white/10 transition-colors">إلغاء</button>
-          <button type="submit" disabled={!isMatch} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-[var(--color-danger)] hover:bg-[var(--color-danger-400)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[var(--shadow-glow-cyan-20)] transition-colors">حذف نهائي</button>
+          <button type="submit" disabled={!isMatch} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-[var(--color-danger)] hover:bg-[var(--color-danger-400)] disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-colors">حذف نهائي</button>
         </div>
       </form>
     </ModalOverlay>

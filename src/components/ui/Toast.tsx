@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { Icon } from '@/src/components/ui/Icon';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -29,15 +30,22 @@ function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: (id: stri
     return () => clearTimeout(timer);
   }, [t.id, onDismiss]);
 
-  const icons = { success: <CheckCircle2 className="w-4 h-4 text-emerald-400" />, error: <AlertCircle className="w-4 h-4 text-rose-400" />, info: <Info className="w-4 h-4 text-cyan-400" /> };
-  const borders = { success: 'border-emerald-500/30', error: 'border-rose-500/30', info: 'border-cyan-500/30' };
+  const iconColor = {
+    success: 'text-emerald-400',
+    error: 'text-rose-400',
+    info: 'text-cyan-400',
+  };
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--color-bg-primary)] border ${borders[t.type]} shadow-2xl shadow-black/40 min-w-[280px] max-w-sm`}>
-      {icons[t.type]}
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--color-bg-primary)] border shadow-2xl shadow-black/40 min-w-[280px] max-w-sm ${
+      t.type === 'success' ? 'border-emerald-500/30' : t.type === 'error' ? 'border-rose-500/30' : 'border-cyan-500/30'
+    }`}>
+      {t.type === 'success' && <Icon icon={CheckCircle2} size="sm" className={iconColor.success} aria-label="نجاح" />}
+      {t.type === 'error' && <Icon icon={AlertCircle} size="sm" className={iconColor.error} aria-label="خطأ" />}
+      {t.type === 'info' && <Icon icon={Info} size="sm" className={iconColor.info} aria-label="معلومات" />}
       <p className="text-white text-sm flex-1 leading-relaxed">{t.message}</p>
-      <button onClick={() => onDismiss(t.id)} className="text-slate-400 hover:text-white transition-colors">
-        <X className="w-4 h-4" />
+      <button onClick={() => onDismiss(t.id)} className="text-slate-400 hover:text-white transition-colors" aria-label="إغلاق">
+        <Icon icon={X} size="sm" />
       </button>
     </div>
   );

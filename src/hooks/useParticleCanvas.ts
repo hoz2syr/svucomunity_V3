@@ -55,7 +55,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -98,16 +98,6 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
       mouseEasedRef.current.y += (mouseRef.current.y - mouseEasedRef.current.y) * 0.1;
       const mx = mouseEasedRef.current.x;
       const my = mouseEasedRef.current.y;
-      const px = (mx - w / 2) * -0.04;
-      const py = (my - h / 2) * -0.04;
-
-      const gx = w / 2 + Math.cos(now * 0.0003) * w * 0.2 + (px * -2.5);
-      const gy = h / 2 + Math.sin(now * 0.0002) * h * 0.2 + (py * -2.5);
-      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(w, h) * 0.8);
-      grad.addColorStop(0, '#111835');
-      grad.addColorStop(1, '#04081c');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
 
       const particles = particlesRef.current;
       const isHome = enableTextAssemble;

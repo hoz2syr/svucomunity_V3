@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { GuestProvider } from './contexts/GuestContext';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -6,15 +7,36 @@ import { queryClient } from './lib/queryClient';
 import { Home } from './pages/Home';
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
-import { DashboardPage } from './pages/Dashboard';
 import { AuthCallback } from './pages/AuthCallback';
 import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
-import { ExamHome, CreateTest, SavedTests, PlayTest, PlayTestShared, BrowsePublishedTests, AttemptHistory } from './features/exam';
-import { StudyGroupsLayout, StudyGroupsHome, MyGroupsPage, CreateGroupPage } from './features/study-groups';
+import { StudyGroupsLayout } from './features/study-groups';
+import { ScheduleExtractionLayout } from './features/schedule-extraction';
 import { ToastProvider } from './components/ui/Toast';
+
+const RouteLoader = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="text-cyan-400 text-lg">جاري التحميل...</div>
+  </div>
+);
+
+const LazyDashboardPage = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.DashboardPage })));
+
+const LazyExamHome = lazy(() => import('./features/exam').then(m => ({ default: m.ExamHome })));
+const LazyCreateTest = lazy(() => import('./features/exam').then(m => ({ default: m.CreateTest })));
+const LazySavedTests = lazy(() => import('./features/exam').then(m => ({ default: m.SavedTests })));
+const LazyPlayTest = lazy(() => import('./features/exam').then(m => ({ default: m.PlayTest })));
+const LazyPlayTestShared = lazy(() => import('./features/exam').then(m => ({ default: m.PlayTestShared })));
+const LazyBrowsePublishedTests = lazy(() => import('./features/exam').then(m => ({ default: m.BrowsePublishedTests })));
+const LazyAttemptHistory = lazy(() => import('./features/exam').then(m => ({ default: m.AttemptHistory })));
+
+const LazyStudyGroupsHome = lazy(() => import('./features/study-groups').then(m => ({ default: m.StudyGroupsHome })));
+const LazyMyGroupsPage = lazy(() => import('./features/study-groups').then(m => ({ default: m.MyGroupsPage })));
+const LazyCreateGroupPage = lazy(() => import('./features/study-groups').then(m => ({ default: m.CreateGroupPage })));
+
+const LazyScheduleExtractionPage = lazy(() => import('./features/schedule-extraction').then(m => ({ default: m.ScheduleExtractionPage })));
 
 function App() {
   return (
@@ -33,7 +55,9 @@ function App() {
                     path="/dashboard"
                     element={
                       <GuestRoute>
-                        <DashboardPage />
+                        <Suspense fallback={<RouteLoader />}>
+                          <LazyDashboardPage />
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -49,9 +73,11 @@ function App() {
                     path="/exam/home"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <ExamHome />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyExamHome />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -59,9 +85,11 @@ function App() {
                     path="/exam/create"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <CreateTest />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyCreateTest />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -69,9 +97,11 @@ function App() {
                     path="/exam/saved"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <SavedTests />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazySavedTests />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -79,9 +109,11 @@ function App() {
                     path="/exam/play/:id"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <PlayTest />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyPlayTest />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -89,9 +121,11 @@ function App() {
                     path="/exam/shared/:id"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <PlayTestShared />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyPlayTestShared />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -99,9 +133,11 @@ function App() {
                     path="/exam/browse"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <BrowsePublishedTests />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyBrowsePublishedTests />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -109,9 +145,11 @@ function App() {
                     path="/exam/attempts"
                     element={
                       <GuestRoute>
-                        <ExamLayout>
-                          <AttemptHistory />
-                        </ExamLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ExamLayout>
+                            <LazyAttemptHistory />
+                          </ExamLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -119,9 +157,11 @@ function App() {
                     path="/dashboard/study-groups"
                     element={
                       <GuestRoute>
-                        <StudyGroupsLayout>
-                          <StudyGroupsHome />
-                        </StudyGroupsLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <StudyGroupsLayout>
+                            <LazyStudyGroupsHome />
+                          </StudyGroupsLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -129,9 +169,11 @@ function App() {
                     path="/dashboard/study-groups/my"
                     element={
                       <GuestRoute>
-                        <StudyGroupsLayout>
-                          <MyGroupsPage />
-                        </StudyGroupsLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <StudyGroupsLayout>
+                            <LazyMyGroupsPage />
+                          </StudyGroupsLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
@@ -139,17 +181,31 @@ function App() {
                     path="/dashboard/study-groups/create"
                     element={
                       <GuestRoute>
-                        <StudyGroupsLayout>
-                          <CreateGroupPage />
-                        </StudyGroupsLayout>
+                        <Suspense fallback={<RouteLoader />}>
+                          <StudyGroupsLayout>
+                            <LazyCreateGroupPage />
+                          </StudyGroupsLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />
-                  <Route
+                   <Route
                     path="/study-groups"
                     element={
                       <GuestRoute>
                         <Navigate to="/dashboard/study-groups" replace />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/schedule"
+                    element={
+                      <GuestRoute>
+                        <Suspense fallback={<RouteLoader />}>
+                          <ScheduleExtractionLayout>
+                            <LazyScheduleExtractionPage />
+                          </ScheduleExtractionLayout>
+                        </Suspense>
                       </GuestRoute>
                     }
                   />

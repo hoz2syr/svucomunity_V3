@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import { Button } from '../ui/Button';
 import { ServerError } from '../ui/ServerError';
 import { ArrowRight } from 'lucide-react';
-import { useParticleCanvas } from '../../hooks/useParticleCanvas';
 
 type LogoGradient = 'from-cyan-400 to-indigo-500' | 'from-purple-500 to-indigo-500' | 'from-emerald-400 to-cyan-500';
 
@@ -27,9 +26,9 @@ interface AuthCardProps {
 }
 
 const gradientShadowClass: Record<LogoGradient, string> = {
-  'from-cyan-400 to-indigo-500': 'shadow-[var(--shadow-glow-cyan-40)]',
-  'from-purple-500 to-indigo-500': 'shadow-[var(--shadow-glow-purple-40)]',
-  'from-emerald-400 to-cyan-500': 'shadow-[var(--shadow-glow-emerald-40)]',
+  'from-cyan-400 to-indigo-500': 'shadow-md',
+  'from-purple-500 to-indigo-500': 'shadow-md',
+  'from-emerald-400 to-cyan-500': 'shadow-md',
 };
 
 export const AuthCard = ({
@@ -49,24 +48,10 @@ export const AuthCard = ({
   googleButtonText,
   onGoogleClick,
 }: AuthCardProps) => {
-  const { canvasRef, reducedMotion } = useParticleCanvas({
-    particleCount: 80,
-    enableTextAssemble: false,
-  });
-
   const [googleLogoError, setGoogleLogoError] = useState(false);
   const logoShadowClass = gradientShadowClass[logoGradient];
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-secondary)] relative overflow-hidden font-sans" dir="rtl">
-      {!reducedMotion && (
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 block w-full h-full pointer-events-none z-0"
-        />
-      )}
-      {reducedMotion && (
-        <div className="absolute inset-0 bg-[var(--color-bg-secondary)] pointer-events-none z-0" />
-      )}
       <div className="w-full max-w-md relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -79,7 +64,7 @@ export const AuthCard = ({
               <span className="text-white font-extrabold text-2xl font-display">SVU</span>
             </div>
           </Link>
-          <h1 className="text-3xl font-black text-white drop-shadow-[var(--shadow-glow-white-30)]">{title}</h1>
+           <h1 className="text-3xl font-black text-white">{title}</h1>
           {subtitle && <p className="text-slate-400 text-sm mt-2 tracking-wide font-display">{subtitle}</p>}
         </motion.div>
 
@@ -87,7 +72,7 @@ export const AuthCard = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-[var(--color-bg-primary)]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-[var(--shadow-glow-cyan-10)] relative"
+          className="bg-[var(--color-bg-primary)] border border-white/8 rounded-2xl p-8 shadow-[var(--shadow-card)] relative"
         >
           <ServerError error={serverError} />
 
@@ -135,7 +120,7 @@ export const AuthCard = ({
           {footerText && footerLinkText && footerLinkTo && (
             <div className="mt-7 text-center">
               <span className="text-slate-400 text-sm">{footerText} </span>
-              <Link to={footerLinkTo} className="text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition-colors hover:underline underline-offset-4 decoration-cyan-400/30">
+               <Link to={footerLinkTo} className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold transition-colors hover:underline underline-offset-4 decoration-indigo-400/30">
                 {footerLinkText}
               </Link>
             </div>

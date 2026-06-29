@@ -6,3 +6,4 @@ export { useToast, ToastProvider } from './Toast';
 export { Dropdown } from './Dropdown';
 export { FadeIn } from './FadeIn';
 export { ServerError } from './ServerError';
+export { Icon } from './Icon';

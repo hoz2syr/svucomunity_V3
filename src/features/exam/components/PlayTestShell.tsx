@@ -87,7 +87,7 @@ export function PlayTestShell({
         <BackButton label="العودة للاختبارات" />
 
         <div className="glass-card p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-[var(--color-info-light)] flex items-center justify-center mb-2 border border-[var(--color-info-border)]">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 border border-cyan-500/30">
             {preStartIcon || <FileText className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-cyan-400" />}
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 px-2">{test.title}</h1>
@@ -114,14 +114,14 @@ export function PlayTestShell({
           </div>
 
           {showSettingsInPreStart && (
-            <div className="text-right space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto bg-[var(--color-bg-elevated)]/50 p-4 sm:p-5 rounded-2xl border border-secondary-700/50">
+             <div className="text-right space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto bg-slate-800/50 p-4 sm:p-5 rounded-2xl border border-slate-700/50">
               <div className="flex items-center gap-2 text-white font-medium mb-3 sm:mb-4">
                 <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
                 <h3 className="text-sm sm:text-base">إعدادات بدء الاختبار</h3>
               </div>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
-                <input type="radio" name="feedbackType" checked={!immediateFeedback} onChange={() => setImmediateFeedback(false)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-[var(--color-bg-primary)] border-secondary-600" />
+                <input type="radio" name="feedbackType" checked={!immediateFeedback} onChange={() => setImmediateFeedback(false)} className="mt-0.5 sm:mt-1 w-4 h-4 text-indigo-500 focus:ring-indigo-500 bg-slate-950 border-slate-600" />
                 <div>
                   <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح في النهاية (وضع الاختبار)</p>
                   <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">إظهار الإجابات الصحيحة والشروح والنتيجة بعد الانتهاء من جميع الأسئلة.</p>
@@ -129,7 +129,7 @@ export function PlayTestShell({
               </label>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
-                <input type="radio" name="feedbackType" checked={immediateFeedback} onChange={() => setImmediateFeedback(true)} className="mt-0.5 sm:mt-1 w-4 h-4 text-cyan-500 focus:ring-cyan-500 bg-[var(--color-bg-primary)] border-secondary-600" />
+                <input type="radio" name="feedbackType" checked={immediateFeedback} onChange={() => setImmediateFeedback(true)} className="mt-0.5 sm:mt-1 w-4 h-4 text-indigo-500 focus:ring-indigo-500 bg-slate-950 border-slate-600" />
                 <div>
                   <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح فوري (وضع التعلم)</p>
                   <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">تأكيد كل إجابة وإظهار صحتها مع الشرح التوضيحي فوراً لغرض المراجعة.</p>
@@ -172,7 +172,7 @@ export function PlayTestShell({
                   aria-label={`تقييم ${star} من 5`}
                 >
                   <Star
-                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${star <= (test.rating || 0) ? 'text-[var(--color-warning-400)] fill-[var(--color-warning-400)]' : 'text-secondary-500'}`}
+                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${star <= (test.rating || 0) ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`}
                   />
                 </button>
               ))}
@@ -193,23 +193,23 @@ export function PlayTestShell({
               return (
                 <div key={q.id} className={cn('glass-card border-s-4', borderClass)}>
                   <div className="flex items-start gap-4">
-                    {isEssay ? <span className="mt-1 text-xs font-bold bg-[var(--color-warning-light)] text-[var(--color-warning-400)] border border-[var(--color-warning-border)] px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-[var(--color-success-400)] mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-[var(--color-danger-400)] mt-1 flex-shrink-0" />)}
+                    {isEssay ? <span className="mt-1 text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-emerald-400 mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-rose-400 mt-1 flex-shrink-0" />)}
                     <div>
                       <h4 className="text-white font-medium mb-2">السؤال {i + 1}: {q.text}</h4>
                       <p className="text-sm text-secondary-300 mb-1">
                         إجابتك: <span className="text-white font-bold">{userAnswer || '(تم التخطي)'}</span>
                       </p>
                       {isEssay && correctAnswers.length > 0 && (
-                        <div className="mt-2 p-3 rounded-lg border border-secondary-700 bg-[var(--color-bg-elevated)]/50">
+                         <div className="mt-2 p-3 rounded-lg border border-slate-700 bg-slate-800/50">
                           <p className="text-xs text-secondary-400 mb-1">الإجابة الصحيحة / الحل</p>
-                          <p className="text-sm text-[var(--color-success-300)]">{correctAnswers.join(' / ')}</p>
+                          <p className="text-sm text-emerald-300">{correctAnswers.join(' / ')}</p>
                         </div>
                       )}
                       {!isEssay && !isCorrect && (
-                        <p className="text-sm text-secondary-300 text-[var(--color-success-400)]">الإجابة الصحيحة: {q.correctAnswer}</p>
+                         <p className="text-sm text-slate-300 text-emerald-400">الإجابة الصحيحة: {q.correctAnswer}</p>
                       )}
                       {q.explanation && test.settings.showExplanations && (
-                        <div className="mt-3 bg-[var(--color-bg-elevated)]/50 p-4 rounded-lg border border-secondary-700">
+                         <div className="mt-3 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                           <span className="text-primary-400 font-bold text-sm block mb-1">الشرح:</span>
                           <span className="text-secondary-300 text-sm">{q.explanation}</span>
                         </div>
@@ -234,7 +234,7 @@ export function PlayTestShell({
       <div className="flex items-center justify-between font-medium text-secondary-300 px-2 lg:px-0">
         <span className="text-xs sm:text-sm md:text-base">السؤال {currentIdx + 1} من {test.questions.length}</span>
         {timeLeft !== null && (
-          <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-[var(--color-danger-400)] animate-pulse' : 'text-white')}>
+                  <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-rose-400 animate-pulse' : 'text-white')}>
             <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
             {formatTime(timeLeft)}
           </span>
@@ -277,22 +277,22 @@ export function PlayTestShell({
             if (isAnswerRevealed) {
               const isCorrectOption = correctList.includes(opt);
               if (isCorrectOption) {
-                 btnStateClass = 'bg-[var(--color-success-light)] border-[var(--color-success-border)] text-[var(--color-success-400)] ring-2 ring-[var(--color-success-border)]';
+                 btnStateClass = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 ring-2 ring-emerald-500/30';
               } else if (isSelected) {
-                 btnStateClass = 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)] text-[var(--color-danger-400)]';
+                 btnStateClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
               } else {
                 btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
               }
              } else if (isSelected) {
-               btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-[var(--shadow-glow-cyan-20)]';
+                btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-md';
              }
 
             return (
               <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
                 <div className="flex items-center gap-2.5 sm:gap-3">
                   <div className={cn('w-4 h-4 sm:w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition border-2',
-                    isSelected ? (!isAnswerRevealed ? 'border-[var(--color-info-border)] bg-[var(--color-info)]' : 'border-[var(--color-success-border)] bg-[var(--color-success)]') : 'border-secondary-500',
-                    isAnswerRevealed && correctList.includes(opt) && 'border-[var(--color-success-border)] bg-[var(--color-success)]')}>
+                     isSelected ? (!isAnswerRevealed ? 'border-cyan-500/30 bg-cyan-500' : 'border-emerald-500/30 bg-emerald-500') : 'border-slate-500',
+                     isAnswerRevealed && correctList.includes(opt) && 'border-emerald-500/30 bg-emerald-500')}>
                     {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
                   </div>
                   <span className="text-sm sm:text-base">{opt}</span>
@@ -310,14 +310,14 @@ export function PlayTestShell({
                 if (isAnswerRevealed) {
                   const isCorrectOption = val === currentQ.correctAnswer?.toLowerCase();
                   if (isCorrectOption) {
-                    btnStateClass = 'bg-[var(--color-success-light)] border-[var(--color-success-border)] text-[var(--color-success-400)] ring-2 ring-[var(--color-success-border)]';
+                    btnStateClass = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 ring-2 ring-emerald-500/30';
                   } else if (isSelected) {
-                    btnStateClass = 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)] text-[var(--color-danger-400)]';
+                    btnStateClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
                   } else {
                     btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
                   }
                  } else if (isSelected) {
-                   btnStateClass = 'bg-[var(--color-info-light)] border-[var(--color-info-border)] shadow-[var(--shadow-glow-cyan-20)]';
+                    btnStateClass = 'bg-cyan-500/10 border-cyan-500/30 shadow-md';
                  }
 
                 return (
@@ -335,13 +335,13 @@ export function PlayTestShell({
         </div>
 
         {isAnswerRevealed && (
-          <div className={cn('mt-3 sm:mt-4 md:mt-6 p-3 sm:p-4 rounded-xl border', isCurrentCorrect ? 'bg-[var(--color-success-light)] border-[var(--color-success-border)]' : 'bg-[var(--color-danger-light)] border-[var(--color-danger-border)]')}>
+          <div className={cn('mt-3 sm:mt-4 md:mt-6 p-3 sm:p-4 rounded-xl border', isCurrentCorrect ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30')}>
             <div className="flex items-start gap-2.5 sm:gap-3">
-              <div className={cn('w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0', isCurrentCorrect ? 'text-[var(--color-success-400)]' : 'text-[var(--color-danger-400)]')}>
+              <div className={cn('w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0', isCurrentCorrect ? 'text-emerald-400' : 'text-rose-400')}>
                 {isCurrentCorrect ? '✓' : '✗'}
               </div>
               <div>
-                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-[var(--color-success-400)]' : 'text-[var(--color-danger-400)]')}>
+                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-emerald-400' : 'text-rose-400')}>
                   {isCurrentCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
                 </h4>
                 {!isCurrentCorrect && currentQ.type !== 'essay' && (

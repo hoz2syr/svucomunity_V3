@@ -37,25 +37,24 @@ export function Button({
 
   const variants = {
     primary: [
-      'bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-secondary-400)]',
-      'hover:from-[var(--color-primary-400)] hover:to-[var(--color-secondary-300)]',
-      'shadow-[var(--shadow-glow-cyan)]',
-      'hover:shadow-[var(--shadow-glow-cyan-strong)]',
+      'bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-500)]',
       'text-white',
+      'shadow-[var(--shadow-button)]',
     ],
     secondary: [
-      'bg-slate-700 hover:bg-slate-600',
-      'text-white',
+      'bg-white/6 hover:bg-white/10',
+      'border border-white/10',
+      'text-[var(--color-text-primary)]',
     ],
     danger: [
       'bg-[var(--color-danger)] hover:bg-[var(--color-danger-400)]',
       'text-white',
+      'shadow-none',
     ],
     auth: [
-      'w-full bg-gradient-to-r from-[var(--color-primary-400)] to-[var(--color-secondary-400)]',
+      'w-full bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-500)]',
       'text-white font-bold rounded-xl',
-      'shadow-[var(--shadow-glow-cyan)]',
-      'hover:shadow-[var(--shadow-glow-cyan-50)]',
+      'shadow-none',
       'transition-all flex items-center justify-center gap-2',
       'group relative overflow-hidden',
       'disabled:opacity-80 disabled:cursor-not-allowed',

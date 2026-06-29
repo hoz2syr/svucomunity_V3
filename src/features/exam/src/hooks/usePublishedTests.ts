@@ -6,7 +6,7 @@ import type { TestModel } from '../types';
 import { fetchPublishedTests } from '../services/exam.supabase';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/src/services/courseCatalog';
+import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/services/courseCatalog';
 
 export interface UsePublishedTestsReturn {
   tests: TestModel[];

@@ -87,14 +87,10 @@ describe('Toast component', () => {
       screen.getByText('success').click();
     });
     expect(screen.getByText('نجاح')).toBeDefined();
-    const closeBtn = screen.getByRole('button', { name: '' });
-    const buttons = screen.getAllByRole('button');
-    const dismissBtn = buttons.find((btn) => btn.querySelector('svg'));
-    if (dismissBtn) {
-      await act(async () => {
-        dismissBtn.click();
-      });
-    }
+    const dismissBtn = screen.getByRole('button', { name: 'إغلاق' });
+    await act(async () => {
+      dismissBtn.click();
+    });
     await waitFor(() => expect(screen.queryByText('نجاح')).toBeNull());
   });
 

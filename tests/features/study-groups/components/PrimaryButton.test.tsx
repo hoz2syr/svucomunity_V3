@@ -30,7 +30,7 @@ describe('Button component', () => {
   it('should apply default classes', () => {
     render(<Button variant="primary">زر</Button>);
     const button = screen.getByText('زر');
-    expect(button.className).toContain('from-[var(--color-primary-500)]');
+    expect(button.className).toContain('bg-[var(--color-primary-600)]');
     expect(button.className).toContain('rounded-[var(--radius-button)]');
   });
 

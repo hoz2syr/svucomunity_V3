@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
+import { hasSupabaseEnv } from '@/src/lib/supabase';
+import { listenAuthChanges } from '@/src/services/auth.service';
 
 interface GuestProfile {
   name: string;
@@ -84,25 +85,6 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
   const isGuestRef = useRef(isGuest);
   isGuestRef.current = isGuest;
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem(GUEST_MODE_KEY);
-    if (stored === 'true') {
-      setIsGuest(true);
-      setGuestProfile(readGuestProfile());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!hasSupabaseEnv()) return;
-    const client = getSupabaseClient();
-    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && isGuestRef.current) {
-        disableGuestMode();
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
   const enableGuestMode = (profile?: GuestProfile) => {
     sessionStorage.setItem(GUEST_MODE_KEY, 'true');
     setIsGuest(true);
@@ -120,6 +102,46 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
     setIsGuest(false);
     setGuestProfile(null);
   };
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem(GUEST_MODE_KEY);
+    if (stored === 'true') {
+      setIsGuest(true);
+      setGuestProfile(readGuestProfile());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv()) return;
+
+    let mounted = true;
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    const setupListener = async () => {
+      try {
+        const listener = await listenAuthChanges((session) => {
+          if (!mounted) return;
+          if (session && isGuestRef.current) {
+            disableGuestMode();
+          }
+        });
+        if (mounted) {
+          subscription = listener;
+        } else {
+          listener.unsubscribe();
+        }
+      } catch {
+        // Silently fail - auth state changes are best-effort
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
+  }, [disableGuestMode]);
 
   return (
     <GuestContext.Provider value={{ isGuest, guestProfile, enableGuestMode, disableGuestMode }}>

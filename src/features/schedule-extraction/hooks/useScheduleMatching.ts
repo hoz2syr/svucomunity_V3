@@ -19,21 +19,21 @@ export function useScheduleMatching() {
       setError(res.error.message);
       return;
     }
-    const mapped: MatchedGroup[] = (res.data || []).map((g) => ({
-      id: g.id,
-      name: g.name,
-      course_code: g.course_code,
-      course_name: g.course_name,
-      major: g.major,
-      class_number: g.class_number ?? null,
-      current_members: g.current_members,
-      max_members: g.max_members,
-      is_full: g.is_full,
-      creator_name: g.creator_name,
-      creator_id: g.creator_id,
-      whatsapp_link: g.whatsapp_link ?? null,
-      group_link: g.group_link ?? null,
-    }));
+  const mapped: MatchedGroup[] = (res.data || []).map((g) => ({
+    id: g.id,
+    name: g.name,
+    course_code: g.course_code,
+    course_name: g.course_name,
+    major: g.major,
+    class_number: g.class_number ?? null,
+    current_members: g.current_members,
+    max_members: g.max_members,
+    is_full: g.current_members >= g.max_members,
+    creator_name: g.creator_name,
+    creator_id: g.creator_id,
+    whatsapp_link: g.whatsapp_link ?? null,
+    group_link: g.group_link ?? null,
+  }));
     setGroups(mapped);
   }, []);
 
@@ -72,7 +72,7 @@ export function useScheduleMatching() {
           class_number: g.class_number ?? null,
           current_members: g.current_members,
           max_members: g.max_members,
-          is_full: g.is_full,
+          is_full: g.current_members >= g.max_members,
           creator_name: g.creator_name,
           creator_id: g.creator_id,
           whatsapp_link: g.whatsapp_link ?? null,

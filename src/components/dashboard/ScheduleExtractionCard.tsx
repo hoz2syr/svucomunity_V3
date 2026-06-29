@@ -6,10 +6,9 @@ export const ScheduleExtractionCard = () => (
     title="Schedule Extraction"
     description="AI will extract your courses and find matching study groups"
     icon={<CalendarDays />}
-    iconBgClass="bg-[var(--color-info)]"
-    iconColorClass="var(--color-info-400)"
     linkTo="/dashboard/schedule"
     linkLabel="استخراج الجدول"
+    accent="primary"
     index={2}
   />
 );

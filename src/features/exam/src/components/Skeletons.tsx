@@ -33,7 +33,7 @@ Skeleton.displayName = 'Skeleton';
 
 export function TestCardSkeleton() {
   return (
-    <div className="glass-card flex flex-col h-full rounded-2xl overflow-hidden bg-[var(--color-bg-card)] border border-[var(--color-glass-border)] skeleton-fade-in">
+    <div className="glass-card flex flex-col h-full rounded-2xl overflow-hidden bg-[var(--color-bg-card)] border border-[var(--color-border)] skeleton-fade-in">
       <div className="flex-1 p-5 pb-4 space-y-3">
         <Skeleton className="h-6 w-4/5" />
         <div className="space-y-2">
@@ -64,7 +64,7 @@ export function PlayTestSkeleton() {
       <div className="flex justify-between px-2">
         <Skeleton className="h-5 w-32" />
       </div>
-      <div className="glass-card p-8 md:p-12 border border-[var(--color-glass-border)]">
+      <div className="glass-card p-8 md:p-12 border border-[var(--color-border)]">
         <Skeleton className="h-8 w-full mb-8" />
         <div className="space-y-4">
           <Skeleton variant="button" className="h-16 w-full rounded-xl" />

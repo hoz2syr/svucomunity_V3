@@ -7,8 +7,8 @@ import { upsertTestToSupabase } from '../services/exam.supabase';
 import { hasSupabaseEnv, missingSupabaseEnvMessage, getCurrentSession } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
-import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/src/services/courseCatalog';
-import type { Course } from '@/src/features/study-groups/src/types';
+import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/services/courseCatalog';
+import type { Course } from '@/src/features/study-groups/services/studyGroup.supabase';
 
 export interface CreateTestState {
   jsonText: string;

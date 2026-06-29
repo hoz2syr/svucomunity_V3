@@ -1,0 +1,2056 @@
+{
+  "generatedAt": "2026-06-28T13:47:24.548Z",
+  "count": 410,
+  "files": [
+    {
+      "path": ".storybook/main.ts",
+      "size": 863,
+      "mtime": 1781746226844.561
+    },
+    {
+      "path": ".storybook/preview.tsx",
+      "size": 240,
+      "mtime": 1781746226846.6392
+    },
+    {
+      "path": ".stylelintrc.json",
+      "size": 1100,
+      "mtime": 1782596840041.3235
+    },
+    {
+      "path": "AUTH_ANALYSIS_REPORT.md",
+      "size": 18910,
+      "mtime": 1782057831894.9707
+    },
+    {
+      "path": "AUTH_SECURITY_REVIEW.md",
+      "size": 17539,
+      "mtime": 1782016148761.2197
+    },
+    {
+      "path": "CODEREVIEW_AR.md",
+      "size": 18062,
+      "mtime": 1782335708428.3262
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "size": 9902,
+      "mtime": 1781974656432.4211
+    },
+    {
+      "path": "docs/architecture/final-file-map-and-work-plan.md",
+      "size": 10729,
+      "mtime": 1781828686414.7263
+    },
+    {
+      "path": "docs/architecture/implementation-plan.md",
+      "size": 8665,
+      "mtime": 1781828911747.0613
+    },
+    {
+      "path": "docs/business-rules.md",
+      "size": 2288,
+      "mtime": 1781804434427.7554
+    },
+    {
+      "path": "docs/design/design-system.md",
+      "size": 5787,
+      "mtime": 1782455702972.1885
+    },
+    {
+      "path": "docs/diagrams/component-tree.md",
+      "size": 1141,
+      "mtime": 1781746067642.6533
+    },
+    {
+      "path": "docs/diagrams/erd.md",
+      "size": 431,
+      "mtime": 1781746067641.0132
+    },
+    {
+      "path": "docs/edge-functions.md",
+      "size": 1821,
+      "mtime": 1781828935326.481
+    },
+    {
+      "path": "docs/README.md",
+      "size": 2681,
+      "mtime": 1781827225902.3457
+    },
+    {
+      "path": "docs/sessions/study-groups-improvements-2026-06-24.md",
+      "size": 6597,
+      "mtime": 1782337341295.9858
+    },
+    {
+      "path": "docs/supabase-setup.md",
+      "size": 5769,
+      "mtime": 1781974608510.8987
+    },
+    {
+      "path": "docs/tasks/10-production-readiness-plan.md",
+      "size": 12892,
+      "mtime": 1781829434627.2893
+    },
+    {
+      "path": "docs/tasks/auth-session-refresh-fix.md",
+      "size": 2885,
+      "mtime": 1782331039799.6272
+    },
+    {
+      "path": "docs/tasks/css-utilities-refactor.md",
+      "size": 1665,
+      "mtime": 1782268342970.4065
+    },
+    {
+      "path": "docs/tasks/exam-feature-complete-report.md",
+      "size": 11206,
+      "mtime": 1782355312205.5579
+    },
+    {
+      "path": "docs/tasks/exam-feature-complete.md",
+      "size": 2018,
+      "mtime": 1782354191375.95
+    },
+    {
+      "path": "docs/tasks/fix-localStorage-split-brain.md",
+      "size": 3738,
+      "mtime": 1782268947720.6729
+    },
+    {
+      "path": "docs/tasks/master-task-list.md",
+      "size": 8730,
+      "mtime": 1781829179163.321
+    },
+    {
+      "path": "docs/tasks/optimize-published-tests-filtering.md",
+      "size": 2076,
+      "mtime": 1782267653658.1226
+    },
+    {
+      "path": "docs/tasks/supabase-env-lazy-client-plan.md",
+      "size": 3093,
+      "mtime": 1781821292652.3525
+    },
+    {
+      "path": "docs/tasks/supabase-env-lazy-client-session.md",
+      "size": 1689,
+      "mtime": 1781821298520.7913
+    },
+    {
+      "path": "ite_comunety/env.js",
+      "size": 585,
+      "mtime": 1774231324068.7473
+    },
+    {
+      "path": "ite_comunety/js/config.js",
+      "size": 2284,
+      "mtime": 1774226357177.2004
+    },
+    {
+      "path": "ite_comunety/js/core.js",
+      "size": 9409,
+      "mtime": 1774226357946.567
+    },
+    {
+      "path": "ite_comunety/js/feedback.js",
+      "size": 14625,
+      "mtime": 1774282007492.7737
+    },
+    {
+      "path": "ite_comunety/js/gemini-service.js",
+      "size": 8256,
+      "mtime": 1774270241826.9446
+    },
+    {
+      "path": "ite_comunety/js/i18n.js",
+      "size": 32079,
+      "mtime": 1774289334480.8296
+    },
+    {
+      "path": "ite_comunety/js/onboarding-tour.js",
+      "size": 24377,
+      "mtime": 1774291246092.8325
+    },
+    {
+      "path": "ite_comunety/js/page-admin.js",
+      "size": 16355,
+      "mtime": 1774146249216.6528
+    },
+    {
+      "path": "ite_comunety/js/page-course-resources.js",
+      "size": 18723,
+      "mtime": 1774250648860.939
+    },
+    {
+      "path": "ite_comunety/js/page-dashboard.js",
+      "size": 3201,
+      "mtime": 1774146249217.661
+    },
+    {
+      "path": "ite_comunety/js/page-groups.js",
+      "size": 43945,
+      "mtime": 1774280400725.8872
+    },
+    {
+      "path": "ite_comunety/js/page-login.js",
+      "size": 8498,
+      "mtime": 1774226358113.6675
+    },
+    {
+      "path": "ite_comunety/js/page-materials.js",
+      "size": 20290,
+      "mtime": 1774252776923.047
+    },
+    {
+      "path": "ite_comunety/js/page-profile.js",
+      "size": 25700,
+      "mtime": 1774240301905.3716
+    },
+    {
+      "path": "ite_comunety/js/page-register.js",
+      "size": 18129,
+      "mtime": 1774177229801.377
+    },
+    {
+      "path": "ite_comunety/js/page-reset-password.js",
+      "size": 5054,
+      "mtime": 1774146249222.6897
+    },
+    {
+      "path": "ite_comunety/js/page-schedule.js",
+      "size": 33347,
+      "mtime": 1774279360066.1885
+    },
+    {
+      "path": "ite_comunety/js/shared.js",
+      "size": 22297,
+      "mtime": 1774280069319.1675
+    },
+    {
+      "path": "ite_comunety/js/tooltip.js",
+      "size": 7405,
+      "mtime": 1774283515879.9343
+    },
+    {
+      "path": "ite_comunety/js/utils.js",
+      "size": 379,
+      "mtime": 1774211555366.66
+    },
+    {
+      "path": "ite_comunety/LAUNCH_PLAN.md",
+      "size": 2367,
+      "mtime": 1774089341197.8022
+    },
+    {
+      "path": "ite_comunety/package-lock.json",
+      "size": 57199,
+      "mtime": 1774228710187.076
+    },
+    {
+      "path": "ite_comunety/package.json",
+      "size": 566,
+      "mtime": 1774226349753.8467
+    },
+    {
+      "path": "ite_comunety/public/env.js",
+      "size": 585,
+      "mtime": 1774231324068.7473
+    },
+    {
+      "path": "ite_comunety/public/js/config.js",
+      "size": 2284,
+      "mtime": 1774226357177.2004
+    },
+    {
+      "path": "ite_comunety/public/js/core.js",
+      "size": 9409,
+      "mtime": 1774226357946.567
+    },
+    {
+      "path": "ite_comunety/public/js/feedback.js",
+      "size": 14625,
+      "mtime": 1774282007492.7737
+    },
+    {
+      "path": "ite_comunety/public/js/gemini-service.js",
+      "size": 8256,
+      "mtime": 1774270241826.9446
+    },
+    {
+      "path": "ite_comunety/public/js/i18n.js",
+      "size": 32079,
+      "mtime": 1774289334480.8296
+    },
+    {
+      "path": "ite_comunety/public/js/onboarding-tour.js",
+      "size": 24377,
+      "mtime": 1774291246092.8325
+    },
+    {
+      "path": "ite_comunety/public/js/page-admin.js",
+      "size": 16355,
+      "mtime": 1774146249216.6528
+    },
+    {
+      "path": "ite_comunety/public/js/page-course-resources.js",
+      "size": 18723,
+      "mtime": 1774250648860.939
+    },
+    {
+      "path": "ite_comunety/public/js/page-dashboard.js",
+      "size": 3201,
+      "mtime": 1774146249217.661
+    },
+    {
+      "path": "ite_comunety/public/js/page-groups.js",
+      "size": 43945,
+      "mtime": 1774280400725.8872
+    },
+    {
+      "path": "ite_comunety/public/js/page-login.js",
+      "size": 8498,
+      "mtime": 1774226358113.6675
+    },
+    {
+      "path": "ite_comunety/public/js/page-materials.js",
+      "size": 20290,
+      "mtime": 1774252776923.047
+    },
+    {
+      "path": "ite_comunety/public/js/page-profile.js",
+      "size": 25700,
+      "mtime": 1774240301905.3716
+    },
+    {
+      "path": "ite_comunety/public/js/page-register.js",
+      "size": 18129,
+      "mtime": 1774177229801.377
+    },
+    {
+      "path": "ite_comunety/public/js/page-reset-password.js",
+      "size": 5054,
+      "mtime": 1774146249222.6897
+    },
+    {
+      "path": "ite_comunety/public/js/page-schedule.js",
+      "size": 33347,
+      "mtime": 1774279360066.1885
+    },
+    {
+      "path": "ite_comunety/public/js/shared.js",
+      "size": 22297,
+      "mtime": 1774280069319.1675
+    },
+    {
+      "path": "ite_comunety/public/js/tooltip.js",
+      "size": 7405,
+      "mtime": 1774283515879.9343
+    },
+    {
+      "path": "ite_comunety/public/js/utils.js",
+      "size": 379,
+      "mtime": 1774211555366.66
+    },
+    {
+      "path": "ite_comunety/public/svu_courses.json",
+      "size": 128155,
+      "mtime": 1774246448979.6812
+    },
+    {
+      "path": "ite_comunety/README.md",
+      "size": 10350,
+      "mtime": 1774298817393.8552
+    },
+    {
+      "path": "ite_comunety/reportfrometheuser.md",
+      "size": 4297,
+      "mtime": 1774044076776.7422
+    },
+    {
+      "path": "ite_comunety/vite.config.js",
+      "size": 1166,
+      "mtime": 1774246061243.38
+    },
+    {
+      "path": "metadata.json",
+      "size": 139,
+      "mtime": 1781706196000
+    },
+    {
+      "path": "package-lock.json",
+      "size": 368104,
+      "mtime": 1782596029814.9922
+    },
+    {
+      "path": "package.json",
+      "size": 1934,
+      "mtime": 1782596912739.6
+    },
+    {
+      "path": "public/svu_courses.json",
+      "size": 128155,
+      "mtime": 1774246448979.6812
+    },
+    {
+      "path": "README.md",
+      "size": 11935,
+      "mtime": 1781989854591.535
+    },
+    {
+      "path": "src/App.tsx",
+      "size": 6163,
+      "mtime": 1782356018855.921
+    },
+    {
+      "path": "src/components/accessibility/SkipLink.tsx",
+      "size": 836,
+      "mtime": 1782069418141.1133
+    },
+    {
+      "path": "src/components/AppBackground.tsx",
+      "size": 1642,
+      "mtime": 1782650827557.7476
+    },
+    {
+      "path": "src/components/AuthBackground.tsx",
+      "size": 496,
+      "mtime": 1782418301251.5806
+    },
+    {
+      "path": "src/components/dashboard/CourseMaterialsCard.tsx",
+      "size": 411,
+      "mtime": 1782450233651.8423
+    },
+    {
+      "path": "src/components/dashboard/DeleteAccountModal.tsx",
+      "size": 2802,
+      "mtime": 1782590635765.483
+    },
+    {
+      "path": "src/components/dashboard/FeatureCard.tsx",
+      "size": 2634,
+      "mtime": 1782459434319.9055
+    },
+    {
+      "path": "src/components/dashboard/index.ts",
+      "size": 324,
+      "mtime": 1781813032550.1467
+    },
+    {
+      "path": "src/components/dashboard/LogoutModal.tsx",
+      "size": 1265,
+      "mtime": 1782590732994.8984
+    },
+    {
+      "path": "src/components/dashboard/ModalOverlay.tsx",
+      "size": 3163,
+      "mtime": 1782420178469.3477
+    },
+    {
+      "path": "src/components/dashboard/ProfileSettingsForm.tsx",
+      "size": 2457,
+      "mtime": 1782590635758.037
+    },
+    {
+      "path": "src/components/dashboard/ScheduleExtractionCard.tsx",
+      "size": 460,
+      "mtime": 1782450233650.8433
+    },
+    {
+      "path": "src/components/dashboard/SecuritySettingsForm.tsx",
+      "size": 2556,
+      "mtime": 1782590608460.994
+    },
+    {
+      "path": "src/components/dashboard/SettingsModal.tsx",
+      "size": 2857,
+      "mtime": 1782152897356.9475
+    },
+    {
+      "path": "src/components/dashboard/StudyGroupsCard.tsx",
+      "size": 398,
+      "mtime": 1782450233638.2795
+    },
+    {
+      "path": "src/components/dashboard/TestsCard.tsx",
+      "size": 382,
+      "mtime": 1782450233630.7283
+    },
+    {
+      "path": "src/components/dashboard/useProfileSettings.ts",
+      "size": 900,
+      "mtime": 1781816848393.4036
+    },
+    {
+      "path": "src/components/dashboard/useSecuritySettings.ts",
+      "size": 955,
+      "mtime": 1781817193309.2932
+    },
+    {
+      "path": "src/components/ErrorBoundary.tsx",
+      "size": 2418,
+      "mtime": 1782451020496.4731
+    },
+    {
+      "path": "src/components/GuestRoute.tsx",
+      "size": 2086,
+      "mtime": 1782418497849.2017
+    },
+    {
+      "path": "src/components/InteractiveMap.tsx",
+      "size": 9537,
+      "mtime": 1782591113805.219
+    },
+    {
+      "path": "src/components/landing/ComingSoonSection.tsx",
+      "size": 4008,
+      "mtime": 1782590710327.4116
+    },
+    {
+      "path": "src/components/landing/FeaturesSection.tsx",
+      "size": 7477,
+      "mtime": 1782590581633.6643
+    },
+    {
+      "path": "src/components/landing/FinalCTASection.tsx",
+      "size": 1575,
+      "mtime": 1782590732994.8984
+    },
+    {
+      "path": "src/components/landing/HeroAddition.tsx",
+      "size": 2727,
+      "mtime": 1782450004094.4746
+    },
+    {
+      "path": "src/components/landing/HowItWorksSection.tsx",
+      "size": 3893,
+      "mtime": 1782590732990.5525
+    },
+    {
+      "path": "src/components/landing/ProblemsSection.tsx",
+      "size": 1955,
+      "mtime": 1782450046621.2356
+    },
+    {
+      "path": "src/components/landing/ScrollIndicator.tsx",
+      "size": 724,
+      "mtime": 1781813347364.2703
+    },
+    {
+      "path": "src/components/landing/SolutionBridge.tsx",
+      "size": 1514,
+      "mtime": 1782590710327.4116
+    },
+    {
+      "path": "src/components/LandingSections.tsx",
+      "size": 488,
+      "mtime": 1781814275883.2668
+    },
+    {
+      "path": "src/components/layout/Footer.tsx",
+      "size": 1486,
+      "mtime": 1782418565520.8174
+    },
+    {
+      "path": "src/components/layout/Header.tsx",
+      "size": 1681,
+      "mtime": 1782652344923.759
+    },
+    {
+      "path": "src/components/layout/Navbar.tsx",
+      "size": 7520,
+      "mtime": 1782650575400.128
+    },
+    {
+      "path": "src/components/ProtectedRoute.tsx",
+      "size": 1282,
+      "mtime": 1782599234102.5842
+    },
+    {
+      "path": "src/components/shared/AuthCard.tsx",
+      "size": 6222,
+      "mtime": 1782650673130.4575
+    },
+    {
+      "path": "src/components/shared/ForgotPasswordModal.tsx",
+      "size": 5414,
+      "mtime": 1782590636800.2175
+    },
+    {
+      "path": "src/components/shared/GuestButton.tsx",
+      "size": 1060,
+      "mtime": 1782417739293.6118
+    },
+    {
+      "path": "src/components/ui/Button.tsx",
+      "size": 3336,
+      "mtime": 1782652163215.3528
+    },
+    {
+      "path": "src/components/ui/Dropdown.tsx",
+      "size": 4727,
+      "mtime": 1782450074169.8743
+    },
+    {
+      "path": "src/components/ui/FadeIn.tsx",
+      "size": 963,
+      "mtime": 1782152997922.069
+    },
+    {
+      "path": "src/components/ui/GlassCard.tsx",
+      "size": 1078,
+      "mtime": 1782650455027.73
+    },
+    {
+      "path": "src/components/ui/index.ts",
+      "size": 328,
+      "mtime": 1782458907973.4844
+    },
+    {
+      "path": "src/components/ui/InputField.tsx",
+      "size": 4784,
+      "mtime": 1782652311315.0034
+    },
+    {
+      "path": "src/components/ui/ServerError.tsx",
+      "size": 912,
+      "mtime": 1782451073992.95
+    },
+    {
+      "path": "src/components/ui/Skeleton.tsx",
+      "size": 718,
+      "mtime": 1782419173122.7075
+    },
+    {
+      "path": "src/components/ui/Toast.tsx",
+      "size": 2510,
+      "mtime": 1782652290416.0122
+    },
+    {
+      "path": "src/contexts/AuthContext.tsx",
+      "size": 6007,
+      "mtime": 1782417883820.6426
+    },
+    {
+      "path": "src/contexts/GuestContext.tsx",
+      "size": 4062,
+      "mtime": 1782456841676.8984
+    },
+    {
+      "path": "src/docs/architecture/frontend-diagram.md",
+      "size": 2108,
+      "mtime": 1781908420094.6084
+    },
+    {
+      "path": "src/docs/architecture/frontend-file-structure.md",
+      "size": 5107,
+      "mtime": 1782089865351.5327
+    },
+    {
+      "path": "src/docs/architecture/frontend-routes.md",
+      "size": 1994,
+      "mtime": 1781908267857.1965
+    },
+    {
+      "path": "src/docs/components/component-api.md",
+      "size": 5902,
+      "mtime": 1781908462747.843
+    },
+    {
+      "path": "src/docs/components/components.md",
+      "size": 2001,
+      "mtime": 1781908593302.01
+    },
+    {
+      "path": "src/docs/design/design-system.md",
+      "size": 1935,
+      "mtime": 1781862961349.5894
+    },
+    {
+      "path": "src/docs/diagrams/frontend-auth-flow.md",
+      "size": 1019,
+      "mtime": 1781908670321.1758
+    },
+    {
+      "path": "src/docs/diagrams/frontend-component-tree.md",
+      "size": 1524,
+      "mtime": 1781908399491.36
+    },
+    {
+      "path": "src/docs/diagrams/frontend-dashboard-flow.md",
+      "size": 701,
+      "mtime": 1781890328915.6191
+    },
+    {
+      "path": "src/docs/flows/auth-flow.md",
+      "size": 4972,
+      "mtime": 1782014685361.688
+    },
+    {
+      "path": "src/docs/flows/dashboard-flow.md",
+      "size": 1727,
+      "mtime": 1781908652412.1362
+    },
+    {
+      "path": "src/docs/flows/user-flows.md",
+      "size": 2563,
+      "mtime": 1781908690016.8662
+    },
+    {
+      "path": "src/docs/frontend-checklist.md",
+      "size": 2466,
+      "mtime": 1781908531145.7312
+    },
+    {
+      "path": "src/docs/README.md",
+      "size": 1078,
+      "mtime": 1781862894311.7668
+    },
+    {
+      "path": "src/docs/state-data-flow.md",
+      "size": 3648,
+      "mtime": 1781908792891.818
+    },
+    {
+      "path": "src/docs/stories-and-tests.md",
+      "size": 4434,
+      "mtime": 1781990243162.8044
+    },
+    {
+      "path": "src/docs/ui-ux-review.md",
+      "size": 1500,
+      "mtime": 1781908727990.5828
+    },
+    {
+      "path": "src/features/account/services/index.ts",
+      "size": 51,
+      "mtime": 1781814412314.8853
+    },
+    {
+      "path": "src/features/auth/services/index.ts",
+      "size": 48,
+      "mtime": 1781814408885.0244
+    },
+    {
+      "path": "src/features/exam/BACKEND_SCHEMA.md",
+      "size": 4431,
+      "mtime": 1781900359211.4355
+    },
+    {
+      "path": "src/features/exam/components/ExamLayout.tsx",
+      "size": 1378,
+      "mtime": 1782600723785.9758
+    },
+    {
+      "path": "src/features/exam/components/ExamNavbar.tsx",
+      "size": 3147,
+      "mtime": 1782602001771.638
+    },
+    {
+      "path": "src/features/exam/components/PlayTestShell.tsx",
+      "size": 21117,
+      "mtime": 1782590608954.363
+    },
+    {
+      "path": "src/features/exam/components/PublishedTestsFilters.tsx",
+      "size": 3803,
+      "mtime": 1782418562705.6555
+    },
+    {
+      "path": "src/features/exam/index.ts",
+      "size": 479,
+      "mtime": 1782356046198.462
+    },
+    {
+      "path": "src/features/exam/README.md",
+      "size": 9561,
+      "mtime": 1782140470192.1528
+    },
+    {
+      "path": "src/features/exam/src/components/ConfirmDialog.tsx",
+      "size": 4295,
+      "mtime": 1782449793056.9673
+    },
+    {
+      "path": "src/features/exam/src/components/ErrorState.tsx",
+      "size": 1107,
+      "mtime": 1782451060427.3452
+    },
+    {
+      "path": "src/features/exam/src/components/GuestSharePrompt.tsx",
+      "size": 2370,
+      "mtime": 1782449729260.085
+    },
+    {
+      "path": "src/features/exam/src/components/Loading.tsx",
+      "size": 437,
+      "mtime": 1781898036326.609
+    },
+    {
+      "path": "src/features/exam/src/components/PrivacyBadge.tsx",
+      "size": 821,
+      "mtime": 1782449809391.6963
+    },
+    {
+      "path": "src/features/exam/src/components/PublishConfirmDialog.tsx",
+      "size": 8484,
+      "mtime": 1782449777945.4846
+    },
+    {
+      "path": "src/features/exam/src/components/Skeletons.tsx",
+      "size": 2960,
+      "mtime": 1782459529634.115
+    },
+    {
+      "path": "src/features/exam/src/components/StarRating.tsx",
+      "size": 1263,
+      "mtime": 1782590581636.5642
+    },
+    {
+      "path": "src/features/exam/src/components/TestCard.tsx",
+      "size": 4989,
+      "mtime": 1782459610679.1692
+    },
+    {
+      "path": "src/features/exam/src/core/adapters/supabaseTestStorage.ts",
+      "size": 2571,
+      "mtime": 1782166117187.892
+    },
+    {
+      "path": "src/features/exam/src/core/models/test.ts",
+      "size": 70,
+      "mtime": 1781912918769.352
+    },
+    {
+      "path": "src/features/exam/src/core/services/exportService.ts",
+      "size": 62,
+      "mtime": 1781909089029.729
+    },
+    {
+      "path": "src/features/exam/src/core/storage/index.ts",
+      "size": 104,
+      "mtime": 1781912918769.352
+    },
+    {
+      "path": "src/features/exam/src/core/storage/localStorageTestStorage.ts",
+      "size": 3917,
+      "mtime": 1782268666763.3213
+    },
+    {
+      "path": "src/features/exam/src/core/storage/testStorage.ts",
+      "size": 380,
+      "mtime": 1782166099331.0994
+    },
+    {
+      "path": "src/features/exam/src/core/utils/storageKeys.ts",
+      "size": 604,
+      "mtime": 1782077933977.0603
+    },
+    {
+      "path": "src/features/exam/src/hooks/index.ts",
+      "size": 669,
+      "mtime": 1782355896279.0518
+    },
+    {
+      "path": "src/features/exam/src/hooks/useCopyToClipboard.ts",
+      "size": 821,
+      "mtime": 1781899166226.435
+    },
+    {
+      "path": "src/features/exam/src/hooks/useCorePlayTest.ts",
+      "size": 12592,
+      "mtime": 1782418977798.011
+    },
+    {
+      "path": "src/features/exam/src/hooks/useCoreSavedTests.ts",
+      "size": 7080,
+      "mtime": 1782330478088.9873
+    },
+    {
+      "path": "src/features/exam/src/hooks/usePromptGenerator.ts",
+      "size": 1509,
+      "mtime": 1781898996000.616
+    },
+    {
+      "path": "src/features/exam/src/hooks/usePromptPreferences.ts",
+      "size": 1338,
+      "mtime": 1781898996000.616
+    },
+    {
+      "path": "src/features/exam/src/hooks/usePublishedTests.ts",
+      "size": 4699,
+      "mtime": 1782308365625.4514
+    },
+    {
+      "path": "src/features/exam/src/hooks/useTestActions.ts",
+      "size": 2877,
+      "mtime": 1782165272357.2068
+    },
+    {
+      "path": "src/features/exam/src/hooks/useTestAttempts.ts",
+      "size": 3051,
+      "mtime": 1782418577677.3108
+    },
+    {
+      "path": "src/features/exam/src/hooks/useTestCreator.ts",
+      "size": 7322,
+      "mtime": 1782329945187.7893
+    },
+    {
+      "path": "src/features/exam/src/hooks/useTestMigration.ts",
+      "size": 3304,
+      "mtime": 1782268691178.124
+    },
+    {
+      "path": "src/features/exam/src/lib/export.ts",
+      "size": 10556,
+      "mtime": 1782590853331.1616
+    },
+    {
+      "path": "src/features/exam/src/lib/store.ts",
+      "size": 2921,
+      "mtime": 1781907855739.0952
+    },
+    {
+      "path": "src/features/exam/src/lib/utils.ts",
+      "size": 420,
+      "mtime": 1781208916000
+    },
+    {
+      "path": "src/features/exam/src/pages/AttemptHistory.tsx",
+      "size": 5877,
+      "mtime": 1782459251781.2356
+    },
+    {
+      "path": "src/features/exam/src/pages/BrowsePublishedTests.tsx",
+      "size": 6375,
+      "mtime": 1782459610760.5933
+    },
+    {
+      "path": "src/features/exam/src/pages/CreateTest.tsx",
+      "size": 4901,
+      "mtime": 1782459211993.9368
+    },
+    {
+      "path": "src/features/exam/src/pages/Home.tsx",
+      "size": 7557,
+      "mtime": 1782459212032.756
+    },
+    {
+      "path": "src/features/exam/src/pages/PlayTest.tsx",
+      "size": 911,
+      "mtime": 1782418606730.6946
+    },
+    {
+      "path": "src/features/exam/src/pages/PlayTestShared.tsx",
+      "size": 667,
+      "mtime": 1782351861300.203
+    },
+    {
+      "path": "src/features/exam/src/pages/SavedTests.tsx",
+      "size": 5744,
+      "mtime": 1782459212060.8872
+    },
+    {
+      "path": "src/features/exam/src/services/exam.supabase.ts",
+      "size": 16252,
+      "mtime": 1782598179948.0803
+    },
+    {
+      "path": "src/features/exam/src/types.ts",
+      "size": 961,
+      "mtime": 1782598112896.6997
+    },
+    {
+      "path": "src/features/notifications/services/index.ts",
+      "size": 56,
+      "mtime": 1781814411251.339
+    },
+    {
+      "path": "src/features/profile/services/index.ts",
+      "size": 51,
+      "mtime": 1781814410587.9966
+    },
+    {
+      "path": "src/features/study-groups/components/CreateGroupModal.tsx",
+      "size": 9770,
+      "mtime": 1782654071097.9067
+    },
+    {
+      "path": "src/features/study-groups/components/EditGroupModal.tsx",
+      "size": 9891,
+      "mtime": 1782654014821.2798
+    },
+    {
+      "path": "src/features/study-groups/components/ErrorBoundary.tsx",
+      "size": 1139,
+      "mtime": 1782251051862.9539
+    },
+    {
+      "path": "src/features/study-groups/components/ErrorState.tsx",
+      "size": 960,
+      "mtime": 1782652699937.5715
+    },
+    {
+      "path": "src/features/study-groups/components/GroupCard.tsx",
+      "size": 2871,
+      "mtime": 1782652768103.3225
+    },
+    {
+      "path": "src/features/study-groups/components/GroupDetailsModal.tsx",
+      "size": 10579,
+      "mtime": 1782590637585.8604
+    },
+    {
+      "path": "src/features/study-groups/components/ModalShell.tsx",
+      "size": 1086,
+      "mtime": 1782419268427.344
+    },
+    {
+      "path": "src/features/study-groups/components/ProgressBar.tsx",
+      "size": 1364,
+      "mtime": 1782450496978.6575
+    },
+    {
+      "path": "src/features/study-groups/components/StudyGroupCardSkeleton.tsx",
+      "size": 1168,
+      "mtime": 1782421877657.1577
+    },
+    {
+      "path": "src/features/study-groups/components/StudyGroupsFilters.tsx",
+      "size": 4480,
+      "mtime": 1782263571738.3306
+    },
+    {
+      "path": "src/features/study-groups/components/StudyGroupsLayout.tsx",
+      "size": 585,
+      "mtime": 1782600823526.9167
+    },
+    {
+      "path": "src/features/study-groups/components/StudyGroupsNavbar.tsx",
+      "size": 2585,
+      "mtime": 1782652478336.035
+    },
+    {
+      "path": "src/features/study-groups/docs/api-endpoints.md",
+      "size": 6523,
+      "mtime": 1782259072054.717
+    },
+    {
+      "path": "src/features/study-groups/docs/diagrams.md",
+      "size": 8182,
+      "mtime": 1782259159438.2354
+    },
+    {
+      "path": "src/features/study-groups/docs/files-guide.md",
+      "size": 5667,
+      "mtime": 1782259181412.2595
+    },
+    {
+      "path": "src/features/study-groups/docs/index.md",
+      "size": 1924,
+      "mtime": 1782259108792.1555
+    },
+    {
+      "path": "src/features/study-groups/docs/README.md",
+      "size": 1358,
+      "mtime": 1782259000424.711
+    },
+    {
+      "path": "src/features/study-groups/docs/user-stories.md",
+      "size": 2653,
+      "mtime": 1782259019259.6067
+    },
+    {
+      "path": "src/features/study-groups/index.ts",
+      "size": 1353,
+      "mtime": 1782352472604.2039
+    },
+    {
+      "path": "src/features/study-groups/README.md",
+      "size": 1501,
+      "mtime": 1782259127100.9558
+    },
+    {
+      "path": "src/features/study-groups/src/constants.ts",
+      "size": 74,
+      "mtime": 1782239001317.236
+    },
+    {
+      "path": "src/features/study-groups/src/core/services/index.ts",
+      "size": 720,
+      "mtime": 1782350163168.515
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/index.ts",
+      "size": 246,
+      "mtime": 1782350993100.783
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/useDebounce.ts",
+      "size": 626,
+      "mtime": 1782258683630.173
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/useStudyGroups.ts",
+      "size": 3547,
+      "mtime": 1782350253813.7202
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/useStudyGroupsActions.ts",
+      "size": 3908,
+      "mtime": 1782448627471.112
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/useStudyGroupsPage.ts",
+      "size": 4824,
+      "mtime": 1782353405870.1084
+    },
+    {
+      "path": "src/features/study-groups/src/hooks/useStudyGroupsToast.ts",
+      "size": 1124,
+      "mtime": 1782310307524.2478
+    },
+    {
+      "path": "src/features/study-groups/src/pages/CreateGroupPage.tsx",
+      "size": 9773,
+      "mtime": 1782653460950.202
+    },
+    {
+      "path": "src/features/study-groups/src/pages/MyGroupsPage.tsx",
+      "size": 4820,
+      "mtime": 1782352403236.8704
+    },
+    {
+      "path": "src/features/study-groups/src/pages/StudyGroupsHome.tsx",
+      "size": 4914,
+      "mtime": 1782652964492.8042
+    },
+    {
+      "path": "src/features/study-groups/src/services/courseCatalog.ts",
+      "size": 1741,
+      "mtime": 1782242347726.776
+    },
+    {
+      "path": "src/features/study-groups/src/services/studyGroup.supabase.ts",
+      "size": 7851,
+      "mtime": 1782599021480.0852
+    },
+    {
+      "path": "src/features/study-groups/src/services/studyGroupsApi.ts",
+      "size": 2672,
+      "mtime": 1782353258281.7358
+    },
+    {
+      "path": "src/features/study-groups/src/types/index.ts",
+      "size": 1283,
+      "mtime": 1782311194537.7893
+    },
+    {
+      "path": "src/hooks/useAuthForm.ts",
+      "size": 2964,
+      "mtime": 1782152618333.9358
+    },
+    {
+      "path": "src/hooks/useInView.ts",
+      "size": 761,
+      "mtime": 1781734909065.675
+    },
+    {
+      "path": "src/hooks/useParticleCanvas.ts",
+      "size": 7280,
+      "mtime": 1782153917685.7944
+    },
+    {
+      "path": "src/hooks/useRateLimit.ts",
+      "size": 2981,
+      "mtime": 1782154028140.1377
+    },
+    {
+      "path": "src/hooks/useReducedMotion.ts",
+      "size": 631,
+      "mtime": 1782063115155.9556
+    },
+    {
+      "path": "src/lib/exam-cleanup.ts",
+      "size": 220,
+      "mtime": 1782268691178.124
+    },
+    {
+      "path": "src/lib/examStorage.ts",
+      "size": 228,
+      "mtime": 1782078048939.7307
+    },
+    {
+      "path": "src/lib/queryClient.ts",
+      "size": 229,
+      "mtime": 1781745895794.9124
+    },
+    {
+      "path": "src/lib/rateLimit.ts",
+      "size": 195,
+      "mtime": 1781754524810.544
+    },
+    {
+      "path": "src/lib/rateLimit.ts.spec.ts",
+      "size": 388,
+      "mtime": 1781743767649.4102
+    },
+    {
+      "path": "src/lib/supabase.ts",
+      "size": 3341,
+      "mtime": 1782598013532.9568
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "size": 169,
+      "mtime": 1782455575004.394
+    },
+    {
+      "path": "src/main.tsx",
+      "size": 235,
+      "mtime": 1781746116254.3972
+    },
+    {
+      "path": "src/pages/AuthCallback.tsx",
+      "size": 3257,
+      "mtime": 1782450771810.0283
+    },
+    {
+      "path": "src/pages/Dashboard/Dashboard.tsx",
+      "size": 6551,
+      "mtime": 1782450315985.0752
+    },
+    {
+      "path": "src/pages/Dashboard/DashboardHeader.tsx",
+      "size": 16270,
+      "mtime": 1782590711038.4219
+    },
+    {
+      "path": "src/pages/Dashboard/DashboardLayout.tsx",
+      "size": 436,
+      "mtime": 1782600682988.2493
+    },
+    {
+      "path": "src/pages/Dashboard/EmptyDashboardState.tsx",
+      "size": 1593,
+      "mtime": 1782088783148.7886
+    },
+    {
+      "path": "src/pages/Dashboard/useDashboardNotifications.ts",
+      "size": 1353,
+      "mtime": 1782088783149.3167
+    },
+    {
+      "path": "src/pages/Dashboard/useDashboardState.ts",
+      "size": 872,
+      "mtime": 1781811306133.01
+    },
+    {
+      "path": "src/pages/Dashboard.tsx",
+      "size": 55,
+      "mtime": 1781811455446.16
+    },
+    {
+      "path": "src/pages/Home.tsx",
+      "size": 4606,
+      "mtime": 1782650911569.1328
+    },
+    {
+      "path": "src/pages/Login.tsx",
+      "size": 3893,
+      "mtime": 1782093410426.576
+    },
+    {
+      "path": "src/pages/NotFound.tsx",
+      "size": 884,
+      "mtime": 1782450438055.775
+    },
+    {
+      "path": "src/pages/Register.tsx",
+      "size": 4298,
+      "mtime": 1782415254584.4866
+    },
+    {
+      "path": "src/schemas/auth.schema.ts",
+      "size": 2116,
+      "mtime": 1782152160096.1646
+    },
+    {
+      "path": "src/services/account.service.ts",
+      "size": 4547,
+      "mtime": 1782417418331.993
+    },
+    {
+      "path": "src/services/auth.service.ts",
+      "size": 8906,
+      "mtime": 1782187762813.2366
+    },
+    {
+      "path": "src/services/environment.service.ts",
+      "size": 487,
+      "mtime": 1782329447300.3962
+    },
+    {
+      "path": "src/services/index.ts",
+      "size": 181,
+      "mtime": 1781816417055.1958
+    },
+    {
+      "path": "src/services/notification.service.ts",
+      "size": 1331,
+      "mtime": 1782597404265.8638
+    },
+    {
+      "path": "src/services/profile.service.ts",
+      "size": 3367,
+      "mtime": 1782597404265.8638
+    },
+    {
+      "path": "src/stores/notificationStore.ts",
+      "size": 2467,
+      "mtime": 1782152736355.1306
+    },
+    {
+      "path": "src/stores/uiStore.ts",
+      "size": 1576,
+      "mtime": 1782152710356.8943
+    },
+    {
+      "path": "src/stories/Header.stories.ts",
+      "size": 594,
+      "mtime": 1781819769377.924
+    },
+    {
+      "path": "src/stories/README.md",
+      "size": 358,
+      "mtime": 1781811974665.9685
+    },
+    {
+      "path": "src/stories/ui/AuthButton.stories.tsx",
+      "size": 873,
+      "mtime": 1782459172753.395
+    },
+    {
+      "path": "src/stories/ui/GlassCard.stories.tsx",
+      "size": 544,
+      "mtime": 1781817492113.3938
+    },
+    {
+      "path": "src/stories/ui/InputField.stories.tsx",
+      "size": 637,
+      "mtime": 1781814674239.0847
+    },
+    {
+      "path": "src/stories/ui/ServerError.stories.tsx",
+      "size": 478,
+      "mtime": 1781817493759.6692
+    },
+    {
+      "path": "src/stories/ui/Skeleton.stories.tsx",
+      "size": 464,
+      "mtime": 1781817495786.7476
+    },
+    {
+      "path": "src/types/auth.ts",
+      "size": 473,
+      "mtime": 1781814150014.8323
+    },
+    {
+      "path": "src/types/canvas.ts",
+      "size": 405,
+      "mtime": 1781809259835.0098
+    },
+    {
+      "path": "src/types/database.ts",
+      "size": 3475,
+      "mtime": 1782597810365.3777
+    },
+    {
+      "path": "src/types/file-saver.d.ts",
+      "size": 29,
+      "mtime": 1781892682224.4414
+    },
+    {
+      "path": "src/types/index.ts",
+      "size": 350,
+      "mtime": 1781814176210.0632
+    },
+    {
+      "path": "src/types/notification.ts",
+      "size": 117,
+      "mtime": 1781809253324.1106
+    },
+    {
+      "path": "src/types/profile.ts",
+      "size": 321,
+      "mtime": 1782353012308.5835
+    },
+    {
+      "path": "src/types/supabase.ts",
+      "size": 61,
+      "mtime": 1781809654028.3281
+    },
+    {
+      "path": "src/utils/animation.ts",
+      "size": 673,
+      "mtime": 1781718484734.349
+    },
+    {
+      "path": "src/utils/canvasRenderer.ts",
+      "size": 5970,
+      "mtime": 1782154097941.534
+    },
+    {
+      "path": "src/utils/validators.ts",
+      "size": 619,
+      "mtime": 1782152134509.8672
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "size": 220,
+      "mtime": 1781734909065.675
+    },
+    {
+      "path": "supabase/docs/ARCHITECTURE.md",
+      "size": 3755,
+      "mtime": 1781882010801.2961
+    },
+    {
+      "path": "supabase/docs/EDGE_FUNCTIONS.md",
+      "size": 3624,
+      "mtime": 1781882576259.707
+    },
+    {
+      "path": "supabase/docs/FIXES.md",
+      "size": 3923,
+      "mtime": 1781881979093.882
+    },
+    {
+      "path": "supabase/docs/MIGRATIONS.md",
+      "size": 6465,
+      "mtime": 1781881882131.5964
+    },
+    {
+      "path": "supabase/docs/POLICIES.md",
+      "size": 3187,
+      "mtime": 1781870618645.4326
+    },
+    {
+      "path": "supabase/docs/SCHEMA.md",
+      "size": 6756,
+      "mtime": 1782351297609.999
+    },
+    {
+      "path": "supabase/docs/SEED.md",
+      "size": 1833,
+      "mtime": 1781870619062.2505
+    },
+    {
+      "path": "supabase/docs/VARIABLES.md",
+      "size": 1967,
+      "mtime": 1781870619069.183
+    },
+    {
+      "path": "supabase/functions/auth-login/index.ts",
+      "size": 4011,
+      "mtime": 1782330819610.2964
+    },
+    {
+      "path": "supabase/functions/auth-register/index.ts",
+      "size": 4201,
+      "mtime": 1782330844552.0642
+    },
+    {
+      "path": "supabase/functions/delete-account/index.test.ts",
+      "size": 5475,
+      "mtime": 1781989762059.8828
+    },
+    {
+      "path": "supabase/functions/delete-account/index.ts",
+      "size": 4848,
+      "mtime": 1782330897699.7695
+    },
+    {
+      "path": "supabase/functions/delete-account/README.md",
+      "size": 1032,
+      "mtime": 1781989735810.743
+    },
+    {
+      "path": "supabase/functions/rate-test/index.ts",
+      "size": 6269,
+      "mtime": 1782455161626.3923
+    },
+    {
+      "path": "supabase/functions/study-groups/index.test.ts",
+      "size": 3969,
+      "mtime": 1782358919520.848
+    },
+    {
+      "path": "supabase/functions/study-groups/index.ts",
+      "size": 16151,
+      "mtime": 1782455028432.553
+    },
+    {
+      "path": "tests/auth.test.tsx",
+      "size": 5607,
+      "mtime": 1782449168891.4097
+    },
+    {
+      "path": "tests/components/AuthBackground.test.tsx",
+      "size": 1004,
+      "mtime": 1782649003355.516
+    },
+    {
+      "path": "tests/components/dashboard/CourseMaterialsCard.test.tsx",
+      "size": 884,
+      "mtime": 1781887736937.8447
+    },
+    {
+      "path": "tests/components/dashboard/FeatureCard.test.tsx",
+      "size": 1685,
+      "mtime": 1781887736939.1746
+    },
+    {
+      "path": "tests/components/dashboard/ScheduleExtractionCard.test.tsx",
+      "size": 903,
+      "mtime": 1781887736936.8418
+    },
+    {
+      "path": "tests/components/dashboard/StudyGroupsCard.test.tsx",
+      "size": 865,
+      "mtime": 1781887736936.8418
+    },
+    {
+      "path": "tests/components/dashboard/TestsCard.test.tsx",
+      "size": 822,
+      "mtime": 1781887736937.8447
+    },
+    {
+      "path": "tests/components/dashboard/useProfileSettings.test.ts",
+      "size": 2227,
+      "mtime": 1781871982730.7056
+    },
+    {
+      "path": "tests/components/dashboard/useSecuritySettings.test.ts",
+      "size": 3329,
+      "mtime": 1781871983002.4893
+    },
+    {
+      "path": "tests/components/landing/ComingSoonSection.test.tsx",
+      "size": 892,
+      "mtime": 1781880957864.7515
+    },
+    {
+      "path": "tests/components/landing/FeaturesSection.test.tsx",
+      "size": 880,
+      "mtime": 1781881033764.5237
+    },
+    {
+      "path": "tests/components/landing/FinalCTASection.test.tsx",
+      "size": 1754,
+      "mtime": 1782449100235.86
+    },
+    {
+      "path": "tests/components/landing/HeroAddition.test.tsx",
+      "size": 847,
+      "mtime": 1781881140930.68
+    },
+    {
+      "path": "tests/components/landing/HowItWorksSection.test.tsx",
+      "size": 892,
+      "mtime": 1781881223434.7751
+    },
+    {
+      "path": "tests/components/landing/ProblemsSection.test.tsx",
+      "size": 880,
+      "mtime": 1781881265772.7424
+    },
+    {
+      "path": "tests/components/landing/ScrollIndicator.test.tsx",
+      "size": 865,
+      "mtime": 1781881334065.4563
+    },
+    {
+      "path": "tests/components/landing/SolutionBridge.test.tsx",
+      "size": 874,
+      "mtime": 1781881370737.1729
+    },
+    {
+      "path": "tests/components/layout/Footer.test.tsx",
+      "size": 742,
+      "mtime": 1781880702116.5984
+    },
+    {
+      "path": "tests/components/layout/Header.test.tsx",
+      "size": 625,
+      "mtime": 1781878203532.0483
+    },
+    {
+      "path": "tests/components/layout/Navbar.test.tsx",
+      "size": 739,
+      "mtime": 1781880806964.7263
+    },
+    {
+      "path": "tests/components/ProtectedRoute.test.tsx",
+      "size": 1739,
+      "mtime": 1781880056220.3083
+    },
+    {
+      "path": "tests/components/shared/AuthBackground.test.tsx",
+      "size": 932,
+      "mtime": 1781880510993.0693
+    },
+    {
+      "path": "tests/components/shared/AuthCard.test.tsx",
+      "size": 1338,
+      "mtime": 1781881545182.163
+    },
+    {
+      "path": "tests/components/shared/ForgotPasswordModal.test.tsx",
+      "size": 1308,
+      "mtime": 1781879266015.4878
+    },
+    {
+      "path": "tests/components/shared/GuestButton.test.tsx",
+      "size": 2326,
+      "mtime": 1782449085172.3164
+    },
+    {
+      "path": "tests/components/Toast.test.tsx",
+      "size": 3120,
+      "mtime": 1782310292892.6333
+    },
+    {
+      "path": "tests/components/ui/AuthButton.test.tsx",
+      "size": 829,
+      "mtime": 1782459152519.3828
+    },
+    {
+      "path": "tests/components/ui/Button.test.tsx",
+      "size": 2596,
+      "mtime": 1782451873265.2034
+    },
+    {
+      "path": "tests/components/ui/FadeIn.test.tsx",
+      "size": 852,
+      "mtime": 1781879348237.4148
+    },
+    {
+      "path": "tests/components/ui/GlassCard.test.tsx",
+      "size": 654,
+      "mtime": 1781879397265.3416
+    },
+    {
+      "path": "tests/components/ui/ServerError.test.tsx",
+      "size": 876,
+      "mtime": 1781881661154.4104
+    },
+    {
+      "path": "tests/components/ui/Skeleton.test.tsx",
+      "size": 861,
+      "mtime": 1781879529916.7998
+    },
+    {
+      "path": "tests/contexts/AuthContext.test.tsx",
+      "size": 1969,
+      "mtime": 1782014526157.1199
+    },
+    {
+      "path": "tests/contexts/GuestContext.test.tsx",
+      "size": 4451,
+      "mtime": 1782057064546.1355
+    },
+    {
+      "path": "tests/dashboard/DeleteAccountModal.test.tsx",
+      "size": 1262,
+      "mtime": 1781818049367.5442
+    },
+    {
+      "path": "tests/dashboard/LogoutModal.test.tsx",
+      "size": 1008,
+      "mtime": 1781817567302.54
+    },
+    {
+      "path": "tests/dashboard/SettingsModal.test.tsx",
+      "size": 1337,
+      "mtime": 1781818985501.0698
+    },
+    {
+      "path": "tests/Dashboard.test.tsx",
+      "size": 4980,
+      "mtime": 1782347842699.1106
+    },
+    {
+      "path": "tests/features/exam/components/ConfirmDialog.test.tsx",
+      "size": 3402,
+      "mtime": 1781998730458.0154
+    },
+    {
+      "path": "tests/features/exam/components/ErrorState.test.tsx",
+      "size": 1086,
+      "mtime": 1781899889459.5396
+    },
+    {
+      "path": "tests/features/exam/components/GuestSharePrompt.test.tsx",
+      "size": 2577,
+      "mtime": 1782000212070.4475
+    },
+    {
+      "path": "tests/features/exam/components/PrivacyBadge.test.tsx",
+      "size": 988,
+      "mtime": 1782451902421.1223
+    },
+    {
+      "path": "tests/features/exam/components/PublishConfirmDialog.test.tsx",
+      "size": 2763,
+      "mtime": 1782000157506.6355
+    },
+    {
+      "path": "tests/features/exam/components/Skeletons.test.tsx",
+      "size": 1237,
+      "mtime": 1781899889448.309
+    },
+    {
+      "path": "tests/features/exam/components/TestCard.test.tsx",
+      "size": 3112,
+      "mtime": 1782091466926.027
+    },
+    {
+      "path": "tests/features/exam/core/adapters/localStorageTestStorage.test.ts",
+      "size": 2407,
+      "mtime": 1782268847577.6763
+    },
+    {
+      "path": "tests/features/exam/core/adapters/supabaseTestStorage.test.ts",
+      "size": 3585,
+      "mtime": 1782166749838.0444
+    },
+    {
+      "path": "tests/features/exam/core/storage/localStorageTestStorage.test.ts",
+      "size": 5816,
+      "mtime": 1782166809181.0103
+    },
+    {
+      "path": "tests/features/exam/hooks/useCopyToClipboard.test.ts",
+      "size": 1774,
+      "mtime": 1782351654058.099
+    },
+    {
+      "path": "tests/features/exam/hooks/useCorePlayTest.test.ts",
+      "size": 7970,
+      "mtime": 1782353844491.4507
+    },
+    {
+      "path": "tests/features/exam/hooks/useCoreSavedTests.test.ts",
+      "size": 12657,
+      "mtime": 1782268753502.6682
+    },
+    {
+      "path": "tests/features/exam/hooks/useCoreSavedTests.test.tsx",
+      "size": 10563,
+      "mtime": 1782268847570.692
+    },
+    {
+      "path": "tests/features/exam/hooks/usePromptGenerator.test.ts",
+      "size": 2355,
+      "mtime": 1782351638103.905
+    },
+    {
+      "path": "tests/features/exam/hooks/usePromptPreferences.test.ts",
+      "size": 2469,
+      "mtime": 1781899889753.601
+    },
+    {
+      "path": "tests/features/exam/hooks/usePublishedTests.test.tsx",
+      "size": 4978,
+      "mtime": 1782267418286.0132
+    },
+    {
+      "path": "tests/features/exam/hooks/useTestCreator.test.ts",
+      "size": 9853,
+      "mtime": 1782330711575.4744
+    },
+    {
+      "path": "tests/features/exam/hooks/useTestMigration.test.ts",
+      "size": 6515,
+      "mtime": 1782352057147.1685
+    },
+    {
+      "path": "tests/features/exam/pages/PlayTest.test.tsx",
+      "size": 8370,
+      "mtime": 1782353831776.7422
+    },
+    {
+      "path": "tests/features/exam/services/exam.supabase.test.ts",
+      "size": 8973,
+      "mtime": 1782598911071.6729
+    },
+    {
+      "path": "tests/features/exam/store.test.ts",
+      "size": 4624,
+      "mtime": 1781907786255.1763
+    },
+    {
+      "path": "tests/features/exam/utils.test.ts",
+      "size": 830,
+      "mtime": 1781899791096.49
+    },
+    {
+      "path": "tests/features/study-groups/components/CreateGroupModal.test.tsx",
+      "size": 2594,
+      "mtime": 1782410242332.6614
+    },
+    {
+      "path": "tests/features/study-groups/components/Dropdown.test.tsx",
+      "size": 3457,
+      "mtime": 1782263571750.7698
+    },
+    {
+      "path": "tests/features/study-groups/components/EditGroupModal.test.tsx",
+      "size": 2506,
+      "mtime": 1782330102061.257
+    },
+    {
+      "path": "tests/features/study-groups/components/ErrorBoundary.test.tsx",
+      "size": 1629,
+      "mtime": 1782246826511.5002
+    },
+    {
+      "path": "tests/features/study-groups/components/ErrorState.test.tsx",
+      "size": 1671,
+      "mtime": 1782253190872.0557
+    },
+    {
+      "path": "tests/features/study-groups/components/GroupCard.test.tsx",
+      "size": 2042,
+      "mtime": 1782251546904.8489
+    },
+    {
+      "path": "tests/features/study-groups/components/GroupDetailsModal.test.tsx",
+      "size": 5957,
+      "mtime": 1782312956920.1384
+    },
+    {
+      "path": "tests/features/study-groups/components/ModalShell.test.tsx",
+      "size": 2051,
+      "mtime": 1782246758312.0193
+    },
+    {
+      "path": "tests/features/study-groups/components/PrimaryButton.test.tsx",
+      "size": 1832,
+      "mtime": 1782459907489.9128
+    },
+    {
+      "path": "tests/features/study-groups/components/ProgressBar.test.tsx",
+      "size": 1184,
+      "mtime": 1782246758080.6348
+    },
+    {
+      "path": "tests/features/study-groups/components/StudyGroupCardSkeleton.test.tsx",
+      "size": 1140,
+      "mtime": 1782253149521.82
+    },
+    {
+      "path": "tests/features/study-groups/components/StudyGroupsFilters.test.tsx",
+      "size": 4646,
+      "mtime": 1782256280068.6826
+    },
+    {
+      "path": "tests/features/study-groups/core/services/studyGroup.test.ts",
+      "size": 4929,
+      "mtime": 1782353651415.7163
+    },
+    {
+      "path": "tests/features/study-groups/hooks/useStudyGroups.test.ts",
+      "size": 5787,
+      "mtime": 1782410346809.2913
+    },
+    {
+      "path": "tests/features/study-groups/hooks/useStudyGroupsActions.extended.test.ts",
+      "size": 2876,
+      "mtime": 1782410216138.6128
+    },
+    {
+      "path": "tests/features/study-groups/hooks/useStudyGroupsActions.test.ts",
+      "size": 4718,
+      "mtime": 1782410215617.1804
+    },
+    {
+      "path": "tests/features/study-groups/hooks/useStudyGroupsPage.test.ts",
+      "size": 7935,
+      "mtime": 1782330335520.4116
+    },
+    {
+      "path": "tests/features/study-groups/pages/CreateGroupPage.test.tsx",
+      "size": 1490,
+      "mtime": 1782335905479.4758
+    },
+    {
+      "path": "tests/features/study-groups/pages/MyGroupsPage.test.tsx",
+      "size": 1821,
+      "mtime": 1782410533813.8992
+    },
+    {
+      "path": "tests/features/study-groups/pages/StudyGroupsHome.test.tsx",
+      "size": 8721,
+      "mtime": 1782252760017.7466
+    },
+    {
+      "path": "tests/features/study-groups/services/courseCatalog.test.ts",
+      "size": 3116,
+      "mtime": 1782251895699.7773
+    },
+    {
+      "path": "tests/features/study-groups/services/studyGroup.supabase.test.ts",
+      "size": 8243,
+      "mtime": 1782598983524.1174
+    },
+    {
+      "path": "tests/features/study-groups/types/index.test.ts",
+      "size": 3114,
+      "mtime": 1782251275693.8867
+    },
+    {
+      "path": "tests/hooks/useAuthForm.test.ts",
+      "size": 3587,
+      "mtime": 1781872026084.974
+    },
+    {
+      "path": "tests/hooks/useInView.test.ts",
+      "size": 1854,
+      "mtime": 1781871360348.6426
+    },
+    {
+      "path": "tests/hooks/useParticleCanvas.test.ts",
+      "size": 3197,
+      "mtime": 1781872294793.2744
+    },
+    {
+      "path": "tests/hooks/useRateLimit.integration.test.ts",
+      "size": 572,
+      "mtime": 1781874519933.448
+    },
+    {
+      "path": "tests/hooks/useRateLimit.test.ts",
+      "size": 3886,
+      "mtime": 1782013631624.3877
+    },
+    {
+      "path": "tests/InputField.test.tsx",
+      "size": 809,
+      "mtime": 1781743668781.1155
+    },
+    {
+      "path": "tests/lib/queryClient.test.ts",
+      "size": 807,
+      "mtime": 1781873188819.6133
+    },
+    {
+      "path": "tests/lib/supabase.callback.test.ts",
+      "size": 3381,
+      "mtime": 1782011462182.301
+    },
+    {
+      "path": "tests/minimal.test.tsx",
+      "size": 570,
+      "mtime": 1782084323414.8442
+    },
+    {
+      "path": "tests/pages/Dashboard/EmptyDashboardState.test.tsx",
+      "size": 1418,
+      "mtime": 1781906116165.534
+    },
+    {
+      "path": "tests/pages/Home.test.tsx",
+      "size": 1453,
+      "mtime": 1781885007605.025
+    },
+    {
+      "path": "tests/pages/Login.test.tsx",
+      "size": 2845,
+      "mtime": 1782449201302.5415
+    },
+    {
+      "path": "tests/schemas/auth.schema.test.ts",
+      "size": 4194,
+      "mtime": 1782013305689.3127
+    },
+    {
+      "path": "tests/services/account.service.test.ts",
+      "size": 8109,
+      "mtime": 1781996559875.957
+    },
+    {
+      "path": "tests/services/auth.index.test.ts",
+      "size": 338,
+      "mtime": 1781882220685.3062
+    },
+    {
+      "path": "tests/services/auth.service.test.ts",
+      "size": 6932,
+      "mtime": 1782094316209.3528
+    },
+    {
+      "path": "tests/services/environment.service.test.ts",
+      "size": 554,
+      "mtime": 1781873268858.4517
+    },
+    {
+      "path": "tests/services/notification.service.test.ts",
+      "size": 2190,
+      "mtime": 1781817885069.7363
+    },
+    {
+      "path": "tests/services/profile.service.test.ts",
+      "size": 2614,
+      "mtime": 1782015451609.0913
+    },
+    {
+      "path": "tests/setup.ts",
+      "size": 2281,
+      "mtime": 1782151719661.8313
+    },
+    {
+      "path": "tests/stores/notificationStore.test.ts",
+      "size": 2257,
+      "mtime": 1781873135299.2654
+    },
+    {
+      "path": "tests/stores/uiStore.test.ts",
+      "size": 1756,
+      "mtime": 1781873135415.6245
+    },
+    {
+      "path": "tests/supabase.test.ts",
+      "size": 2868,
+      "mtime": 1781989833931.4653
+    },
+    {
+      "path": "tests/utils/validators.test.ts",
+      "size": 4669,
+      "mtime": 1782152271844.8276
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 571,
+      "mtime": 1782152515447.9895
+    },
+    {
+      "path": "vite.config.ts",
+      "size": 2779,
+      "mtime": 1782152498352.264
+    },
+    {
+      "path": "vitest.config.ts",
+      "size": 412,
+      "mtime": 1782014024759.2458
+    },
+    {
+      "path": "vitest.shims.d.ts",
+      "size": 62,
+      "mtime": 1781746314144.748
+    }
+  ]
+}

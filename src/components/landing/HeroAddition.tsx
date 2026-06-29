@@ -5,19 +5,18 @@ export const HeroAddition = () => {
   const [showSub, setShowSub] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowSub(true), 3600);
+    const t = setTimeout(() => setShowSub(true), 800);
     return () => clearTimeout(t);
   }, []);
 
   return (
-    <div className="w-full sm:w-[95%] max-w-4xl mx-auto flex flex-col items-center mt-12 mb-6 z-20 pointer-events-auto bg-[var(--color-bg-primary)]/40 backdrop-blur-md p-5 sm:p-8 md:p-12 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/20 to-indigo-900/20 mix-blend-overlay pointer-events-none"></div>
+    <div className="w-full sm:w-[95%] max-w-4xl mx-auto flex flex-col items-center mt-12 mb-6 z-20 pointer-events-auto relative overflow-hidden p-5 sm:p-8 md:p-12">
       <div className="h-16 overflow-hidden flex justify-center mb-4 relative z-10 w-full text-center">
          <p className="text-[1.1rem] sm:text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-l from-cyan-300 via-white to-cyan-300 animate-typewriter inline-block drop-shadow-sm whitespace-nowrap">
            مجتمعك الجامعي — في مكان واحد
          </p>
       </div>
-      
+
       <p className={`text-slate-300 max-w-2xl text-lg md:text-xl transition-all duration-700 font-light leading-relaxed mb-10 text-center relative z-10 ${showSub ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '600ms' }}>
         انضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية، وشارك مجموعاتك ومقرراتك وجدول دراستك بكل سهولة، دون أن تتيه في محادثات الواتساب.
       </p>

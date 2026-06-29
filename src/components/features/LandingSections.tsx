@@ -1,0 +1,8 @@
+export { TestsFeatureSection } from '../landing/tests/TestsFeatureSection';
+export { FeaturesSection } from '../landing/FeaturesSection';
+export { FinalCTASection } from '../landing/FinalCTASection';
+export { HeroAddition } from '../landing/HeroAddition';
+export { HowItWorksSection } from '../landing/HowItWorksSection';
+export { ProblemsSection } from '../landing/ProblemsSection';
+export { ScrollIndicator } from '../landing/ScrollIndicator';
+export { SolutionBridge } from '../landing/SolutionBridge';

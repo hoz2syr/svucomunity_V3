@@ -24,7 +24,7 @@ const DEV_CSP_HEADER = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com ws:",
+  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.ocr.space https://*.ocr.space ws:",
   "frame-src https://*.supabase.co https://accounts.google.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -38,7 +38,7 @@ const PROD_CSP_HEADER = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.ocr.space https://*.ocr.space",
   "frame-src https://*.supabase.co https://accounts.google.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -70,6 +70,20 @@ export default defineConfig(() => {
     build: {
       outDir: 'dist',
       emptyOutDir: true,
+      sourcemap: false,
+      reportCompressedSize: true,
+      cssCodeSplit: true,
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-router': ['react-router-dom'],
+            'vendor-query': ['@tanstack/react-query'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-motion': ['motion'],
+          },
+        },
+      },
     },
   };
 });

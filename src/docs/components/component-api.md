@@ -98,13 +98,13 @@
   - `title`
   - `description`
   - `icon`
-  - `iconBg`
-  - `iconColor`
+  - `accent` — لون الموضوع العام: `'info' | 'warning' | 'primary' | 'success' | 'danger'`
   - `linkTo`
   - `linkLabel`
   - `index`
 - ملاحظات:
   - يستخدم motion للأنيميشن عند الظهور.
+  - يدعم شريط لوني علوي + توهج خلفي حسب الـ `accent`.
   - يدعم تأثيرات hover على البطاقة والأيقونة.
 
 ### StudyGroupsCard

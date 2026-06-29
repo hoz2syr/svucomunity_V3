@@ -7,10 +7,19 @@ vi.mock('@/src/hooks/useInView', () => ({
   useInView: (...args: any[]) => mockUseInView(...args),
 }));
 
+const mockIntersectionObserver = vi.fn();
+mockIntersectionObserver.mockReturnValue({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+});
+window.IntersectionObserver = mockIntersectionObserver;
+
 describe('SolutionBridge', () => {
   beforeEach(() => {
     vi.resetModules();
     mockUseInView.mockReturnValue({ ref: { current: null }, isInView: true });
+    mockIntersectionObserver.mockClear();
   });
 
   it('should be importable', async () => {

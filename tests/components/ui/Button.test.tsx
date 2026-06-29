@@ -25,14 +25,14 @@ describe('Button component', () => {
   it('should render with primary variant by default', () => {
     const { container } = render(<Button>Click me</Button>);
     const button = container.querySelector('button');
-    expect(button?.className).toContain('from-[var(--color-primary-500)]');
-    expect(button?.className).toContain('to-[var(--color-secondary-400)]');
+    expect(button?.className).toContain('bg-[var(--color-primary-600)]');
+    expect(button?.className).toContain('rounded-[var(--radius-button)]');
   });
 
   it('should render with secondary variant', () => {
     const { container } = render(<Button variant="secondary">Click me</Button>);
     const button = container.querySelector('button');
-    expect(button?.className).toContain('bg-slate-700');
+    expect(button?.className).toContain('bg-white/6');
   });
 
   it('should render with danger variant', () => {

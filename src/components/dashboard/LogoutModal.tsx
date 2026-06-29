@@ -4,7 +4,7 @@ import { ModalOverlay } from './ModalOverlay';
 export const LogoutModal = ({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) => (
   <ModalOverlay onClose={onClose} titleId="logout-modal-title" descriptionId="logout-modal-description">
     <div className="p-8">
-      <div className="w-14 h-14 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-5">
+      <div className="w-14 h-14 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-5">
         <LogOut size={26} strokeWidth={2.5} />
       </div>
       <h3 id="logout-modal-title" className="text-xl font-bold text-white mb-2">تسجيل الخروج</h3>
@@ -13,7 +13,7 @@ export const LogoutModal = ({ onClose, onConfirm }: { onClose: () => void; onCon
       </p>
       <div className="flex gap-3">
         <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-300 bg-white/5 hover:bg-white/10 transition-colors">إلغاء</button>
-        <button type="button" onClick={onConfirm} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-[var(--shadow-glow-cyan-20)] transition-colors">تأكيد الخروج</button>
+        <button type="button" onClick={onConfirm} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-colors">تأكيد الخروج</button>
       </div>
     </div>
   </ModalOverlay>

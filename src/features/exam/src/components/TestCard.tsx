@@ -22,7 +22,7 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
   const isPublishing = publishingId === test.id;
 
   return (
-    <div className="bg-[var(--color-bg-card)] backdrop-blur-xl border border-[var(--color-glass-border)] flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-glow-cyan)] hover:border-[var(--color-glass-hover-border)]">
+    <div className="bg-slate-900/60 border border-white/8 flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-150 hover:shadow-md hover:border-white/14">
       <div className="flex-1 p-5 pb-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">{test.title}</h3>
@@ -36,11 +36,11 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         )}
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <FileText className="w-3.5 h-3.5 text-primary-400" />
             <span>{test.questions.length} سؤال</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-[var(--color-bg-elevated)]/70 text-[var(--color-text-secondary)] text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <Clock className="w-3.5 h-3.5 text-primary-400" />
             <span>{new Date(test.createdAt).toLocaleDateString('ar-SA')}</span>
           </span>
@@ -49,19 +49,19 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
         <div className="mt-3 flex items-center justify-between">
           <StarRating rating={test.rating ?? 0} readonly size={16} onRate={() => {}} />
           {test.rating ? (
-            <span className="text-xs text-[var(--color-text-muted)]">{test.rating}/5</span>
+            <span className="text-xs text-slate-500">{test.rating}/5</span>
           ) : (
-            <span className="text-xs text-[var(--color-text-muted)]">غير مقيم</span>
+            <span className="text-xs text-slate-500">غير مقيم</span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-[var(--color-glass-border)] bg-[var(--color-bg-card)]">
+      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/5 bg-slate-900/60">
         {!test.published && onPublish && (
           <button
             onClick={() => onPublish(test.id)}
             disabled={isPublishing}
-            className="w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl bg-[var(--color-info-light)] text-[var(--color-info-400)] border border-[var(--color-info-border)] hover:bg-[var(--color-info-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Share2 className="w-4 h-4" />
             <span>{isPublishing ? 'جاري النشر...' : 'نشر ومشاركة'}</span>
