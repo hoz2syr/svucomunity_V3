@@ -69,7 +69,9 @@ export const deleteOwnAccount = async (): Promise<DeleteOwnAccountResult> => {
       };
     }
 
-    const invokePromise = client.functions.invoke(EDGE_FUNCTION_NAME);
+    const invokePromise = client.functions.invoke(EDGE_FUNCTION_NAME, {
+      method: 'POST',
+    });
     const timeoutPromise = new Promise<never>((_resolve, reject) => {
       const handler = () => {
         reject(

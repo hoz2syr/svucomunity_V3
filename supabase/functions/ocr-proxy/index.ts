@@ -4,7 +4,7 @@ const OCR_API_URL = "https://api.ocr.space/parse/image";
 
 const corsHeaders = (origin: string | null) => {
   const headers = new Headers({
-    "Access-Control-Allow-Headers": "authorization, content-type",
+    "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Cache-Control": "no-store",
   });
