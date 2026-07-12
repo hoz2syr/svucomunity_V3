@@ -71,7 +71,7 @@ jobs:
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
 
       - name: Push DB migrations
-        run: echo "Y" | supabase db push
+        run: echo "Y" | supabase db push --include-all
 
       - name: Set Edge Function secrets
         run: |
