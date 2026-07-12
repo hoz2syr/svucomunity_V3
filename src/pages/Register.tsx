@@ -4,7 +4,7 @@ import { RegisterInput } from '../schemas/auth.schema';
 import { AuthCard } from '../components/shared/AuthCard';
 import { InputField } from '../components/ui/InputField';
 import { GuestButton } from '../components/shared/GuestButton';
-import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
+import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/env';
 import { loginWithGoogle, registerWithEmail } from '../services/auth.service';
 import { useGuest } from '../contexts/GuestContext';
 

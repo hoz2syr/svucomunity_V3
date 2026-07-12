@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { useReducedMotion } from './useReducedMotion';
 
 interface UseCountUpOptions {
@@ -15,14 +15,13 @@ export const useCountUp = ({ end, duration = 2000, delay = 0, startOnView = true
   const rafRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (reducedMotion) {
       setCount(end);
-      return;
     }
   }, [reducedMotion, end]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (startOnView) {
       setHasStarted(false);
     }

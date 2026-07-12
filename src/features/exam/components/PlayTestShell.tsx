@@ -20,6 +20,29 @@ import { Button } from '@/src/components/ui/Button';
 import type { UseCorePlayTestReturn } from '../src/hooks/useCorePlayTest';
 import type { ReactNode } from 'react';
 
+interface BackButtonProps {
+  label: string;
+  icon?: boolean;
+  backPath: string;
+  showBackIcon?: boolean;
+}
+
+const BackButton = ({ label, icon = true, backPath, showBackIcon }: BackButtonProps) => {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate(backPath)}
+      className={cn(
+        'flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition min-h-[44px]',
+        !showBackIcon && 'gap-0'
+      )}
+    >
+      {showBackIcon && icon && <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
+      <span className="text-sm sm:text-base">{label}</span>
+    </button>
+  );
+};
+
 interface PlayTestShellProps {
   state: UseCorePlayTestReturn;
   backPath: string;
@@ -68,23 +91,10 @@ export function PlayTestShell({
   if (error) return <ErrorState title="تعذر تحميل الاختبار" message={error} onRetry={() => navigate(backPath)} />;
   if (!test) return null;
 
-  const BackButton = ({ label, icon = true }: { label: string; icon?: boolean }) => (
-    <button
-      onClick={() => navigate(backPath)}
-      className={cn(
-        'flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition min-h-[44px]',
-        !showBackIcon && 'gap-0'
-      )}
-    >
-      {showBackIcon && icon && <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
-      <span className="text-sm sm:text-base">{label}</span>
-    </button>
-  );
-
   if (!hasStarted) {
     return (
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 animation-fade-in-up px-3 sm:px-0 pb-24">
-        <BackButton label="العودة للاختبارات" />
+        <BackButton label="العودة للاختبارات" backPath={backPath} showBackIcon={showBackIcon} />
 
         <div className="glass-card p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6">
           <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 border border-cyan-500/30">
@@ -152,8 +162,7 @@ export function PlayTestShell({
   if (showResults) {
     return (
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 pb-24">
-        <BackButton label="العودة للاختبارات" />
-
+        <BackButton label="العودة للاختبارات" backPath={backPath} showBackIcon={showBackIcon} />
         <div className="glass-card text-center p-5 sm:p-8 md:p-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">النتيجة النهائية</h2>
           <p className="text-secondary-400 mb-3 sm:mb-5 text-xs sm:text-sm">لقد أكملت اختبار: {test.title}</p>
@@ -229,7 +238,7 @@ export function PlayTestShell({
 
   return (
     <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 pb-24">
-      <BackButton label="العودة" />
+      <BackButton label="العودة" backPath={backPath} showBackIcon={showBackIcon} />
 
       <div className="flex items-center justify-between font-medium text-secondary-300 px-2 lg:px-0">
         <span className="text-xs sm:text-sm md:text-base">السؤال {currentIdx + 1} من {test.questions.length}</span>

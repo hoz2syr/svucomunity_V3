@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home } from 'lucide-react';
@@ -12,14 +12,6 @@ import { EmptyDashboardState } from './EmptyDashboardState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useDashboardNotifications } from './useDashboardNotifications';
 import { useDashboardState, type DashboardModal, type SettingsTab } from './useDashboardState';
-
-const getUser = (session: ReturnType<typeof useAuth>['session'], profile: ReturnType<typeof useAuth>['profile']) => ({
-  id: profile?.id || session?.user?.id || '',
-  name: profile?.full_name || session?.user?.user_metadata?.full_name || 'طالب',
-  username: profile?.username || session?.user?.email?.split('@')[0] || 'student',
-  email: profile?.email || session?.user?.email || '',
-  role: profile?.role || 'طالب',
-});
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -44,6 +36,14 @@ export const DashboardPage = () => {
     notificationsError,
   } = useDashboardNotifications();
 
+  const user = useMemo(() => ({
+    id: profile?.id || session?.user?.id || '',
+    name: profile?.full_name || session?.user?.user_metadata?.full_name || 'طالب',
+    username: profile?.username || session?.user?.email?.split('@')[0] || 'student',
+    email: profile?.email || session?.user?.email || '',
+    role: profile?.role || 'طالب',
+  }), [session, profile]);
+
   useEffect(() => {
     if (!isProfileMenuOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,7 +55,6 @@ export const DashboardPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isProfileMenuOpen, setIsProfileMenuOpen, profileMenuRef]);
 
-  const user = getUser(session, profile);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleSignOut = async () => {

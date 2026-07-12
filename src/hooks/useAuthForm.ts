@@ -49,7 +49,7 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
 
   const form = useForm<LoginInput | RegisterInput>({
     resolver: zodResolver(schema),
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       email: '',
       password: '',

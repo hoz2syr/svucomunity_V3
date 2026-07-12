@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import { resetPasswordSchema } from '../../schemas/auth.schema';
-import { getErrorMessage } from '../../services/environment.service';
-import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../../services/environment.service';
+import { getErrorMessage, hasSupabaseEnv, missingSupabaseEnvMessage } from '../../lib/env';
 import { resetPassword } from '../../services/auth.service';
 
 interface ForgotPasswordModalProps {

@@ -3,7 +3,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCorePlayTest } from '../hooks';
 import { PlayTestShell } from '../../components/PlayTestShell';
-import { saveTestAttempt } from '../services/exam.supabase';
+import { saveTestAttempt } from '../services/attempts.service';
 import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function PlayTest() {

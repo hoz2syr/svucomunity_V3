@@ -11,3 +11,6 @@ tsc-errors.txt
 assets/.aistudio/
 
 ite_comunety/
+tests/
+ocr/
+

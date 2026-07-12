@@ -9,6 +9,11 @@ interface UseInViewOptions {
 export const useInView = ({ threshold = 0.15, once = true, rootMargin = '0px' }: UseInViewOptions = {}) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const onceRef = useRef(once);
+
+  useEffect(() => {
+    onceRef.current = once;
+  }, [once]);
 
   useEffect(() => {
     const el = ref.current;
@@ -17,7 +22,7 @@ export const useInView = ({ threshold = 0.15, once = true, rootMargin = '0px' }:
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setIsInView(true);
-        if (once) observer.unobserve(el);
+        if (onceRef.current) observer.unobserve(el);
       }
     }, { threshold, rootMargin });
 

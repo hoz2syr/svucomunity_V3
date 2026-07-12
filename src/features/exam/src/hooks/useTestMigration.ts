@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { fetchTestsFromSupabase, upsertTestToSupabase } from '../services/exam.supabase';
+import { fetchTestsFromSupabase, upsertTestToSupabase } from '../services/tests.service';
 import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
 import { supabaseStorage } from '../core/adapters/supabaseTestStorage';
 import type { TestModel } from '../types';

@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import {
-  HeroAddition, ScrollIndicator, ProblemsSection, SolutionBridge,
-  FeaturesSection, HowItWorksSection, FinalCTASection,
+  HeroAddition, ScrollIndicator,
 } from '../components/LandingSections';
-import { TestsFeatureSection } from '../components/landing/tests/TestsFeatureSection';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -16,16 +14,7 @@ import { SkipLink } from '../components/accessibility/SkipLink';
 import { CardSkeleton } from '../components/ui/Skeleton';
 import { AnimatedBackground } from '../components/landing/AnimatedBackground';
 
-const LandingSections = () => (
-  <>
-    <ProblemsSection />
-    <SolutionBridge />
-    <FeaturesSection />
-    <HowItWorksSection />
-    <TestsFeatureSection />
-    <FinalCTASection />
-  </>
-);
+const LazyLandingSections = lazy(() => import('../components/LandingSections').then(m => ({ default: m.LandingSections })));
 
 export const Home = () => {
   return (
@@ -55,7 +44,7 @@ export const Home = () => {
                 <CardSkeleton />
               </div>
             }>
-              <LandingSections />
+              <LazyLandingSections />
             </Suspense>
           </ErrorBoundary>
         </main>

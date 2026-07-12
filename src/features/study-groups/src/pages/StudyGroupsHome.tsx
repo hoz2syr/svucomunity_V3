@@ -4,8 +4,7 @@ import { useStudyGroupsPage } from '../hooks/useStudyGroupsPage';
 import type { StudyGroupEnriched } from '../hooks/useStudyGroups';
 import { StudyGroupsFilters } from '../../components/StudyGroupsFilters';
 import { GroupCard } from '../../components/GroupCard';
-import { CreateGroupModal } from '../../components/CreateGroupModal';
-import { EditGroupModal } from '../../components/EditGroupModal';
+import { GroupFormModal } from '../../components/GroupFormModal';
 import { GroupDetailsModal } from '../../components/GroupDetailsModal';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ErrorState } from '../../components/ErrorState';
@@ -93,38 +92,31 @@ export default function StudyGroupsHome() {
         icon={<Users className="w-6 h-6" />}
       />
 
-<CreateGroupModal
-         isOpen={page.showCreateModal}
-         onClose={page.handleCloseCreateModal}
-         onSubmit={page.handleCreateGroup}
-         getCoursesByMajor={page.handleGetCoursesByMajor}
-         availableMajors={page.majors}
-         userMajor={userMajor}
-       />
+       <GroupFormModal
+          isOpen={page.showCreateModal || page.showEditModal}
+          onClose={page.showCreateModal ? page.handleCloseCreateModal : page.handleCloseEditModal}
+          mode={page.showEditModal ? 'edit' : 'create'}
+          onSubmit={page.showEditModal ? page.handleEditSubmit : page.handleCreateGroup}
+          group={page.showEditModal ? page.selectedGroup : undefined}
+          getCoursesByMajor={page.handleGetCoursesByMajor}
+          availableMajors={page.majors}
+          userMajor={userMajor}
+        />
 
        <GroupDetailsModal
-         group={page.selectedGroup as StudyGroupEnriched | null}
-         isOpen={!!page.selectedGroupId}
-         onClose={page.handleCloseDetails}
-         isMember={page.isMember}
-         canDelete={page.canDelete}
-         currentUserMajor={userMajor}
-         onJoin={page.handleJoin}
-         onLeave={page.handleLeave}
-         onEdit={page.handleEdit}
-         onDelete={page.handleDelete}
-         joiningId={page.joiningId}
-         leavingId={page.leavingId}
-       />
-
-<EditGroupModal
-         isOpen={page.showEditModal}
-         onClose={page.handleCloseEditModal}
-         onSubmit={page.handleEditSubmit}
-         group={page.selectedGroup as StudyGroupEnriched | null}
-         getCoursesByMajor={page.handleGetCoursesByMajor}
-         availableMajors={page.majors}
-       />
+          group={page.selectedGroup as StudyGroupEnriched | null}
+          isOpen={!!page.selectedGroupId}
+          onClose={page.handleCloseDetails}
+          isMember={page.isMember}
+          canDelete={page.canDelete}
+          currentUserMajor={userMajor}
+          onJoin={page.handleJoin}
+          onLeave={page.handleLeave}
+          onEdit={page.handleEdit}
+          onDelete={page.handleDelete}
+          joiningId={page.joiningId}
+          leavingId={page.leavingId}
+        />
     </ErrorBoundary>
   );
 }

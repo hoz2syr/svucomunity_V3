@@ -20,7 +20,7 @@
 - Coming soon form local-only.
 - لا توجد واجهة حقيقية للمجموعات أو المقررات.
 - لا توجد لوحة نشاط أو محتوى داخلي.
-- Zustand stores غير مستخدمة (notificationStore, uiStore).
+- Zustand stores غير مستخدمة (notificationStore).
 - TanStack Query مُهيأ لكنه غير مستخدم فعلياً لجلب البيانات.
 - لا يوجد tokens file مركزي.
 - بعض accessibility details ناقصة.

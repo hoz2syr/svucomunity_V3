@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Bell, ChevronDown, LogOut, Shield, Trash2, User, X } from 'lucide-react';
 import type { Notification } from '../../types/notification';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 type DashboardUser = {
   id: string;
@@ -184,36 +185,20 @@ export const DashboardHeader = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (!searchFocused) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) setSearchFocused(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [searchFocused]);
+  const handleNotificationsClickOutside = useCallback((event: Event) => {
+    if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+      onToggleNotifications();
+    }
+  }, [onToggleNotifications]);
 
-  useEffect(() => {
-    if (!isNotificationsOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        onToggleNotifications();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isNotificationsOpen, onToggleNotifications]);
+  const handleProfileClickOutside = useCallback((event: Event) => {
+    if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+      onToggleProfile();
+    }
+  }, [onToggleProfile]);
 
-  useEffect(() => {
-    if (!isProfileMenuOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        onToggleProfile();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isProfileMenuOpen, onToggleProfile]);
+  useClickOutside(notificationsRef, handleNotificationsClickOutside, { enabled: isNotificationsOpen });
+  useClickOutside(profileRef, handleProfileClickOutside, { enabled: isProfileMenuOpen });
 
   useEffect(() => {
     if (!isNotificationsOpen && !isProfileMenuOpen) return;

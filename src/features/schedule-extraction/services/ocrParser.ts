@@ -16,7 +16,7 @@ export interface ValidationResult {
 const OCR_FUNCTION = 'ocr-proxy';
 
 async function callOCR(base64DataUrl: string): Promise<string> {
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { data, error } = await supabase.functions.invoke<Record<string, unknown>>(OCR_FUNCTION, {
     body: { base64Image: base64DataUrl },
   });

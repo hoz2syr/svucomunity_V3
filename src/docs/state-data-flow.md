@@ -33,8 +33,7 @@
 
 ### Zustand
 - `notificationStore`
-- `uiStore`
-- موجودتان لكن غير مستخدمتين في production حالياً
+- موجودة لكن غير مستخدمة في production حالياً
 
 ### TanStack Query
 - `queryClient` موجود
@@ -147,5 +146,5 @@ DashboardPage (logged-in user only)
 - `features/**/services/index.ts` موجودة لكن لا تزال mostly re-export.
 - `src/lib/supabase.ts` يحتوي على دوال legacy.
 - `src/services/*` هي الطبقة المفضلة حالياً.
-- `stores` (notificationStore, uiStore) غير مستخدمة حالياً.
+- `stores` (notificationStore) غير مستخدمة حالياً.
 - `Exam feature` تستخدم localStorage فقط — BACKEND_SCHEMA.md يخطط للتحويل لـ Supabase.

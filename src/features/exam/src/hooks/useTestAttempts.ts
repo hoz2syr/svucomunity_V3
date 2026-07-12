@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { fetchUserAttemptHistory, saveTestAttempt } from '../services/exam.supabase';
+import { fetchUserAttemptHistory, saveTestAttempt } from '../services/attempts.service';
+import { getCurrentSession } from '@/src/lib/supabase';
 
 export interface UseTestAttemptsReturn {
   attempts: import('../types').TestAttempt[];
@@ -52,7 +53,7 @@ export function useTestAttempts(): UseTestAttemptsReturn {
 
   const saveAttemptAction = useCallback(async (testId: string, score: number, total: number, answers: Record<string, string>) => {
     if (!userId && !envMissing) {
-      const fresh = await (await import('@/src/lib/supabase')).getCurrentSession();
+      const fresh = await getCurrentSession();
       const uid = fresh?.user?.id;
       if (!uid) {
         setError('يجب تسجيل الدخول لحفظ النتيجة.');

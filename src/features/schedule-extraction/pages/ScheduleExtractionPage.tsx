@@ -9,16 +9,32 @@ import { EditDraftModal } from '../components/EditDraftModal';
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { GroupDetailsModal } from '../components/GroupDetailsModal';
 import { useScheduleMatching } from '../hooks';
-import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroupsApi';
+import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
+    if (file.size > MAX_FILE_SIZE) {
+      reject(new Error('حجم الملف يتجاوز الحد المسموح (10MB)'));
+      return;
+    }
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      reject(new Error('نوع الملف غير مدعوم'));
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       const [meta, base64] = result.split(',');
       const mimeType = meta.match(/:(.*?);/)?.[1] || 'image/png';
+      if (!mimeType.startsWith('image/')) {
+        reject(new Error('فشل تحويل الملف إلى صورة صالحة'));
+        return;
+      }
       resolve({ base64, mimeType });
     };
     reader.onerror = () => reject(new Error('Failed to read file'));

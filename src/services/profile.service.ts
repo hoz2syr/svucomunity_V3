@@ -1,4 +1,4 @@
-import { getErrorMessage, getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/supabase';
+import { createMissingEnvError, getErrorMessage, getSupabaseClient, hasSupabaseEnv } from '../lib/supabase';
 import type { Profile } from '../types/profile';
 import type { SupabaseOperationError } from '../types/supabase';
 
@@ -17,10 +17,6 @@ export type UpdatePasswordResult = {
   error: SupabaseOperationError | null;
 };
 
-const createMissingEnvError = (): SupabaseOperationError => ({
-  message: missingSupabaseEnvMessage,
-});
-
 const toSupabaseError = (error: unknown): SupabaseOperationError => ({
   message: getErrorMessage(error),
 });
@@ -31,7 +27,7 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
   }
 
   try {
-    const client = getSupabaseClient();
+    const client = await getSupabaseClient();
     const { data: { user } } = await client.auth.getUser();
 
     if (!user || user.id !== userId) {
@@ -67,7 +63,7 @@ export const updateProfile = async (userId: string, full_name: string, username:
   }
 
   try {
-    const client = getSupabaseClient();
+    const client = await getSupabaseClient();
     const { data: { user } } = await client.auth.getUser();
 
     if (!user || user.id !== userId) {
@@ -91,7 +87,7 @@ export const updatePassword = async (email: string, currentPassword: string, new
   }
 
   try {
-    const client = getSupabaseClient();
+    const client = await getSupabaseClient();
     const { data: { user } } = await client.auth.getUser();
 
     if (!user) {

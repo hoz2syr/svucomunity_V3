@@ -1,8 +1,37 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { ScheduleExtractionResult, MatchedGroup, DraftGroup, ValidationResult } from '../types';
 import { extractScheduleFromImage } from '../services/ocrParser';
 import { matchCoursesToGroups } from '../services/matchingService';
-import { getAllWithCreators } from '@/src/features/study-groups/services/studyGroupsApi';
+import { getAllWithCreators } from '@/src/features/study-groups/services/studyGroup.supabase';
+
+const mapToMatchedGroup = (g: {
+  id: string;
+  name: string;
+  course_code: string;
+  course_name: string;
+  major: string;
+  class_number?: string | null;
+  current_members: number;
+  max_members: number;
+  creator_name: string;
+  creator_id: string;
+  whatsapp_link?: string | null;
+  group_link?: string | null;
+}): MatchedGroup => ({
+  id: g.id,
+  name: g.name,
+  course_code: g.course_code,
+  course_name: g.course_name,
+  major: g.major,
+  class_number: g.class_number ?? null,
+  current_members: g.current_members,
+  max_members: g.max_members,
+  is_full: g.current_members >= g.max_members,
+  creator_name: g.creator_name,
+  creator_id: g.creator_id,
+  whatsapp_link: g.whatsapp_link ?? null,
+  group_link: g.group_link ?? null,
+});
 
 export function useScheduleMatching() {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -12,6 +41,14 @@ export function useScheduleMatching() {
   const [matchedGroups, setMatchedGroups] = useState<Record<string, MatchedGroup[]>>({});
   const [autoDrafts, setAutoDrafts] = useState<DraftGroup[]>([]);
   const [groups, setGroups] = useState<MatchedGroup[]>([]);
+  const groupsRef = useRef<MatchedGroup[]>([]);
+
+  useEffect(() => {
+    groupsRef.current = groups;
+    return () => {
+      groupsRef.current = [];
+    };
+  }, [groups]);
 
   const loadGroups = useCallback(async () => {
     const res = await getAllWithCreators();
@@ -19,21 +56,7 @@ export function useScheduleMatching() {
       setError(res.error.message);
       return;
     }
-  const mapped: MatchedGroup[] = (res.data || []).map((g) => ({
-    id: g.id,
-    name: g.name,
-    course_code: g.course_code,
-    course_name: g.course_name,
-    major: g.major,
-    class_number: g.class_number ?? null,
-    current_members: g.current_members,
-    max_members: g.max_members,
-    is_full: g.current_members >= g.max_members,
-    creator_name: g.creator_name,
-    creator_id: g.creator_id,
-    whatsapp_link: g.whatsapp_link ?? null,
-    group_link: g.group_link ?? null,
-  }));
+    const mapped: MatchedGroup[] = (res.data || []).map(mapToMatchedGroup);
     setGroups(mapped);
   }, []);
 
@@ -56,28 +79,14 @@ export function useScheduleMatching() {
         return;
       }
 
-      let existing = groups;
+      let existing = groupsRef.current;
       if (existing.length === 0) {
         const res = await getAllWithCreators();
         if (res.error) {
           setError(res.error.message);
           return;
         }
-        existing = (res.data || []).map((g) => ({
-          id: g.id,
-          name: g.name,
-          course_code: g.course_code,
-          course_name: g.course_name,
-          major: g.major,
-          class_number: g.class_number ?? null,
-          current_members: g.current_members,
-          max_members: g.max_members,
-          is_full: g.current_members >= g.max_members,
-          creator_name: g.creator_name,
-          creator_id: g.creator_id,
-          whatsapp_link: g.whatsapp_link ?? null,
-          group_link: g.group_link ?? null,
-        }));
+        existing = (res.data || []).map(mapToMatchedGroup);
         setGroups(existing);
       }
 
@@ -108,7 +117,7 @@ export function useScheduleMatching() {
     } finally {
       setIsExtracting(false);
     }
-  }, [groups]);
+  }, []);
 
   const reloadGroups = useCallback(async () => {
     await loadGroups();

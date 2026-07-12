@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { TestModel, Question } from '../types';
 import { saveTest } from '../lib/store';
-import { upsertTestToSupabase } from '../services/exam.supabase';
+import { upsertTestToSupabase } from '../services/tests.service';
 import { hasSupabaseEnv, missingSupabaseEnvMessage, getCurrentSession } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -144,7 +144,7 @@ export function useTestCreator(): UseTestCreatorReturn {
     } catch {
       setError('صيغة JSON غير صالحة. تأكد من صحة الملف.');
     }
-  }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit, selectedMajor, selectedCourse, courses]);
+  }, [jsonText, testTitle, testDesc, showExplanations, globalTimeLimit, selectedMajor, selectedCourse]);
 
   const handlePublish = useCallback(async (testId: string, navigate?: (path: string, options?: { replace?: boolean }) => void) => {
     setPublishError(null);

@@ -35,6 +35,14 @@
         "C:\\nvm4w\\nodejs\\gemini-design-mcp.ps1"
       ],
       "enabled": true
+    },
+    "n8n-mcp": {
+      "type": "remote",
+      "url": "http://localhost:5678/mcp-server/http",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzYzQ0YjNmMS05ZDIxLTRhYmEtODU5ZS1hZDUwZTJjODQ5ZGMiLCJpc3MiOiJuOG4iLCJhdWQiOiJtY3Atc2VydmVyLWFwaSIsImp0aSI6IjRmMjBmZTYwLTI4YjUtNGQ1YS04NDkxLTQzMzVkM2QyYmVlOSIsImlhdCI6MTc4MjgyODU0MX0.YWezeI7r8N11iu3J_olC4MbdBsGEw5xHnRvs-lFjJ1E"
+      },
+      "enabled": true
     }
   },
   "instructions": [
@@ -77,5 +85,6 @@
         "mcp": "deny"
       }
     }
-  }
+  },
+  "snapshot": false
 }

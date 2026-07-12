@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { listenAuthChanges } from '@/src/services/auth.service';
 
@@ -34,15 +34,6 @@ const uint8ToBase64 = (arr: Uint8Array): string => {
   return btoa(binary);
 };
 
-const base64ToUint8 = (b64: string): Uint8Array => {
-  const binary = atob(b64);
-  const arr = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    arr[i] = binary.charCodeAt(i);
-  }
-  return arr;
-};
-
 const encrypt = (data: string): string => {
   const keyBytes = toUint8Array(ENCRYPTION_KEY);
   const dataBytes = toUint8Array(data);
@@ -55,7 +46,11 @@ const encrypt = (data: string): string => {
 
 const decrypt = (encoded: string): string => {
   const keyBytes = toUint8Array(ENCRYPTION_KEY);
-  const dataBytes = base64ToUint8(encoded);
+  const binary = atob(encoded);
+  const dataBytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    dataBytes[i] = binary.charCodeAt(i);
+  }
   const result = new Uint8Array(dataBytes.length);
   for (let i = 0; i < dataBytes.length; i++) {
     result[i] = dataBytes[i] ^ keyBytes[i % keyBytes.length];
@@ -67,25 +62,26 @@ const readGuestProfile = (): GuestProfile | null => {
   try {
     const raw = sessionStorage.getItem(GUEST_PROFILE_KEY);
     if (!raw) return null;
-    const decrypted = decrypt(raw);
-    return JSON.parse(decrypted) as GuestProfile;
+    return JSON.parse(decrypt(raw)) as GuestProfile;
   } catch {
     return null;
   }
 };
 
 const saveGuestProfile = (profile: GuestProfile): void => {
-  const encrypted = encrypt(JSON.stringify(profile));
-  sessionStorage.setItem(GUEST_PROFILE_KEY, encrypted);
+  sessionStorage.setItem(GUEST_PROFILE_KEY, encrypt(JSON.stringify(profile)));
 };
 
 export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [guestProfile, setGuestProfile] = useState<GuestProfile | null>(null);
   const isGuestRef = useRef(isGuest);
-  isGuestRef.current = isGuest;
 
-  const enableGuestMode = (profile?: GuestProfile) => {
+  useEffect(() => {
+    isGuestRef.current = isGuest;
+  }, [isGuest]);
+
+  const enableGuestMode = useCallback((profile?: GuestProfile) => {
     sessionStorage.setItem(GUEST_MODE_KEY, 'true');
     setIsGuest(true);
     const defaultProfile: GuestProfile = {
@@ -94,14 +90,14 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
     };
     saveGuestProfile(defaultProfile);
     setGuestProfile(defaultProfile);
-  };
+  }, []);
 
-  const disableGuestMode = () => {
+  const disableGuestMode = useCallback(() => {
     sessionStorage.removeItem(GUEST_MODE_KEY);
     sessionStorage.removeItem(GUEST_PROFILE_KEY);
     setIsGuest(false);
     setGuestProfile(null);
-  };
+  }, []);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(GUEST_MODE_KEY);

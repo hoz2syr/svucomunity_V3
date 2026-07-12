@@ -20,7 +20,8 @@ const updateNotificationRow = async (
   }
 
   try {
-    const { error } = await getSupabaseClient()
+    const client = await getSupabaseClient();
+    const { error } = await client
       .from('notifications')
       .update(updates)
       .eq('id', id);
@@ -41,7 +42,8 @@ export const fetchNotifications = async (): Promise<FetchNotificationsResult> =>
   }
 
   try {
-    const { data, error } = await getSupabaseClient()
+    const client = await getSupabaseClient();
+    const { data, error } = await client
       .from('notifications')
       .select('id, title, body, read, created_at')
       .order('created_at', { ascending: false })
@@ -78,7 +80,8 @@ export const markAllRead = async (
   }
 
   try {
-    const { error } = await getSupabaseClient()
+    const client = await getSupabaseClient();
+    const { error } = await client
       .from('notifications')
       .update({ read: true })
       .eq('user_id', userId)
@@ -102,7 +105,8 @@ export const deleteNotification = async (
   }
 
   try {
-    const { error } = await getSupabaseClient()
+    const client = await getSupabaseClient();
+    const { error } = await client
       .from('notifications')
       .delete()
       .eq('id', id);

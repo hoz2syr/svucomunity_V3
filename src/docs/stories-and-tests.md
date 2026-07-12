@@ -127,7 +127,6 @@ tests/
 ├── schemas/
 │   └── auth.schema.test.ts
 ├── stores/
-│   ├── uiStore.test.ts
 │   └── notificationStore.test.ts
 ├── contexts/
 │   └── AuthContext.test.ts
@@ -148,7 +147,7 @@ tests/
 | Exam feature | جيد جداً | 68+ (core + hooks + adapter + service + component) |
 | Landing sections | جيد | 9 |
 | ProtectedRoute | موجود لكن غير موصول | 3 |
-| Zustand stores | جيد | 8 |
+| notificationStore | جيد | 4 |
 | Custom hooks | جيد | 23 |
 | Validity/schemas | جيد | 2 |
 | Total | | 274 test cases |

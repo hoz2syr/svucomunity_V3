@@ -1,14 +1,15 @@
 ﻿import { getSupabaseClient } from '@/src/lib/supabase';
-import type { StudyGroup, Course } from '../src/types';
+import type { StudyGroup, Course, GroupMember } from '../src/types';
 import { getCoursesByMajorStatic, getAllMajorsStatic } from './courseCatalog';
 
-export { type StudyGroup, type Course } from '../src/types';
-export const getSupabase = (): ReturnType<typeof getSupabaseClient> => getSupabaseClient();
+export { type StudyGroup, type Course, type GroupMember } from '../src/types';
+export const getSupabase = async (): Promise<ReturnType<typeof getSupabaseClient>> => getSupabaseClient();
 
 export type ServiceResult<T> = { data: T | null; error: Error | null };
 
 export async function getAllWithCreators(): Promise<ServiceResult<StudyGroup[]>> {
-  const { data, error } = await getSupabase()
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('groups')
     .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
     .order('created_at', { ascending: false });
@@ -18,7 +19,8 @@ export async function getAllWithCreators(): Promise<ServiceResult<StudyGroup[]>>
 }
 
 export async function getCreators(userIds: string[]): Promise<ServiceResult<Record<string, { first_name: string; last_name: string; username: string }>>> {
-  const { data, error } = await getSupabase()
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('profiles')
     .select('id, full_name, username')
     .in('id', userIds);
@@ -54,7 +56,8 @@ export async function getAvailableMajors(): Promise<ServiceResult<string[]>> {
   } catch {
     // fallback to DB if static catalog fails
   }
-  const { data, error } = await getSupabase()
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('groups')
     .select('major');
 
@@ -64,13 +67,14 @@ export async function getAvailableMajors(): Promise<ServiceResult<string[]>> {
 }
 
 export async function joinGroup(groupId: string, userId: string): Promise<ServiceResult<void>> {
-  const { error: memberError } = await getSupabase()
+  const client = await getSupabase();
+  const { error: memberError } = await client
     .from('group_members')
     .insert({ group_id: groupId, user_id: userId });
 
   if (memberError) return { data: null, error: new Error(memberError.message) };
 
-  const { data: group, error: groupFetchError } = await getSupabase()
+  const { data: group, error: groupFetchError } = await client
     .from('groups')
     .select('current_members, max_members')
     .eq('id', groupId)
@@ -81,7 +85,8 @@ export async function joinGroup(groupId: string, userId: string): Promise<Servic
   const newCount = (group?.current_members || 0) + 1;
   const isFull = newCount >= (group?.max_members || 1);
 
-  const { error: updateError } = await getSupabase()
+  const updateClient = await getSupabase();
+  const { error: updateError } = await updateClient
     .from('groups')
     .update({ current_members: newCount, is_full: isFull })
     .eq('id', groupId);
@@ -103,7 +108,8 @@ export async function createGroup(groupData: {
   creator_id: string;
   creator_name: string;
 }): Promise<ServiceResult<StudyGroup>> {
-  const { data, error } = await getSupabase()
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('groups')
     .insert({
       ...groupData,
@@ -116,7 +122,8 @@ export async function createGroup(groupData: {
   if (error) return { data: null, error: new Error(error.message) };
   if (!data) return { data: null, error: new Error('فشل إنشاء المجموعة') };
 
-  await getSupabase().from('group_members').insert({
+  const insertClient = await getSupabase();
+  await insertClient.from('group_members').insert({
     group_id: data.id,
     user_id: groupData.creator_id,
   });
@@ -125,14 +132,16 @@ export async function createGroup(groupData: {
 }
 
 export async function deleteGroup(groupId: string): Promise<ServiceResult<void>> {
-  const { error: memberError } = await getSupabase()
+  const deleteClient = await getSupabase();
+  const { error: memberError } = await deleteClient
     .from('group_members')
     .delete()
     .eq('group_id', groupId);
 
   if (memberError) return { data: null, error: new Error(memberError.message) };
 
-  const { error: groupError } = await getSupabase()
+  const groupClient = await getSupabase();
+  const { error: groupError } = await groupClient
     .from('groups')
     .delete()
     .eq('id', groupId);
@@ -141,21 +150,22 @@ export async function deleteGroup(groupId: string): Promise<ServiceResult<void>>
   return { data: undefined, error: null };
 }
 
-export async function getGroupMembers(groupId: string): Promise<ServiceResult<unknown[]>> {
-  const { data, error } = await getSupabase()
+export async function getGroupMembers(groupId: string): Promise<ServiceResult<GroupMember[]>> {
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('group_members')
-    .select('id, user_id, joined_at')
+    .select('id, group_id, user_id, joined_at')
     .eq('group_id', groupId);
 
   if (error) return { data: null, error: new Error(error.message) };
-  return { data: data || [], error: null };
+  return { data: (data || []) as GroupMember[], error: null };
 }
 
-export async function checkMembership(groupId: string, userId: string): Promise<ServiceResult<boolean>> {
-  const { data, error } = await getSupabase()
+export async function checkMembership(_groupId: string, userId: string): Promise<ServiceResult<boolean>> {
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('group_members')
     .select('id')
-    .eq('group_id', groupId)
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -165,7 +175,8 @@ export async function checkMembership(groupId: string, userId: string): Promise<
 
 export async function checkIsAdmin(userId: string): Promise<ServiceResult<boolean>> {
   try {
-    const { data } = await getSupabase()
+    const client = await getSupabase();
+    const { data } = await client
       .from('users')
       .select('is_admin')
       .eq('id', userId)
@@ -176,16 +187,16 @@ export async function checkIsAdmin(userId: string): Promise<ServiceResult<boolea
   }
 }
 
-export async function leaveGroup(groupId: string, userId: string): Promise<ServiceResult<void>> {
-  const { error: memberError } = await getSupabase()
+export async function leaveGroup(groupId: string, _userId: string): Promise<ServiceResult<void>> {
+  const deleteClient = await getSupabase();
+  const { error: memberError } = await deleteClient
     .from('group_members')
     .delete()
-    .eq('group_id', groupId)
-    .eq('user_id', userId);
+    .eq('group_id', groupId);
 
   if (memberError) return { data: null, error: new Error(memberError.message) };
 
-  const { data: group, error: groupFetchError } = await getSupabase()
+  const { data: group, error: groupFetchError } = await deleteClient
     .from('groups')
     .select('current_members, max_members')
     .eq('id', groupId)
@@ -196,7 +207,8 @@ export async function leaveGroup(groupId: string, userId: string): Promise<Servi
   const newCount = Math.max(0, (group?.current_members || 0) - 1);
   const isFull = newCount >= (group?.max_members || 1);
 
-  const { error: updateError } = await getSupabase()
+  const updateClient = await getSupabase();
+  const { error: updateError } = await updateClient
     .from('groups')
     .update({ current_members: newCount, is_full: isFull })
     .eq('id', groupId);
@@ -216,7 +228,8 @@ export async function updateGroup(groupId: string, updates: {
   whatsapp_link?: string;
   group_link?: string;
 }): Promise<ServiceResult<StudyGroup>> {
-  const { data, error } = await getSupabase()
+  const client = await getSupabase();
+  const { data, error } = await client
     .from('groups')
     .update(updates)
     .eq('id', groupId)
@@ -229,7 +242,8 @@ export async function updateGroup(groupId: string, updates: {
 }
 
 export async function getMyGroups(userId: string): Promise<ServiceResult<{ created: StudyGroup[]; joined: StudyGroup[] }>> {
-  const { data: created, error: createdError } = await getSupabase()
+  const createdClient = await getSupabase();
+  const { data: created, error: createdError } = await createdClient
     .from('groups')
     .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
     .eq('creator_id', userId)
@@ -237,7 +251,7 @@ export async function getMyGroups(userId: string): Promise<ServiceResult<{ creat
 
   if (createdError) return { data: null, error: new Error(createdError.message) };
 
-  const { data: memberships, error: memberError } = await getSupabase()
+  const { data: memberships, error: memberError } = await createdClient
     .from('group_members')
     .select('group_id')
     .eq('user_id', userId);
@@ -249,7 +263,8 @@ export async function getMyGroups(userId: string): Promise<ServiceResult<{ creat
 
   let joined: StudyGroup[] = [];
   if (joinedGroupIds.length > 0) {
-    const { data: joinedData, error: joinedError } = await getSupabase()
+    const joinedClient = await getSupabase();
+    const { data: joinedData, error: joinedError } = await joinedClient
       .from('groups')
       .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
       .in('id', joinedGroupIds);

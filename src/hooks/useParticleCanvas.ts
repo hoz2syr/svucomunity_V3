@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import type { TextParticle, LinkState, MouseState } from '../types';
 import {
   measureTextTargets,
@@ -10,6 +10,22 @@ import {
   updateTextDOM,
 } from '../utils/canvasRenderer';
 import { easeInOutCubic, spring } from '../utils/animation';
+
+function subscribeToReducedMotion(onChange: () => void) {
+  if (typeof window === 'undefined') return () => {};
+  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  mediaQuery.addEventListener('change', onChange);
+  return () => mediaQuery.removeEventListener('change', onChange);
+}
+
+function getReducedMotionSnapshot() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function getServerReducedMotionSnapshot() {
+  return false;
+}
 
 export interface UseParticleCanvasOptions {
   particleCount?: number;
@@ -41,17 +57,15 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
   const lastTimeRef = useRef<number>(Date.now());
   const particlesRef = useRef<TextParticle[]>([]);
   const activeLinksRef = useRef<Map<string, LinkState>>(new Map());
-  const charRefs = enableTextAssemble ? useRef<(HTMLSpanElement | null)[]>([]) : null;
+  const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const resizeHandlerRef = useRef<(() => void) | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, getReducedMotionSnapshot, getServerReducedMotionSnapshot);
+  const textCharsKey = textChars.join('');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setReducedMotion(isReduced);
-
-    if (isReduced) return;
+    if (reducedMotion) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -66,13 +80,13 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
     };
 
     resizeHandlerRef.current = () =>
-      resizeCanvas(canvas, ctx, () => measureTextTargets(charRefs?.current ?? [], textChars, particlesRef.current), activeLinksRef);
+      resizeCanvas(canvas, ctx, () => measureTextTargets(enableTextAssemble ? charRefs.current : [], textChars, particlesRef.current), activeLinksRef);
     window.addEventListener('resize', resizeHandlerRef.current);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
 
     particlesRef.current = initParticles(particleCount, enableTextAssemble, textChars);
-    resizeCanvas(canvas, ctx, () => measureTextTargets(charRefs?.current ?? [], textChars, particlesRef.current), activeLinksRef);
+    resizeCanvas(canvas, ctx, () => measureTextTargets(enableTextAssemble ? charRefs.current : [], textChars, particlesRef.current), activeLinksRef);
     lastTimeRef.current = Date.now();
 
     const maxDist = 200;
@@ -102,7 +116,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
       const particles = particlesRef.current;
       const isHome = enableTextAssemble;
 
-      if (isHome && charRefs?.current) {
+      if (isHome && charRefs.current) {
         updateTextDOM(charRefs.current, textChars, loopTime);
       }
 
@@ -177,11 +191,11 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [reducedMotion, particleCount, enableTextAssemble, textChars.join('')]);
+  }, [reducedMotion, particleCount, enableTextAssemble, textChars, textCharsKey]);
 
   return {
     canvasRef,
-    charRefs: charRefs ?? undefined,
+    charRefs: enableTextAssemble ? charRefs : undefined,
     reducedMotion,
     particleCount,
   };

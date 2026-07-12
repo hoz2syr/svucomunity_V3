@@ -1,6 +1,36 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Clock, X, MousePointer2 } from 'lucide-react';
 
+interface MapNodeProps {
+  title: string;
+  code: string;
+  top: string;
+  left: string;
+  isActive?: boolean;
+  isCompleted: boolean;
+}
+
+const MapNode = ({ title, code, top, left, isActive, isCompleted }: MapNodeProps) => (
+  <div 
+    className={`absolute w-36 md:w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl p-4 border transition-all duration-500 flex flex-col items-center justify-center 
+      ${isActive ? 'border-[var(--color-info-400)] bg-[var(--color-bg-secondary)] shadow-[var(--shadow-card)] scale-[1.15] z-20 ring-1 ring-[var(--color-info-400)]/50' : 
+        isCompleted ? 'border-[var(--color-primary-500)]/50 bg-[var(--color-bg-secondary)] z-10 shadow-[var(--shadow-card)]' : 
+        'border-[var(--color-border-default)]/60 bg-[var(--color-bg-overlay)]/90 opacity-70 z-10 grayscale-[0.5]'}`}
+    style={{ top, left }}
+  >
+    <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-[var(--color-info-light)] text-[var(--color-info-400)]' : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]'}`}>
+       <BookOpen size={14} /> {code}
+    </div>
+    <h5 className={`font-extrabold text-center text-sm md:text-base mb-1 ${isActive ? 'text-white' : 'text-[var(--color-text-secondary)]'}`}>{title}</h5>
+    {(isActive || isCompleted) && (
+      <div className="flex gap-4 text-[10px] md:text-xs text-[var(--color-text-muted)] mt-2 font-medium">
+         <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md"><Calendar size={12}/> سنة 3</span>
+         <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md"><Clock size={12}/> 5 سا</span>
+      </div>
+    )}
+  </div>
+);
+
 export const InteractiveMapSimulation = () => {
   const [step, setStep] = useState(0);
 
@@ -27,36 +57,6 @@ export const InteractiveMapSimulation = () => {
   const cursorTop = step === 0 || step === 5 ? '80%' : '50%';
   const cursorLeft = step === 0 || step === 5 ? '80%' : '50%';
   const isCursorVisible = step < 4;
-
-  interface MapNodeProps {
-    title: string;
-    code: string;
-    top: string;
-    left: string;
-    isActive?: boolean;
-    isCompleted: boolean;
-  }
-
-  const MapNode = ({ title, code, top, left, isActive, isCompleted }: MapNodeProps) => (
-    <div 
-      className={`absolute w-36 md:w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl p-4 border transition-all duration-500 flex flex-col items-center justify-center 
-        ${isActive ? 'border-[var(--color-info-400)] bg-[var(--color-bg-secondary)] shadow-[var(--shadow-card)] scale-[1.15] z-20 ring-1 ring-[var(--color-info-400)]/50' : 
-          isCompleted ? 'border-[var(--color-primary-500)]/50 bg-[var(--color-bg-secondary)] z-10 shadow-[var(--shadow-card)]' : 
-          'border-[var(--color-border-default)]/60 bg-[var(--color-bg-overlay)]/90 opacity-70 z-10 grayscale-[0.5]'}`}
-      style={{ top, left }}
-    >
-      <div className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 mb-2.5 font-mono font-bold tracking-wide ${isActive ? 'bg-[var(--color-info-light)] text-[var(--color-info-400)]' : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]'}`}>
-         <BookOpen size={14} /> {code}
-      </div>
-      <h5 className={`font-extrabold text-center text-sm md:text-base mb-1 ${isActive ? 'text-white' : 'text-[var(--color-text-secondary)]'}`}>{title}</h5>
-      {(isActive || isCompleted) && (
-        <div className="flex gap-4 text-[10px] md:text-xs text-[var(--color-text-muted)] mt-2 font-medium">
-           <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md"><Calendar size={12}/> سنة 3</span>
-           <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md"><Clock size={12}/> 5 سا</span>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="w-full h-full bg-transparent overflow-hidden relative select-none">

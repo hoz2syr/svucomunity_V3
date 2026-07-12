@@ -1,9 +1,9 @@
+import { useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { GuestProvider } from './contexts/GuestContext';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from './lib/queryClient';
+import { createQueryClient } from './lib/queryClient';
 import { Home } from './pages/Home';
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
@@ -12,7 +12,7 @@ import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
-import { StudyGroupsLayout } from './features/study-groups';
+import { StudyGroupsLayout } from './features/study-groups/components/StudyGroupsLayout';
 import { ScheduleExtractionLayout } from './features/schedule-extraction';
 import { ToastProvider } from './components/ui/Toast';
 
@@ -20,6 +20,14 @@ const RouteLoader = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
     <div className="text-cyan-400 text-lg">جاري التحميل...</div>
   </div>
+);
+
+const withRouteShell = (element: React.ReactNode) => (
+  <GuestRoute>
+    <Suspense fallback={<RouteLoader />}>
+      {element}
+    </Suspense>
+  </GuestRoute>
 );
 
 const LazyDashboardPage = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.DashboardPage })));
@@ -32,13 +40,15 @@ const LazyPlayTestShared = lazy(() => import('./features/exam').then(m => ({ def
 const LazyBrowsePublishedTests = lazy(() => import('./features/exam').then(m => ({ default: m.BrowsePublishedTests })));
 const LazyAttemptHistory = lazy(() => import('./features/exam').then(m => ({ default: m.AttemptHistory })));
 
-const LazyStudyGroupsHome = lazy(() => import('./features/study-groups').then(m => ({ default: m.StudyGroupsHome })));
-const LazyMyGroupsPage = lazy(() => import('./features/study-groups').then(m => ({ default: m.MyGroupsPage })));
-const LazyCreateGroupPage = lazy(() => import('./features/study-groups').then(m => ({ default: m.CreateGroupPage })));
+const LazyStudyGroupsHome = lazy(() => import('./features/study-groups/src/pages/StudyGroupsHome').then(m => ({ default: m.default })));
+const LazyMyGroupsPage = lazy(() => import('./features/study-groups/src/pages/MyGroupsPage').then(m => ({ default: m.default })));
+const LazyCreateGroupPage = lazy(() => import('./features/study-groups/src/pages/CreateGroupPage').then(m => ({ default: m.default })));
 
 const LazyScheduleExtractionPage = lazy(() => import('./features/schedule-extraction').then(m => ({ default: m.ScheduleExtractionPage })));
 
 function App() {
+  const [queryClient] = useState(() => createQueryClient());
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -54,11 +64,7 @@ function App() {
                   <Route
                     path="/dashboard"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <LazyDashboardPage />
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(<LazyDashboardPage />)
                     }
                   />
                   <Route
@@ -72,121 +78,101 @@ function App() {
                   <Route
                     path="/exam/home"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyExamHome />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyExamHome />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/create"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyCreateTest />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyCreateTest />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/saved"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazySavedTests />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazySavedTests />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/play/:id"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyPlayTest />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyPlayTest />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/shared/:id"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyPlayTestShared />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyPlayTestShared />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/browse"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyBrowsePublishedTests />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyBrowsePublishedTests />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/exam/attempts"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ExamLayout>
-                            <LazyAttemptHistory />
-                          </ExamLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ExamLayout>
+                          <LazyAttemptHistory />
+                        </ExamLayout>
+                      )
                     }
                   />
                   <Route
                     path="/dashboard/study-groups"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <StudyGroupsLayout>
-                            <LazyStudyGroupsHome />
-                          </StudyGroupsLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <StudyGroupsLayout>
+                          <LazyStudyGroupsHome />
+                        </StudyGroupsLayout>
+                      )
                     }
                   />
                   <Route
                     path="/dashboard/study-groups/my"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <StudyGroupsLayout>
-                            <LazyMyGroupsPage />
-                          </StudyGroupsLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <StudyGroupsLayout>
+                          <LazyMyGroupsPage />
+                        </StudyGroupsLayout>
+                      )
                     }
                   />
                   <Route
                     path="/dashboard/study-groups/create"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <StudyGroupsLayout>
-                            <LazyCreateGroupPage />
-                          </StudyGroupsLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <StudyGroupsLayout>
+                          <LazyCreateGroupPage />
+                        </StudyGroupsLayout>
+                      )
                     }
                   />
                    <Route
@@ -200,13 +186,11 @@ function App() {
                   <Route
                     path="/dashboard/schedule"
                     element={
-                      <GuestRoute>
-                        <Suspense fallback={<RouteLoader />}>
-                          <ScheduleExtractionLayout>
-                            <LazyScheduleExtractionPage />
-                          </ScheduleExtractionLayout>
-                        </Suspense>
-                      </GuestRoute>
+                      withRouteShell(
+                        <ScheduleExtractionLayout>
+                          <LazyScheduleExtractionPage />
+                        </ScheduleExtractionLayout>
+                      )
                     }
                   />
                   <Route path="*" element={<NotFoundPage />} />

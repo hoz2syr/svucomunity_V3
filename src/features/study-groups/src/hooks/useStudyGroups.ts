@@ -4,25 +4,18 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { StudyGroup, StudyGroupFilters, StudyGroupStatus, Course } from '../types';
 import { studyGroupService } from '../core/services';
 import { useDebounce } from './useDebounce';
+import { STUDY_GROUP_INITIAL_FILTERS } from '../../constants';
 
 export interface StudyGroupEnriched extends StudyGroup {
   _creatorFullName: string;
   _creatorUsername: string;
 }
 
-const INITIAL_FILTERS: StudyGroupFilters = {
-  search: '',
-  major: '',
-  course_code: '',
-  class_number: '',
-  status: 'all',
-};
-
 export function useStudyGroups(userId: string | undefined) {
   const [groups, setGroups] = useState<StudyGroupEnriched[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<StudyGroupFilters>(INITIAL_FILTERS);
+  const [filters, setFilters] = useState<StudyGroupFilters>(STUDY_GROUP_INITIAL_FILTERS);
   const [courses, setCourses] = useState<Course[]>([]);
 
   const loadCourses = useCallback(async (major: string) => {
@@ -73,7 +66,7 @@ export function useStudyGroups(userId: string | undefined) {
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilters(INITIAL_FILTERS);
+    setFilters(STUDY_GROUP_INITIAL_FILTERS);
   }, []);
 
   const onSearchChange = useDebounce((value: string) => {

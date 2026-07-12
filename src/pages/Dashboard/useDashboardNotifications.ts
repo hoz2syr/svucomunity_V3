@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchNotifications, markAllRead, markAsRead, deleteNotification } from '../../services/notification.service';
-import { missingSupabaseEnvMessage } from '../../services/environment.service';
+import { missingSupabaseEnvMessage } from '../../lib/env';
 import { useGuest } from '../../contexts/GuestContext';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Notification } from '../../types/notification';

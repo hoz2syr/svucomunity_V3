@@ -56,7 +56,7 @@ export const deleteOwnAccount = async (): Promise<DeleteOwnAccountResult> => {
   }
 
   try {
-    const client = getSupabaseClient();
+    const client = await getSupabaseClient();
     const {
       data: { user },
       error: userError,
@@ -134,7 +134,7 @@ export const signOutCurrentUser = async (): Promise<{ ok: true } | { ok: false; 
   }
 
   try {
-    await getSupabaseClient().auth.signOut();
+    await (await getSupabaseClient()).auth.signOut();
     sessionStorage.removeItem('svu-guest-mode');
     sessionStorage.removeItem('svu-guest-profile');
     return { ok: true };

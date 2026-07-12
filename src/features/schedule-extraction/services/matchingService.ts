@@ -1,19 +1,33 @@
 import type { ExtractedCourse, MatchedGroup } from '../types';
 import type { MatchResult } from '../types';
 
+function normalizeMajor(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0600-\u06FF]/g, '')
+    .trim();
+}
+
+const MAJOR_ALIASES: Record<string, string[]> = {
+  it: ['ite', 'informationtechnology', 'informationtechnologyengineering', 'تقنيةالمعلومات'],
+  eng: ['engineering', 'هندسة'],
+  ba: ['business', 'bba', 'businessadministration', 'إدارةأعمال'],
+  cs: ['computerscience', 'علومحاسب'],
+};
+
+function resolveMajorAlias(normalized: string): string {
+  for (const [canonical, aliases] of Object.entries(MAJOR_ALIASES)) {
+    if (normalized === canonical) return canonical;
+    if (aliases.some(alias => normalized.includes(alias) || alias.includes(normalized))) {
+      return canonical;
+    }
+  }
+  return normalized;
+}
+
 function majorMatches(extracted: string, group: string): boolean {
-  const ext = extracted.toLowerCase();
-  const grp = group.toLowerCase();
-
-  if ((ext.includes('information technology') || ext.includes('ite')) &&
-      (grp.includes('information technology') || grp.includes('ite'))) return true;
-  if (ext.includes('engineering') && grp.includes('engineering')) return true;
-  if ((ext.includes('business') || ext.includes('ba') || ext.includes('bba')) &&
-      (grp.includes('business') || grp.includes('ba') || grp.includes('bba'))) return true;
-  if ((ext.includes('computer science') || ext.includes('cs')) &&
-      (grp.includes('computer science') || grp.includes('cs'))) return true;
-  if (ext.includes('eng') && grp.includes('eng')) return true;
-
+  const ext = resolveMajorAlias(normalizeMajor(extracted));
+  const grp = resolveMajorAlias(normalizeMajor(group));
   return ext === grp;
 }
 

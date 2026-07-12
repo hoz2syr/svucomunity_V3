@@ -15,6 +15,7 @@
   type ServiceResult,
   type StudyGroup,
   type Course,
+  type GroupMember,
 } from '../../../services/studyGroup.supabase';
 
 const throwOnError = <T>(result: ServiceResult<T>): T => {
@@ -50,9 +51,9 @@ export async function deleteGroup(groupId: string): Promise<void> {
   return throwOnError(await deleteGroupRaw(groupId));
 }
 
-export async function getGroupMembers(groupId: string): Promise<unknown[]> {
-  return throwOnError(await getGroupMembersRaw(groupId));
-}
+  export async function getGroupMembers(groupId: string): Promise<GroupMember[]> {
+    return throwOnError(await getGroupMembersRaw(groupId));
+  }
 
 export async function checkMembership(groupId: string, userId: string): Promise<boolean> {
   return throwOnError(await checkMembershipRaw(groupId, userId));

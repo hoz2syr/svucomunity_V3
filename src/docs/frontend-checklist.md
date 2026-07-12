@@ -73,7 +73,7 @@
 - [ ] Real interactive map data
 
 ## Known Issues
-- [ ] Zustand stores unused (notificationStore, uiStore)
+- [ ] Zustand stores unused (notificationStore)
 - [ ] TanStack Query configured but underutilized
 - [ ] features/*/services/index.ts re-exports only
 - [ ] rateLimit.ts.spec.ts not in vitest include pattern

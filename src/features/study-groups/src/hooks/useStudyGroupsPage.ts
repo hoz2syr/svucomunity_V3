@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { studyGroupService } from '../core/services';
 import { useStudyGroupsActions } from './useStudyGroupsActions';
 import { useStudyGroups, type StudyGroupEnriched } from './useStudyGroups';
-import { CLASSES } from '../constants';
+import { CLASSES } from '../../constants';
 import type { StudyGroup } from '../types';
 
 export function useStudyGroupsPage(userId: string | undefined) {
@@ -43,7 +43,7 @@ export function useStudyGroupsPage(userId: string | undefined) {
       cancelled = true;
     };
   }, []);
-  const [rawIsAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,8 +57,6 @@ export function useStudyGroupsPage(userId: string | undefined) {
       cancelled = true;
     };
   }, [userId]);
-
-  const isAdmin = useMemo(() => rawIsAdmin, [rawIsAdmin]);
 
   const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), []);
   const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), []);

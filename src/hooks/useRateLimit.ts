@@ -1,5 +1,21 @@
 import { useState, useEffect } from 'react';
 
+const encodeValue = (value: { attempts: number; resetAt: number | null }) => {
+  try {
+    return btoa(JSON.stringify(value));
+  } catch {
+    return '';
+  }
+};
+
+const decodeValue = (raw: string): { attempts: number; resetAt: number | null } => {
+  try {
+    return JSON.parse(atob(raw)) as { attempts: number; resetAt: number | null };
+  } catch {
+    return { attempts: 0, resetAt: null };
+  }
+};
+
 export type RateLimitOptions = {
   maxAttempts?: number;
   windowMs?: number;
@@ -25,7 +41,7 @@ export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter =
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return { attempts: 0, resetAt: null };
-      return JSON.parse(raw) as { attempts: number; resetAt: number | null };
+      return decodeValue(raw);
     } catch {
       return { attempts: 0, resetAt: null };
     }
@@ -33,7 +49,7 @@ export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter =
 
   const write = (value: { attempts: number; resetAt: number | null }) => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(value));
+      localStorage.setItem(storageKey, encodeValue(value));
     } catch {
       // ignore quota / private mode
     }
@@ -79,12 +95,10 @@ export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter =
 };
 
 export const useRateLimit = (options: RateLimitOptions = {}) => {
-  const limiterRef = { current: createRateLimiter(options) };
-  const [status, setStatus] = useState<RateLimitStatus>(() => limiterRef.current.check());
+  const limiter = createRateLimiter(options);
+  const [status, setStatus] = useState<RateLimitStatus>(() => limiter.check());
 
   useEffect(() => {
-    const limiter = limiterRef.current;
-
     const interval = setInterval(() => {
       const next = limiter.check();
       setStatus(next);
@@ -101,10 +115,10 @@ export const useRateLimit = (options: RateLimitOptions = {}) => {
       clearInterval(interval);
       window.removeEventListener('storage', onStorage);
     };
-  }, [options.storageKey]);
+  }, [limiter, options.storageKey]);
 
   return {
-    limiter: limiterRef.current,
+    limiter,
     status,
     setStatus,
   };

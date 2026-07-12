@@ -5,6 +5,18 @@ import { completeAuthCallback, listenAuthChanges } from '../services/auth.servic
 import { refreshProfile as refreshProfileService } from '../services/profile.service';
 import type { Profile } from '../types/profile';
 
+const SESSION_EXPIRY_WARNING_MS = 5 * 60 * 1000;
+
+const decodeJwt = (token: string): { exp: number } | null => {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
+    return decoded;
+  } catch {
+    return null;
+  }
+};
+
 interface AuthState {
   session: Session | null;
   profile: Profile | null;
@@ -53,20 +65,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const refreshProfile = useCallback(async () => {
-    if (session?.user) {
+    if (session?.user?.id) {
       await refreshProfileForUser(session.user.id);
     }
   }, [refreshProfileForUser, session]);
 
-  const decodeJwt = (token: string): { exp: number } | null => {
-    try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload));
-      return decoded;
-    } catch {
-      return null;
-    }
-  };
+  const initializedUserIdRef = useRef<string | null>(null);
 
   const checkSessionExpiry = useCallback(() => {
     if (!session?.access_token) {
@@ -80,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const now = Math.floor(Date.now() / 1000);
     const remainingMs = (payload.exp - now) * 1000;
-    const warningThreshold = 5 * 60 * 1000;
+    const warningThreshold = SESSION_EXPIRY_WARNING_MS;
 
     setSessionExpiryTime(payload.exp * 1000);
     setSessionExpiring(remainingMs <= warningThreshold && remainingMs > 0);
@@ -127,7 +131,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     let mounted = true;
-    let subscription: { unsubscribe: () => void } | null = null;
 
     const init = async () => {
       try {
@@ -139,10 +142,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setError(result.error.message);
           setSession(null);
           setProfile(null);
+          initializedUserIdRef.current = null;
         } else {
           setError(null);
           setSession(result.data.session);
-          if (result.data.session) {
+          if (result.data.session?.user?.id) {
+            initializedUserIdRef.current = result.data.session.user.id;
             await refreshProfileForUser(result.data.session.user.id);
           }
         }
@@ -153,6 +158,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error('Auth init error:', getErrorMessage(error));
           setSession(null);
           setProfile(null);
+          initializedUserIdRef.current = null;
         }
       } finally {
         if (mounted) setLoading(false);
@@ -161,32 +167,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     init();
 
-    const setupListener = async () => {
+    return () => {
+      mounted = false;
+    };
+  }, [refreshProfileForUser]);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv()) {
+      return;
+    }
+
+    let mounted = true;
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    const timer = setTimeout(async () => {
       try {
         const listener = await listenAuthChanges(async (session) => {
           if (!mounted) return;
           setEnvMissing(false);
           setSession(session);
-          if (session?.user) {
+          if (session?.user?.id) {
+            if (initializedUserIdRef.current !== session.user.id) {
+              initializedUserIdRef.current = session.user.id;
               await refreshProfileForUser(session.user.id);
+            }
           } else {
+            initializedUserIdRef.current = null;
             setProfile(null);
           }
           setLoading(false);
         });
-        subscription = listener;
+        if (mounted) {
+          subscription = listener;
+        }
       } catch (error) {
         if (mounted) {
           setEnvMissing(true);
           console.error('Auth subscription error:', getErrorMessage(error));
         }
       }
-    };
-
-    setupListener();
+    }, 0);
 
     return () => {
       mounted = false;
+      clearTimeout(timer);
       subscription?.unsubscribe();
     };
   }, [refreshProfileForUser]);

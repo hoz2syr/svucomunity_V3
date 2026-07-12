@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { TestModel } from '../types';
-import { fetchPublishedTests } from '../services/exam.supabase';
+import { fetchPublishedTests } from '../services/tests.service';
 import { hasSupabaseEnv } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getAllMajorsStatic, getCoursesByMajorStatic } from '@/src/features/study-groups/services/courseCatalog';

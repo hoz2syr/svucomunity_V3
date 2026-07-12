@@ -17,7 +17,7 @@ export const GuestSharePrompt = ({ testTitle, open = true, onClose }: GuestShare
         <p className="text-xs text-cyan-200/80 leading-relaxed">
           {testTitle ? (
             <>
-              الاختبار <span className="text-white font-medium">"{testTitle}"</span> محفوظ على هذا الجهاز فقط.
+              الاختبار <span className="text-white font-medium">&ldquo;{testTitle}&rdquo;</span> محفوظ على هذا الجهاز فقط.
               سجّل الدخول لمشاركته أو نشره.
             </>
           ) : (

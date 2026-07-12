@@ -38,7 +38,7 @@ const PROD_CSP_HEADER = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.ocr.space https://*.ocr.space",
+  "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.ocr.space https://*.ocr.space ws:",
   "frame-src https://*.supabase.co https://accounts.google.com",
   "object-src 'none'",
   "base-uri 'self'",

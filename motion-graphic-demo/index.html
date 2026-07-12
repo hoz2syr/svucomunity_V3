@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVU Community — Motion Graphic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet" />
+  <script src="gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #0D0B0A;
+      --surface: #1A1714;
+      --text: #F5F0EB;
+      --muted: #8C8580;
+      --accent: #B84A37;
+      --accent2: #C4703A;
+      --stage-w: 1080px;
+      --stage-h: 1920px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: 'Tajawal', 'Space Grotesk', sans-serif;
+      color: var(--text);
+    }
+
+    #viewport {
+      position: relative;
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #1A1714 0%, #0D0B0A 70%);
+    }
+
+    #stage {
+      position: relative;
+      width: var(--stage-w);
+      height: var(--stage-h);
+      transform-origin: center center;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* grain */
+    #grain {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 90;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      mix-blend-mode: overlay;
+    }
+
+    #camera {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    .scene {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 120px 160px;
+      gap: 20px;
+      box-sizing: border-box;
+      z-index: 2;
+    }
+
+    /* typography */
+    .headline {
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 900;
+      font-size: 180px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      text-align: center;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .subline {
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 700;
+      font-size: 64px;
+      line-height: 1.2;
+      text-align: center;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .emphasis {
+      color: var(--accent);
+      text-shadow: 0 0 60px rgba(184, 74, 55, 0.5);
+    }
+
+    /* icons */
+    .icon {
+      width: 140px; height: 140px;
+      position: absolute;
+      top: 260px;
+      opacity: 0;
+    }
+    .icon-star { color: var(--accent2); }
+    .icon-user { color: var(--accent); }
+    .icon-arrow-down { color: var(--muted); }
+    .icon-arrow-up { color: var(--accent2); }
+    .icon-check { color: var(--accent); }
+
+    /* stat */
+    .stat-wrap {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      width: 540px; height: 540px;
+    }
+
+    .stat-ring {
+      position: absolute; inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .stat-ring circle {
+      fill: none;
+      stroke-width: 16;
+      stroke-linecap: round;
+    }
+
+    .stat-ring .track { stroke: var(--surface); }
+    .stat-ring .fill {
+      stroke: var(--accent);
+      stroke-dasharray: 1570;
+      stroke-dashoffset: 1570;
+    }
+
+    .stat-value {
+      font-family: 'Space Grotesk', 'Tajawal', sans-serif;
+      font-weight: 700;
+      font-size: 200px;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: 44px;
+      color: var(--muted);
+      margin-top: 16px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* particles */
+    .particle {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: var(--accent);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      margin: -7px;
+      box-shadow: 0 0 18px var(--accent2);
+    }
+
+    /* CTA */
+    .cta-line {
+      width: 0; height: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px;
+      margin-top: 28px;
+    }
+
+    .url-pill {
+      display: inline-block;
+      margin-top: 48px;
+      padding: 20px 40px;
+      border: 2px solid var(--muted);
+      border-radius: 999px;
+      font-size: 28px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      font-weight: 700;
+    }
+
+    /* arrow indicator */
+    .scene-arrow {
+      position: absolute;
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px; height: 80px;
+      color: var(--muted);
+      opacity: 0;
+    }
+
+    /* badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 16px 28px;
+      border: 2px solid var(--surface);
+      border-radius: 999px;
+      font-size: 32px;
+      color: var(--muted);
+      font-weight: 700;
+      opacity: 0;
+    }
+    .badge-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent2);
+    }
+
+    /* vignette */
+    #vignette {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 80;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(13,11,10,0.75) 100%);
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage"
+         data-composition-id="reels-2026-06"
+         data-duration="9"
+         data-fps="30"
+         data-track-index="0">
+
+      <div id="camera"></div>
+      <div id="grain"></div>
+      <div id="vignette"></div>
+
+      <!-- SCENE 1: HOOK 0-3s -->
+      <section id="scene-hook" class="scene clip" data-start="0" data-duration="3" data-track-index="0">
+        <!-- icons -->
+        <svg class="icon icon-user" style="right:180px;top:320px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="8" r="4.5"/>
+          <path d="M4 22c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+        </svg>
+        <svg class="icon icon-star" style="left:160px;top:340px;" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.1 6.3L22 9.3l-5 4.9L18.3 22 12 18.6 5.7 22 7 14.2 2 9.3l6.9-1z"/>
+        </svg>
+        <svg class="icon icon-arrow-down" style="left:50%;bottom:120px;transform:translateX(-50%);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+          <path d="M12 5v14M5 13l7 7 7-7"/>
+        </svg>
+
+        <!-- headline with emphasis -->
+        <h1 id="hook-title" class="headline">
+          <span class="line">انضم لـ</span>
+          <span class="line emphasis">مجتمع SVU</span>
+        </h1>
+        <div id="hook-badge" class="badge">
+          <span class="badge-dot"></span>
+          <span>اكبر تجمع طلابي</span>
+        </div>
+        <p id="hook-sub" class="subline">فرص | معرفة | شبكة علاقات</p>
+      </section>
+
+      <!-- SCENE 2: PROOF 3-6s -->
+      <section id="scene-proof" class="scene clip" data-start="3" data-duration="3" data-track-index="0">
+        <!-- proof icons -->
+        <svg class="icon icon-user" style="right:140px;top:260px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="8" r="4.5"/>
+          <path d="M4 22c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+        </svg>
+        <svg class="icon icon-star" style="left:140px;top:280px;" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.1 6.3L22 9.3l-5 4.9L18.3 22 12 18.6 5.7 22 7 14.2 2 9.3l6.9-1z"/>
+        </svg>
+        <svg class="icon icon-check" style="left:50%;bottom:130px;transform:translateX(-50%);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M5 12l5 5L19 7"/>
+        </svg>
+
+        <div class="stat-wrap">
+          <svg class="stat-ring" viewBox="0 0 540 540">
+            <circle class="track" cx="270" cy="270" r="255" />
+            <circle id="ring-fill" class="fill" cx="270" cy="270" r="255" />
+          </svg>
+          <div style="text-align:center;">
+            <div id="count-value" class="stat-value">0</div>
+            <div id="count-label" class="stat-label">عضو نشط</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 3: CTA 6-9s -->
+      <section id="scene-cta" class="scene clip" data-start="6" data-duration="3" data-track-index="0">
+        <!-- CTA icons -->
+        <svg class="icon icon-arrow-up" style="right:140px;top:320px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+        <svg class="icon icon-check" style="left:160px;top:300px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M5 12l5 5L19 7"/>
+        </svg>
+        <svg class="icon icon-arrow-down" style="left:50%;bottom:110px;transform:translateX(-50%);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+          <path d="M12 5v14M5 13l7 7 7-7"/>
+        </svg>
+
+        <h2 id="cta-title" class="headline">
+          <span class="line">انضم</span>
+          <span class="line emphasis">الآن</span>
+        </h2>
+        <div id="cta-line" class="cta-line"></div>
+        <span id="cta-url" class="url-pill">svu-community.vercel.app</span>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const ID = 'reels-2026-06';
+      const DURATION = 9;
+
+      const els = {
+        hookTitle: document.getElementById('hook-title'),
+        hookBadge: document.getElementById('hook-badge'),
+        hookSub: document.getElementById('hook-sub'),
+        ringFill: document.getElementById('ring-fill'),
+        countValue: document.getElementById('count-value'),
+        countLabel: document.getElementById('count-label'),
+        ctaTitle: document.getElementById('cta-title'),
+        ctaLine: document.getElementById('cta-line'),
+        ctaUrl: document.getElementById('cta-url'),
+        camera: document.getElementById('camera'),
+        sceneHook: document.getElementById('scene-hook'),
+        sceneProof: document.getElementById('scene-proof'),
+        sceneCta: document.getElementById('scene-cta'),
+        icons: document.querySelectorAll('.icon'),
+      };
+
+      // initial hidden state
+      gsap.set([els.sceneHook, els.hookTitle, els.hookBadge, els.hookSub, els.countValue, els.countLabel, els.ctaTitle, els.ctaLine, els.ctaUrl], { autoAlpha: 0 });
+      gsap.set([els.sceneProof, els.sceneCta], { autoAlpha: 0 });
+      gsap.set(els.icons, { autoAlpha: 0, scale: 0.6 });
+      gsap.set(els.ringFill, { strokeDashoffset: 1570 });
+
+      // particles for CTA
+      const particles = [];
+      const PARTICLE_COUNT = 20;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const angle = (i / PARTICLE_COUNT) * Math.PI * 2;
+        const dist = 300 + (i % 4) * 55;
+        const p = document.createElement('div');
+        p.className = 'particle';
+        els.sceneCta.appendChild(p);
+        particles.push({ el: p, x: Math.cos(angle) * dist, y: Math.sin(angle) * dist });
+      }
+
+      function buildTimeline() {
+        const tl = gsap.timeline({ paused: true });
+
+        // slow push camera throughout
+        tl.fromTo(els.camera, { scale: 1 }, { scale: 1.06, duration: DURATION, ease: 'none' }, 0);
+
+        // ── SCENE 1: HOOK 0-3s ──────────────────────────
+        tl.set(els.sceneHook, { autoAlpha: 1 }, 0);
+
+        // icons pop in fast
+        tl.to(els.icons, { autoAlpha: 1, scale: 1, duration: 0.35, stagger: 0.08, ease: 'back.out(1.6)' }, 0.05);
+
+        // headline lines slide up with stagger
+        const hookLines = els.hookTitle.querySelectorAll('.line');
+        tl.fromTo(hookLines,
+          { y: 180, autoAlpha: 0, rotationX: -25 },
+          { y: 0, autoAlpha: 1, rotationX: 0, duration: 0.55, stagger: 0.12, ease: 'power4.out' },
+          0.1
+        );
+
+        // emphasis pulse
+        tl.to('.emphasis', { textShadow: '0 0 90px rgba(184,74,55,0.85)', yoyo: true, repeat: 1, duration: 0.3 }, 0.55);
+
+        // badge slide in
+        tl.to(els.hookBadge, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power3.out' }, 0.45);
+
+        // subline quick reveal
+        tl.to(els.hookSub, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' }, 0.6);
+
+        // quick bounce on sub
+        tl.to(els.hookSub, { y: 10, duration: 0.1, yoyo: true, repeat: 1 }, 1.1);
+
+        // ── TRANSITION 1 → 2 ────────────────────────────
+        tl.to(els.sceneHook, { autoAlpha: 0, duration: 0.22, ease: 'power2.in' }, 2.75);
+        tl.set(els.sceneProof, { autoAlpha: 1 }, 2.9);
+
+        // ── SCENE 2: PROOF 3-6s ─────────────────────────
+        // proof icons
+        tl.to(els.icons, { autoAlpha: 1, scale: 1, duration: 0.28, stagger: 0.06, ease: 'back.out(1.6)' }, 3.0);
+
+        // count up
+        tl.fromTo(els.countValue, { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.4, ease: 'back.out(1.6)' }, 3.1);
+
+        const proxy = { v: 0 };
+        tl.to(proxy, {
+          v: 500, duration: 1.5, ease: 'power2.out',
+          onUpdate: () => {
+            els.countValue.textContent = '+' + Math.round(proxy.v).toLocaleString('en-US');
+          }
+        }, 3.2);
+
+        // ring fill
+        tl.to(els.ringFill, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.out' }, 3.2);
+
+        // label
+        tl.to(els.countLabel, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' }, 4.6);
+        tl.to(els.countLabel, { y: 8, duration: 0.1, yoyo: true, repeat: 1 }, 5.0);
+
+        // ── TRANSITION 2 → 3 ────────────────────────────
+        tl.to(els.sceneProof, { autoAlpha: 0, duration: 0.22, ease: 'power2.in' }, 5.75);
+        tl.set(els.sceneCta, { autoAlpha: 1 }, 5.9);
+
+        // ── SCENE 3: CTA 6-9s ───────────────────────────
+        // CTA icons burst
+        tl.to(els.icons, { autoAlpha: 1, scale: 1, duration: 0.3, stagger: 0.07, ease: 'back.out(1.6)' }, 6.0);
+
+        // title lines
+        const ctaLines = els.ctaTitle.querySelectorAll('.line');
+        tl.fromTo(ctaLines,
+          { y: 200, autoAlpha: 0, scale: 0.85 },
+          { y: 0, autoAlpha: 1, scale: 1, duration: 0.5, stagger: 0.1, ease: 'power4.out' },
+          6.05
+        );
+
+        // emphasis glow
+        tl.to('.emphasis', { textShadow: '0 0 80px rgba(184,74,55,0.75)', yoyo: true, repeat: 1, duration: 0.25 }, 6.5);
+
+        // underline grow
+        tl.to(els.ctaLine, { width: 340, duration: 0.4, ease: 'power3.out' }, 6.5);
+
+        // url pill
+        tl.to(els.ctaUrl, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' }, 6.85);
+        tl.to(els.ctaUrl, { y: 8, duration: 0.1, yoyo: true, repeat: 1 }, 7.3);
+
+        // particles burst
+        particles.forEach((item) => {
+          tl.fromTo(item.el,
+            { x: 0, y: 0, scale: 0, autoAlpha: 0 },
+            { x: item.x, y: item.y, scale: 1, autoAlpha: 1, duration: 0.5, ease: 'power3.out' },
+            6.1
+          );
+          tl.to(item.el, { scale: 0, autoAlpha: 0, duration: 0.35, ease: 'power2.in' }, 7.2);
+        });
+
+        // subtle title scale at end
+        tl.to(els.ctaTitle, { scale: 0.95, duration: 0.35, ease: 'power1.in' }, 8.3);
+
+        tl.eventCallback('onComplete', end);
+        return tl;
+      }
+
+      // stage fitting
+      function fitStage() {
+        const s = document.getElementById('stage');
+        const scaleX = window.innerWidth / 1080;
+        const scaleY = window.innerHeight / 1920;
+        const scale = Math.min(scaleX, scaleY);
+        s.style.transformOrigin = 'center center';
+        s.style.transform = 'scale(' + scale + ')';
+      }
+      fitStage();
+      window.addEventListener('resize', fitStage);
+
+      // play / end
+      window.__timelines = window.__timelines || {};
+      let tl = buildTimeline();
+      window.__timelines[ID] = tl;
+      tl.seek(0);
+
+      const playBtn = document.createElement('button');
+      playBtn.textContent = '▶ تشغيل';
+      playBtn.style.cssText = 'position:fixed;bottom:24px;left:24px;z-index:200;padding:14px 28px;background:var(--accent);color:#fff;border:0;border-radius:12px;font-family:inherit;font-size:18px;cursor:pointer;';
+      document.body.appendChild(playBtn);
+
+      function play() {
+        tl.kill();
+        tl = buildTimeline();
+        tl.seek(0);
+        window.__timelines[ID] = tl;
+        tl.play(0);
+        playBtn.disabled = true;
+        playBtn.textContent = '...';
+      }
+
+      function end() {
+        playBtn.disabled = false;
+        playBtn.textContent = '▶ إعادة';
+      }
+
+      tl.eventCallback('onComplete', end);
+      playBtn.addEventListener('click', play);
+    })();
+  </script>
+</body>
+</html>

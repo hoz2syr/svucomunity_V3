@@ -135,7 +135,7 @@ export const PublishConfirmDialog = ({ isOpen, testTitle, testId, onConfirm, onC
               </h2>
               <p id={descId} className="text-sm text-secondary-400 leading-relaxed">
                 أنت على وشك نشر الاختبار
-                <span className="text-white font-medium mx-1">"{testTitle}"</span>
+                <span className="text-white font-medium mx-1">&ldquo;{testTitle}&rdquo;</span>
                 ليكون متاحاً للجميع عبر رابط عام. هل تريد المتابعة؟
               </p>
               {error && (

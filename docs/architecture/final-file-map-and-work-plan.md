@@ -181,8 +181,7 @@ untitled/
 │   │   └── index.ts
 │   │
 │   ├── stores/
-│   │   ├── notificationStore.ts
-│   │   └── uiStore.ts
+│   │   └── notificationStore.ts
 │   │
 │   ├── hooks/
 │   │   ├── useAuthForm.ts

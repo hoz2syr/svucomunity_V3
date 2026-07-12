@@ -1,13 +1,13 @@
-import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
+import type { SupabaseClient, Session } from '@supabase/supabase-js';
 import type { SupabaseOperationError } from '../types/supabase';
+import { hasSupabaseEnv, missingSupabaseEnvMessage, getErrorMessage } from './env';
+export { hasSupabaseEnv, missingSupabaseEnvMessage, getErrorMessage, createMissingEnvError };
+export type { SupabaseOperationError };
 
 type EnvConfig = {
   url: string;
   anonKey: string;
 };
-
-export const missingSupabaseEnvMessage =
-  'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local';
 
 const readEnv = (): EnvConfig | null => {
   const url = import.meta.env.VITE_SUPABASE_URL;
@@ -15,8 +15,6 @@ const readEnv = (): EnvConfig | null => {
   if (!url || !anonKey) return null;
   return { url, anonKey };
 };
-
-export const hasSupabaseEnv = (): boolean => readEnv() !== null;
 
 const ensureSupabaseEnv = (): EnvConfig => {
   const currentEnv = readEnv();
@@ -28,9 +26,10 @@ const ensureSupabaseEnv = (): EnvConfig => {
 
 let _supabase: SupabaseClient | null = null;
 
-export const getSupabaseClient = (): SupabaseClient => {
-  const currentEnv = ensureSupabaseEnv();
+export const getSupabaseClient = async (): Promise<SupabaseClient> => {
   if (!_supabase) {
+    const currentEnv = ensureSupabaseEnv();
+    const { createClient } = await import('@supabase/supabase-js');
     _supabase = createClient(currentEnv.url, currentEnv.anonKey);
   }
   return _supabase;
@@ -38,7 +37,8 @@ export const getSupabaseClient = (): SupabaseClient => {
 
 export const getCurrentSession = async (): Promise<Session | null> => {
   try {
-    const { data } = await getSupabaseClient().auth.getSession();
+    const client = await getSupabaseClient();
+    const { data } = await client.auth.getSession();
     return data.session;
   } catch {
     return null;
@@ -47,7 +47,8 @@ export const getCurrentSession = async (): Promise<Session | null> => {
 
 export const refreshCurrentSession = async (): Promise<Session | null> => {
   try {
-    const { data } = await getSupabaseClient().auth.refreshSession();
+    const client = await getSupabaseClient();
+    const { data } = await client.auth.refreshSession();
     return data.session;
   } catch {
     return null;
@@ -55,12 +56,6 @@ export const refreshCurrentSession = async (): Promise<Session | null> => {
 };
 
 export const refreshSession = refreshCurrentSession;
-
-export const getErrorMessage = (error: unknown, fallback = 'حدث خطأ غير متوقع.'): string => {
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'string') return error;
-  return fallback;
-};
 
 const createMissingEnvError = (): SupabaseOperationError => ({
   message: missingSupabaseEnvMessage,
@@ -81,7 +76,8 @@ export const signInWithGoogle = async (): Promise<SignInWithGoogleResult> => {
   }
 
   try {
-    const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
+    const client = await getSupabaseClient();
+    const { data, error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -96,7 +92,7 @@ export const signInWithGoogle = async (): Promise<SignInWithGoogleResult> => {
 
 export type AuthCallbackResult = {
   data: {
-    session: import('@supabase/supabase-js').Session | null;
+    session: Session | null;
   };
   error: SupabaseOperationError | null;
 };
@@ -107,7 +103,8 @@ export const handleAuthCallback = async (): Promise<AuthCallbackResult> => {
   }
 
   try {
-    const { data, error } = await getSupabaseClient().auth.getSession();
+    const client = await getSupabaseClient();
+    const { data, error } = await client.auth.getSession();
     return { data, error };
   } catch (error) {
     return { data: { session: null }, error: toSupabaseError(error) };

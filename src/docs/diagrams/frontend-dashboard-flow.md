@@ -26,4 +26,4 @@ graph TD
 - Dashboard shell is present and functional.
 - EmptyDashboardState now renders 4 feature cards via separate components.
 - Guest mode short-circuits notifications in guest mode.
-- `notificationStore` and `uiStore` are unused.
+- `notificationStore` is unused.

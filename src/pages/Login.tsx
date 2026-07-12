@@ -5,7 +5,7 @@ import { AuthCard } from '../components/shared/AuthCard';
 import { ForgotPasswordModal } from '../components/shared/ForgotPasswordModal';
 import { InputField } from '../components/ui/InputField';
 import { GuestButton } from '../components/shared/GuestButton';
-import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../services/environment.service';
+import { hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/env';
 import { loginWithGoogle, loginWithPassword } from '../services/auth.service';
 
 export const LoginPage = () => {

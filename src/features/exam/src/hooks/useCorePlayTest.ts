@@ -5,7 +5,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { TestModel, Question } from '../types';
 import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
-import { fetchPublishedTestById, fetchTestByIdFromSupabase, rateTestInSupabase } from '../services/exam.supabase';
+import { fetchPublishedTestById, fetchTestByIdFromSupabase } from '../services/tests.service';
+import { rateTestInSupabase } from '../services/ratings.service';
 
 export interface UseCorePlayTestReturn {
   test: TestModel | null;
@@ -286,7 +287,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
       }
       return acc + (answer === q.correctAnswer ? 1 : 0);
     }, 0);
-  }, [test, selectedAnswers, showResults]);
+  }, [test, selectedAnswers]);
 
   const answeredCount = useMemo(() => {
     if (!test) return 0;

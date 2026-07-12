@@ -1,8 +1,22 @@
-export { ComingSoonSection } from './landing/ComingSoonSection';
-export { FeaturesSection } from './landing/FeaturesSection';
-export { FinalCTASection } from './landing/FinalCTASection';
-export { HeroAddition } from './landing/HeroAddition';
-export { HowItWorksSection } from './landing/HowItWorksSection';
-export { ProblemsSection } from './landing/ProblemsSection';
-export { ScrollIndicator } from './landing/ScrollIndicator';
-export { SolutionBridge } from './landing/SolutionBridge';
+import { ComingSoonSection } from './landing/ComingSoonSection';
+import { FeaturesSection } from './landing/FeaturesSection';
+import { FinalCTASection } from './landing/FinalCTASection';
+import { HeroAddition } from './landing/HeroAddition';
+import { HowItWorksSection } from './landing/HowItWorksSection';
+import { ProblemsSection } from './landing/ProblemsSection';
+import { ScrollIndicator } from './landing/ScrollIndicator';
+import { SolutionBridge } from './landing/SolutionBridge';
+import { TestsFeatureSection } from './landing/tests/TestsFeatureSection';
+
+export { ComingSoonSection, FeaturesSection, FinalCTASection, HeroAddition, HowItWorksSection, ProblemsSection, ScrollIndicator, SolutionBridge, TestsFeatureSection };
+
+export const LandingSections = () => (
+  <>
+    <ProblemsSection />
+    <SolutionBridge />
+    <FeaturesSection />
+    <HowItWorksSection />
+    <TestsFeatureSection />
+    <FinalCTASection />
+  </>
+);

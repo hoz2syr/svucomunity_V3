@@ -116,8 +116,7 @@ src/
 │   ├── environment.service.ts
 │   └── index.ts
 ├── stores/
-│   ├── notificationStore.ts
-│   └── uiStore.ts
+│   └── notificationStore.ts
 ├── types/
 │   ├── auth.ts
 │   ├── notification.ts
@@ -156,7 +155,7 @@ src/
 | `features/exam` | ميزة الاختبارات كاملة (self-contained) |
 | `hooks` | Hooks مخصصة للواجهة والمنطق التفاعلي |
 | `services` | طبقة الوصول إلى Supabase |
-| `stores` | Zustand stores (غير مستخدمة حالياً) |
+| `stores` | Zustand stores (غير مستخدمة حالياً — `notificationStore` فقط) |
 | `types` | تعريفات TypeScript |
 | `schemas` | Zod validation schemas |
 | `utils` | دوال مساعدة عامة |
@@ -169,5 +168,5 @@ src/
 - `GuestRoute` يُستخدم حالياً لجميع المسارات بما فيها `/dashboard`.
 - `ProtectedRoute` غير مستخدم حالياً — مُحجزم لميزة **المجموعات** المستقبلية.
 - `src/lib/supabase.ts` يحتوي على دوال legacy بجانب `getSupabaseClient`.
-- `stores` ({notificationStore, uiStore}) غير مستخدمة في production حالياً.
+- `stores` ({notificationStore}) غير مستخدمة في production حالياً.
 - `TanStack Query` مُهيأ لكن لا يستخدم فعلياً لجلب البيانات.

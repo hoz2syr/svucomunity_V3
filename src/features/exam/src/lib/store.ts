@@ -40,7 +40,7 @@ export const getRatedSessions = (): Record<string, boolean> => {
   try {
     const data = localStorage.getItem(RATING_SESSION_KEY);
     return data ? JSON.parse(data) : {};
-  } catch (e) {
+  } catch {
     return {};
   }
 };

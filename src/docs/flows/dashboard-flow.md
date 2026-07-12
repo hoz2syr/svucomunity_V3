@@ -32,7 +32,7 @@ graph TD
 - `EmptyDashboardState` يعرض حالياً 4 بطاقات ميزات (placeholder).
 - `GuestRoute` هو الحارس النشط لـ `/dashboard` — يقبل المُسجِّل والزائر.
 - `ProtectedRoute` غير موصول — محجوز لميزة المجموعات المستقبلية.
-- `notificationStore` و `uiStore` موجودان لكن غير مستخدمين حالياً.
+- `notificationStore` موجود لكن غير مستخدم حالياً.
 - `TanStack Query` مهيأ لكن لا يستخدم فعلياً لجلب البيانات.
 
 ## التدفق

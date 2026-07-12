@@ -1,0 +1,59 @@
+{
+  "category": "kinetic-type",
+  "duration_s": 9,
+  "fps": 30,
+  "canvas": { "w": 1080, "h": 1920, "aspect": "9:16" },
+  "style": "Dense kinetic typography — warm dark, sharp cuts, slam + count-up + burst. Purpose: drive immediate join action for SVU Community.",
+  "palette": ["#0D0B0A", "#1A1714", "#F5F0EB", "#8C8580", "#B84A37", "#C4703A"],
+  "font": "Tajawal + Space Grotesk",
+  "beats": [0, 75, 150, 198, 270],
+  "export": "mp4",
+  "asset_needs": [],
+  "block": "caption-kinetic-slam + stat-motion + caption-particle-burst",
+  "customize": {
+    "palette": {
+      "bg": "#0D0B0A",
+      "surface": "#1A1714",
+      "text": "#F5F0EB",
+      "muted": "#8C8580",
+      "accent": "#B84A37",
+      "accent2": "#C4703A"
+    },
+    "font": "Tajawal",
+    "motion": ["slam", "count_up", "particle_burst"]
+  },
+  "content": {
+    "scenes": [
+      {
+        "id": "hook",
+        "start": 0,
+        "end": 3,
+        "text": "SVU",
+        "emphasis_words": ["SVU"],
+        "emotion": "heavy impact",
+        "motion": "slam + shake + glow",
+        "beats": [0, 12]
+      },
+      {
+        "id": "proof",
+        "start": 3,
+        "end": 6,
+        "text": "+500 عضو نشط",
+        "emphasis_words": ["+500"],
+        "emotion": "proof, kinetic count-up",
+        "motion": "count_up + ring_fill + label_stagger",
+        "beats": [90, 150]
+      },
+      {
+        "id": "cta",
+        "start": 6,
+        "end": 9,
+        "text": "انضم الآن",
+        "emphasis_words": ["الآن"],
+        "emotion": "urgent CTA",
+        "motion": "slam + particle_burst + underline_sweep",
+        "beats": [180, 210, 255]
+      }
+    ]
+  }
+}
