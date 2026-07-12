@@ -1,13 +1,10 @@
 -- Migration: Create study groups tables
 -- Created: 2025-06-25
 
--- Enable UUID extension if not exists
-create extension if not exists "uuid-ossp";
-
 -- Table: groups
 -- Study groups for collaboration between students
 create table public.groups (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   course_name text not null,
   course_code text not null,
@@ -34,7 +31,7 @@ create index idx_groups_created_at on public.groups(created_at desc);
 -- Table: group_members
 -- Memberships linking users to groups
 create table public.group_members (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
   joined_at timestamptz default now(),
