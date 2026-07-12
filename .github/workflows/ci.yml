@@ -78,7 +78,8 @@ jobs:
           supabase secrets set \
             ALLOWED_ORIGINS="http://localhost:5173,https://svucomunity-v3.pages.dev" \
             SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} \
+            OCR_API_KEY=${{ secrets.VITE_OCR_API_KEY }}
 
       - name: Deploy Edge Functions
         run: |
@@ -86,3 +87,4 @@ jobs:
           supabase functions deploy auth-register --no-verify-jwt
           supabase functions deploy delete-account --no-verify-jwt
           supabase functions deploy rate-test --no-verify-jwt
+          supabase functions deploy ocr-proxy --no-verify-jwt
