@@ -72,7 +72,41 @@ export default function CreateTest() {
             </button>
             <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={handleFileUpload} />
           </div>
-          <textarea className="input-field min-h-[200px] font-mono text-xs text-left" placeholder="[ { &#34;type&#34;: &#34;multiple_choice&#34;, ... } ]" value={jsonText} onChange={(e) => setJsonText(e.target.value)} dir="ltr" />
+          <textarea className="input-field min-h-[200px] font-mono text-xs text-left" placeholder={`[ {\n  "type": "multiple_choice",\n  "text": "What is $x + y$?",\n  "options": ["2", "3", "4", "5"],\n  "correctAnswer": "3"\n} ]\n\nMarkdown + LaTeX supported:\n$E = mc^2$, $$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$`} value={jsonText} onChange={(e) => setJsonText(e.target.value)} dir="ltr" />
+          <details className="mt-3">
+            <summary className="text-xs text-secondary-400 cursor-pointer hover:text-white transition select-none">مثال JSON كامل مع معادلات ومخطط</summary>
+            <pre className="mt-2 p-4 rounded-xl bg-slate-950/80 border border-white/10 text-[11px] text-secondary-300 overflow-x-auto whitespace-pre-wrap">{`{
+  "title": "اختبار التفاضل",
+  "description": "يشمل مشتقات ولوغاريتمات",
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "text": "أوجد مشتق الدالة $$f(x) = x^2 + 3x$$",
+      "options": [
+        "$2x + 3$",
+        "$x + 3$",
+        "$2x^2 + 3$",
+        "$x^2 + 3$"
+      ],
+      "correctAnswer": "$2x + 3$",
+      "explanation": "باستخدام قاعدة القوة: $\\frac{d}{dx}(x^n) = nx^{n-1}$"
+    },
+    {
+      "type": "true_false",
+      "text": "المعادلة $\\log(a \\cdot b) = \\log a + \\log b$ صحيحة",
+      "correctAnswer": "true"
+    },
+    {
+      "type": "essay",
+      "text": "اشرح مفهوم النهاية للمتتالية: $$\\lim_{x \\to 0} \\frac{\\sin x}{x}$$"
+    }
+  ],
+  "settings": {
+    "showExplanations": true,
+    "globalTimeLimitMinutes": 15
+  }
+}`}</pre>
+          </details>
         </div>
 
         {error && (

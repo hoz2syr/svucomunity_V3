@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { TestModel } from '../types';
 import { fetchPublishedTests } from '../services/tests.service';
@@ -34,7 +34,7 @@ const PAGE_LIMIT = 9;
 
 export function usePublishedTests(): UsePublishedTestsReturn {
   const queryClient = useQueryClient();
-  const { envMissing } = useAuth();
+  const { envMissing, profile } = useAuth();
   const [errorState, setError] = useState<string | null>(null);
   const [majors, setMajors] = useState<string[]>([]);
   const [selectedMajor, setSelectedMajor] = useState('');
@@ -42,6 +42,7 @@ export function usePublishedTests(): UsePublishedTestsReturn {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [courses, setCourses] = useState<{ code: string; name: string }[]>([]);
+  const profileMajorAppliedRef = useRef(false);
 
   const {
     data,
@@ -96,6 +97,13 @@ export function usePublishedTests(): UsePublishedTestsReturn {
     });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (profile?.major && !selectedMajor && !profileMajorAppliedRef.current) {
+      profileMajorAppliedRef.current = true;
+      setSelectedMajor(profile.major);
+    }
+  }, [profile?.major, selectedMajor]);
 
   useEffect(() => {
     if (!selectedMajor) {

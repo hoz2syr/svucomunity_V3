@@ -1,6 +1,7 @@
 "use client";
 
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { usePublishedTests } from '../hooks';
 import { FileText, ChevronDown, Loader2, Globe } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
@@ -12,7 +13,15 @@ import { PublishedTestsFilters } from '../../components/PublishedTestsFilters';
 import type { TestModel } from '../types';
 
 export default function BrowsePublishedTests() {
+  const [searchParams] = useSearchParams();
+  const urlMajor = searchParams.get('major') || '';
   const { tests, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, majors, selectedMajor, selectedCourse, searchQuery, searchInput, setSelectedMajor, setSelectedCourse, setSearchInput, triggerSearch, clearFilters, courses } = usePublishedTests();
+
+  useEffect(() => {
+    if (urlMajor && urlMajor !== selectedMajor) {
+      setSelectedMajor(urlMajor);
+    }
+  }, [urlMajor, selectedMajor, setSelectedMajor]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animation-fade-in-up mt-6">

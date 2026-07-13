@@ -11,6 +11,7 @@ type SettingsUser = {
   name: string;
   username: string;
   email: string;
+  major?: string;
 };
 
 type SettingsModalProps = {
@@ -18,17 +19,19 @@ type SettingsModalProps = {
   tab: SettingsTab;
   setTab: (tab: SettingsTab) => void;
   onClose: () => void;
+  onTakeSpecializationTest?: (major: string) => void;
 };
 
-export const SettingsModal = ({ user, tab, setTab, onClose }: SettingsModalProps) => {
+export const SettingsModal = ({ user, tab, setTab, onClose, onTakeSpecializationTest }: SettingsModalProps) => {
   const profileInitial: ProfileInput = {
     full_name: user.name,
     username: user.username,
     email: user.email,
+    major: user.major || '',
   };
 
   const handleProfileSubmit = async (data: ProfileInput): Promise<string | null> => {
-    const result = await updateProfile(user.id, data.full_name, data.username);
+    const result = await updateProfile(user.id, data.full_name, data.username, data.major);
     return result.error?.message ?? null;
   };
 
@@ -54,7 +57,7 @@ export const SettingsModal = ({ user, tab, setTab, onClose }: SettingsModalProps
 
       <div className="p-8">
         {tab === 'profile' ? (
-          <ProfileSettingsForm userId={user.id} initial={profileInitial} onSubmit={handleProfileSubmit} />
+          <ProfileSettingsForm userId={user.id} initial={profileInitial} onSubmit={handleProfileSubmit} onTakeSpecializationTest={onTakeSpecializationTest} />
         ) : (
           <SecuritySettingsForm onSubmit={handleSecuritySubmit} />
         )}

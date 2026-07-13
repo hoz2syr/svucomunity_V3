@@ -20,6 +20,7 @@ export const profileSchema = z.object({
   full_name: z.string().min(1, 'الاسم الكامل مطلوب').min(2, 'الاسم قصير جداً').max(100),
   username: z.string().min(1, 'اسم المستخدم مطلوب').min(2, 'اسم المستخدم قصير جداً').max(50).regex(/^[a-zA-Z0-9_]+$/, 'اسم المستخدم يجب أن يحتوي على أحرف وأرقام و _ فقط'),
   email: z.string().min(1, 'البريد الإلكتروني مطلوب').email('صيغة البريد غير صحيحة').max(255),
+  major: z.string().optional(),
 }) satisfies z.ZodType<ProfileInput>;
 
 export const securitySchema = z.object({

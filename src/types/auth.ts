@@ -13,6 +13,7 @@ export type ProfileInput = {
   full_name: string;
   username: string;
   email: string;
+  major?: string;
 };
 
 export type SecurityInput = {

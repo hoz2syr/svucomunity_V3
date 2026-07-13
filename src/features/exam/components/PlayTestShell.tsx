@@ -17,6 +17,7 @@ import { cn } from '../src/lib/utils';
 import { ErrorState } from '../src/components/ErrorState';
 import { PlayTestSkeleton } from '../src/components/Skeletons';
 import { Button } from '@/src/components/ui/Button';
+import { RichText } from '../src/components/RichText';
 import type { UseCorePlayTestReturn } from '../src/hooks/useCorePlayTest';
 import type { ReactNode } from 'react';
 
@@ -101,7 +102,7 @@ export function PlayTestShell({
             {preStartIcon || <FileText className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-cyan-400" />}
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 px-2">{test.title}</h1>
-          {test.description && <p className="text-secondary-300 max-w-xl mx-auto px-4 text-xs sm:text-sm">{test.description}</p>}
+          {test.description && <div className="text-secondary-300 max-w-xl mx-auto px-4 text-xs sm:text-sm"><RichText>{test.description}</RichText></div>}
 
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 py-4 sm:py-6 border-y border-white/10">
             <div className="text-center px-2 sm:px-3 md:px-4">
@@ -204,25 +205,25 @@ export function PlayTestShell({
                   <div className="flex items-start gap-4">
                     {isEssay ? <span className="mt-1 text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-emerald-400 mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-rose-400 mt-1 flex-shrink-0" />)}
                     <div>
-                      <h4 className="text-white font-medium mb-2">السؤال {i + 1}: {q.text}</h4>
-                      <p className="text-sm text-secondary-300 mb-1">
-                        إجابتك: <span className="text-white font-bold">{userAnswer || '(تم التخطي)'}</span>
-                      </p>
-                      {isEssay && correctAnswers.length > 0 && (
-                         <div className="mt-2 p-3 rounded-lg border border-slate-700 bg-slate-800/50">
-                          <p className="text-xs text-secondary-400 mb-1">الإجابة الصحيحة / الحل</p>
-                          <p className="text-sm text-emerald-300">{correctAnswers.join(' / ')}</p>
-                        </div>
-                      )}
-                      {!isEssay && !isCorrect && (
-                         <p className="text-sm text-slate-300 text-emerald-400">الإجابة الصحيحة: {q.correctAnswer}</p>
-                      )}
-                      {q.explanation && test.settings.showExplanations && (
-                         <div className="mt-3 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                          <span className="text-primary-400 font-bold text-sm block mb-1">الشرح:</span>
-                          <span className="text-secondary-300 text-sm">{q.explanation}</span>
-                        </div>
-                      )}
+                      <h4 className="text-white font-medium mb-2">السؤال {i + 1}: <RichText>{q.text}</RichText></h4>
+                  <p className="text-sm text-secondary-300 mb-1">
+                    إجابتك: <span className="text-white font-bold">{userAnswer || '(تم التخطي)'}</span>
+                  </p>
+                   {isEssay && correctAnswers.length > 0 && (
+                      <div className="mt-2 p-3 rounded-lg border border-slate-700 bg-slate-800/50">
+                       <p className="text-xs text-secondary-400 mb-1">الإجابة الصحيحة / الحل</p>
+                       <div className="text-sm text-emerald-300"><RichText>{correctAnswers.join(' / ')}</RichText></div>
+                     </div>
+                   )}
+                   {!isEssay && !isCorrect && q.correctAnswer && (
+                      <div className="text-sm text-slate-300 text-emerald-400">الإجابة الصحيحة: <RichText>{q.correctAnswer}</RichText></div>
+                   )}
+                   {q.explanation && test.settings.showExplanations && (
+                      <div className="mt-3 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                       <span className="text-primary-400 font-bold text-sm block mb-1">الشرح:</span>
+                       <div className="text-secondary-300 text-sm"><RichText>{q.explanation}</RichText></div>
+                     </div>
+                   )}
                     </div>
                   </div>
                 </div>
@@ -270,7 +271,9 @@ export function PlayTestShell({
       </div>
 
       <div className="glass-card" tabIndex={showBackIcon ? 0 : undefined}>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-relaxed mb-1.5 sm:mb-2 px-1">{currentQ.text}</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-relaxed mb-1.5 sm:mb-2 px-1">
+          <RichText>{currentQ.text}</RichText>
+        </h2>
         <p className="text-[10px] sm:text-xs text-secondary-400 mb-4 sm:mb-6 px-1">الأسهم للتنقل بين الأسئلة · 1-9 للاختيار · t/f لصح/خطأ · Enter للتأكيد</p>
 
         <div className="space-y-2.5 sm:space-y-3">
@@ -290,7 +293,7 @@ export function PlayTestShell({
               } else if (isSelected) {
                  btnStateClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
               } else {
-                btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
+                 btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
               }
              } else if (isSelected) {
                 btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-md';
@@ -304,7 +307,7 @@ export function PlayTestShell({
                      isAnswerRevealed && correctList.includes(opt) && 'border-emerald-500/30 bg-emerald-500')}>
                     {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
                   </div>
-                  <span className="text-sm sm:text-base">{opt}</span>
+                  <span className="text-sm sm:text-base flex-1"><RichText>{opt}</RichText></span>
                 </div>
               </button>
             );
@@ -359,10 +362,10 @@ export function PlayTestShell({
                   </span></p>
                 )}
                 {test.settings.showExplanations && currentQ.explanation && (
-                  <p className="text-secondary-300 text-xs sm:text-sm leading-relaxed mt-1.5 sm:mt-2 p-2.5 sm:p-3 bg-secondary-900/50 rounded-lg">
+                  <div className="text-secondary-300 text-xs sm:text-sm leading-relaxed mt-1.5 sm:mt-2 p-2.5 sm:p-3 bg-secondary-900/50 rounded-lg">
                     <strong className="text-secondary-400 ml-1 text-xs sm:text-sm">الشرح:</strong>
-                    {currentQ.explanation}
-                  </p>
+                    <RichText>{currentQ.explanation}</RichText>
+                  </div>
                 )}
               </div>
             </div>

@@ -42,6 +42,7 @@ export const DashboardPage = () => {
     username: profile?.username || session?.user?.email?.split('@')[0] || 'student',
     email: profile?.email || session?.user?.email || '',
     role: profile?.role || 'طالب',
+    major: profile?.major || '',
   }), [session, profile]);
 
   useEffect(() => {
@@ -117,7 +118,7 @@ export const DashboardPage = () => {
       <AnimatePresence>
         {activeModal === 'logout' && <LogoutModal onClose={() => closeModal(null)} onConfirm={handleSignOut} />}
         {activeModal === 'delete' && <DeleteAccountModal username={user.username} onClose={() => closeModal(null)} onConfirm={handleDeleteAccount} />}
-        {activeModal === 'settings' && <SettingsModal user={user} tab={settingsTab} setTab={setSettingsTab} onClose={() => closeModal(null)} />}
+         {activeModal === 'settings' && <SettingsModal user={user} tab={settingsTab} setTab={setSettingsTab} onClose={() => closeModal(null)} onTakeSpecializationTest={(major) => navigate(`/exam/browse?major=${encodeURIComponent(major)}`)} />}
       </AnimatePresence>
       {deleteError && (
         <div role="alert" className="fixed top-4 left-1/2 z-[60] -translate-x-1/2 w-[min(90vw,420px)] rounded-2xl bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] px-4 py-3 text-sm text-[var(--color-danger-400)]">

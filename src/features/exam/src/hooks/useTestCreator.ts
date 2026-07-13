@@ -42,6 +42,7 @@ export interface UseTestCreatorReturn extends CreateTestState {
 
 export function useTestCreator(): UseTestCreatorReturn {
   const { session } = useAuth();
+  const { profile } = useAuth();
   const [jsonText, setJsonText] = useState('');
   const [testTitle, setTestTitle] = useState('');
   const [testDesc, setTestDesc] = useState('');
@@ -56,6 +57,7 @@ export function useTestCreator(): UseTestCreatorReturn {
   const [publishError, setPublishError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const userIdRef = useRef<string | null>(session?.user?.id ?? null);
+  const profileMajorAppliedRef = useRef(false);
 
   useEffect(() => {
     userIdRef.current = session?.user?.id ?? null;
@@ -68,6 +70,13 @@ export function useTestCreator(): UseTestCreatorReturn {
     });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (profile?.major && !selectedMajor && !profileMajorAppliedRef.current) {
+      profileMajorAppliedRef.current = true;
+      setSelectedMajor(profile.major);
+    }
+  }, [profile?.major, selectedMajor]);
 
   useEffect(() => {
     if (!selectedMajor) {
