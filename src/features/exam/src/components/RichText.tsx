@@ -10,6 +10,8 @@ import mermaid from 'mermaid';
 
 mermaid.initialize({ startOnLoad: false });
 
+import remarkGfm from 'remark-gfm';
+
 const MermaidBlock = ({ chart }: { chart: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +43,7 @@ const RichText = ({ children: _children, className = '' }: { children: string; c
   return (
     <div className={cn('prose prose-invert max-w-none text-secondary-200', className)}>
       <ReactMarkdown
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[rehypeKatex]}
         components={
           {
