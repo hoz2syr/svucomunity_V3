@@ -51,19 +51,14 @@ serve(async (req) => {
     }
 
     const formData = new FormData();
-    const base64Data = base64Image.includes(",")
-      ? base64Image.split(",")[1]
-      : base64Image;
-
-    formData.append("base64Image", base64Data);
+    formData.append("base64Image", base64Image);
     formData.append("apikey", apiKey);
     formData.append("language", "eng");
     formData.append("detectOrientation", "true");
     formData.append("OCREngine", "2");
     formData.append("scale", "true");
-    formData.append("filetype", "PNG");
 
-    console.log('[ocr-proxy] Sending request to OCR API, image size:', base64Data.length);
+    console.log('[ocr-proxy] Sending request to OCR API, image size:', base64Image.length);
 
     const ocrResponse = await fetch(OCR_API_URL, {
       method: "POST",
