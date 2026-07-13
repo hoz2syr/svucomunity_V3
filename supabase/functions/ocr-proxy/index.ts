@@ -66,7 +66,16 @@ serve(async (req) => {
       body: formData,
     });
 
-    const ocrData = await ocrResponse.json();
+    let ocrData: any;
+    try {
+      ocrData = await ocrResponse.json();
+    } catch {
+      const text = await ocrResponse.text();
+      return new Response(JSON.stringify({ error: `OCR_UPSTREAM_ERROR: ${ocrResponse.status} ${text.slice(0, 200)}` }), {
+        status: 502,
+        headers: { ...Object.fromEntries(corsHeaders(origin).entries()), "Content-Type": "application/json" },
+      });
+    }
 
     if (ocrData.IsErroredOnProcessing) {
       const errMsg = ocrData.ErrorMessage?.[0] || "OCR_PROCESSING_ERROR";
