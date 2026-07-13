@@ -11,11 +11,14 @@ export interface StudyGroupEnriched extends StudyGroup {
   _creatorUsername: string;
 }
 
-export function useStudyGroups(userId: string | undefined) {
+export function useStudyGroups(userId: string | undefined, userMajor?: string) {
   const [groups, setGroups] = useState<StudyGroupEnriched[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<StudyGroupFilters>(STUDY_GROUP_INITIAL_FILTERS);
+  const [filters, setFilters] = useState<StudyGroupFilters>({
+    ...STUDY_GROUP_INITIAL_FILTERS,
+    major: userMajor || '',
+  });
   const [courses, setCourses] = useState<Course[]>([]);
 
   const loadCourses = useCallback(async (major: string) => {

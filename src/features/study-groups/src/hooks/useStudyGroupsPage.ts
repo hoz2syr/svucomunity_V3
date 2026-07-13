@@ -5,7 +5,7 @@ import { useStudyGroups, type StudyGroupEnriched } from './useStudyGroups';
 import { CLASSES } from '../../constants';
 import type { StudyGroup } from '../types';
 
-export function useStudyGroupsPage(userId: string | undefined) {
+export function useStudyGroupsPage(userId: string | undefined, userMajor?: string) {
   const {
     groups,
     loading,
@@ -16,7 +16,7 @@ export function useStudyGroupsPage(userId: string | undefined) {
     courses,
     reload,
     onSearchChange,
-  } = useStudyGroups(userId);
+  } = useStudyGroups(userId, userMajor);
 
   const { handleCreateGroup, handleOpenDetails: openDetails, handleJoinGroup, handleLeaveGroup, handleEditGroup, handleDeleteGroup: deleteGroupAction, handleGetCoursesByMajor, } = useStudyGroupsActions(reload);
 

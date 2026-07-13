@@ -5,6 +5,7 @@ import { ProfileSettingsForm } from './ProfileSettingsForm';
 import { SecuritySettingsForm } from './SecuritySettingsForm';
 import { updatePassword, updateProfile } from '../../services/profile.service';
 import type { ProfileInput, SecurityInput, SettingsTab } from '../../types/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 type SettingsUser = {
   id: string;
@@ -23,6 +24,7 @@ type SettingsModalProps = {
 };
 
 export const SettingsModal = ({ user, tab, setTab, onClose, onTakeSpecializationTest }: SettingsModalProps) => {
+  const { refreshProfile } = useAuth();
   const profileInitial: ProfileInput = {
     full_name: user.name,
     username: user.username,
@@ -32,6 +34,9 @@ export const SettingsModal = ({ user, tab, setTab, onClose, onTakeSpecialization
 
   const handleProfileSubmit = async (data: ProfileInput): Promise<string | null> => {
     const result = await updateProfile(user.id, data.full_name, data.username, data.major);
+    if (!result.error) {
+      await refreshProfile();
+    }
     return result.error?.message ?? null;
   };
 

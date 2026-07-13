@@ -18,7 +18,7 @@ export default function StudyGroupsHome() {
   const userId = session?.user?.id;
   const userMajor = profile?.major || undefined;
 
-  const page = useStudyGroupsPage(userId);
+  const page = useStudyGroupsPage(userId, userMajor);
 
   return (
     <ErrorBoundary>
