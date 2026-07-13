@@ -41,6 +41,48 @@ export default function Home() {
         </Link>
       </div>
 
+      <div className="glass-card max-w-4xl mx-auto w-full">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-[var(--color-primary-light)] text-[var(--color-primary-400)] p-2 rounded-lg">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h2 className="text-2xl font-bold text-white">مميزات التنسيق المتقدم</h2>
+        </div>
+        <p className="text-secondary-400 mb-6 leading-relaxed">
+          يمكنك الآن استخدام تنسيقات غنية داخل الأسئلة والإجابات والشروحات، مما يجعل الاختبارات أكثر تفاعلية ووضوحاً.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              title: 'Markdown',
+              desc: 'نص عريض، مائل، قوائم، وروابط داخل الأسئلة.',
+              example: '**نص عريض** و *مائل*',
+            },
+            {
+              title: 'LaTeX',
+              desc: 'معادلات رياضية داخلية وكتل معادلات.',
+              example: '$x^2$ و $$\\frac{a}{b}$$',
+            },
+            {
+              title: 'Mermaid',
+              desc: 'مخططات تدفق، زمر، خوارزميات.',
+              example: '```mermaid\ngraph TD\n  A --> B\n```',
+            },
+            {
+              title: 'جداول',
+              desc: 'جداول منسقة لتنظيم البيانات.',
+              example: '| A | B |\n| 1 | 2 |',
+            },
+          ].map(feature => (
+            <div key={feature.title} className="bg-[var(--color-bg-elevated)]/40 border border-white/5 rounded-xl p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-white">{feature.title}</h3>
+              <p className="text-xs text-secondary-400 leading-relaxed">{feature.desc}</p>
+              <pre className="text-[11px] text-emerald-400/90 bg-slate-950/60 p-2 rounded-lg overflow-x-auto whitespace-pre-wrap">{feature.example}</pre>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="glass-card max-w-4xl mx-auto w-full mt-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-[var(--color-warning-light)] text-[var(--color-warning-400)] p-2 rounded-lg">

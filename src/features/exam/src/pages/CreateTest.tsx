@@ -99,6 +99,18 @@ export default function CreateTest() {
     {
       "type": "essay",
       "text": "اشرح مفهوم النهاية للمتتالية: $$\\lim_{x \\to 0} \\frac{\\sin x}{x}$$"
+    },
+    {
+      "type": "multiple_choice",
+      "text": "\`\`\`mermaid\\ngraph TD\\n  A[زمرة] --> B[عملية تجميعية]\\n  A --> C[عنصر محايد]\\n  A --> D[معكوس لكل عنصر]\\n\`\`\`",
+      "options": [
+        "زمرة",
+        "حلقة",
+        "حقل",
+        "فضاء متجهي"
+      ],
+      "correctAnswer": "زمرة",
+      "explanation": "المخطط يوضح شروط الزمرة: تجميعية + محايد + معكوس"
     }
   ],
   "settings": {

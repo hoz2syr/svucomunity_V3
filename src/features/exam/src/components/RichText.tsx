@@ -5,6 +5,37 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
+import { useEffect, useRef } from 'react';
+import mermaid from 'mermaid';
+
+mermaid.initialize({ startOnLoad: false });
+
+const MermaidBlock = ({ chart }: { chart: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+        const { svg } = await mermaid.render(id, chart);
+        if (!cancelled && containerRef.current) {
+          containerRef.current.innerHTML = svg;
+        }
+      } catch {
+        if (!cancelled && containerRef.current) {
+          containerRef.current.innerHTML = `<pre class="text-red-400 text-xs">${chart}</pre>`;
+        }
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [chart]);
+
+  return <div ref={containerRef} className="flex justify-center my-3" />;
+};
 
 const RichText = ({ children: _children, className = '' }: { children: string; className?: string }) => {
   return (
@@ -32,12 +63,28 @@ const RichText = ({ children: _children, className = '' }: { children: string; c
             em: ({ children, ...props }) => (
               <em className="italic text-secondary-100" {...props}>{children}</em>
             ),
-            code: ({ children, ...props }) => (
-              <code className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 text-sm font-mono" {...props}>{children}</code>
-            ),
-            pre: ({ children, ...props }) => (
-              <pre className="p-3 rounded-xl bg-slate-900 border border-white/10 overflow-x-auto text-sm" {...props}>{children}</pre>
-            ),
+            code: ({ children, className: codeClassName, ...props }) => {
+              const match = /language-(?<lang>\w+)/.exec(codeClassName || '');
+              const lang = match?.groups?.lang;
+              if (lang === 'mermaid') {
+                return <MermaidBlock chart={String(children).replace(/\n$/, '')} />;
+              }
+              return (
+                <code className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 text-sm font-mono" {...props}>{children}</code>
+              );
+            },
+            pre: ({ children, ...props }) => {
+              const child = children as React.ReactElement<{ className?: string; children?: React.ReactNode }> | undefined;
+              const codeClassName = child?.props?.className || '';
+              const match = /language-(?<lang>\w+)/.exec(codeClassName);
+              const lang = match?.groups?.lang;
+              if (lang === 'mermaid') {
+                return <MermaidBlock chart={String(child?.props?.children).replace(/\n$/, '')} />;
+              }
+              return (
+                <pre className="p-3 rounded-xl bg-slate-900 border border-white/10 overflow-x-auto text-sm" {...props}>{children}</pre>
+              );
+            },
             blockquote: ({ children, ...props }) => (
               <blockquote className="border-r-2 border-cyan-500/50 pr-3 italic text-secondary-300" {...props}>{children}</blockquote>
             ),
