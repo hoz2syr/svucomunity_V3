@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
@@ -17,17 +16,18 @@ const getAllowedOrigin = (origin: string | null | undefined) => {
   if (!origin) return null;
   const whitelist = getAllowedOrigins();
   if (whitelist.includes(origin)) return origin;
-  if (origin.endsWith('.pages.dev')) return origin;
+  if (origin.endsWith(".pages.dev")) return origin;
   return null;
 };
 
 const corsHeaders = (origin: string | null | undefined) => {
   const allowedOrigin = getAllowedOrigin(origin);
   const headers = new Headers({
-    "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
+    "Access-Control-Allow-Headers":
+      "authorization, content-type, x-client-info, apikey",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Cache-Control": "no-store",
-    "Vary": "Origin",
+    Vary: "Origin",
   });
 
   if (allowedOrigin) {
@@ -77,9 +77,6 @@ serve(async (req) => {
     return jsonResponse({ error: "Forbidden origin" }, 403, origin);
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-  const clientIp = getClientIp(req);
-
   let body: { email?: string; password?: string };
   try {
     body = await req.json();
@@ -90,17 +87,44 @@ serve(async (req) => {
   const { email, password } = body;
 
   if (!email || !password) {
-    return jsonResponse({ error: "Email and password are required" }, 400, origin);
+    return jsonResponse(
+      { error: "Email and password are required" },
+      400,
+      origin,
+    );
   }
 
+  const clientIp = getClientIp(req);
+
   const rateLimitKey = `login:${clientIp}`;
-  const rateLimit = await supabaseAdmin.rpc('check_and_increment_rate_limit', {
-    p_key: rateLimitKey,
-    p_window_ms: RATE_LIMIT_WINDOW_MS,
-    p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
-  });
-  const allowed = (rateLimit.data?.[0]?.allowed as boolean | undefined) ?? false;
-  const retryAfterMs = (rateLimit.data?.[0]?.retry_after_ms as number | undefined) ?? 0;
+  const rateLimitResponse = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/check_and_increment_rate_limit`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_key: rateLimitKey,
+        p_window_ms: RATE_LIMIT_WINDOW_MS,
+        p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
+      }),
+    },
+  );
+
+  let rateLimitData: { allowed?: boolean; retry_after_ms?: number } = {};
+  try {
+    rateLimitData = (await rateLimitResponse.json())[0] ?? {};
+  } catch {
+    rateLimitData = {};
+  }
+
+  const allowed =
+    (rateLimitData.allowed as boolean | undefined) ?? false;
+  const retryAfterMs =
+    (rateLimitData.retry_after_ms as number | undefined) ?? 0;
   if (!allowed) {
     return jsonResponse(
       { error: "Too many attempts", retryAfterMs },
@@ -109,14 +133,23 @@ serve(async (req) => {
     );
   }
 
-  const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const authResponse = await fetch(
+    `${supabaseUrl}/auth/v1/token?grant_type=password`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabaseServiceKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    },
+  );
 
-  if (error || !data.session) {
+  const authData = await authResponse.json();
+
+  if (authResponse.status !== 200 || !authData?.access_token) {
     return jsonResponse(
-      { error: error?.message || "Invalid credentials" },
+      { error: authData?.error_description || authData?.message || "Invalid credentials" },
       401,
       origin,
     );
@@ -125,9 +158,9 @@ serve(async (req) => {
   return jsonResponse(
     {
       session: {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        user: data.session.user,
+        access_token: authData.access_token,
+        refresh_token: authData.refresh_token,
+        user: authData.user,
       },
     },
     200,

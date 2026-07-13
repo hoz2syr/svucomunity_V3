@@ -1,21 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 10;
 
 const checkRateLimit = async (
-  supabaseAdmin: SupabaseClient,
+  supabaseUrl: string,
+  serviceKey: string,
   key: string,
 ): Promise<{ allowed: boolean; retryAfterMs: number }> => {
   const now = new Date();
   const windowEnd = new Date(now.getTime() + RATE_LIMIT_WINDOW_MS);
 
-  const { data: existing, error: fetchError } = await supabaseAdmin
-    .from("rate_limits")
-    .select("count, reset_at")
-    .eq("key", key)
-    .maybeSingle();
+  const { data: existing, error: fetchError } = await (await fetch(
+    `${supabaseUrl}/rest/v1/rate_limits?select=count,reset_at&key=eq.${encodeURIComponent(key)}&limit=1`,
+    {
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+      },
+    },
+  )).json().then(async (r) => {
+    const json = await r.json();
+    return { data: json[0] ?? null, error: r.ok ? null : new Error(String(json)) };
+  }).catch(() => ({ data: null, error: new Error("Rate limit fetch failed") }));
 
   if (fetchError) {
     console.error("Rate limit fetch error:", fetchError);
@@ -23,10 +30,18 @@ const checkRateLimit = async (
   }
 
   if (!existing || new Date(existing.reset_at) < now) {
-    await supabaseAdmin.from("rate_limits").upsert(
-      { key, count: 1, reset_at: windowEnd.toISOString() },
-      { onConflict: "key" },
-    );
+    await fetch(`${supabaseUrl}/rest/v1/rate_limits`, {
+      method: "POST",
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify([
+        { key, count: 1, reset_at: windowEnd.toISOString() },
+      ]),
+    });
     return { allowed: true, retryAfterMs: 0 };
   }
 
@@ -37,10 +52,19 @@ const checkRateLimit = async (
     };
   }
 
-  await supabaseAdmin
-    .from("rate_limits")
-    .update({ count: existing.count + 1 })
-    .eq("key", key);
+  await fetch(
+    `${supabaseUrl}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ count: existing.count + 1 }),
+    },
+  );
 
   return { allowed: true, retryAfterMs: 0 };
 };
@@ -116,20 +140,29 @@ serve(async (req) => {
     return jsonResponse({ error: "Server configuration error" }, 500, origin);
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false },
-  });
-
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return jsonResponse({ error: "Unauthorized" }, 401, origin);
     }
 
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(authHeader.replace("Bearer ", ""));
-    if (userError || !user) {
+    const userResponse = await fetch(
+      `${supabaseUrl}/auth/v1/user`,
+      {
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${authHeader.replace("Bearer ", "")}`,
+        },
+      },
+    );
+
+    const userData = await userResponse.json();
+
+    if (userResponse.status !== 200 || userData?.error) {
       return jsonResponse({ error: "Unauthorized" }, 401, origin);
     }
+
+    const userId = userData.user.id;
 
     const { testId, rating } = await req.json();
 
@@ -137,8 +170,8 @@ serve(async (req) => {
       return jsonResponse({ error: "بيانات غير صالحة" }, 400, origin);
     }
 
-    const rateLimitKey = `rate_test:${testId}:${user.id}`;
-    const rateLimit = await checkRateLimit(supabaseAdmin, rateLimitKey);
+    const rateLimitKey = `rate_test:${testId}:${userId}`;
+    const rateLimit = await checkRateLimit(supabaseUrl, supabaseServiceKey, rateLimitKey);
     if (!rateLimit.allowed) {
       return jsonResponse(
         { error: "تم إرسال عدد كبير من التقييمات. يرجى المحاولة لاحقاً.", retryAfterMs: rateLimit.retryAfterMs },
@@ -147,62 +180,87 @@ serve(async (req) => {
       );
     }
 
-    const { data: existingRating, error: existingError } = await supabaseAdmin
-      .from("test_ratings")
-      .select("rating")
-      .eq("test_id", testId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const existingRatingResponse = await fetch(
+      `${supabaseUrl}/rest/v1/test_ratings?select=rating&test_id=eq.${encodeURIComponent(testId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+      {
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+        },
+      },
+    );
 
-    if (existingError) {
-      console.error("Rating lookup error:", existingError);
-    }
+    const existingRating = await existingRatingResponse.json();
 
-    if (existingRating) {
+    if (existingRating && existingRating.length > 0) {
       return jsonResponse({ error: "لقد قمت بتقييم هذا الاختبار مسبقاً." }, 409, origin);
     }
 
-    const { data: test, error: fetchError } = await supabaseAdmin
-      .from("tests")
-      .select("id, rating, rating_count")
-      .eq("id", testId)
-      .maybeSingle();
+    const testResponse = await fetch(
+      `${supabaseUrl}/rest/v1/tests?select=id,rating,rating_count&id=eq.${encodeURIComponent(testId)}&limit=1`,
+      {
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+        },
+      },
+    );
 
-    if (fetchError || !test) {
+    const test = await testResponse.json();
+
+    if (!test || test.length === 0) {
       return jsonResponse({ error: "الاختبار غير موجود" }, 404, origin);
     }
 
-    const existingRating = test.rating ?? null;
-    const existingCount = test.rating_count ?? 0;
+    const existingRatingValue = test[0].rating ?? null;
+    const existingCount = test[0].rating_count ?? 0;
     const newCount = existingCount + 1;
     const updatedRating = Math.round(
-      ((existingRating ?? 0) * existingCount + rating) / newCount,
+      ((existingRatingValue ?? 0) * existingCount + rating) / newCount,
     );
 
-    const { data: updated, error: updateError } = await supabaseAdmin
-      .from("tests")
-      .update({
-        rating: Math.round(
-          ((test.rating ?? 0) * (test.rating_count ?? 0) + rating) /
-          ((test.rating_count ?? 0) + 1),
-        ),
-        rating_count: (test.rating_count ?? 0) + 1,
-      })
-      .eq("id", testId)
-      .select("rating, rating_count")
-      .single();
+    const updateResponse = await fetch(
+      `${supabaseUrl}/rest/v1/tests?select=rating,rating_count&id=eq.${encodeURIComponent(testId)}`,
+      {
+        method: "PATCH",
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify({
+          rating: Math.round(
+            ((test[0].rating ?? 0) * (test[0].rating_count ?? 0) + rating) /
+            ((test[0].rating_count ?? 0) + 1),
+          ),
+          rating_count: (test[0].rating_count ?? 0) + 1,
+        }),
+      },
+    );
 
-    if (updateError) {
-      return jsonResponse({ error: updateError.message }, 500, origin);
+    const updated = await updateResponse.json();
+
+    if (!updateResponse.ok) {
+      return jsonResponse({ error: updated?.message || "Update failed" }, 500, origin);
     }
 
-    await supabaseAdmin.from("test_ratings").insert({
-      test_id: testId,
-      user_id: user.id,
-      rating,
+    await fetch(`${supabaseUrl}/rest/v1/test_ratings`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        test_id: testId,
+        user_id: userId,
+        rating,
+      }),
     });
 
-    return jsonResponse({ success: true, updatedRating: updated.rating }, 200, origin);
+    return jsonResponse({ success: true, updatedRating: updated[0]?.rating ?? updatedRating }, 200, origin);
   } catch (err) {
     return jsonResponse({ error: String(err) }, 500, origin);
   }

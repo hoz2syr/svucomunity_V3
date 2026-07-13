@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 3;
@@ -22,6 +21,7 @@ const getAllowedOrigin = (origin: string | null | undefined) => {
 };
 
 const corsHeaders = (origin: string | null | undefined) => {
+  const allowedOrigin = getAllowedOrigin(origin);
   const headers = new Headers({
     "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -29,7 +29,6 @@ const corsHeaders = (origin: string | null | undefined) => {
     "Vary": "Origin",
   });
 
-  const allowedOrigin = getAllowedOrigin(origin);
   if (allowedOrigin) {
     headers.set("Access-Control-Allow-Origin", allowedOrigin);
   }
@@ -50,14 +49,20 @@ const jsonResponse = (
     },
   });
 
-const isAdminUser = async (supabaseAdmin: SupabaseClient, userId: string): Promise<boolean> => {
-  const { data } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single();
-
-  return data?.role === "admin";
+const supabaseRest = async (
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  path: string,
+  init: RequestInit = {},
+) => {
+  const url = `${supabaseUrl}/rest/v1/${path}`;
+  const headers = new Headers({
+    apikey: supabaseServiceKey,
+    Authorization: `Bearer ${supabaseServiceKey}`,
+    "Content-Type": "application/json",
+    ...Object.fromEntries(new Headers(init.headers || {}).entries()),
+  });
+  return fetch(url, { ...init, headers });
 };
 
 serve(async (req) => {
@@ -67,7 +72,6 @@ serve(async (req) => {
     if (origin && !getAllowedOrigin(origin)) {
       return new Response(null, { status: 403, headers: corsHeaders(origin) });
     }
-
     return new Response(null, { status: 204, headers: corsHeaders(origin) });
   }
 
@@ -96,66 +100,109 @@ serve(async (req) => {
   const clientIp = getClientIp(req);
   const rateLimitKey = `${clientIp}:${jwt.slice(0, 16)}`;
 
-  const tempAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false },
-  });
+  const rateLimitResponse = await supabaseRest(
+    supabaseUrl,
+    supabaseServiceKey,
+    "rpc/check_and_increment_rate_limit",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        p_key: rateLimitKey,
+        p_window_ms: RATE_LIMIT_WINDOW_MS,
+        p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
+      }),
+    },
+  );
 
-  const rateLimit = await tempAdminClient.rpc('check_and_increment_rate_limit', {
-    p_key: rateLimitKey,
-    p_window_ms: RATE_LIMIT_WINDOW_MS,
-    p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
-  });
-  const allowed = (rateLimit.data?.[0]?.allowed as boolean | undefined) ?? false;
+  let rateLimitData: { allowed?: boolean; retry_after_ms?: number } = {};
+  try {
+    rateLimitData = (await rateLimitResponse.json())[0] ?? {};
+  } catch {
+    rateLimitData = {};
+  }
+
+  const allowed = (rateLimitData.allowed as boolean | undefined) ?? false;
   if (!allowed) {
     return jsonResponse({ error: "Too many requests" }, 429, origin);
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false },
-  });
+  const userResponse = await fetch(
+    `${supabaseUrl}/auth/v1/user`,
+    {
+      headers: {
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${jwt}`,
+      },
+    },
+  );
 
-  const { data, error: authError } = await supabaseAdmin.auth.getUser(jwt);
-  if (authError || !data.user) {
+  const userData = await userResponse.json();
+
+  if (userResponse.status !== 200 || userData?.error) {
     return jsonResponse({ error: "Unauthorized" }, 401, origin);
   }
 
-  const admin = await isAdminUser(supabaseAdmin, data.user.id);
+  const userId = userData.user.id;
 
-  if (admin) {
+  const profileResponse = await supabaseRest(
+    supabaseUrl,
+    supabaseServiceKey,
+    `profiles?select=role&id=eq.${encodeURIComponent(userId)}`,
+  );
+
+  const profileData = await profileResponse.json();
+  const isAdmin = profileData?.[0]?.role === "admin";
+
+  if (isAdmin) {
     return jsonResponse({ error: "Forbidden" }, 403, origin);
   }
 
-  const { error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .delete()
-    .eq("id", data.user.id);
+  await supabaseRest(
+    supabaseUrl,
+    supabaseServiceKey,
+    `profiles?id=eq.${encodeURIComponent(userId)}`,
+    { method: "DELETE" },
+  );
 
-  if (profileError) {
-    return jsonResponse({ error: "Profile deletion failed" }, 500, origin);
+  const deleteUserResponse = await fetch(
+    `${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+    },
+  );
+
+  if (deleteUserResponse.status !== 204) {
+    const deleteData = await deleteUserResponse.json().catch(() => ({}));
+    return jsonResponse(
+      { error: deleteData?.message || "Account deletion failed" },
+      500,
+      origin,
+    );
   }
 
-  const { error: adminError } = await supabaseAdmin.auth.admin.deleteUser(data.user.id);
-  if (adminError) {
-    return jsonResponse({ error: "Account deletion failed" }, 500, origin);
-  }
-
-  const { error: auditError } = await supabaseAdmin
-    .from("admin_audit_log")
-    .insert({
-      caller_id: data.user.id,
-      action: "delete_account",
-      payload: {
-        auth_provider: data.user.app_metadata?.provider ?? "unknown",
+  await supabaseRest(
+    supabaseUrl,
+    supabaseServiceKey,
+    `admin_audit_log`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        caller_id: userId,
+        action: "delete_account",
+        payload: {
+          auth_provider: userData.user.app_metadata?.provider ?? "unknown",
+          ip_address: clientIp,
+          user_agent: req.headers.get("user-agent") ?? "unknown",
+        },
         ip_address: clientIp,
         user_agent: req.headers.get("user-agent") ?? "unknown",
-      },
-      ip_address: clientIp,
-      user_agent: req.headers.get("user-agent") ?? "unknown",
-    });
-
-  if (auditError) {
-    console.error("Audit log insert failed:", auditError);
-  }
+      }),
+    },
+  );
 
   return jsonResponse({ ok: true }, 200, origin);
 });

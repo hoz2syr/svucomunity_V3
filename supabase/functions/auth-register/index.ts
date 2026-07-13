@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RATE_LIMIT_WINDOW_MS = 120_000;
 const RATE_LIMIT_MAX_ATTEMPTS = 3;
@@ -77,7 +76,6 @@ serve(async (req) => {
     return jsonResponse({ error: "Forbidden origin" }, 403, origin);
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   const clientIp = getClientIp(req);
 
   let body: { name?: string; email?: string; password?: string };
@@ -98,13 +96,32 @@ serve(async (req) => {
   }
 
   const rateLimitKey = `register:${clientIp}`;
-  const rateLimit = await supabaseAdmin.rpc('check_and_increment_rate_limit', {
-    p_key: rateLimitKey,
-    p_window_ms: RATE_LIMIT_WINDOW_MS,
-    p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
-  });
-  const allowed = (rateLimit.data?.[0]?.allowed as boolean | undefined) ?? false;
-  const retryAfterMs = (rateLimit.data?.[0]?.retry_after_ms as number | undefined) ?? 0;
+  const rateLimitResponse = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/check_and_increment_rate_limit`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_key: rateLimitKey,
+        p_window_ms: RATE_LIMIT_WINDOW_MS,
+        p_max_attempts: RATE_LIMIT_MAX_ATTEMPTS,
+      }),
+    },
+  );
+
+  let rateLimitData: { allowed?: boolean; retry_after_ms?: number } = {};
+  try {
+    rateLimitData = (await rateLimitResponse.json())[0] ?? {};
+  } catch {
+    rateLimitData = {};
+  }
+
+  const allowed = (rateLimitData.allowed as boolean | undefined) ?? false;
+  const retryAfterMs = (rateLimitData.retry_after_ms as number | undefined) ?? 0;
   if (!allowed) {
     return jsonResponse(
       { error: "Too many attempts", retryAfterMs },
@@ -113,25 +130,39 @@ serve(async (req) => {
     );
   }
 
-  const { data, error } = await supabaseAdmin.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: name },
+  const authResponse = await fetch(
+    `${supabaseUrl}/auth/v1/signup`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabaseServiceKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        data: { full_name: name },
+      }),
     },
-  });
+  );
 
-  if (error) {
-    return jsonResponse({ error: error.message }, 400, origin);
+  const authData = await authResponse.json();
+
+  if (authResponse.status !== 200 || authData?.error) {
+    return jsonResponse(
+      { error: authData?.error_description || authData?.message || "Signup failed" },
+      400,
+      origin,
+    );
   }
 
   return jsonResponse(
     {
       data: {
-        user: data.user,
-        session: data.session ? {
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
+        user: authData.user,
+        session: authData.session ? {
+          access_token: authData.session.access_token,
+          refresh_token: authData.session.refresh_token,
         } : null,
       },
     },
