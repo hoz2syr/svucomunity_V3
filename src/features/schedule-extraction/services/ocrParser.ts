@@ -17,36 +17,48 @@ const OCR_FUNCTION = 'ocr-proxy';
 
 async function callOCR(base64DataUrl: string): Promise<string> {
   const supabase = await getSupabase();
+  console.log('[ocrParser] Calling OCR function, image length:', base64DataUrl.length);
+
   const { data, error } = await supabase.functions.invoke<Record<string, unknown>>(OCR_FUNCTION, {
     body: { base64Image: base64DataUrl },
   });
+
+  console.log('[ocrParser] OCR response - error:', error, 'data:', data);
 
   if (error || data?.error) {
     const errMsg = typeof data?.error === 'string' ? data.error : error?.message || '';
     const status = error?.status;
 
-    if (status === 401 || errMsg.includes('key') || errMsg.includes('invalid')) throw new Error('OCR_API_KEY_INVALID');
-    if (status === 429 || errMsg.includes('quota') || errMsg.includes('limit')) throw new Error('OCR_QUOTA_EXCEEDED');
-    if (status === 422 || errMsg.includes('OCR_NO_TEXT')) throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
-    if (status === 502 || errMsg.includes('network') || errMsg.includes('fetch') || errMsg.includes('OCR_UPSTREAM_ERROR')) throw new Error('OCR_NETWORK_ERROR: فشل الاتصال بخدمة OCR.');
-    if (status === 500 || errMsg.includes('OCR_PROCESSING_ERROR')) throw new Error('OCR_PROCESSING_ERROR');
-    throw new Error(errMsg || `OCR_ERROR: Edge Function returned status ${status}`);
-  }
+    console.error('[ocrParser] OCR failed - status:', status, 'message:', errMsg);
 
-  if (data && typeof data === 'object' && 'error' in data) {
-    const errMsg = (data as { error: string }).error;
-    if (errMsg === 'OCR_QUOTA_EXCEEDED') throw new Error('OCR_QUOTA_EXCEEDED');
-    if (errMsg === 'OCR_API_KEY_INVALID') throw new Error('OCR_API_KEY_INVALID');
-    if (errMsg === 'OCR_API_KEY_NOT_CONFIGURED') throw new Error('OCR_API_KEY_NOT_CONFIGURED');
-    if (errMsg === 'OCR_NO_TEXT') throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
-    throw new Error(errMsg);
+    if (errMsg.includes('OCR_API_KEY_NOT_CONFIGURED')) {
+      throw new Error('مفتاح OCR غير مهيأ. تأكد من إضافة OCR_API_KEY في Supabase Dashboard.');
+    }
+    if (errMsg.includes('quota') || errMsg.includes('limit') || status === 429) {
+      throw new Error('OCR_QUOTA_EXCEEDED: تم تجاوز الحد المسموح من طلبات OCR. حاول لاحقاً.');
+    }
+    if (errMsg.includes('key') || errMsg.includes('invalid') || status === 401) {
+      throw new Error('OCR_API_KEY_INVALID: مفتاح OCR غير صالح. تحقق من المفتاح في Supabase Dashboard.');
+    }
+    if (errMsg.includes('OCR_NO_TEXT') || status === 422) {
+      throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة. تأكد من أن الصورة واضحة وتحتوي على جدول.');
+    }
+    if (errMsg.includes('OCR_UPSTREAM_ERROR') || errMsg.includes('network') || errMsg.includes('fetch') || status === 502) {
+      throw new Error('OCR_NETWORK_ERROR: فشل الاتصال بخدمة OCR. تحقق من الإنترنت.');
+    }
+    if (errMsg.includes('OCR_PROCESSING_ERROR') || status === 500) {
+      throw new Error(`OCR_PROCESSING_ERROR: خطأ في معالجة الصورة. ${errMsg ? 'التفاصيل: ' + errMsg : ''}`);
+    }
+    throw new Error(errMsg || `OCR_ERROR: Edge Function returned status ${status}`);
   }
 
   const text = (data as { text?: string })?.text;
   if (!text) {
+    console.warn('[ocrParser] OCR response missing text field, data:', data);
     throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
   }
 
+  console.log('[ocrParser] OCR success, text length:', text.length);
   return text;
 }
 
