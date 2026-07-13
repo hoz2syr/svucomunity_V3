@@ -21,16 +21,16 @@ async function callOCR(base64DataUrl: string): Promise<string> {
     body: { base64Image: base64DataUrl },
   });
 
-  if (error) {
-    const msg = error.message || '';
-    const status = error.status;
+  if (error || data?.error) {
+    const errMsg = typeof data?.error === 'string' ? data.error : error?.message || '';
+    const status = error?.status;
 
-    if (status === 401 || msg.includes('key') || msg.includes('invalid')) throw new Error('OCR_API_KEY_INVALID');
-    if (status === 429 || msg.includes('quota') || msg.includes('limit')) throw new Error('OCR_QUOTA_EXCEEDED');
-    if (status === 422) throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
-    if (status === 502 || msg.includes('network') || msg.includes('fetch')) throw new Error('OCR_NETWORK_ERROR: فشل الاتصال بخدمة OCR.');
-    if (status === 500) throw new Error('OCR_PROCESSING_ERROR');
-    throw new Error(msg || `OCR_ERROR: Edge Function returned status ${status}`);
+    if (status === 401 || errMsg.includes('key') || errMsg.includes('invalid')) throw new Error('OCR_API_KEY_INVALID');
+    if (status === 429 || errMsg.includes('quota') || errMsg.includes('limit')) throw new Error('OCR_QUOTA_EXCEEDED');
+    if (status === 422 || errMsg.includes('OCR_NO_TEXT')) throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
+    if (status === 502 || errMsg.includes('network') || errMsg.includes('fetch') || errMsg.includes('OCR_UPSTREAM_ERROR')) throw new Error('OCR_NETWORK_ERROR: فشل الاتصال بخدمة OCR.');
+    if (status === 500 || errMsg.includes('OCR_PROCESSING_ERROR')) throw new Error('OCR_PROCESSING_ERROR');
+    throw new Error(errMsg || `OCR_ERROR: Edge Function returned status ${status}`);
   }
 
   if (data && typeof data === 'object' && 'error' in data) {
