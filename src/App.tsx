@@ -14,6 +14,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExamLayout } from './features/exam/components/ExamLayout';
 import { StudyGroupsLayout } from './features/study-groups/components/StudyGroupsLayout';
 import { ScheduleExtractionLayout } from './features/schedule-extraction';
+import { CoursesLayout } from './features/courses';
+import { SubjectsLayout } from './features/subjects';
 import { ToastProvider } from './components/ui/Toast';
 
 const RouteLoader = () => (
@@ -45,6 +47,9 @@ const LazyMyGroupsPage = lazy(() => import('./features/study-groups/src/pages/My
 const LazyCreateGroupPage = lazy(() => import('./features/study-groups/src/pages/CreateGroupPage').then(m => ({ default: m.default })));
 
 const LazyScheduleExtractionPage = lazy(() => import('./features/schedule-extraction').then(m => ({ default: m.ScheduleExtractionPage })));
+const LazyCoursesHome = lazy(() => import('./features/courses').then(m => ({ default: m.CoursesHome })));
+const LazySubjectsHome = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectsHome })));
+const LazySubjectDetailPage = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectDetailPage })));
 
 function App() {
   const [queryClient] = useState(() => createQueryClient());
@@ -193,7 +198,37 @@ function App() {
                       )
                     }
                   />
-                  <Route path="*" element={<NotFoundPage />} />
+                   <Route
+                     path="/dashboard/courses"
+                     element={
+                       withRouteShell(
+                         <CoursesLayout>
+                           <LazyCoursesHome />
+                         </CoursesLayout>
+                       )
+                     }
+                   />
+                   <Route
+                     path="/dashboard/subjects"
+                     element={
+                       withRouteShell(
+                         <SubjectsLayout>
+                           <LazySubjectsHome />
+                         </SubjectsLayout>
+                       )
+                     }
+                   />
+                   <Route
+                     path="/dashboard/subjects/:courseCode"
+                     element={
+                       withRouteShell(
+                         <SubjectsLayout>
+                           <LazySubjectDetailPage />
+                         </SubjectsLayout>
+                       )
+                     }
+                   />
+                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </ErrorBoundary>
             </Router>

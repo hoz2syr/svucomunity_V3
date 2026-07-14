@@ -101,6 +101,30 @@ export type GroupMember = {
   joined_at: Timestamp;
 };
 
+export type SubjectReference = {
+  id: string;
+  course_code: string;
+  user_id: string;
+  type: 'video' | 'reference' | 'link';
+  title: string;
+  url: string;
+  description: string | null;
+  created_at: Timestamp;
+};
+
+export type UserCourseProgress = {
+  user_id: string;
+  course_code: string;
+  status: 'passed' | 'carried';
+  updated_at: Timestamp;
+};
+
+export type UserCourseProgressInsert = {
+  user_id?: string;
+  course_code: string;
+  status: 'passed' | 'carried';
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -143,6 +167,16 @@ export type Database = {
         Row: GroupMember;
         Insert: Omit<GroupMember, 'id' | 'joined_at'>;
         Update: Partial<Omit<GroupMember, 'id' | 'joined_at'>>;
+      };
+      subject_references: {
+        Row: SubjectReference;
+        Insert: Omit<SubjectReference, 'id' | 'created_at'> & { user_id: string };
+        Update: Partial<Omit<SubjectReference, 'id' | 'user_id' | 'created_at'>>;
+      };
+      user_course_progress: {
+        Row: UserCourseProgress;
+        Insert: Omit<UserCourseProgress, 'updated_at'> & { user_id: string };
+        Update: Partial<Omit<UserCourseProgress, 'user_id' | 'course_code'>>;
       };
     };
   };

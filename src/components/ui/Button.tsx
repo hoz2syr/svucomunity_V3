@@ -11,7 +11,7 @@ interface ButtonProps {
   type?: 'button' | 'submit';
   icon?: ReactNode;
   to?: string;
-  variant?: 'primary' | 'secondary' | 'danger' | 'auth';
+  variant?: 'primary' | 'secondary' | 'danger' | 'auth' | 'ghost';
   isLoading?: boolean;
   loadingText?: string;
 }
@@ -58,6 +58,12 @@ export function Button({
       'transition-all flex items-center justify-center gap-2',
       'group relative overflow-hidden',
       'disabled:opacity-80 disabled:cursor-not-allowed',
+    ],
+    ghost: [
+      'bg-transparent',
+      'border border-white/10',
+      'text-[var(--color-text-secondary)]',
+      'hover:bg-white/5 hover:text-white hover:border-white/20',
     ],
   };
 
