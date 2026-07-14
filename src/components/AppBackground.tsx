@@ -43,6 +43,14 @@ export const AppBackground: React.FC<AppBackgroundProps> = ({
     return (
       <>
         <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 pointer-events-none" />
+        <div
+          className="fixed inset-0 pointer-events-none z-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+            backgroundSize: '52px 52px',
+          }}
+        />
         <div className="fixed top-0 left-1/4 w-[400px] h-[400px] bg-cyan-600/10 blur-3xl rounded-full pointer-events-none" />
         <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-600/8 blur-3xl rounded-full pointer-events-none" />
         <div className="fixed top-[55%] left-[10%] w-[350px] h-[350px] bg-blue-600/8 blur-3xl rounded-full pointer-events-none" />
@@ -50,7 +58,19 @@ export const AppBackground: React.FC<AppBackgroundProps> = ({
     );
   }
 
-  return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900/60 to-slate-950 pointer-events-none" />
-  );
+  if (variant === 'feature') {
+    return (
+      <>
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900/60 to-slate-950 pointer-events-none" />
+        <div
+          className="fixed inset-0 pointer-events-none z-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+            backgroundSize: '52px 52px',
+          }}
+        />
+      </>
+    );
+  }
 };

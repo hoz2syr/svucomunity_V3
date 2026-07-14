@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import React from 'react';
 import { StudyGroupsCard } from '../../components/dashboard/StudyGroupsCard';
 import { CourseMaterialsCard } from '../../components/dashboard/CourseMaterialsCard';
 import { ScheduleExtractionCard } from '../../components/dashboard/ScheduleExtractionCard';
@@ -17,12 +18,18 @@ const TODAY = new Date().toLocaleDateString('ar-SA', {
 export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardStateProps) => {
   const reducedMotion = useReducedMotion();
 
-  const cards = [
+type CardItem = {
+  Component: React.ComponentType;
+  label: string;
+  size?: 'large';
+};
+
+  const cards: readonly CardItem[] = [
+    { Component: CourseMaterialsCard, label: 'المواد الدراسية', size: 'large' },
     { Component: StudyGroupsCard, label: 'المجموعات الدراسية' },
-    { Component: CourseMaterialsCard, label: 'المواد الدراسية' },
-    { Component: ScheduleExtractionCard, label: 'استخراج الجدول' },
     { Component: TestsCard, label: 'الاختبارات' },
-  ] as const;
+    { Component: ScheduleExtractionCard, label: 'استخراج الجدول' },
+  ];
 
   return (
     <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
@@ -47,10 +54,11 @@ export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardSta
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
-          {cards.map(({ Component, label }, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7">
+          {cards.map(({ Component, label, size }, index) => (
             <motion.div
               key={label}
+              className={size === 'large' ? 'lg:col-span-2' : ''}
               initial={reducedMotion ? false : { opacity: 0, y: 24 }}
               animate={reducedMotion ? false : { opacity: 1, y: 0 }}
               transition={
