@@ -11,14 +11,9 @@ import { AuthCallback } from './pages/AuthCallback';
 import { NotFoundPage } from './pages/NotFound';
 import { GuestRoute } from './components/GuestRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { ExamLayout } from './features/exam/components/ExamLayout';
-import { StudyGroupsLayout } from './features/study-groups/components/StudyGroupsLayout';
-import { ScheduleExtractionLayout } from './features/schedule-extraction';
-import { CoursesLayout } from './features/courses';
-import { SubjectsLayout } from './features/subjects';
 import { ToastProvider } from './components/ui/Toast';
 import { AdminGuard } from './components/guards/AdminGuard';
-import { AdminLayout } from './pages/Admin/AdminLayout';
+import { ProtectedRoute } from './components/guards/ProtectedRoute';
 import { Loader2 } from 'lucide-react';
 
 const RouteLoader = () => {
@@ -73,6 +68,7 @@ const withRouteShell = (element: React.ReactNode) => (
 const examFeature = () => import('./features/exam').then(m => m);
 
 const LazyDashboardPage = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.DashboardPage })));
+const LazyReviewsPage = lazy(() => import('./pages/Dashboard/Reviews').then(m => ({ default: m.ReviewsPage })));
 
 const LazyExamHome = lazy(() => examFeature().then(m => ({ default: m.ExamHome })));
 const LazyCreateTest = lazy(() => examFeature().then(m => ({ default: m.CreateTest })));
@@ -95,6 +91,15 @@ const LazyVerificationPanel = lazy(() => import('./pages/Admin/VerificationPanel
 const LazyUserManagement = lazy(() => import('./pages/Admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const LazyExtractionTracking = lazy(() => import('./pages/Admin/ExtractionTracking').then(m => ({ default: m.ExtractionTracking })));
 const LazyReports = lazy(() => import('./pages/Admin/Reports').then(m => ({ default: m.Reports })));
+const LazyNotificationManagement = lazy(() => import('./pages/Admin/NotificationManagement').then(m => ({ default: m.NotificationManagement })));
+const LazyReviews = lazy(() => import('./pages/Admin/Reviews').then(m => ({ default: m.Reviews })));
+
+const LazyExamLayout = lazy(() => import('./features/exam/components/ExamLayout').then(m => ({ default: m.ExamLayout })));
+const LazyStudyGroupsLayout = lazy(() => import('./features/study-groups/components/StudyGroupsLayout').then(m => ({ default: m.StudyGroupsLayout })));
+const LazyScheduleExtractionLayout = lazy(() => import('./features/schedule-extraction').then(m => ({ default: m.ScheduleExtractionLayout })));
+const LazyCoursesLayout = lazy(() => import('./features/courses').then(m => ({ default: m.CoursesLayout })));
+const LazySubjectsLayout = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectsLayout })));
+const LazyAdminLayout = lazy(() => import('./pages/Admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
 function App() {
   const [queryClient] = useState(() => createQueryClient());
@@ -117,6 +122,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/dashboard/reviews"
+                  element={
+                    <ProtectedRoute>
+                      <LazyReviewsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/exam"
                   element={
                     <GuestRoute>
@@ -128,9 +141,9 @@ function App() {
                   path="/exam/home"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyExamHome />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -138,9 +151,9 @@ function App() {
                   path="/exam/create"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyCreateTest />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -148,9 +161,9 @@ function App() {
                   path="/exam/saved"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazySavedTests />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -158,9 +171,9 @@ function App() {
                   path="/exam/play/:id"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyPlayTest />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -168,9 +181,9 @@ function App() {
                   path="/exam/shared/:id"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyPlayTestShared />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -178,9 +191,9 @@ function App() {
                   path="/exam/browse"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyBrowsePublishedTests />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -188,9 +201,9 @@ function App() {
                   path="/exam/attempts"
                   element={
                     withRouteShell(
-                      <ExamLayout>
+                      <LazyExamLayout>
                         <LazyAttemptHistory />
-                      </ExamLayout>
+                      </LazyExamLayout>
                     )
                   }
                 />
@@ -198,9 +211,9 @@ function App() {
                   path="/dashboard/study-groups"
                   element={
                     withRouteShell(
-                      <StudyGroupsLayout>
+                      <LazyStudyGroupsLayout>
                         <LazyStudyGroupsHome />
-                      </StudyGroupsLayout>
+                      </LazyStudyGroupsLayout>
                     )
                   }
                 />
@@ -208,9 +221,9 @@ function App() {
                   path="/dashboard/study-groups/my"
                   element={
                     withRouteShell(
-                      <StudyGroupsLayout>
+                      <LazyStudyGroupsLayout>
                         <LazyMyGroupsPage />
-                      </StudyGroupsLayout>
+                      </LazyStudyGroupsLayout>
                     )
                   }
                 />
@@ -218,9 +231,9 @@ function App() {
                   path="/dashboard/study-groups/create"
                   element={
                     withRouteShell(
-                      <StudyGroupsLayout>
+                      <LazyStudyGroupsLayout>
                         <LazyCreateGroupPage />
-                      </StudyGroupsLayout>
+                      </LazyStudyGroupsLayout>
                     )
                   }
                 />
@@ -236,9 +249,9 @@ function App() {
                   path="/dashboard/schedule"
                   element={
                     withRouteShell(
-                      <ScheduleExtractionLayout>
+                      <LazyScheduleExtractionLayout>
                         <LazyScheduleExtractionPage />
-                      </ScheduleExtractionLayout>
+                      </LazyScheduleExtractionLayout>
                     )
                   }
                 />
@@ -246,9 +259,9 @@ function App() {
                   path="/dashboard/courses"
                   element={
                     withRouteShell(
-                      <CoursesLayout>
+                      <LazyCoursesLayout>
                         <LazyCoursesHome />
-                      </CoursesLayout>
+                      </LazyCoursesLayout>
                     )
                   }
                 />
@@ -256,73 +269,91 @@ function App() {
                   path="/dashboard/subjects"
                   element={
                     withRouteShell(
-                      <SubjectsLayout>
+                      <LazySubjectsLayout>
                         <LazySubjectsHome />
-                      </SubjectsLayout>
+                      </LazySubjectsLayout>
                     )
                   }
                 />
-                  <Route
-                    path="/dashboard/subjects/:courseCode"
-                    element={
-                      withRouteShell(
-                        <SubjectsLayout>
-                          <LazySubjectDetailPage />
-                        </SubjectsLayout>
-                      )
-                    }
-                  />
                    <Route
-                    path="/admin"
-                    element={
-                      <AdminGuard>
-                        <AdminLayout />
-                      </AdminGuard>
-                    }
-                  >
+                     path="/dashboard/subjects/:courseCode"
+                     element={
+                       withRouteShell(
+                         <LazySubjectsLayout>
+                           <LazySubjectDetailPage />
+                         </LazySubjectsLayout>
+                       )
+                     }
+                   />
                     <Route
-                      path="users"
+                      path="/admin"
                       element={
                         <LazyRoute>
-                          <LazyUserManagement />
+                          <AdminGuard>
+                            <LazyAdminLayout />
+                          </AdminGuard>
                         </LazyRoute>
                       }
-                    />
-                    <Route
-                      path="extractions"
-                      element={
-                        <LazyRoute>
-                          <LazyExtractionTracking />
-                        </LazyRoute>
-                      }
-                    />
-                    <Route
-                      path="reports"
-                      element={
-                        <LazyRoute>
-                          <LazyReports />
-                        </LazyRoute>
-                      }
-                    />
-                    <Route
-                      path="verification"
-                      element={
-                        <LazyRoute>
-                          <LazyVerificationPanel />
-                        </LazyRoute>
-                      }
-                    />
-                    <Route
-                      path="analytics"
-                      element={
-                        <LazyRoute>
-                          <LazyAnalyticsPage />
-                        </LazyRoute>
-                      }
-                    />
-                    <Route index element={<Navigate to="users" replace />} />
-                  </Route>
-                  <Route path="*" element={<NotFoundPage />} />
+                    >
+                     <Route
+                       path="users"
+                       element={
+                         <LazyRoute>
+                           <LazyUserManagement />
+                         </LazyRoute>
+                       }
+                     />
+                     <Route
+                       path="extractions"
+                       element={
+                         <LazyRoute>
+                           <LazyExtractionTracking />
+                         </LazyRoute>
+                       }
+                     />
+                     <Route
+                       path="reports"
+                       element={
+                         <LazyRoute>
+                           <LazyReports />
+                         </LazyRoute>
+                       }
+                     />
+                     <Route
+                       path="verification"
+                       element={
+                         <LazyRoute>
+                           <LazyVerificationPanel />
+                         </LazyRoute>
+                       }
+                     />
+                      <Route
+                        path="reviews"
+                        element={
+                          <LazyRoute>
+                            <LazyReviews />
+                          </LazyRoute>
+                        }
+                      />
+                       <Route
+                         path="notifications"
+                         element={
+                           <LazyRoute>
+                             <LazyNotificationManagement />
+                           </LazyRoute>
+                         }
+                       />
+                      <Route
+                        path="analytics"
+                        element={
+                          <LazyRoute>
+                            <LazyAnalyticsPage />
+                          </LazyRoute>
+                        }
+                      />
+                     <Route index element={<Navigate to="users" replace />} />
+                   </Route>
+                   <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Router>
           </ToastProvider>
