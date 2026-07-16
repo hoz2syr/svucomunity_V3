@@ -12,6 +12,8 @@ import {
 } from '../utils/canvasRenderer';
 import { easeInOutCubic, spring } from '../utils/animation';
 
+// useSyncExternalStore requires three functions: subscribe, getSnapshot, getServerSnapshot.
+// We bridge matchMedia here so React can track reduced-motion changes without layout thrash.
 function subscribeToReducedMotion(onChange: () => void) {
   if (typeof window === 'undefined') return () => {};
   const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -114,6 +116,9 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
       const mx = mouseEasedRef.current.x;
       const my = mouseEasedRef.current.y;
 
+      // Mouse influence decays exponentially when inactive and lerps toward viewport center.
+      // A separate eased ref smooths the final position to avoid jitter in particle repulsion.
+
       const particles = particlesRef.current;
       const isHome = enableTextAssemble;
 
@@ -127,6 +132,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
 
         if (isHome && p.isText) {
           const tp = p as TextParticle;
+          // Characters assemble in sequence and dissolve in reverse, creating a looped text animation.
           const assembleStart = PARTICLE_TEXT_ASSEMBLY_OFFSET_MS + tp.textCharIndex * PARTICLE_TEXT_CHAR_SPACING_MS;
           const dissolveStart = PARTICLE_DISSOLVE_OFFSET_BASE_MS + (textChars.length - 1 - tp.textCharIndex) * PARTICLE_TEXT_CHAR_SPACING_MS;
           let progress = 0;
@@ -151,6 +157,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
             const len = Math.hypot(dx, dy) || 1;
             const nx = -dy / len;
             const ny = dx / len;
+            // Arc motion sweeps particles along a perpendicular curve as they converge on their target.
             const arc = Math.sin(progress * Math.PI) * tp.arcHeight;
             p.x = p.x + dx * progress + nx * arc;
             p.y = p.y + dy * progress + ny * arc;
@@ -168,6 +175,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
           const mdistsq = mdx * mdx + mdy * mdy;
           if (mdistsq < maxDist * maxDist && mdistsq > 0) {
             const dist = Math.sqrt(mdistsq);
+            // Repulsion force peaks at the mouse center and falls off cubically for a snappy push.
             const force = Math.pow(1 - dist / maxDist, 3) * 150 * mouseImpactRef.current;
             p.x += (mdx / dist) * force;
             p.y += (mdy / dist) * force;
