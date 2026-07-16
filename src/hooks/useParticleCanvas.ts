@@ -63,7 +63,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const resizeHandlerRef = useRef<(() => void) | null>(null);
   const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, getReducedMotionSnapshot, getServerReducedMotionSnapshot);
-  const textCharsKey = textChars.join(');
+  const textCharsKey = textChars.join('');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

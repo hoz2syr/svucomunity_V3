@@ -22,13 +22,9 @@ const GUEST_PROFILE_KEY = 'svu-guest-profile';
 
 // Guest mode allows browsing without authentication.
 // Guest data is stored in sessionStorage as plain text and treated as untrusted.
+// We intentionally avoid encryption to keep the client simple; sensitive operations must still go through auth.
 
-
-
-
-
-
-
+// Runtime guard that validates the shape of parsed guest profile data.
 const isGuestProfile = (value: unknown): value is GuestProfile => {
   return typeof value === 'object' && value !== null && typeof (value as Record<string, unknown>).name === 'string' && typeof (value as Record<string, unknown>).email === 'string';
 };
@@ -57,6 +53,7 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
   const [guestProfile, setGuestProfile] = useState<GuestProfile | null>(null);
   const isGuestRef = useRef(isGuest);
 
+  // Keep ref in sync with state so the auth listener callback always sees the latest value.
   useEffect(() => {
     isGuestRef.current = isGuest;
   }, [isGuest]);
@@ -79,6 +76,7 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
     setGuestProfile(null);
   }, []);
 
+  // Restore guest mode from sessionStorage on initial load.
   useEffect(() => {
     const stored = sessionStorage.getItem(GUEST_MODE_KEY);
     if (stored === 'true') {
@@ -87,6 +85,8 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  // Listen for auth changes; if a real session appears while in guest mode, exit guest mode.
+  // The mounted flag prevents state updates after unmount.
   useEffect(() => {
     if (!hasSupabaseEnv()) return;
 
@@ -131,4 +131,3 @@ export const useGuest = () => {
   if (!ctx) throw new Error('useGuest must be used within GuestProvider');
   return ctx;
 };
-
