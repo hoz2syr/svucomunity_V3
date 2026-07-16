@@ -172,4 +172,4 @@ export const DashboardPage = memo(function DashboardPage() {
       </div>
     </DashboardLayout>
   );
-};
+});

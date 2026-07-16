@@ -31,7 +31,7 @@ const StatCard = React.memo(function StatCard({ title, value, icon, isLoading }:
       </div>
     </GlassCard>
   );
-}
+});
 
 const PopularCoursesTable = React.memo(function PopularCoursesTable() {
   const { data: courses, isLoading, error } = usePopularCourses(20);
@@ -114,7 +114,7 @@ const PopularCoursesTable = React.memo(function PopularCoursesTable() {
       </div>
     </GlassCard>
   );
-}
+});
 
 const PopularInstructorsTable = React.memo(function PopularInstructorsTable() {
   const { data: instructors, isLoading, error } = usePopularInstructors(20);
@@ -192,7 +192,7 @@ const PopularInstructorsTable = React.memo(function PopularInstructorsTable() {
       </div>
     </GlassCard>
   );
-}
+});
 
 const MajorDistributionList = React.memo(function MajorDistributionList() {
   const { data: majors, isLoading, error } = useMajorDistribution();
@@ -274,7 +274,7 @@ const MajorDistributionList = React.memo(function MajorDistributionList() {
       </div>
     </GlassCard>
   );
-}
+});
 
 export function AnalyticsPage() {
   const { profile, loading: authLoading } = useAuth();

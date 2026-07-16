@@ -19,7 +19,6 @@ type Tab = 'courses' | 'instructors';
 type ConfirmAction = { type: 'course'; courseCode: string; isVerified: boolean; courseName: string } | { type: 'instructor'; instructorUsername: string; isVerified: boolean; instructorName: string };
 
 type CourseVerificationListProps = {
-  courses: any[] | undefined;
   coursesLoading: boolean;
   filteredCourses: any[];
   coursesPage: number;
@@ -45,7 +44,6 @@ type InstructorVerificationListProps = {
 };
 
 function CourseVerificationList({
-  courses,
   coursesLoading,
   filteredCourses,
   coursesPage,
@@ -395,7 +393,6 @@ export function VerificationPanel() {
 
       {activeTab === 'courses' && (
         <CourseVerificationList
-          courses={courses}
           coursesLoading={coursesLoading}
           filteredCourses={filteredCourses}
           coursesPage={coursesPage}
