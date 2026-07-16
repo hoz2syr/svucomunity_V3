@@ -23,8 +23,9 @@ const MermaidBlock = ({ chart }: { chart: string }) => {
         if (!cancelled && containerRef.current) {
           if (containerRef.current) { containerRef.current.innerHTML = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } }); }
         }
-      } catch {
+      } catch (error) {
         if (!cancelled) {
+          console.error('Failed to render Mermaid diagram', error);
           setError(true);
         }
       }

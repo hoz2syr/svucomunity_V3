@@ -38,7 +38,9 @@ export function useStudyGroupsPage(userId: string | undefined, userMajor?: strin
           setMajors(Object.keys(data));
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.warn('Failed to load majors from /svu_courses.json', error);
+      });
     return () => {
       cancelled = true;
     };
