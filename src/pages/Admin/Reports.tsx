@@ -1,0 +1,214 @@
+'use client';
+
+import { useAuth } from '@/src/contexts/AuthContext';
+import { GlassCard } from '@/src/components/ui/GlassCard';
+import { Button } from '@/src/components/ui/Button';
+import { Skeleton } from '@/src/components/ui/Skeleton';
+import { Icon } from '@/src/components/ui/Icon';
+import { usePlatformStats, useRefreshAdminData } from '../../features/admin/hooks/useAdminExtractions';
+import {
+  Users,
+  FileText,
+  BookOpen,
+  User,
+  BarChart3,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldCheck,
+  BookOpenCheck,
+  UsersRound,
+  Shield,
+} from 'lucide-react';
+import { cn } from '@/src/lib/utils';
+
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: typeof Users;
+  color: 'cyan' | 'blue' | 'emerald' | 'amber' | 'rose';
+}
+
+function StatCard({ label, value, icon: IconComponent, color }: StatCardProps) {
+  const colorClasses = {
+    cyan: 'bg-cyan-500/10 text-cyan-400',
+    blue: 'bg-blue-500/10 text-blue-400',
+    emerald: 'bg-emerald-500/10 text-emerald-400',
+    amber: 'bg-amber-500/10 text-amber-400',
+    rose: 'bg-rose-500/10 text-rose-400',
+  };
+
+  return (
+    <GlassCard className="p-5">
+      <div className="flex items-center gap-4">
+        <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center', colorClasses[color])}>
+          <IconComponent size="lg" />
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-white">{value}</p>
+          <p className="text-sm text-slate-400">{label}</p>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
+export function Reports() {
+  const { profile, loading: authLoading } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+  const refresh = useRefreshAdminData();
+
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch } = usePlatformStats();
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-cyan-400 text-lg">جاري التحميل...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <GlassCard className="p-8 text-center max-w-md">
+          <Icon icon={Shield} size="xl" className="text-rose-400 mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">غير مصرح</h2>
+          <p className="text-slate-400 text-sm">ليس لديك صلاحية الوصول لهذه الصفحة</p>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pt-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-white tracking-tight">التقارير والإحصائيات</h1>
+          <p className="text-slate-400 text-sm max-w-xl">
+            نظرة عامة على أداء المنصة والنشاط
+          </p>
+        </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            refetch();
+            refresh();
+          }}
+          icon={<Icon icon={RefreshCw} size="xs" />}
+        >
+          تحديث
+        </Button>
+      </div>
+
+      {statsError && (
+        <GlassCard className="p-4 border-rose-500/30">
+          <div className="flex items-center gap-2 text-rose-400">
+            <Icon icon={AlertTriangle} size="sm" />
+            <span className="text-sm">{statsError instanceof Error ? statsError.message : 'حدث خطأ'}</span>
+          </div>
+        </GlassCard>
+      )}
+
+      {statsLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <GlassCard key={i} className="p-5">
+              <Skeleton className="w-full h-20" />
+            </GlassCard>
+          ))}
+        </div>
+      ) : stats ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <StatCard label="إجمالي المستخدمين" value={stats.total_users} icon={Users} color="cyan" />
+            <StatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={FileText} color="blue" />
+            <StatCard label="إجمالي المواد" value={stats.total_courses} icon={BookOpen} color="emerald" />
+            <StatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={User} color="amber" />
+            <StatCard label="إجمالي التخصصات" value={stats.total_majors} color="rose" icon={BarChart3} />
+            <StatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={BookOpenCheck} color="cyan" />
+            <StatCard label="إجمالي المجموعات" value={stats.total_groups} icon={UsersRound} color="blue" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Icon icon={ShieldCheck} size="sm" className="text-cyan-400" />
+                حالة التحقق
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-slate-400">المواد المحققة</span>
+                    <span className="text-sm text-white font-medium">
+                      {stats.verified_courses} / {stats.verified_courses + stats.unverified_courses}
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/5 rounded-full h-2">
+                    <div
+                      className="bg-emerald-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${stats.verified_courses + stats.unverified_courses > 0 ? (stats.verified_courses / (stats.verified_courses + stats.unverified_courses)) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-slate-400">المحاضرين المحققين</span>
+                    <span className="text-sm text-white font-medium">
+                      {stats.verified_instructors} / {stats.verified_instructors + stats.unverified_instructors}
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/5 rounded-full h-2">
+                    <div
+                      className="bg-cyan-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${stats.verified_instructors + stats.unverified_instructors > 0 ? (stats.verified_instructors / (stats.verified_instructors + stats.unverified_instructors)) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Icon icon={BarChart3} size="sm" className="text-cyan-400" />
+                ملخص النشاط
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                  <span className="text-sm text-slate-400">متوسط المواد لكل استخراج</span>
+                  <span className="text-sm text-white font-medium">
+                    {stats.total_extractions > 0 ? (stats.total_courses / stats.total_extractions).toFixed(1) : '0'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                  <span className="text-sm text-slate-400">متوسط الاستخراجات لكل مستخدم</span>
+                  <span className="text-sm text-white font-medium">
+                    {stats.total_users > 0 ? (stats.total_extractions / stats.total_users).toFixed(1) : '0'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                  <span className="text-sm text-slate-400">نسبة التحقق للمواد</span>
+                  <span className="text-sm text-white font-medium">
+                    {stats.verified_courses + stats.unverified_courses > 0
+                      ? ((stats.verified_courses / (stats.verified_courses + stats.unverified_courses)) * 100).toFixed(1)
+                      : '0'}
+                    %
+                  </span>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+      ) : (
+        <GlassCard className="p-8 text-center">
+          <Icon icon={CheckCircle2} size="xl" className="text-emerald-400 mb-3" />
+          <p className="text-slate-400 text-sm">لا توجد بيانات متاحة</p>
+        </GlassCard>
+      )}
+    </div>
+  );
+}
