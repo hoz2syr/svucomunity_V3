@@ -3,8 +3,11 @@ export interface ExtractedCourse {
   name: string;
   section: string | null;
   instructor: string | null;
+  instructor_username: string | null;
   time: string | null;
-  major?: string | null;
+  major: string | null;
+  course_key: string | null;
+  semester: string | null;
 }
 
 export interface ScheduleExtractionResult {
@@ -52,4 +55,24 @@ export interface ValidationResult {
 export interface MatchResult {
   matched: MatchedGroup[];
   unmatched: ExtractedCourse[];
+}
+
+export type CourseStatus = 'new' | 'passed' | 'carried' | 'failed';
+
+export interface MatchedCourseWithStatus {
+  code: string;
+  name: string;
+  section: string | null;
+  major: string | null;
+  status: CourseStatus;
+  matchScore?: number;
+  matchReasons?: string[];
+  matchedGroups: MatchedGroup[];
+}
+
+export interface StudyGroupSuggestion {
+  group: MatchedGroup;
+  relevanceScore: number;
+  matchedCourseCodes: string[];
+  reasons: string[];
 }
