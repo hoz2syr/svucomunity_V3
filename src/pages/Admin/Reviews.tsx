@@ -27,6 +27,17 @@ import type { Review } from '@/src/features/reviews/types';
 type StatusFilter = 'all' | 'pending' | 'reviewed' | 'responded';
 type CategoryFilter = 'all' | 'ui' | 'content' | 'performance' | 'other';
 
+const STATUS_OPTIONS: StatusFilter[] = ['all', 'pending', 'reviewed', 'responded'];
+const CATEGORY_OPTIONS: CategoryFilter[] = ['all', 'ui', 'content', 'performance', 'other'];
+
+const isStatusFilter = (value: string): value is StatusFilter => {
+  return STATUS_OPTIONS.some(option => option === value);
+};
+
+const isCategoryFilter = (value: string): value is CategoryFilter => {
+  return CATEGORY_OPTIONS.some(option => option === value);
+};
+
 const STATUS_LABELS: Record<StatusFilter, string> = {
   all: 'الكل',
   pending: 'قيد المراجعة',
@@ -176,7 +187,7 @@ export function Reviews() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value as StatusFilter); setPage(1); }}
+          onChange={(e) => { setStatusFilter(isStatusFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -185,7 +196,7 @@ export function Reviews() {
         </select>
         <select
           value={categoryFilter}
-          onChange={(e) => { setCategoryFilter(e.target.value as CategoryFilter); setPage(1); }}
+          onChange={(e) => { setCategoryFilter(isCategoryFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
@@ -234,7 +245,7 @@ export function Reviews() {
                     ))}
                     <span className="text-xs text-slate-400 mr-1">{review.rating}/5</span>
                     <span className="text-xs px-2.5 py-1 bg-white/5 rounded-lg text-slate-400">
-                      {CATEGORY_LABELS[review.category as CategoryFilter] || review.category}
+                      {isCategoryFilter(review.category) ? CATEGORY_LABELS[review.category] : review.category}
                     </span>
                     <span className={cn(
                       'text-xs px-2.5 py-1 rounded-lg',
@@ -242,7 +253,7 @@ export function Reviews() {
                       review.status === 'reviewed' && 'bg-blue-500/10 text-blue-400',
                       review.status === 'responded' && 'bg-emerald-500/10 text-emerald-400',
                     )}>
-                      {STATUS_LABELS[review.status as StatusFilter] || review.status}
+                      {isStatusFilter(review.status) ? STATUS_LABELS[review.status] : review.status}
                     </span>
                   </div>
                   <p className="text-sm text-slate-300 leading-relaxed mb-3">{review.comment}</p>

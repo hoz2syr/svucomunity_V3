@@ -20,8 +20,15 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { AdminUser } from '../../features/admin/services/adminUserService.supabase';
+import { ConfirmRoleChangeModal } from './ConfirmRoleChangeModal';
 
 type RoleOption = 'admin' | 'user' | 'student';
+
+const ROLE_OPTIONS: RoleOption[] = ['admin', 'user', 'student'];
+
+const isRoleOption = (value: string): value is RoleOption => {
+  return ROLE_OPTIONS.some(option => option === value);
+};
 
 export function UserManagement() {
   const { profile, loading: authLoading } = useAuth();
@@ -228,7 +235,7 @@ export function UserManagement() {
                     <>
                       <select
                         value={editingRole}
-                        onChange={(e) => setEditingRole(e.target.value as RoleOption)}
+                        onChange={(e) => setEditingRole(isRoleOption(e.target.value) ? e.target.value : 'user')}
                         className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
                       >
                         <option value="admin">مشرف</option>
@@ -260,7 +267,7 @@ export function UserManagement() {
                       variant="secondary"
                       onClick={() => {
                         setEditingUserId(user.id);
-                        setEditingRole((user.role as RoleOption) || 'user');
+                        setEditingRole(isRoleOption(user.role) ? user.role : 'user');
                       }}
                     >
                       تعديل الدور
@@ -294,47 +301,23 @@ export function UserManagement() {
       )}
 
       {confirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmTarget(null)} />
-          <GlassCard className="relative z-10 w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-white mb-2">تأكيد تغيير الدور</h2>
-            <p className="text-sm text-slate-400 mb-6">
-              هل أنت متأكد من تغيير دور <span className="text-white font-medium">{confirmTarget.userName}</span> إلى{' '}
-              <span className="text-cyan-400 font-medium">
-                {confirmTarget.newRole === 'admin' ? 'مشرف' : confirmTarget.newRole === 'student' ? 'طالب' : 'مستخدم'}
-              </span>؟
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setConfirmTarget(null)}
-                disabled={updateRoleMutation.isPending}
-                className="flex-1"
-              >
-                إلغاء
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  updateRoleMutation.mutate(
-                    { userId: confirmTarget.userId, newRole: confirmTarget.newRole },
-                    {
-                      onSuccess: () => {
-                        setConfirmTarget(null);
-                        setEditingUserId(null);
-                      },
-                      onError: () => setConfirmTarget(null),
-                    }
-                  );
-                }}
-                disabled={updateRoleMutation.isPending}
-                className="flex-1"
-              >
-                {updateRoleMutation.isPending ? 'جاري التنفيذ...' : 'تأكيد'}
-              </Button>
-            </div>
-          </GlassCard>
-        </div>
+        <ConfirmRoleChangeModal
+          target={confirmTarget}
+          onClose={() => setConfirmTarget(null)}
+          onConfirm={() => {
+            updateRoleMutation.mutate(
+              { userId: confirmTarget.userId, newRole: confirmTarget.newRole },
+              {
+                onSuccess: () => {
+                  setConfirmTarget(null);
+                  setEditingUserId(null);
+                },
+                onError: () => setConfirmTarget(null),
+              }
+            );
+          }}
+          isPending={updateRoleMutation.isPending}
+        />
       )}
     </div>
   );

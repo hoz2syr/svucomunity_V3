@@ -35,6 +35,22 @@ type PriorityOption = 'low' | 'normal' | 'high' | 'urgent';
 type TypeFilter = 'all' | 'user' | 'admin_broadcast' | 'system';
 type ReadFilter = 'all' | 'read' | 'unread';
 
+const PRIORITY_OPTIONS: PriorityOption[] = ['low', 'normal', 'high', 'urgent'];
+const TYPE_OPTIONS: TypeFilter[] = ['all', 'user', 'admin_broadcast', 'system'];
+const READ_OPTIONS: ReadFilter[] = ['all', 'read', 'unread'];
+
+const isPriorityOption = (value: string): value is PriorityOption => {
+  return PRIORITY_OPTIONS.some(option => option === value);
+};
+
+const isTypeFilter = (value: string): value is TypeFilter => {
+  return TYPE_OPTIONS.some(option => option === value);
+};
+
+const isReadFilter = (value: string): value is ReadFilter => {
+  return READ_OPTIONS.some(option => option === value);
+};
+
 const PRIORITY_LABELS: Record<PriorityOption, string> = {
   low: 'منخفضة',
   normal: 'عادية',
@@ -183,7 +199,7 @@ export function NotificationManagement() {
         </div>
         <select
           value={typeFilter}
-          onChange={(e) => { setTypeFilter(e.target.value as TypeFilter); setPage(1); }}
+          onChange={(e) => { setTypeFilter(isTypeFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           <option value="all">كل الأنواع</option>
@@ -193,7 +209,7 @@ export function NotificationManagement() {
         </select>
         <select
           value={priorityFilter}
-          onChange={(e) => { setPriorityFilter(e.target.value as PriorityOption | 'all'); setPage(1); }}
+          onChange={(e) => { setPriorityFilter(isPriorityOption(e.target.value) ? e.target.value : 'all'); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           <option value="all">كل الأولويات</option>
@@ -204,7 +220,7 @@ export function NotificationManagement() {
         </select>
         <select
           value={readFilter}
-          onChange={(e) => { setReadFilter(e.target.value as ReadFilter); setPage(1); }}
+          onChange={(e) => { setReadFilter(isReadFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           <option value="all">الكل</option>
@@ -305,7 +321,9 @@ export function NotificationManagement() {
                           : 'bg-white/5 text-slate-500',
                       )}
                     >
-                      {PRIORITY_LABELS[notification.priority as PriorityOption] || notification.priority}
+                      {isPriorityOption(notification.priority)
+                        ? PRIORITY_LABELS[notification.priority]
+                        : notification.priority}
                     </span>
                     {!notification.read && (
                       <span className="text-[10px] px-2 py-0.5 rounded-lg font-bold bg-cyan-500/10 text-cyan-400">غير مقروء</span>
@@ -486,7 +504,7 @@ function CreateNotificationModal({
             <label className="block text-sm text-slate-400 mb-1.5">الأولوية</label>
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as PriorityOption)}
+              onChange={(e) => setPriority(isPriorityOption(e.target.value) ? e.target.value : 'normal')}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
             >
               <option value="low">منخفضة</option>
@@ -565,7 +583,7 @@ function BroadcastModal({
             <label className="block text-sm text-slate-400 mb-1.5">الأولوية</label>
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as PriorityOption)}
+              onChange={(e) => setPriority(isPriorityOption(e.target.value) ? e.target.value : 'normal')}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
             >
               <option value="low">منخفضة</option>
@@ -629,7 +647,7 @@ function NotificationDetailModal({
             </div>
             <div>
               <label className="block text-xs text-slate-500 mb-1">الأولوية</label>
-              <span className="text-sm text-white">{PRIORITY_LABELS[notification.priority as PriorityOption] || notification.priority}</span>
+              <span className="text-sm text-white">{isPriorityOption(notification.priority) ? PRIORITY_LABELS[notification.priority] : notification.priority}</span>
             </div>
             <div>
               <label className="block text-xs text-slate-500 mb-1">الحالة</label>

@@ -20,56 +20,36 @@ export { GuestContext };
 const GUEST_MODE_KEY = 'svu-guest-mode';
 const GUEST_PROFILE_KEY = 'svu-guest-profile';
 
-const ENCRYPTION_KEY = 'svu-community-guest-v3-2026';
+// Guest mode allows browsing without authentication.
+// Guest data is stored in sessionStorage as plain text and treated as untrusted.
 
-const toUint8Array = (str: string): Uint8Array => new TextEncoder().encode(str);
 
-const fromUint8Array = (arr: Uint8Array): string => new TextDecoder().decode(arr);
 
-const uint8ToBase64 = (arr: Uint8Array): string => {
-  let binary = '';
-  for (let i = 0; i < arr.length; i++) {
-    binary += String.fromCharCode(arr[i]);
-  }
-  return btoa(binary);
-};
 
-const encrypt = (data: string): string => {
-  const keyBytes = toUint8Array(ENCRYPTION_KEY);
-  const dataBytes = toUint8Array(data);
-  const result = new Uint8Array(dataBytes.length);
-  for (let i = 0; i < dataBytes.length; i++) {
-    result[i] = dataBytes[i] ^ keyBytes[i % keyBytes.length];
-  }
-  return uint8ToBase64(result);
-};
 
-const decrypt = (encoded: string): string => {
-  const keyBytes = toUint8Array(ENCRYPTION_KEY);
-  const binary = atob(encoded);
-  const dataBytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    dataBytes[i] = binary.charCodeAt(i);
-  }
-  const result = new Uint8Array(dataBytes.length);
-  for (let i = 0; i < dataBytes.length; i++) {
-    result[i] = dataBytes[i] ^ keyBytes[i % keyBytes.length];
-  }
-  return fromUint8Array(result);
+
+
+const isGuestProfile = (value: unknown): value is GuestProfile => {
+  return typeof value === 'object' && value !== null && typeof (value as Record<string, unknown>).name === 'string' && typeof (value as Record<string, unknown>).email === 'string';
 };
 
 const readGuestProfile = (): GuestProfile | null => {
   try {
     const raw = sessionStorage.getItem(GUEST_PROFILE_KEY);
     if (!raw) return null;
-    return JSON.parse(decrypt(raw)) as GuestProfile;
-  } catch {
+    const parsed = JSON.parse(raw);
+    if (isGuestProfile(parsed)) {
+      return parsed;
+    }
+    return null;
+  } catch (error) {
+    console.warn('Failed to read guest profile from sessionStorage', error);
     return null;
   }
 };
 
 const saveGuestProfile = (profile: GuestProfile): void => {
-  sessionStorage.setItem(GUEST_PROFILE_KEY, encrypt(JSON.stringify(profile)));
+  sessionStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(profile));
 };
 
 export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
@@ -126,8 +106,8 @@ export const GuestProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           listener.unsubscribe();
         }
-      } catch {
-        // Silently fail - auth state changes are best-effort
+      } catch (error) {
+        console.warn('Failed to setup auth listener', error);
       }
     };
 
@@ -151,3 +131,4 @@ export const useGuest = () => {
   if (!ctx) throw new Error('useGuest must be used within GuestProvider');
   return ctx;
 };
+
