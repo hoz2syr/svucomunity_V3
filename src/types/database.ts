@@ -125,6 +125,65 @@ export type UserCourseProgressInsert = {
   status: 'passed' | 'carried';
 };
 
+export type RawExtraction = {
+  id: string;
+  user_id: string;
+  raw_markdown: string;
+  detected_schema: Json;
+  created_at: Timestamp;
+};
+
+export type ExtractedCourseRecord = {
+  id: string;
+  extraction_id: string;
+  course_name: string;
+  semester_code: string;
+  full_code: string;
+  instructor_name: string | null;
+  instructor_username: string | null;
+  major: string;
+  course_key: string;
+  section: string | null;
+  semester_year: string;
+  discovered_course_code: string | null;
+  discovered_instructor_username: string | null;
+  created_at: Timestamp;
+};
+
+export type DiscoveredCourse = {
+  course_code: string;
+  major: string;
+  course_key: string;
+  course_name: string;
+  section: string | null;
+  semester_code: string;
+  seen_count: number;
+  first_seen_at: Timestamp;
+  last_seen_at: Timestamp;
+  is_verified: boolean;
+  verified_at: Timestamp | null;
+  verified_by: string | null;
+};
+
+export type DiscoveredInstructor = {
+  instructor_username: string;
+  full_name: string;
+  seen_count: number;
+  first_seen_at: Timestamp;
+  last_seen_at: Timestamp;
+  is_verified: boolean;
+  verified_at: Timestamp | null;
+  verified_by: string | null;
+};
+
+export type DiscoveredMajor = {
+  major_code: string;
+  major_name_ar: string | null;
+  major_name_en: string | null;
+  seen_count: number;
+  first_seen_at: Timestamp;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -177,6 +236,37 @@ export type Database = {
         Row: UserCourseProgress;
         Insert: Omit<UserCourseProgress, 'updated_at'> & { user_id: string };
         Update: Partial<Omit<UserCourseProgress, 'user_id' | 'course_code'>>;
+      };
+      raw_extractions: {
+        Row: RawExtraction;
+        Insert: Omit<RawExtraction, 'id' | 'created_at'> & { user_id: string };
+        Update: Partial<Omit<RawExtraction, 'id' | 'user_id' | 'created_at'>>;
+      };
+      extracted_courses: {
+        Row: ExtractedCourseRecord;
+        Insert: Omit<ExtractedCourseRecord, 'id' | 'created_at'> & {
+          extraction_id: string;
+        };
+        Update: Partial<Omit<ExtractedCourseRecord, 'id' | 'extraction_id' | 'created_at'>>;
+      };
+      discovered_courses: {
+        Row: DiscoveredCourse;
+        Insert: Omit<DiscoveredCourse, 'first_seen_at' | 'last_seen_at'> & {
+          course_code: string;
+        };
+        Update: Partial<Omit<DiscoveredCourse, 'course_code'>>;
+      };
+      discovered_instructors: {
+        Row: DiscoveredInstructor;
+        Insert: Omit<DiscoveredInstructor, 'first_seen_at' | 'last_seen_at'> & {
+          instructor_username: string;
+        };
+        Update: Partial<Omit<DiscoveredInstructor, 'instructor_username'>>;
+      };
+      discovered_majors: {
+        Row: DiscoveredMajor;
+        Insert: Omit<DiscoveredMajor, 'first_seen_at'> & { major_code: string };
+        Update: Partial<Omit<DiscoveredMajor, 'major_code'>>;
       };
     };
   };
