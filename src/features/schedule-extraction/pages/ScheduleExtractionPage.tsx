@@ -9,8 +9,11 @@ import { EditDraftModal } from '../components/EditDraftModal';
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { GroupDetailsModal } from '../components/GroupDetailsModal';
 import { useScheduleMatching } from '../hooks';
+import { useCourseMatching } from '../hooks/useCourseMatching';
 import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
+import { saveRawExtraction, saveExtractedCourses } from '../services/extractionService.supabase';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
+import type { TableSchema } from '../utils/schemaDetection';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -63,6 +66,16 @@ export function ScheduleExtractionPage() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [editingDraft, setEditingDraft] = useState<DraftGroup | null>(null);
   const [creatingFromCourse, setCreatingFromCourse] = useState<ExtractedCourse | null>(null);
+  const [extractionId, setExtractionId] = useState<string | null>(null);
+  const [isSavingExtraction, setIsSavingExtraction] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const {
+    matchedCourses,
+    studyGroupSuggestions,
+    isMatching,
+    refetch: _refetchMatching,
+  } = useCourseMatching(extractionId);
 
   const handleFileSelect = useCallback(async (file: File) => {
     const url = URL.createObjectURL(file);
@@ -85,6 +98,36 @@ export function ScheduleExtractionPage() {
       console.error('Failed to process image:', err);
     }
   }, [extract]);
+
+  const handleSaveExtraction = useCallback(async () => {
+    if (!session?.user || !result) return;
+    setIsSavingExtraction(true);
+    setSaveError(null);
+    try {
+      const rawMarkdown = JSON.stringify(result);
+      const schema: TableSchema = { columns: 0, hasSeparator: false, columnOrder: [] };
+      const rawResult = await saveRawExtraction(session.user.id, rawMarkdown, schema);
+      if (rawResult.error) {
+        setSaveError(rawResult.error.message);
+        return;
+      }
+      const newExtractionId = rawResult.data?.id;
+      if (!newExtractionId) {
+        setSaveError('فشل حفظ الاستخراج');
+        return;
+      }
+      const coursesResult = await saveExtractedCourses(newExtractionId, result.courses);
+      if (coursesResult.error) {
+        setSaveError(coursesResult.error.message);
+        return;
+      }
+      setExtractionId(newExtractionId);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'فشل حفظ الاستخراج');
+    } finally {
+      setIsSavingExtraction(false);
+    }
+  }, [session, result]);
 
   const handleOpenGroupDetails = useCallback(async (groupId: string) => {
     setSelectedGroupId(groupId);
@@ -295,6 +338,22 @@ export function ScheduleExtractionPage() {
               />
             ))}
           </div>
+
+          {!extractionId && (
+            <button
+              onClick={handleSaveExtraction}
+              disabled={isSavingExtraction}
+              className="w-full py-3 px-4 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white rounded-xl text-sm font-medium transition-colors"
+            >
+              {isSavingExtraction ? 'جاري الحفظ...' : 'حفظ وتحليل المواد'}
+            </button>
+          )}
+
+          {saveError && (
+            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+              <p className="text-rose-400 text-sm">{saveError}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -314,6 +373,117 @@ export function ScheduleExtractionPage() {
                 draft={draft}
                 onEdit={handleEditDraft}
               />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {extractionId && isMatching && (
+        <div className="flex items-center gap-3 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+          <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-indigo-300 text-sm">جاري تحليل المواد واقتراح المجموعات...</p>
+        </div>
+      )}
+
+      {extractionId && matchedCourses.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="text-xl font-bold text-white">حالة المواد</h2>
+            <span className="text-sm text-slate-500">
+              ({matchedCourses.length})
+            </span>
+          </div>
+          <div className="grid gap-4">
+            {matchedCourses.map((course) => (
+              <div
+                key={course.code}
+                className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl"
+              >
+                <div>
+                  <p className="text-white font-medium text-sm">{course.name}</p>
+                  <p className="text-slate-500 text-xs mt-1">{course.code}</p>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    course.status === 'new'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : course.status === 'passed'
+                      ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
+                      : course.status === 'carried'
+                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                      : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                  }`}
+                >
+                  {course.status === 'new'
+                    ? 'جديد'
+                    : course.status === 'passed'
+                    ? 'ناجح'
+                    : course.status === 'carried'
+                    ? 'نقل'
+                    : 'راسب'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {extractionId && studyGroupSuggestions.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="text-xl font-bold text-white">المجموعات المقترحة</h2>
+            <span className="text-sm text-slate-500">
+              ({studyGroupSuggestions.length})
+            </span>
+          </div>
+          <p className="text-sm text-slate-400">
+            مجموعات دراسية مقترحة بناءً على موادك
+          </p>
+          <div className="grid gap-4">
+            {studyGroupSuggestions.map((suggestion) => (
+              <div
+                key={suggestion.group.id}
+                className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl space-y-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm truncate">
+                      {suggestion.group.course_name}
+                    </p>
+                    <p className="text-slate-500 text-xs mt-1">
+                      {suggestion.group.course_code} • {suggestion.group.major}
+                    </p>
+                  </div>
+                  <span className="text-xs text-indigo-400 font-medium whitespace-nowrap">
+                    {suggestion.relevanceScore}% تطابق
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {suggestion.reasons.slice(0, 3).map((reason, idx) => (
+                    <span
+                      key={`${suggestion.group.id}-reason-${idx}`}
+                      className="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 rounded-full text-xs"
+                    >
+                      {reason}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500">
+                    {suggestion.group.current_members}/{suggestion.group.max_members} عضو
+                  </span>
+                  <span className="text-xs text-slate-600">•</span>
+                  <span className="text-xs text-slate-500">
+                    {suggestion.group.creator_name}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleOpenGroupDetails(suggestion.group.id)}
+                  className="w-full py-2 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 rounded-lg text-sm font-medium transition-colors"
+                >
+                  عرض المجموعة
+                </button>
+              </div>
             ))}
           </div>
         </div>
