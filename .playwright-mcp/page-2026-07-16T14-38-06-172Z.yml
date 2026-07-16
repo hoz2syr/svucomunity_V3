@@ -1,0 +1,18 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - heading "لا يمكن الوصول إلى الموقع الإلكتروني هذا" [level=1] [ref=e7]
+    - paragraph [ref=e8]:
+      - text: رفض
+      - strong [ref=e9]: localhost
+      - text: الاتصال.
+    - generic [ref=e10]:
+      - paragraph [ref=e11]: "يمكنك محاولة:"
+      - list [ref=e12]:
+        - listitem [ref=e13]: التحقق من الاتصال
+        - listitem [ref=e14]:
+          - link "التحقق من الخادم الوكيل والجدار الناري" [ref=e15] [cursor=pointer]:
+            - /url: "#buttons"
+    - generic [ref=e16]: ERR_CONNECTION_REFUSED
+  - generic [ref=e17]:
+    - button "إعادة التحميل" [ref=e19] [cursor=pointer]
+    - button "التفاصيل" [ref=e20] [cursor=pointer]

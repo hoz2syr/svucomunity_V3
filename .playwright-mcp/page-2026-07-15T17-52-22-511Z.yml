@@ -1,0 +1,79 @@
+- generic [ref=f1e3]:
+  - banner [ref=f1e4]:
+    - generic [ref=f1e10]:
+      - heading "نظام تحويل الدفاتر المخطوطة" [level=1] [ref=f1e11]
+      - paragraph [ref=f1e12]: تحويل ذكي بالذكاء الاصطناعي
+    - navigation "التنقل الرئيسي" [ref=f1e13]:
+      - button "تحويل OCR" [ref=f1e14] [cursor=pointer]
+      - button "الدردشة" [ref=f1e19] [cursor=pointer]
+    - generic [ref=f1e23]: يدعم العربية، المعادلات، والجداول
+  - main [ref=f1e27]:
+    - generic [ref=f1e29]:
+      - generic [ref=f1e31]:
+        - generic [ref=f1e38]:
+          - heading "Document Intelligence" [level=2] [ref=f1e39]
+          - paragraph [ref=f1e40]: OCR متقدم
+        - generic [ref=f1e41]:
+          - generic [ref=f1e42]:
+            - generic [ref=f1e43]: رفع ملف
+            - generic [ref=f1e45] [cursor=pointer]:
+              - paragraph [ref=f1e50]: اسحب الملف هنا أو انقر للاختيار
+              - paragraph [ref=f1e51]: JPG, JPEG, PNG, BMP, TIFF, PDF
+              - generic [ref=f1e52]: حتى 50MB
+          - separator
+          - generic [ref=f1e53]:
+            - generic [ref=f1e60]:
+              - heading "Document Intelligence" [level=2] [ref=f1e61]
+              - paragraph [ref=f1e62]: OCR متقدم
+            - generic [ref=f1e63]:
+              - generic [ref=f1e64]:
+                - generic [ref=f1e65]: رفع ملف
+                - generic [ref=f1e67] [cursor=pointer]:
+                  - paragraph [ref=f1e72]: اسحب الملف هنا أو انقر للاختيار
+                  - paragraph [ref=f1e73]: JPG, JPEG, PNG, BMP, TIFF, PDF
+                  - generic [ref=f1e74]: حتى 50MB
+              - separator
+              - generic [ref=f1e75]:
+                - generic [ref=f1e76]: الإعدادات
+                - generic [ref=f1e82]:
+                  - generic [ref=f1e83]:
+                    - generic [ref=f1e84]: النموذج
+                    - button [ref=f1e86]
+                  - combobox [ref=f1e90] [cursor=pointer]:
+                    - generic [ref=f1e91]: mistral-ocr-latest
+                    - img: ▼
+                  - textbox [ref=f1e92]: mistral-ocr-latest
+                - generic [ref=f1e93]:
+                  - generic [ref=f1e94]: الصفحات
+                  - 'textbox "مثال: 1,2,3 أو 1-5" [ref=f1e95]'
+                - generic [ref=f1e96]:
+                  - generic [ref=f1e97]:
+                    - generic [ref=f1e98]: استخراج الصور
+                    - switch [checked] [ref=f1e99]
+                    - checkbox [checked] [ref=f1e100]
+                  - generic [ref=f1e101]:
+                    - generic [ref=f1e102]: رأس وتذييل
+                    - switch [ref=f1e103]
+                    - checkbox [ref=f1e104]
+                - generic [ref=f1e105]:
+                  - generic [ref=f1e106]: تنسيق الجداول
+                  - combobox [ref=f1e107] [cursor=pointer]:
+                    - generic [ref=f1e108]: markdown
+                    - img: ▼
+                  - textbox [ref=f1e109]: markdown
+                - generic [ref=f1e110]:
+                  - generic [ref=f1e111]: درجات الثقة
+                  - combobox [ref=f1e112] [cursor=pointer]:
+                    - generic [ref=f1e113]: none
+                    - img: ▼
+                  - textbox [ref=f1e114]: none
+      - generic [ref=f1e119] [cursor=pointer]:
+        - heading "اسحب الملف هنا أو انقر لاختيار ملف" [level=3] [ref=f1e128]
+        - paragraph [ref=f1e129]: ندعم الصور و PDF من الدفاتر المخطوطة والوثائق العلمية
+        - generic [ref=f1e130]:
+          - generic [ref=f1e131]: JPG
+          - generic [ref=f1e132]: PNG
+          - generic [ref=f1e133]: BMP
+          - generic [ref=f1e134]: TIFF
+          - generic [ref=f1e135]: PDF
+          - generic [ref=f1e137]: حتى 50MB

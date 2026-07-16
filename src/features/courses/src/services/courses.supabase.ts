@@ -12,7 +12,7 @@ export async function loadProgress(userId: string): Promise<ServiceResult<UserCo
     const client = await getSupabaseClient();
     const { data, error } = await client
       .from('user_course_progress')
-      .select('*')
+      .select('user_id, course_code, status, updated_at')
       .eq('user_id', userId);
 
     if (error) return { data: null, error: new Error(error.message) };
@@ -34,7 +34,7 @@ export async function saveProgress(
     const { data, error } = await client
       .from('user_course_progress')
       .upsert({ ...progress, user_id: userId, updated_at: new Date().toISOString() })
-      .select()
+      .select('user_id, course_code, status, updated_at')
       .single();
 
     if (error) return { data: null, error: new Error(error.message) };

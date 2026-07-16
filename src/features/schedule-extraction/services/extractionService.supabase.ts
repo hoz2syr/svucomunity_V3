@@ -21,7 +21,7 @@ export async function saveRawExtraction(
       raw_markdown: rawMarkdown,
       detected_schema: schema as unknown as Json,
     })
-    .select()
+    .select('id, user_id, raw_markdown, detected_schema, created_at')
     .single();
 
   if (error) {
@@ -57,7 +57,7 @@ export async function saveExtractedCourses(
   const { data, error } = await client
     .from('extracted_courses')
     .insert(rows)
-    .select();
+    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at');
 
   if (error) {
     return { data: null, error: new Error(error.message) };
@@ -95,7 +95,7 @@ export async function upsertDiscoveredCourses(
           count: 'exact',
         }
       )
-      .select()
+      .select('course_code, major, course_key, course_name, section, semester_code, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
       .single();
 
     if (error) {
@@ -140,7 +140,7 @@ export async function upsertDiscoveredInstructors(
           count: 'exact',
         }
       )
-      .select()
+      .select('instructor_username, full_name, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
       .single();
 
     if (error) {
@@ -178,7 +178,7 @@ export async function upsertDiscoveredMajors(
           count: 'exact',
         }
       )
-      .select()
+      .select('major_code, major_name_ar, major_name_en, seen_count, first_seen_at')
       .single();
 
     if (error) {
@@ -205,7 +205,20 @@ export async function loadCurrentSemesterCourses(
   const { data, error } = await client
     .from('extracted_courses')
     .select(`
-      *,
+      id,
+      extraction_id,
+      course_name,
+      semester_code,
+      full_code,
+      instructor_name,
+      instructor_username,
+      major,
+      course_key,
+      section,
+      semester_year,
+      discovered_course_code,
+      discovered_instructor_username,
+      created_at,
       raw_extractions!inner(user_id)
     `)
     .eq('raw_extractions.user_id', userId)
@@ -228,7 +241,7 @@ export async function loadDiscoveredCourses(
   const client = await getSupabaseClient();
   let query = client
     .from('discovered_courses')
-    .select('*')
+    .select('course_code, major, course_key, course_name, section, semester_code, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
     .order('seen_count', { ascending: false });
 
   if (major) {
@@ -251,7 +264,7 @@ export async function loadDiscoveredInstructors(): Promise<ServiceResult<Discove
   const client = await getSupabaseClient();
   const { data, error } = await client
     .from('discovered_instructors')
-    .select('*')
+    .select('instructor_username, full_name, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
     .order('seen_count', { ascending: false });
 
   if (error) {
@@ -268,7 +281,7 @@ export async function loadDiscoveredMajors(): Promise<ServiceResult<DiscoveredMa
   const client = await getSupabaseClient();
   const { data, error } = await client
     .from('discovered_majors')
-    .select('*')
+    .select('major_code, major_name_ar, major_name_en, seen_count, first_seen_at')
     .order('seen_count', { ascending: false });
 
   if (error) {

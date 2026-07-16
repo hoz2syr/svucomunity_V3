@@ -32,19 +32,19 @@ async function callOCR(base64DataUrl: string): Promise<string> {
     console.error('[ocrParser] OCR failed - status:', status, 'message:', errMsg);
 
     if (errMsg.includes('OCR_API_KEY_NOT_CONFIGURED')) {
-      throw new Error('مفتاح OCR غير مهيأ. تأكد من إضافة OCR_API_KEY في Supabase Dashboard.');
+      throw new Error('خطأ في إعداد خدمة OCR. يرجى المحاولة لاحقاً.');
     }
     if (errMsg.includes('quota') || errMsg.includes('limit') || status === 429) {
-      throw new Error('OCR_QUOTA_EXCEEDED: تم تجاوز الحد المسموح من طلبات OCR. حاول لاحقاً.');
+      throw new Error('تم تجاوز الحد المسموح من طلبات المعالجة. يرجى المحاولة لاحقاً.');
     }
     if (errMsg.includes('key') || errMsg.includes('invalid') || status === 401) {
-      throw new Error('OCR_API_KEY_INVALID: مفتاح OCR غير صالح. تحقق من المفتاح في Supabase Dashboard.');
+      throw new Error('خطأ في مصادقة خدمة OCR. يرجى المحاولة لاحقاً.');
     }
     if (errMsg.includes('OCR_NO_TEXT') || status === 422) {
-      throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة. تأكد من أن الصورة واضحة وتحتوي على جدول.');
+      throw new Error('لم يتم العثور على نص في الصورة. تأكد من أن الصورة واضحة وتحتوي على جدول.');
     }
     if (errMsg.includes('OCR_UPSTREAM_ERROR') || errMsg.includes('network') || errMsg.includes('fetch') || status === 502) {
-      throw new Error('OCR_NETWORK_ERROR: فشل الاتصال بخدمة OCR. تحقق من الإنترنت.');
+      throw new Error('فشل الاتصال بخدمة المعالجة. تحقق من الإنترنت.');
     }
     if (errMsg.includes('OCR_PROCESSING_ERROR') || status === 500) {
       throw new Error(`OCR_PROCESSING_ERROR: خطأ في معالجة الصورة. ${errMsg ? 'التفاصيل: ' + errMsg : ''}`);
@@ -55,7 +55,7 @@ async function callOCR(base64DataUrl: string): Promise<string> {
   const text = (data as { text?: string })?.text;
   if (!text) {
     console.warn('[ocrParser] OCR response missing text field, data:', data);
-    throw new Error('OCR_NO_TEXT: لم يتم العثور على نص في الصورة.');
+    throw new Error('لم يتم العثور على نص في الصورة.');
   }
 
   console.log('[ocrParser] OCR success, text length:', text.length);
@@ -238,3 +238,4 @@ export async function extractScheduleFromImage(
 
   return { result: parsed, validation };
 }
+

@@ -36,7 +36,7 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
 
     const { data, error } = await client
       .from('profiles')
-      .select('id, full_name, avatar_url, phone, major, role, created_at, updated_at')
+      .select('id, full_name, avatar_url, phone, major, current_semester, role, created_at, updated_at')
       .eq('id', userId)
       .maybeSingle();
 
@@ -57,7 +57,7 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
   }
 };
 
-export const updateProfile = async (userId: string, full_name: string, username: string, major?: string): Promise<UpdateProfileResult> => {
+export const updateProfile = async (userId: string, full_name: string, username: string, major?: string, current_semester?: string): Promise<UpdateProfileResult> => {
   if (!hasSupabaseEnv()) {
     return { data: null, error: createMissingEnvError() };
   }
@@ -73,6 +73,9 @@ export const updateProfile = async (userId: string, full_name: string, username:
     const updateData: Record<string, unknown> = { full_name, username };
     if (major !== undefined) {
       updateData.major = major;
+    }
+    if (current_semester !== undefined) {
+      updateData.current_semester = current_semester;
     }
 
     const { error } = await client

@@ -1,0 +1,36 @@
+- generic [ref=f6e4]:
+  - generic [ref=f6e5]:
+    - link "SVU" [ref=f6e6] [cursor=pointer]:
+      - /url: /
+    - heading "إنشاء حساب جديد" [level=1] [ref=f6e9]
+    - paragraph [ref=f6e10]: انضم إلى SVU Community اليوم
+  - generic [ref=f6e11]:
+    - generic [ref=f6e12]:
+      - generic [ref=f6e13]:
+        - generic [ref=f6e14]: الاسم الكامل
+        - textbox "الاسم الكامل" [ref=f6e16]:
+          - /placeholder: أدخل اسمك الكامل
+      - generic [ref=f6e17]:
+        - generic [ref=f6e18]: البريد الإلكتروني
+        - textbox "البريد الإلكتروني" [ref=f6e20]:
+          - /placeholder: أدخل بريدك الإلكتروني
+      - generic [ref=f6e21]:
+        - generic [ref=f6e22]:
+          - generic [ref=f6e23]: كلمة المرور
+          - generic [ref=f6e24]:
+            - textbox "كلمة المرور" [ref=f6e25]:
+              - /placeholder: أدخل كلمة المرور
+            - button "إظهار كلمة المرور" [ref=f6e26]
+        - paragraph [ref=f6e30]: 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص
+        - button "المتابعة كزائر" [ref=f6e31]
+      - button "إنشاء الحساب" [ref=f6e35]
+    - generic [ref=f6e37]: أو
+    - button [ref=f6e42]:
+      - img "Google" [ref=f6e43]
+      - text: إنشاء حساب عبر Google
+    - generic [ref=f6e44]:
+      - generic [ref=f6e45]: لديك حساب بالفعل؟
+      - link "سجل دخولك" [ref=f6e46] [cursor=pointer]:
+        - /url: /login
+  - link "العودة للرئيسية" [ref=f6e48] [cursor=pointer]:
+    - /url: /

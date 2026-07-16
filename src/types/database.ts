@@ -19,6 +19,7 @@ export type Profile = {
   provider: string | null;
   provider_id: string | null;
   major: string | null;
+  current_semester: string | null;
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -29,6 +30,9 @@ export type Notification = {
   title: string;
   body: string | null;
   read: boolean;
+  type: string;
+  created_by: string | null;
+  priority: string;
   created_at: Timestamp;
 };
 

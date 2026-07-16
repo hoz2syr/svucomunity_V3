@@ -31,11 +31,13 @@ html {
     white-space: nowrap;
     border-inline-start: 2px solid var(--color-info);
     animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+    transform-origin: right;
+    will-change: transform;
   }
 
   @keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 
   @keyframes blink-caret {

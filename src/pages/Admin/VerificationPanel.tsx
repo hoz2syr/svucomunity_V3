@@ -13,6 +13,7 @@ import {
   useVerifyInstructor,
 } from '../../features/admin/hooks/useAdminVerification';
 import { CheckCircle2, XCircle, BookOpen, User, Search, Shield, AlertTriangle, RefreshCw } from 'lucide-react';
+import { ConfirmActionModal } from './ConfirmActionModal';
 
 type Tab = 'courses' | 'instructors';
 type ConfirmAction = { type: 'course'; courseCode: string; isVerified: boolean; courseName: string } | { type: 'instructor'; instructorUsername: string; isVerified: boolean; instructorName: string };
@@ -341,45 +342,13 @@ export function VerificationPanel() {
       )}
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
-          <GlassCard className="relative z-10 w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-white mb-2">
-              {confirmAction.isVerified ? 'تأكيد التحقق' : 'تأكيد الرفض'}
-            </h2>
-            <p className="text-sm text-slate-400 mb-6">
-              {confirmAction.type === 'course' ? (
-                <>
-                  هل أنت متأكد من {confirmAction.isVerified ? 'تحقق' : 'رفض'} المادة{' '}
-                  <span className="text-white font-medium">{confirmAction.courseName}</span>؟
-                </>
-              ) : (
-                <>
-                  هل أنت متأكد من {confirmAction.isVerified ? 'تحقق' : 'رفض'} المحاضر{' '}
-                  <span className="text-white font-medium">{confirmAction.instructorName}</span>؟
-                </>
-              )}
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setConfirmAction(null)}
-                disabled={confirmAction.type === 'course' ? verifyCourseMutation.isPending : verifyInstructorMutation.isPending}
-                className="flex-1"
-              >
-                إلغاء
-              </Button>
-              <Button
-                variant={confirmAction.isVerified ? 'primary' : 'danger'}
-                onClick={confirmAction.type === 'course' ? handleConfirmCourse : handleConfirmInstructor}
-                disabled={confirmAction.type === 'course' ? verifyCourseMutation.isPending : verifyInstructorMutation.isPending}
-                className="flex-1"
-              >
-                {confirmAction.type === 'course' ? (verifyCourseMutation.isPending ? 'جاري التنفيذ...' : 'تأكيد') : (verifyInstructorMutation.isPending ? 'جاري التنفيذ...' : 'تأكيد')}
-              </Button>
-            </div>
-          </GlassCard>
-        </div>
+        <ConfirmActionModal
+          action={confirmAction}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={confirmAction.type === 'course' ? handleConfirmCourse : handleConfirmInstructor}
+          isCoursePending={verifyCourseMutation.isPending}
+          isInstructorPending={verifyInstructorMutation.isPending}
+        />
       )}
     </div>
   );

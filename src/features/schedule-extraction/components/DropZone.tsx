@@ -94,6 +94,9 @@ export function DropZone({
             <img
               src={previewUrl}
               alt="معاينة الجدول"
+              loading="lazy"
+              width="256"
+              height="256"
               className="max-h-64 mx-auto rounded-xl shadow-lg"
             />
             <button

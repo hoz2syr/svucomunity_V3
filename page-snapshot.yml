@@ -1,0 +1,118 @@
+- generic [ref=f1e5]:
+  - link "تخطي إلى المحتوى الرئيسي" [ref=f1e6] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation [ref=f1e8]:
+    - generic [ref=f1e9]:
+      - link "SVU Community" [ref=f1e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f1e13]:
+        - link "المشاكل" [ref=f1e14] [cursor=pointer]:
+          - /url: "#problems"
+        - link "الميزات" [ref=f1e15] [cursor=pointer]:
+          - /url: "#features"
+        - link "كيف نبدأ" [ref=f1e16] [cursor=pointer]:
+          - /url: "#how"
+      - link "سجّل الدخول ▾" [ref=f1e18] [cursor=pointer]:
+        - /url: /login
+        - generic [ref=f1e20]
+  - generic [ref=f1e22]:
+    - generic [ref=f1e23]:
+      - heading "SVU Community" [level=1] [ref=f1e24]
+      - generic [ref=f1e25]:
+        - paragraph [ref=f1e27]: مجتمعك الجامعي — في مكان واحد
+        - paragraph [ref=f1e28]: انضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية، وشارك مجموعاتك ومقرراتك وجدول دراستك بكل سهولة، دون أن تتيه في محادثات الواتساب.
+        - generic [ref=f1e29]
+    - link [ref=f1e39] [cursor=pointer]:
+      - /url: "#problems"
+  - main [ref=f1e42]:
+    - generic [ref=f1e68]:
+      - heading "هل تعاني من هذا كل فصل؟" [level=2] [ref=f1e70]
+      - generic [ref=f1e71]:
+        - generic [ref=f1e74]
+        - generic [ref=f1e86]
+        - generic [ref=f1e97]
+    - generic [ref=f1e108]:
+      - generic [ref=f1e109]:
+        - generic [ref=f1e110]: الحل
+        - heading "منصة واحدة. كل ما تحتاجه." [level=2] [ref=f1e112]
+        - paragraph [ref=f1e113]: SVU Community تجمع مجموعاتك الدراسية، مقرراتك، جدولك، ومصادر التعلم في تجربة واحدة متكاملة.
+      - generic [ref=f1e114]:
+        - generic [ref=f1e115]: 0 +500 طالب مسجل
+        - generic [ref=f1e117]: 0 +80 مجموعة دراسية
+        - generic [ref=f1e119]: 0 +120 مقرر مفهرس
+    - generic [ref=f1e122]:
+      - generic [ref=f1e123]:
+        - generic [ref=f1e124]: كل المنصة بأدواتها
+        - heading "لوحة تحكم متكاملة لجامعتك" [level=2] [ref=f1e126]
+        - paragraph [ref=f1e127]: كل ما تحتاجه للنجاح، منظم وسهل الوصول ومصمم بذكاء ليرافقك في مسيرتك.
+      - generic [ref=f1e128]:
+        - generic [ref=f1e132]
+        - generic [ref=f1e167]
+        - generic [ref=f1e195]
+        - generic [ref=f1e213]
+    - generic [ref=f1e296]:
+      - generic [ref=f1e297]:
+        - heading "كيف تبدأ؟" [level=2] [ref=f1e298]
+        - paragraph [ref=f1e299]: أربع خطوات فقط
+      - generic [ref=f1e301]:
+        - generic [ref=f1e302]
+        - generic [ref=f1e312]
+        - generic [ref=f1e322]
+        - generic [ref=f1e334]
+    - generic [ref=f1e347]:
+      - generic [ref=f1e348]:
+        - generic [ref=f1e349]: تحويل الأوراق إلى ملفات رقمية • AI Studio
+        - heading "من الورق إلى الرقمية — في ثوانٍ" [level=2] [ref=f1e351]
+        - paragraph [ref=f1e352]: استوديو ذكاء اصطناعي متكامل يقرأ أوراقك، يفهم محتواها، ويحولها إلى ملفات رقمية منظمة وجاهزة للتعديل — مع دعم احترافي للمعادلات والمخططات والكتابة اليدوية.
+        - paragraph [ref=f1e353]: قيد التطوير — نعمل على بناء تجربة تحويل ذكية تجمع بين OCR الحديث، معالجة الصور، وإنتاج المخططات والمعادلات تلقائياً.
+      - generic [ref=f1e354]:
+        - generic [ref=f1e356]
+        - generic [ref=f1e366]
+        - generic [ref=f1e375]
+        - generic [ref=f1e382]
+        - generic [ref=f1e389]
+        - generic [ref=f1e396]
+      - generic [ref=f1e404]:
+        - generic [ref=f1e409]
+        - link "اقترح ميزة" [ref=f1e412] [cursor=pointer]:
+          - /url: "#join"
+    - generic [ref=f1e413]:
+      - generic [ref=f1e416]:
+        - generic [ref=f1e417]: متاح الآن
+        - heading "الاختبارات التفاعلية" [level=2] [ref=f1e419]
+        - paragraph [ref=f1e420]: أنشئ اختبارات ذكية بالذكاء الاصطناعي، شاركها مع زملائك، وتنافس على أفضل النتائج — كل هذا داخل المنصة مباشرة.
+        - link "استكشف الاختبارات" [ref=f1e421] [cursor=pointer]:
+          - /url: /exam/browse
+      - generic [ref=f1e432]:
+        - generic [ref=f1e436]
+        - generic [ref=f1e464]
+        - generic [ref=f1e494]
+        - generic [ref=f1e522]
+        - generic [ref=f1e557]
+    - generic [ref=f1e609]:
+      - heading "ابدأ رحلتك الجامعية بشكل صحيح" [level=2] [ref=f1e611]
+      - paragraph [ref=f1e613]: سجّل الآن وانضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية.
+      - link "إنشاء حساب مجاني" [ref=f1e615] [cursor=pointer]:
+        - /url: /register
+      - button "تجربة المخطط كزائر" [ref=f1e617]
+      - generic [ref=f1e622]:
+        - text: لديك حساب بالفعل؟
+        - link "سجّل الدخول →" [ref=f1e623] [cursor=pointer]:
+          - /url: /login
+  - contentinfo [ref=f1e56]:
+    - generic [ref=f1e57]:
+      - generic [ref=f1e58]:
+        - generic [ref=f1e59]: SVU Community
+        - paragraph [ref=f1e60]: مجتمع طلاب تقنية المعلومات في SVU
+      - generic [ref=f1e61]:
+        - link "الرئيسية" [ref=f1e62] [cursor=pointer]:
+          - /url: /
+        - link "المجموعات" [ref=f1e63] [cursor=pointer]:
+          - /url: /#features
+        - link "المقررات" [ref=f1e64] [cursor=pointer]:
+          - /url: /#features
+        - link "الجدول" [ref=f1e65] [cursor=pointer]:
+          - /url: /#how
+        - link "تسجيل الدخول" [ref=f1e66] [cursor=pointer]:
+          - /url: /login
+      - generic [ref=f1e67]: © 2026 SVU Community. جميع الحقوق محفوظة.

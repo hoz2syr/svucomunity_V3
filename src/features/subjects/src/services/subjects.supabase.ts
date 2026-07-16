@@ -12,7 +12,7 @@ export async function getReferencesByCourseCode(courseCode: string): Promise<Ser
     const client = await getSupabaseClient();
     const { data, error } = await client
       .from('subject_references')
-      .select('*')
+      .select('id, course_code, user_id, type, title, url, description, created_at')
       .eq('course_code', courseCode)
       .order('created_at', { ascending: false });
 
@@ -35,7 +35,7 @@ export async function insertReference(
     const { data, error } = await client
       .from('subject_references')
       .insert({ ...reference, user_id: userId })
-      .select()
+      .select('id, course_code, user_id, type, title, url, description, created_at')
       .single();
 
     if (error) return { data: null, error: new Error(error.message) };
@@ -67,7 +67,7 @@ export async function loadUserProgress(userId: string): Promise<ServiceResult<Us
     const client = await getSupabaseClient();
     const { data, error } = await client
       .from('user_course_progress')
-      .select('*')
+      .select('user_id, course_code, status, updated_at')
       .eq('user_id', userId);
 
     if (error) return { data: null, error: new Error(error.message) };
@@ -89,7 +89,7 @@ export async function upsertUserProgress(
     const { data, error } = await client
       .from('user_course_progress')
       .upsert({ ...progress, user_id: userId, updated_at: new Date().toISOString() })
-      .select()
+      .select('user_id, course_code, status, updated_at')
       .single();
 
     if (error) return { data: null, error: new Error(error.message) };

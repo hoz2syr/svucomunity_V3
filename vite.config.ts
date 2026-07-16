@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import compression from 'vite-plugin-compression';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Content-Security-Policy
@@ -50,7 +51,18 @@ export default defineConfig(() => {
   const isDev = process.env.NODE_ENV === 'development';
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      compression({
+        algorithm: 'gzip',
+        ext: '.gz',
+      }),
+      compression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+      }),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -81,6 +93,9 @@ export default defineConfig(() => {
             'vendor-query': ['@tanstack/react-query'],
             'vendor-supabase': ['@supabase/supabase-js'],
             'vendor-motion': ['motion'],
+            'vendor-mermaid': ['mermaid'],
+            'vendor-docx': ['docx'],
+            'vendor-katex': ['katex'],
           },
         },
       },

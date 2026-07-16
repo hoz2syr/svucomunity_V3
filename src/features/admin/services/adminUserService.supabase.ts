@@ -92,7 +92,7 @@ export async function getUserDetails(
 
   const { data: profile, error: profileError } = await client
     .from('profiles')
-    .select('*')
+    .select('id, full_name, email, username, role, provider, provider_id, major, created_at, updated_at')
     .eq('id', userId)
     .single();
 

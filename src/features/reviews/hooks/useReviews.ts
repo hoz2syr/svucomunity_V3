@@ -108,6 +108,6 @@ export function useReviewStats() {
       return result.data as { total: number; pending: number; responded: number; avgRating: number };
     },
     enabled: isAdmin,
-    staleTime: 30_000,
+    staleTime: 60_000,
   });
 }

@@ -12,11 +12,26 @@ interface Props {
   showErrorDetails?: boolean;
 }
 
+function sanitizeError(error: Error): { message: string; stack?: string } {
+  const redact = (text: string): string => {
+    return text
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
+      .replace(/\b(?:sk|pk|token|key|api|secret|password|auth|bearer)[a-zA-Z0-9_-]{20,}\b/gi, '[REDACTED_KEY]')
+      .replace(/\b\d{3,}\b/g, '[REDACTED_NUMBER]');
+  };
+
+  return {
+    message: redact(error.message),
+    stack: error.stack ? redact(error.stack) : undefined,
+  };
+}
+
 function logErrorToService(error: Error, errorInfo: ErrorInfo) {
+  const sanitized = sanitizeError(error);
   const payload = {
     timestamp: new Date().toISOString(),
-    message: error.message,
-    stack: error.stack,
+    message: sanitized.message,
+    stack: sanitized.stack,
     componentStack: errorInfo.componentStack,
   };
   if (typeof globalThis !== 'undefined' && 'console' in globalThis) {
@@ -24,7 +39,9 @@ function logErrorToService(error: Error, errorInfo: ErrorInfo) {
   }
   if (typeof Sentry !== 'undefined' && typeof Sentry.captureException === 'function') {
     try {
-      Sentry.captureException(error, {
+      const sanitizedError = new Error(sanitized.message);
+      sanitizedError.stack = sanitized.stack;
+      Sentry.captureException(sanitizedError, {
         contexts: {
           react: {
             componentStack: errorInfo.componentStack,

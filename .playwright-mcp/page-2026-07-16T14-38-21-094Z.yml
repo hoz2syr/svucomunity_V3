@@ -1,0 +1,50 @@
+- generic [ref=f2e5]:
+  - link "تخطي إلى المحتوى الرئيسي" [ref=f2e6] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation [ref=f2e8]:
+    - generic [ref=f2e9]:
+      - link "SVU Community" [ref=f2e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f2e13]:
+        - link "المشاكل" [ref=f2e14] [cursor=pointer]:
+          - /url: "#problems"
+        - link "الميزات" [ref=f2e15] [cursor=pointer]:
+          - /url: "#features"
+        - link "كيف نبدأ" [ref=f2e16] [cursor=pointer]:
+          - /url: "#how"
+      - link "سجّل الدخول ▾" [ref=f2e18] [cursor=pointer]:
+        - /url: /login
+        - generic [ref=f2e20]:
+          - text: سجّل الدخول
+          - generic [ref=f2e21]: ▾
+  - generic [ref=f2e22]:
+    - generic [ref=f2e23]:
+      - heading "SVU Community" [level=1] [ref=f2e24]
+      - generic [ref=f2e25]:
+        - paragraph [ref=f2e27]: مجتمعك الجامعي — في مكان واحد
+        - paragraph [ref=f2e28]: انضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية، وشارك مجموعاتك ومقرراتك وجدول دراستك بكل سهولة، دون أن تتيه في محادثات الواتساب.
+        - generic [ref=f2e29]:
+          - link [ref=f2e30] [cursor=pointer]:
+            - /url: "#join"
+          - link "اكتشف المنصة" [ref=f2e38] [cursor=pointer]:
+            - /url: "#features"
+    - link [ref=f2e39] [cursor=pointer]:
+      - /url: "#problems"
+  - main [ref=f2e42]
+  - contentinfo [ref=f2e56]:
+    - generic [ref=f2e57]:
+      - generic [ref=f2e58]:
+        - generic [ref=f2e59]: SVU Community
+        - paragraph [ref=f2e60]: مجتمع طلاب تقنية المعلومات في SVU
+      - generic [ref=f2e61]:
+        - link "الرئيسية" [ref=f2e62] [cursor=pointer]:
+          - /url: /
+        - link "المجموعات" [ref=f2e63] [cursor=pointer]:
+          - /url: /#features
+        - link "المقررات" [ref=f2e64] [cursor=pointer]:
+          - /url: /#features
+        - link "الجدول" [ref=f2e65] [cursor=pointer]:
+          - /url: /#how
+        - link "تسجيل الدخول" [ref=f2e66] [cursor=pointer]:
+          - /url: /login
+      - generic [ref=f2e67]: © 2026 SVU Community. جميع الحقوق محفوظة.

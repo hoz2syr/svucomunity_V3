@@ -177,11 +177,11 @@ export async function checkIsAdmin(userId: string): Promise<ServiceResult<boolea
   try {
     const client = await getSupabase();
     const { data } = await client
-      .from('users')
-      .select('is_admin')
+      .from('profiles')
+      .select('role')
       .eq('id', userId)
       .single();
-    return { data: !!data?.is_admin, error: null };
+    return { data: data?.role === 'admin', error: null };
   } catch {
     return { data: false, error: null };
   }
@@ -242,20 +242,24 @@ export async function updateGroup(groupId: string, updates: {
 }
 
 export async function getMyGroups(userId: string): Promise<ServiceResult<{ created: StudyGroup[]; joined: StudyGroup[] }>> {
-  const createdClient = await getSupabase();
-  const { data: created, error: createdError } = await createdClient
-    .from('groups')
-    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
-    .eq('creator_id', userId)
-    .order('created_at', { ascending: false });
+  const client = await getSupabase();
+  
+  const [createdResult, membershipsResult] = await Promise.all([
+    client
+      .from('groups')
+      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+      .eq('creator_id', userId)
+      .order('created_at', { ascending: false }),
+    client
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', userId),
+  ]);
+
+  const { data: created, error: createdError } = createdResult;
+  const { data: memberships, error: memberError } = membershipsResult;
 
   if (createdError) return { data: null, error: new Error(createdError.message) };
-
-  const { data: memberships, error: memberError } = await createdClient
-    .from('group_members')
-    .select('group_id')
-    .eq('user_id', userId);
-
   if (memberError) return { data: null, error: new Error(memberError.message) };
 
   const createdIds = new Set((created || []).map(g => g.id));
@@ -263,8 +267,7 @@ export async function getMyGroups(userId: string): Promise<ServiceResult<{ creat
 
   let joined: StudyGroup[] = [];
   if (joinedGroupIds.length > 0) {
-    const joinedClient = await getSupabase();
-    const { data: joinedData, error: joinedError } = await joinedClient
+    const { data: joinedData, error: joinedError } = await client
       .from('groups')
       .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
       .in('id', joinedGroupIds);

@@ -1,0 +1,31 @@
+- generic [ref=f5e4]:
+  - generic [ref=f5e5]:
+    - link "SVU" [ref=f5e6] [cursor=pointer]:
+      - /url: /
+    - heading "تسجيل الدخول" [level=1] [ref=f5e9]
+    - paragraph [ref=f5e10]: SVU Community
+  - generic [ref=f5e11]:
+    - generic [ref=f5e12]:
+      - generic [ref=f5e13]:
+        - generic [ref=f5e14]: البريد الإلكتروني
+        - textbox "البريد الإلكتروني" [ref=f5e16]:
+          - /placeholder: أدخل بريدك الإلكتروني
+      - generic [ref=f5e17]:
+        - generic [ref=f5e18]: كلمة المرور
+        - generic [ref=f5e19]:
+          - textbox "كلمة المرور" [ref=f5e20]:
+            - /placeholder: أدخل كلمة المرور
+          - button "إظهار كلمة المرور" [ref=f5e21]
+      - button "الدخول كزائر" [ref=f5e25]
+      - button "نسيت كلمة المرور؟" [ref=f5e29]
+      - button "تسجيل الدخول" [ref=f5e30]
+    - generic [ref=f5e32]: أو
+    - button [ref=f5e37]:
+      - img "Google" [ref=f5e38]
+      - text: تسجيل الدخول عبر Google
+    - generic [ref=f5e39]:
+      - generic [ref=f5e40]: ليس لديك حساب؟
+      - link "إنشاء حساب جديد" [ref=f5e41] [cursor=pointer]:
+        - /url: /register
+  - link "العودة للرئيسية" [ref=f5e43] [cursor=pointer]:
+    - /url: /

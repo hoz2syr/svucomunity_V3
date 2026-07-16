@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, memo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home } from 'lucide-react';
@@ -14,7 +14,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { useDashboardNotifications } from './useDashboardNotifications';
 import { useDashboardState, type DashboardModal, type SettingsTab } from './useDashboardState';
 
-export const DashboardPage = () => {
+export const DashboardPage = memo(function DashboardPage() {
   const navigate = useNavigate();
   const { session, profile, loading: authLoading } = useAuth();
   const {
@@ -44,6 +44,7 @@ export const DashboardPage = () => {
     email: profile?.email || session?.user?.email || '',
     role: profile?.role || 'طالب',
     major: profile?.major || '',
+    current_semester: profile?.current_semester || '',
   }), [session, profile]);
 
   useEffect(() => {

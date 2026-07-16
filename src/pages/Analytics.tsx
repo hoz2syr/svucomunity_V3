@@ -13,7 +13,7 @@ import type { DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/
 
 const SKELETON_COUNT = 5;
 
-function StatCard({ title, value, icon, isLoading }: { title: string; value: number | string; icon: React.ReactNode; isLoading?: boolean }) {
+const StatCard = React.memo(function StatCard({ title, value, icon, isLoading }: { title: string; value: number | string; icon: React.ReactNode; isLoading?: boolean }) {
   return (
     <GlassCard className="p-6">
       <div className="flex items-center gap-4">
@@ -33,7 +33,7 @@ function StatCard({ title, value, icon, isLoading }: { title: string; value: num
   );
 }
 
-function PopularCoursesTable() {
+const PopularCoursesTable = React.memo(function PopularCoursesTable() {
   const { data: courses, isLoading, error } = usePopularCourses(20);
 
   if (isLoading) {
@@ -85,7 +85,7 @@ function PopularCoursesTable() {
     );
   }
 
-  const _maxCount = Math.max(...courses.map((c: DiscoveredCourse) => c.seen_count), 1);
+  const _maxCount = courses.length > 0 ? Math.max(...courses.map((c: DiscoveredCourse) => c.seen_count)) : 1;
 
   return (
     <GlassCard className="p-6">
@@ -116,7 +116,7 @@ function PopularCoursesTable() {
   );
 }
 
-function PopularInstructorsTable() {
+const PopularInstructorsTable = React.memo(function PopularInstructorsTable() {
   const { data: instructors, isLoading, error } = usePopularInstructors(20);
 
   if (isLoading) {
@@ -194,7 +194,7 @@ function PopularInstructorsTable() {
   );
 }
 
-function MajorDistributionList() {
+const MajorDistributionList = React.memo(function MajorDistributionList() {
   const { data: majors, isLoading, error } = useMajorDistribution();
 
   if (isLoading) {
@@ -243,7 +243,7 @@ function MajorDistributionList() {
     );
   }
 
-  const maxCount = Math.max(...majors.map((m: DiscoveredMajor) => m.seen_count), 1);
+  const maxCount = majors.length > 0 ? Math.max(...majors.map((m: DiscoveredMajor) => m.seen_count)) : 1;
 
   return (
     <GlassCard className="p-6">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_POLL_INTERVAL_MS } from '@/src/lib/constants';
 
 const encodeValue = (value: { attempts: number; resetAt: number | null }) => {
   try {
@@ -34,7 +35,7 @@ export type RateLimiter = {
 
 export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter => {
   const maxAttempts = options.maxAttempts ?? 5;
-  const windowMs = options.windowMs ?? 5 * 60 * 1000;
+  const windowMs = options.windowMs ?? RATE_LIMIT_WINDOW_MS;
   const storageKey = options.storageKey ?? 'auth_rate_limit_v1';
 
   const read = (): { attempts: number; resetAt: number | null } => {
@@ -42,7 +43,8 @@ export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter =
       const raw = localStorage.getItem(storageKey);
       if (!raw) return { attempts: 0, resetAt: null };
       return decodeValue(raw);
-    } catch {
+    } catch (error) {
+      console.warn('Failed to read rate limit state from localStorage', error);
       return { attempts: 0, resetAt: null };
     }
   };
@@ -50,8 +52,8 @@ export const createRateLimiter = (options: RateLimitOptions = {}): RateLimiter =
   const write = (value: { attempts: number; resetAt: number | null }) => {
     try {
       localStorage.setItem(storageKey, encodeValue(value));
-    } catch {
-      // ignore quota / private mode
+    } catch (error) {
+      console.warn('Failed to write rate limit state to localStorage', error);
     }
   };
 
@@ -102,7 +104,7 @@ export const useRateLimit = (options: RateLimitOptions = {}) => {
     const interval = setInterval(() => {
       const next = limiter.check();
       setStatus(next);
-    }, 1000);
+    }, RATE_LIMIT_POLL_INTERVAL_MS);
 
     const onStorage = (e: StorageEvent) => {
       if (e.key === options.storageKey) {

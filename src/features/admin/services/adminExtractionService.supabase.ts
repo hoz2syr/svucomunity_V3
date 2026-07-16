@@ -28,7 +28,7 @@ export async function listAllExtractions(
   const from = (page - 1) * limit;
   const { data, error } = await client
     .from('raw_extractions')
-    .select('*')
+    .select('id, user_id, raw_markdown, detected_schema, created_at')
     .order('created_at', { ascending: false })
     .range(from, from + limit - 1);
 
@@ -94,7 +94,7 @@ export async function getExtractionDetails(
 
   const { data: extraction, error: extractionError } = await client
     .from('raw_extractions')
-    .select('*')
+    .select('id, user_id, raw_markdown, detected_schema, created_at')
     .eq('id', extractionId)
     .single();
 
@@ -104,7 +104,7 @@ export async function getExtractionDetails(
 
   const { data: courses, error: coursesError } = await client
     .from('extracted_courses')
-    .select('*')
+    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at')
     .eq('extraction_id', extractionId)
     .order('created_at', { ascending: true });
 
@@ -172,17 +172,17 @@ export async function getPlatformStats(
     verifiedInstructorsResult,
     unverifiedInstructorsResult,
   ] = await Promise.all([
-    client.from('profiles').select('*', { count: 'exact', head: true }),
-    client.from('raw_extractions').select('*', { count: 'exact', head: true }),
-    client.from('extracted_courses').select('*', { count: 'exact', head: true }),
-    client.from('discovered_instructors').select('*', { count: 'exact', head: true }),
-    client.from('discovered_majors').select('*', { count: 'exact', head: true }),
-    client.from('tests').select('*', { count: 'exact', head: true }),
-    client.from('groups').select('*', { count: 'exact', head: true }),
-    client.from('discovered_courses').select('*', { count: 'exact', head: true }).eq('is_verified', true),
-    client.from('discovered_courses').select('*', { count: 'exact', head: true }).eq('is_verified', false),
-    client.from('discovered_instructors').select('*', { count: 'exact', head: true }).eq('is_verified', true),
-    client.from('discovered_instructors').select('*', { count: 'exact', head: true }).eq('is_verified', false),
+    client.from('profiles').select('id', { count: 'exact', head: true }),
+    client.from('raw_extractions').select('id', { count: 'exact', head: true }),
+    client.from('extracted_courses').select('id', { count: 'exact', head: true }),
+    client.from('discovered_instructors').select('id', { count: 'exact', head: true }),
+    client.from('discovered_majors').select('id', { count: 'exact', head: true }),
+    client.from('tests').select('id', { count: 'exact', head: true }),
+    client.from('groups').select('id', { count: 'exact', head: true }),
+    client.from('discovered_courses').select('id', { count: 'exact', head: true }).eq('is_verified', true),
+    client.from('discovered_courses').select('id', { count: 'exact', head: true }).eq('is_verified', false),
+    client.from('discovered_instructors').select('id', { count: 'exact', head: true }).eq('is_verified', true),
+    client.from('discovered_instructors').select('id', { count: 'exact', head: true }).eq('is_verified', false),
   ]);
 
   const errors = [

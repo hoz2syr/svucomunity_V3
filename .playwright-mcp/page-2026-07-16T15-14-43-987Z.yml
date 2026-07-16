@@ -1,0 +1,50 @@
+- generic [ref=e5]:
+  - link "تخطي إلى المحتوى الرئيسي" [ref=e6] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation [ref=e8]:
+    - generic [ref=e9]:
+      - link "SVU Community" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e13]:
+        - link "المشاكل" [ref=e14] [cursor=pointer]:
+          - /url: "#problems"
+        - link "الميزات" [ref=e15] [cursor=pointer]:
+          - /url: "#features"
+        - link "كيف نبدأ" [ref=e16] [cursor=pointer]:
+          - /url: "#how"
+      - link "سجّل الدخول ▾" [ref=e18] [cursor=pointer]:
+        - /url: /login
+        - generic [ref=e20]:
+          - text: سجّل الدخول
+          - generic [ref=e21]: ▾
+  - generic [ref=e22]:
+    - generic [ref=e23]:
+      - heading "SVU Community" [level=1] [ref=e24]
+      - generic [ref=e25]:
+        - paragraph [ref=e27]: مجتمعك الجامعي — في مكان واحد
+        - paragraph [ref=e28]: انضم إلى مجتمع طلاب تقنية المعلومات في الجامعة السورية الافتراضية، وشارك مجموعاتك ومقرراتك وجدول دراستك بكل سهولة، دون أن تتيه في محادثات الواتساب.
+        - generic [ref=e29]:
+          - link [ref=e30] [cursor=pointer]:
+            - /url: "#join"
+          - link "اكتشف المنصة" [ref=e38] [cursor=pointer]:
+            - /url: "#features"
+    - link [ref=e39] [cursor=pointer]:
+      - /url: "#problems"
+  - main [ref=e42]
+  - contentinfo [ref=e56]:
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]: SVU Community
+        - paragraph [ref=e60]: مجتمع طلاب تقنية المعلومات في SVU
+      - generic [ref=e61]:
+        - link "الرئيسية" [ref=e62] [cursor=pointer]:
+          - /url: /
+        - link "المجموعات" [ref=e63] [cursor=pointer]:
+          - /url: /#features
+        - link "المقررات" [ref=e64] [cursor=pointer]:
+          - /url: /#features
+        - link "الجدول" [ref=e65] [cursor=pointer]:
+          - /url: /#how
+        - link "تسجيل الدخول" [ref=e66] [cursor=pointer]:
+          - /url: /login
+      - generic [ref=e67]: © 2026 SVU Community. جميع الحقوق محفوظة.

@@ -77,8 +77,8 @@ export const Navbar = () => {
         transition={reducedMotion ? { duration: 0 } : { duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       >
         <motion.div
-          className="px-4 sm:px-6 lg:px-8 flex justify-between items-center"
-          animate={{ height: sticky ? 64 : 80 }}
+          className="px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16"
+          animate={{ y: sticky ? 0 : 8 }}
           transition={reducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Brand */}
@@ -89,7 +89,7 @@ export const Navbar = () => {
               whileTap={reducedMotion ? {} : { scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
-              <img src="/favicon.svg" alt="" className="w-full h-full object-contain" />
+              <img src="/favicon.svg" alt="" loading="eager" fetchPriority="high" width="32" height="32" className="w-full h-full object-contain" />
             </motion.div>
             <span className="font-bold font-display tracking-wide bg-gradient-to-r from-[var(--color-primary-400)] to-[var(--color-primary-600)] bg-clip-text text-transparent" dir="ltr">
               <span className={`hidden sm:inline transition-all duration-200 ${sticky ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}`}>

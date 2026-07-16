@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SUCCESS_MESSAGE_TIMEOUT_MS } from '@/src/lib/constants';
 import type { ProfileInput } from '../types/auth';
 
 export const useProfileSettings = (onSubmit: (data: ProfileInput) => Promise<string | null>) => {
@@ -17,7 +18,7 @@ export const useProfileSettings = (onSubmit: (data: ProfileInput) => Promise<str
         setErrorMsg(result);
       } else {
         setSuccessMsg('تم حفظ التغييرات بنجاح');
-        setTimeout(() => setSuccessMsg(''), 3000);
+        setTimeout(() => setSuccessMsg(''), SUCCESS_MESSAGE_TIMEOUT_MS);
       }
     } catch (error) {
       setErrorMsg(error instanceof Error ? error.message : 'حدث خطأ غير متوقع.');

@@ -17,8 +17,10 @@ export function useTestMigration({
 }) {
   const queryClient = useQueryClient();
   const prevUserIdRef = useRef<string | null>(null);
+  const isCancelledRef = useRef(false);
 
   useEffect(() => {
+    isCancelledRef.current = false;
     const prev = prevUserIdRef.current;
     prevUserIdRef.current = userId;
 
@@ -28,11 +30,14 @@ export function useTestMigration({
 
       fetchTestsFromSupabase(userId)
         .then(({ data: serverTests, error }) => {
+          if (isCancelledRef.current) return;
           if (import.meta.env.DEV) {
             console.debug('[MIG] fetchTestsFromSupabase resolved', { userId, serverCount: (serverTests ?? []).length, error });
           }
           if (error) {
-            console.error('Migration prefetch failed:', error);
+            if (import.meta.env.DEV) {
+              console.error('Migration prefetch failed:', error);
+            }
             queryClient.invalidateQueries({ queryKey: ['tests', userId] });
             return;
           }
@@ -43,9 +48,18 @@ export function useTestMigration({
             console.debug('[MIG] before upsert', { localCount: localTests.length, serverCount: serverList.length, unsavedCount: unsaved.length, unsavedIds: unsaved.map(t => t.id) });
           }
 
-          Promise.all(
+          Promise.allSettled(
             unsaved.map(t => upsertTestToSupabase({ ...t, userId })),
-          ).then(() => {
+          ).then((results) => {
+            if (isCancelledRef.current) return;
+            const failed = results.filter(r => r.status === 'rejected');
+            if (failed.length > 0) {
+              if (import.meta.env.DEV) {
+                console.error(`[MIG] ${failed.length} tests failed to migrate`);
+              }
+              queryClient.invalidateQueries({ queryKey: ['tests', userId] });
+              return;
+            }
             if (import.meta.env.DEV) {
               console.debug('[MIG] upsert all resolved');
             }
@@ -64,15 +78,19 @@ export function useTestMigration({
               ]);
               return { ...old, pages: newPages };
             });
-          }).catch((err) => {
-            console.error('Migration upsert failed:', err);
-            queryClient.invalidateQueries({ queryKey: ['tests', userId] });
           });
         })
         .catch((err) => {
-          console.error('Migration prefetch exception:', err);
+          if (isCancelledRef.current) return;
+          if (import.meta.env.DEV) {
+            console.error('Migration prefetch exception:', err);
+          }
           queryClient.invalidateQueries({ queryKey: ['tests', userId] });
         });
     }
+
+    return () => {
+      isCancelledRef.current = true;
+    };
   }, [userId, queryClient, envMissing]);
 }

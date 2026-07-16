@@ -198,36 +198,27 @@ export async function getReviewStats(
 
   const client = await getSupabaseClient();
 
-  const { count: total, error: totalError } = await client
-    .from('platform_reviews')
-    .select('*', { count: 'exact', head: true });
+  const [totalResult, pendingResult, respondedResult, ratingResult] = await Promise.all([
+    client.from('platform_reviews').select('*', { count: 'exact', head: true }),
+    client.from('platform_reviews').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    client.from('platform_reviews').select('*', { count: 'exact', head: true }).eq('status', 'responded'),
+    client.from('platform_reviews').select('rating'),
+  ]);
+
+  const { count: total, error: totalError } = totalResult;
+  const { count: pending, error: pendingError } = pendingResult;
+  const { count: responded, error: respondedError } = respondedResult;
+  const { data: ratingData, error: ratingError } = ratingResult;
 
   if (totalError) {
     return { data: null, error: new Error(totalError.message) };
   }
-
-  const { count: pending, error: pendingError } = await client
-    .from('platform_reviews')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'pending');
-
   if (pendingError) {
     return { data: null, error: new Error(pendingError.message) };
   }
-
-  const { count: responded, error: respondedError } = await client
-    .from('platform_reviews')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'responded');
-
   if (respondedError) {
     return { data: null, error: new Error(respondedError.message) };
   }
-
-  const { data: ratingData, error: ratingError } = await client
-    .from('platform_reviews')
-    .select('rating');
-
   if (ratingError) {
     return { data: null, error: new Error(ratingError.message) };
   }

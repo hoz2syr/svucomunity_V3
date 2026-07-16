@@ -38,7 +38,7 @@ export const Home = () => {
         <main id="main-content" className="relative w-full pb-20">
           <ErrorBoundary>
             <Suspense fallback={
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 mt-32 max-w-7xl mx-auto align-center h-[50vh]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 mt-32 max-w-7xl mx-auto align-center min-h-[600px]">
                 <CardSkeleton />
                 <CardSkeleton />
                 <CardSkeleton />

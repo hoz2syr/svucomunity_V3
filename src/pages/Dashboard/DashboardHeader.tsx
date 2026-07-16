@@ -157,7 +157,7 @@ type DashboardHeaderProps = {
   onOpenDelete: () => void;
 };
 
-export const DashboardHeader = ({
+export const DashboardHeader = React.memo(({
   user,
   isNotificationsOpen,
   unreadCount,
@@ -305,4 +305,4 @@ export const DashboardHeader = ({
       </div>
     </motion.header>
   );
-};
+});

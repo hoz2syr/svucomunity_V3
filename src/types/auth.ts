@@ -14,6 +14,7 @@ export type ProfileInput = {
   username: string;
   email: string;
   major?: string;
+  current_semester?: string;
 };
 
 export type SecurityInput = {

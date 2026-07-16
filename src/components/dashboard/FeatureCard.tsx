@@ -114,5 +114,6 @@ const FeatureCard = ({
   );
 };
 
-export { FeatureCard };
+export default React.memo(FeatureCard);
 export type { FeatureCardProps };
+export { FeatureCard };

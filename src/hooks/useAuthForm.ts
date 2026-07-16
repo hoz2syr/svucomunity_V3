@@ -34,8 +34,7 @@ const FIELD_KEYS = ['email', 'password', 'name'] as const;
 const extractFieldErrors = (errors: FieldErrors<LoginInput | RegisterInput>): AuthFieldErrors => {
   const mapped: AuthFieldErrors = {};
   for (const key of FIELD_KEYS) {
-    const fieldErrors = errors as Record<string, FieldError | undefined>;
-    const err = fieldErrors[key];
+    const err = errors[key];
     if (err?.message) mapped[key] = err.message;
   }
   return mapped;
@@ -48,7 +47,7 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
 
   const form = useForm<LoginInput | RegisterInput>({
-    resolver: zodResolver(schema as any),
+    resolver: zodResolver(schema),
     mode: 'onSubmit',
     defaultValues: {
       email: '',
@@ -71,7 +70,7 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
             resolve(values);
           },
           (errors) => {
-            setFieldErrors(extractFieldErrors(errors as FieldErrors<LoginInput | RegisterInput>));
+            setFieldErrors(extractFieldErrors(errors));
             setIsLoading(false);
             resolve(null);
           }

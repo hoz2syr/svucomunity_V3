@@ -1,0 +1,120 @@
+- generic [ref=f12e2]:
+  - banner [ref=f12e3]:
+    - generic [ref=f12e4]:
+      - generic [ref=f12e5]: س
+      - generic [ref=f12e6]:
+        - generic [ref=f12e7]: SVU Community
+        - generic [ref=f12e8]: منصتك الأكاديمية
+    - generic [ref=f12e9]:
+      - generic "الإشعارات" [ref=f12e10] [cursor=pointer]: 🔔
+      - generic "الرسائل" [ref=f12e11] [cursor=pointer]: 💬
+      - generic "الملف الشخصي" [ref=f12e12] [cursor=pointer]: أ
+  - generic [ref=f12e13]:
+    - generic [ref=f12e14]: الاثنين، 14 يوليو 2026
+    - heading "مرحباً بك، أحمد 👋" [level=1] [ref=f12e17]
+    - paragraph [ref=f12e18]: منصتك الأكاديمية تساعدك على تنظيم دراستك، التواصل مع زملائك، والوصول إلى موادك بسرعة.
+  - generic [ref=f12e19]:
+    - generic [ref=f12e20]:
+      - generic [ref=f12e21]: 📚
+      - generic [ref=f12e22]:
+        - generic [ref=f12e23]: "12"
+        - generic [ref=f12e24]: المواد المسجلة
+    - generic [ref=f12e25]:
+      - generic [ref=f12e26]: 👥
+      - generic [ref=f12e27]:
+        - generic [ref=f12e28]: "3"
+        - generic [ref=f12e29]: مجموعاتي
+    - generic [ref=f12e30]:
+      - generic [ref=f12e31]: 📝
+      - generic [ref=f12e32]:
+        - generic [ref=f12e33]: "8"
+        - generic [ref=f12e34]: اختباراتي
+    - generic [ref=f12e35]:
+      - generic [ref=f12e36]: ⚡
+      - generic [ref=f12e37]:
+        - generic [ref=f12e38]: منذ ساعتين
+        - generic [ref=f12e39]: آخر نشاط
+  - generic [ref=f12e40]:
+    - generic [ref=f12e41]: اكتشف إمكانيات المنصة
+    - generic [ref=f12e42]:
+      - generic [ref=f12e43]:
+        - img [ref=f12e45]:
+          - generic [ref=f12e56]: "+3"
+        - generic [ref=f12e67]:
+          - generic [ref=f12e68]: المجموعات الدراسية
+          - generic [ref=f12e70]: تعلم مع زملائك
+          - generic [ref=f12e71]: انضم إلى مجموعات دراسية، شارك الملاحظات، واعمل معاً على تحقيق أهدافك الأكاديمية.
+          - link "استكشف المجموعات" [ref=f12e72] [cursor=pointer]:
+            - /url: "#"
+      - generic:
+        - generic:
+          - img:
+            - generic: المواد الدراسية
+            - generic:
+              - generic: 📊
+              - generic: تحليل البيانات
+            - generic:
+              - generic: 🧮
+              - generic: الرياضيات
+            - generic:
+              - generic: 📝
+              - generic: الفيزياء
+        - generic:
+          - generic: المواد الدراسية
+          - generic: وصول سريع لموادك
+          - generic: استعرض المواد الدراسية، حمّل الملفات، وتابع تقدمك الأكاديمي في مكان واحد.
+          - link "تصفح المواد":
+            - /url: "#"
+      - generic:
+        - generic:
+          - img:
+            - generic: استخراج الجدول
+        - generic:
+          - generic: استخراج الجدول
+          - generic: جدولك في ثوانٍ
+          - generic: ارفع صورة جدولك الدراسي وسنقوم باستخراج المواد والامتحانات تلقائياً.
+          - link "استخرج جدولك":
+            - /url: "#"
+      - generic:
+        - generic:
+          - img:
+            - generic: اختبار تفاعلي
+            - generic: ما هي لغة البرمجة الأكثر شيوعاً؟
+            - generic: ✓
+            - generic: Python
+            - generic: JavaScript
+            - generic: Java
+            - generic: 62%
+        - generic:
+          - generic: الاختبارات
+          - generic: اختبر معلوماتك
+          - generic: أنشئ اختبارات مخصصة من موادك، واختبر نفسك، وتتبع تقدمك بشكل مستمر.
+          - link "ابدأ اختباراً":
+            - /url: "#"
+  - generic [ref=f12e80]:
+    - generic [ref=f12e81]: جميع الأدوات
+    - generic [ref=f12e87]:
+      - link "👥 المجموعات الدراسية تواصل واعمل مع زملائك ←" [ref=f12e88] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f12e89]: 👥
+        - generic [ref=f12e90]: المجموعات الدراسية
+        - generic [ref=f12e91]: تواصل واعمل مع زملائك
+        - generic [ref=f12e92]: ←
+      - link "📖 المواد الدراسية وصول لجميع موادك ←" [ref=f12e93] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f12e94]: 📖
+        - generic [ref=f12e95]: المواد الدراسية
+        - generic [ref=f12e96]: وصول لجميع موادك
+        - generic [ref=f12e97]: ←
+      - link "📅 استخراج الجدول من صورة إلى جدول منظم ←" [ref=f12e98] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f12e99]: 📅
+        - generic [ref=f12e100]: استخراج الجدول
+        - generic [ref=f12e101]: من صورة إلى جدول منظم
+        - generic [ref=f12e102]: ←
+      - link "🎯 الاختبارات اختبر معلوماتك الآن ←" [ref=f12e103] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f12e104]: 🎯
+        - generic [ref=f12e105]: الاختبارات
+        - generic [ref=f12e106]: اختبر معلوماتك الآن
+        - generic [ref=f12e107]: ←

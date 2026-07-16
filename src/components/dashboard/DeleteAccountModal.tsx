@@ -1,4 +1,4 @@
-'use memo';
+'use client';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,7 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
     watch,
     formState: { errors },
   } = useForm<DeleteAccountInput>({
-    resolver: zodResolver(deleteAccountSchema as any),
+    resolver: zodResolver(deleteAccountSchema),
     mode: 'onChange',
     defaultValues: { confirmation: '' },
   });

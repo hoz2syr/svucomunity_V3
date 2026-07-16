@@ -15,7 +15,7 @@ const TODAY = new Date().toLocaleDateString('ar-SA', {
   day: 'numeric',
 });
 
-export const EmptyDashboardState = ({ userName = 'طالب' }: EmptyDashboardStateProps) => {
+export const EmptyDashboardState = React.memo(({ userName = 'طالب' }: EmptyDashboardStateProps) => {
   const reducedMotion = useReducedMotion();
 
 type CardItem = {
@@ -72,5 +72,5 @@ type CardItem = {
       </div>
     </div>
   );
-};
+});
 

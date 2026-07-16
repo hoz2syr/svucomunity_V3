@@ -6,3 +6,4 @@ export { HowItWorksSection } from '../landing/HowItWorksSection';
 export { ProblemsSection } from '../landing/ProblemsSection';
 export { ScrollIndicator } from '../landing/ScrollIndicator';
 export { SolutionBridge } from '../landing/SolutionBridge';
+export { ReviewsSection } from '../landing/ReviewsSection';

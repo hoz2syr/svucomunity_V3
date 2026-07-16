@@ -167,7 +167,7 @@ export function PlayTestShell({
         <div className="glass-card text-center p-5 sm:p-8 md:p-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">النتيجة النهائية</h2>
           <p className="text-secondary-400 mb-3 sm:mb-5 text-xs sm:text-sm">لقد أكملت اختبار: {test.title}</p>
-          <div className="text-4xl sm:text-5xl md:text-6xl font-black gradient-text mb-2 sm:mb-3">{score} / {test.questions.length}</div>
+          <div className="text-4xl sm:text-5xl md:text-6xl font-black gradient-text mb-2 sm:mb-3">{score} / {test.questions.length} <span className="text-2xl sm:text-3xl md:text-4xl text-secondary-300">({Math.round((score / test.questions.length) * 100)}%)</span></div>
           <p className="text-secondary-300 font-medium mb-4 sm:mb-6 text-xs sm:text-sm">
             {score === test.questions.length ? 'أداء مثالي! أحسنت صنعاً.' : 'أداء جيد، يمكنك المحاولة مرة أخرى لتحسين النتيجة.'}
           </p>

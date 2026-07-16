@@ -2,11 +2,11 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GraduationCap, FileText } from 'lucide-react';
+import { GraduationCap, FileText, CalendarDays } from 'lucide-react';
 import { profileSchema, type ProfileInput } from '../../schemas/auth.schema';
 import { InputField } from '../ui/InputField';
 import { Dropdown } from '../ui/Dropdown';
-import { useProfileSettings } from './useProfileSettings';
+import { useProfileSettings } from '@/src/hooks/useProfileSettings';
 import { getAllMajorsStatic } from '@/src/features/study-groups/services/courseCatalog';
 import { Button } from '../ui/Button';
 
@@ -17,18 +17,31 @@ type ProfileSettingsFormProps = {
   onTakeSpecializationTest?: (major: string) => void;
 };
 
+const SEMESTER_OPTIONS = [
+  { value: '', label: 'بدون تحديد' },
+  { value: '2023/2024-1', label: '2023/2024 - الفصل الأول' },
+  { value: '2023/2024-2', label: '2023/2024 - الفصل الثاني' },
+  { value: '2024/2025-1', label: '2024/2025 - الفصل الأول' },
+  { value: '2024/2025-2', label: '2024/2025 - الفصل الثاني' },
+  { value: '2025/2026-1', label: '2025/2026 - الفصل الأول' },
+  { value: '2025/2026-2', label: '2025/2026 - الفصل الثاني' },
+  { value: '2026/2027-1', label: '2026/2027 - الفصل الأول' },
+  { value: '2026/2027-2', label: '2026/2027 - الفصل الثاني' },
+];
+
 export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTakeSpecializationTest }: ProfileSettingsFormProps) => {
   const { isLoading, successMsg, errorMsg, submit } = useProfileSettings(onSubmit);
   const [majors, setMajors] = useState<string[]>([]);
   const [loadingMajors, setLoadingMajors] = useState(true);
 
   const form = useForm<ProfileInput>({
-    resolver: zodResolver(profileSchema as any),
+    resolver: zodResolver(profileSchema),
     defaultValues: initial,
     mode: 'onBlur',
   });
 
   const selectedMajor = form.watch('major');
+  const selectedSemester = form.watch('current_semester');
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +90,19 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
           searchPlaceholder="ابحث بالتخصص..."
           error={form.formState.errors.major?.message}
           className="font-mono"
+        />
+      </div>
+      <div>
+        <label className="block text-slate-300 text-sm mb-2 font-medium">
+          <CalendarDays className="w-4 h-4 inline-block ml-1.5 text-orange-400" />
+          الفصل الحالي
+        </label>
+        <Dropdown
+          value={selectedSemester || ''}
+          onChange={(value) => form.setValue('current_semester', value)}
+          options={SEMESTER_OPTIONS}
+          placeholder="اختر الفصل الحالي..."
+          error={form.formState.errors.current_semester?.message}
         />
       </div>
       {successMsg && (

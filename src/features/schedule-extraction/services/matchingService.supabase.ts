@@ -14,7 +14,7 @@ export async function matchExtractedCoursesToProgress(
 
   const { data: courses, error: coursesError } = await client
     .from('extracted_courses')
-    .select('*')
+    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at')
     .eq('extraction_id', extractionId);
 
   if (coursesError) {
@@ -30,7 +30,7 @@ export async function matchExtractedCoursesToProgress(
 
   const { data: progress, error: progressError } = await client
     .from('user_course_progress')
-    .select('*')
+    .select('user_id, course_code, status, updated_at')
     .eq('user_id', userId)
     .in('course_code', courseCodes);
 
@@ -80,7 +80,7 @@ export async function suggestStudyGroups(
 
   const { data: groups, error: groupsError } = await client
     .from('groups')
-    .select('*')
+    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at, updated_at')
     .in('course_code', courseCodes)
     .order('current_members', { ascending: false });
 

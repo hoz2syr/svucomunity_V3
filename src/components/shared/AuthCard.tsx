@@ -104,16 +104,18 @@ export const AuthCard = ({
             onClick={onGoogleClick}
             className="w-full bg-white text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-100 transition-colors shadow-sm"
           >
-            {googleLogoError ? (
-              <span className="text-sm font-bold text-slate-700">G</span>
-            ) : (
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="w-5 h-5"
-                onError={() => setGoogleLogoError(true)}
-              />
-            )}
+              {googleLogoError ? (
+                <span className="text-sm font-bold text-slate-700">G</span>
+              ) : (
+                <img
+                  src="/google-logo.svg"
+                  alt="Google"
+                  width="20"
+                  height="20"
+                  className="w-5 h-5"
+                  onError={() => setGoogleLogoError(true)}
+                />
+              )}
             {googleButtonText}
           </button>
 

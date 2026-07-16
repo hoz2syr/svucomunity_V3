@@ -112,7 +112,7 @@ export async function loadUnverifiedCourses(
   const from = (page - 1) * limit;
   const { data, error } = await client
     .from('discovered_courses')
-    .select('*')
+    .select('course_code, major, course_key, course_name, section, semester_code, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
     .eq('is_verified', false)
     .order('seen_count', { ascending: false })
     .range(from, from + limit - 1);
@@ -142,7 +142,7 @@ export async function loadUnverifiedInstructors(
   const from = (page - 1) * limit;
   const { data, error } = await client
     .from('discovered_instructors')
-    .select('*')
+    .select('instructor_username, full_name, seen_count, first_seen_at, last_seen_at, is_verified, verified_at, verified_by')
     .eq('is_verified', false)
     .order('seen_count', { ascending: false })
     .range(from, from + limit - 1);

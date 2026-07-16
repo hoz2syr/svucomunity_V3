@@ -14,10 +14,10 @@ import { useUserCourseProgress } from '../../features/schedule-extraction/hooks/
 
 const COURSE_SKELETON_COUNT = 3;
 
-export const CurrentSemesterCard = () => {
-  const { session } = useAuth();
+export const CurrentSemesterCard = React.memo(() => {
+  const { session, profile } = useAuth();
   const userId = session?.user?.id;
-  const semesterCode = getCurrentSemesterCode();
+  const semesterCode = profile?.current_semester || getCurrentSemesterCode();
   const semesterLabel = convertSemesterCodeToLabel(semesterCode);
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
@@ -113,4 +113,4 @@ export const CurrentSemesterCard = () => {
       )}
     </div>
   );
-};
+});

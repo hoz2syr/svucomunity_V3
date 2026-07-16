@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { securitySchema, type SecurityInput } from '../../schemas/auth.schema';
 import { InputField } from '../ui/InputField';
-import { useSecuritySettings } from './useSecuritySettings';
+import { useSecuritySettings } from '@/src/hooks/useSecuritySettings';
 
 type SecuritySettingsFormProps = {
   onSubmit: (data: SecurityInput) => Promise<string | null>;
@@ -11,7 +11,7 @@ type SecuritySettingsFormProps = {
 
 export const SecuritySettingsForm = ({ onSubmit }: SecuritySettingsFormProps) => {
   const form = useForm<SecurityInput>({
-    resolver: zodResolver(securitySchema as any),
+    resolver: zodResolver(securitySchema),
     mode: 'onBlur',
   });
   const { isLoading, successMsg, errorMsg, submit } = useSecuritySettings(onSubmit, () => form.reset());
