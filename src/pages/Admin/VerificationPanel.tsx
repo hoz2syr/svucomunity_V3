@@ -23,6 +23,9 @@ export function VerificationPanel() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMajor, setSelectedMajor] = useState<string>('all');
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [coursesPage, setCoursesPage] = useState(1);
+  const [instructorsPage, setInstructorsPage] = useState(1);
+  const limit = 50;
 
   const isAdmin = profile?.role === 'admin';
 
@@ -31,14 +34,14 @@ export function VerificationPanel() {
     isLoading: coursesLoading,
     error: coursesError,
     refetch: refetchCourses,
-  } = useUnverifiedCourses();
+  } = useUnverifiedCourses(activeTab === 'courses' ? coursesPage : 1, limit);
 
   const {
     data: instructors,
     isLoading: instructorsLoading,
     error: instructorsError,
     refetch: refetchInstructors,
-  } = useUnverifiedInstructors();
+  } = useUnverifiedInstructors(activeTab === 'instructors' ? instructorsPage : 1, limit);
 
   const verifyCourseMutation = useVerifyCourse();
   const verifyInstructorMutation = useVerifyInstructor();
@@ -236,6 +239,25 @@ export function VerificationPanel() {
               ))}
             </div>
           )}
+          {!coursesLoading && filteredCourses.length > 0 && (
+            <div className="flex items-center justify-between">
+              <Button
+                variant="secondary"
+                onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
+                disabled={coursesPage === 1}
+              >
+                السابق
+              </Button>
+              <span className="text-sm text-slate-400">صفحة {coursesPage}</span>
+              <Button
+                variant="secondary"
+                onClick={() => setCoursesPage((p) => p + 1)}
+                disabled={filteredCourses.length < limit}
+              >
+                التالي
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -294,6 +316,25 @@ export function VerificationPanel() {
                   </div>
                 </GlassCard>
               ))}
+            </div>
+          )}
+          {!instructorsLoading && instructors && instructors.length > 0 && (
+            <div className="flex items-center justify-between">
+              <Button
+                variant="secondary"
+                onClick={() => setInstructorsPage((p) => Math.max(1, p - 1))}
+                disabled={instructorsPage === 1}
+              >
+                السابق
+              </Button>
+              <span className="text-sm text-slate-400">صفحة {instructorsPage}</span>
+              <Button
+                variant="secondary"
+                onClick={() => setInstructorsPage((p) => p + 1)}
+                disabled={instructors.length < limit}
+              >
+                التالي
+              </Button>
             </div>
           )}
         </div>

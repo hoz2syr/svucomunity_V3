@@ -2,6 +2,14 @@ import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { DiscoveredCourse, DiscoveredInstructor } from '@/src/types/database';
 import type { ServiceResult } from '@/src/types/admin';
 
+function validateCourseCode(code: string): boolean {
+  return typeof code === 'string' && code.trim().length > 0;
+}
+
+function validateInstructorUsername(username: string): boolean {
+  return typeof username === 'string' && username.trim().length > 0;
+}
+
 export async function verifyDiscoveredCourse(
   courseCode: string,
   isVerified: boolean,
@@ -10,6 +18,14 @@ export async function verifyDiscoveredCourse(
 ): Promise<ServiceResult<DiscoveredCourse>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
+  }
+
+  if (!validateCourseCode(courseCode)) {
+    return { data: null, error: new Error('Invalid course code') };
+  }
+
+  if (!verifiedBy || typeof verifiedBy !== 'string') {
+    return { data: null, error: new Error('Invalid verifier id') };
   }
 
   if (!hasSupabaseEnv()) {
@@ -24,7 +40,7 @@ export async function verifyDiscoveredCourse(
       verified_at: isVerified ? new Date().toISOString() : null,
       verified_by: isVerified ? verifiedBy : null,
     })
-    .eq('course_code', courseCode)
+    .eq('course_code', courseCode.trim())
     .select()
     .single();
 
@@ -47,6 +63,14 @@ export async function verifyDiscoveredInstructor(
     return { data: null, error: new Error('Unauthorized') };
   }
 
+  if (!validateInstructorUsername(instructorUsername)) {
+    return { data: null, error: new Error('Invalid instructor username') };
+  }
+
+  if (!verifiedBy || typeof verifiedBy !== 'string') {
+    return { data: null, error: new Error('Invalid verifier id') };
+  }
+
   if (!hasSupabaseEnv()) {
     return { data: null, error: new Error('Supabase not configured') };
   }
@@ -59,7 +83,7 @@ export async function verifyDiscoveredInstructor(
       verified_at: isVerified ? new Date().toISOString() : null,
       verified_by: isVerified ? verifiedBy : null,
     })
-    .eq('instructor_username', instructorUsername)
+    .eq('instructor_username', instructorUsername.trim())
     .select()
     .single();
 
@@ -73,7 +97,9 @@ export async function verifyDiscoveredInstructor(
 }
 
 export async function loadUnverifiedCourses(
-  callerRole: string
+  callerRole: string,
+  page = 1,
+  limit = 50
 ): Promise<ServiceResult<DiscoveredCourse[]>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
@@ -83,21 +109,27 @@ export async function loadUnverifiedCourses(
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
+  const from = (page - 1) * limit;
   const { data, error } = await client
     .from('discovered_courses')
     .select('*')
     .eq('is_verified', false)
-    .order('seen_count', { ascending: false });
+    .order('seen_count', { ascending: false })
+    .range(from, from + limit - 1);
 
   if (error) {
     return { data: null, error: new Error(error.message) };
   }
 
+  await logAdminAction(callerRole, 'load_unverified_courses', { page, limit });
+
   return { data: data as DiscoveredCourse[], error: null };
 }
 
 export async function loadUnverifiedInstructors(
-  callerRole: string
+  callerRole: string,
+  page = 1,
+  limit = 50
 ): Promise<ServiceResult<DiscoveredInstructor[]>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
@@ -107,15 +139,19 @@ export async function loadUnverifiedInstructors(
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
+  const from = (page - 1) * limit;
   const { data, error } = await client
     .from('discovered_instructors')
     .select('*')
     .eq('is_verified', false)
-    .order('seen_count', { ascending: false });
+    .order('seen_count', { ascending: false })
+    .range(from, from + limit - 1);
 
   if (error) {
     return { data: null, error: new Error(error.message) };
   }
+
+  await logAdminAction(callerRole, 'load_unverified_instructors', { page, limit });
 
   return { data: data as DiscoveredInstructor[], error: null };
 }

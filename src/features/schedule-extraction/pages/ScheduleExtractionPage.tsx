@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { DropZone } from '../components/DropZone';
 import { CourseCard } from '../components/CourseCard';
@@ -69,6 +69,9 @@ export function ScheduleExtractionPage() {
   const [extractionId, setExtractionId] = useState<string | null>(null);
   const [isSavingExtraction, setIsSavingExtraction] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [processError, setProcessError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     matchedCourses,
@@ -77,25 +80,42 @@ export function ScheduleExtractionPage() {
     refetch: _refetchMatching,
   } = useCourseMatching(extractionId);
 
-  const handleFileSelect = useCallback(async (file: File) => {
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+  const handleFileSelect = useCallback((file: File) => {
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      const url = URL.createObjectURL(file);
+      return url;
+    });
   }, []);
 
   const handleClear = useCallback(() => {
-    setPreviewUrl(null);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setProcessError(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+    };
   }, []);
 
   const handleExtract = useCallback(async () => {
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-    const file = input?.files?.[0];
+    const file = fileInputRef.current?.files?.[0];
     if (!file) return;
 
+    setProcessError(null);
     try {
       const { base64, mimeType } = await fileToBase64(file);
       await extract(base64, mimeType);
     } catch (err) {
-      console.error('Failed to process image:', err);
+      const message = err instanceof Error ? err.message : 'فشل معالجة الصورة';
+      setProcessError(message);
     }
   }, [extract]);
 
@@ -187,6 +207,7 @@ export function ScheduleExtractionPage() {
     }) => {
       if (!session?.user) return;
       setIsSavingDraft(true);
+      setActionError(null);
       try {
         await createGroup({
           name: data.name,
@@ -203,7 +224,8 @@ export function ScheduleExtractionPage() {
         setEditingDraft(null);
         await reloadGroups();
       } catch (err) {
-        console.error('Failed to create group:', err);
+        const message = err instanceof Error ? err.message : 'فشل إنشاء المجموعة';
+        setActionError(message);
       } finally {
         setIsSavingDraft(false);
       }
@@ -224,6 +246,7 @@ export function ScheduleExtractionPage() {
     }) => {
       if (!session?.user) return;
       setIsSavingDraft(true);
+      setActionError(null);
       try {
         await createGroup({
           name: data.name,
@@ -240,7 +263,8 @@ export function ScheduleExtractionPage() {
         setCreatingFromCourse(null);
         await reloadGroups();
       } catch (err) {
-        console.error('Failed to create group:', err);
+        const message = err instanceof Error ? err.message : 'فشل إنشاء المجموعة';
+        setActionError(message);
       } finally {
         setIsSavingDraft(false);
       }
@@ -251,13 +275,15 @@ export function ScheduleExtractionPage() {
   const handleJoinGroup = useCallback(async () => {
     if (!selectedGroupId || !session?.user) return;
     setIsJoining(true);
+    setActionError(null);
     try {
       await joinGroup(selectedGroupId, session.user.id);
       setSelectedGroupId(null);
       setGroupDetails(null);
       await reloadGroups();
     } catch (err) {
-      console.error('Failed to join group:', err);
+      const message = err instanceof Error ? err.message : 'فشل الانضمام للمجموعة';
+      setActionError(message);
     } finally {
       setIsJoining(false);
     }
@@ -289,11 +315,30 @@ export function ScheduleExtractionPage() {
         onClear={handleClear}
         isExtracting={isExtracting}
         onExtract={handleExtract}
+        inputRef={fileInputRef}
       />
 
       {error && (
         <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
           <p className="text-rose-400 text-sm">{error}</p>
+        </div>
+      )}
+
+      {processError && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+          <p className="text-rose-400 text-sm">{processError}</p>
+          <button
+            onClick={handleExtract}
+            className="mt-2 text-xs text-rose-300 hover:text-rose-200 underline"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+          <p className="text-rose-400 text-sm">{actionError}</p>
         </div>
       )}
 
@@ -499,6 +544,7 @@ export function ScheduleExtractionPage() {
         isOpen={!!selectedGroupId && !!groupDetails}
         group={groupDetails}
         memberIds={memberIds}
+        currentUserId={session?.user?.id}
         onJoin={handleJoinGroup}
         onClose={() => {
           setSelectedGroupId(null);

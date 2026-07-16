@@ -12,7 +12,9 @@ export type AdminExtractedCourse = ExtractedCourseRecord & {
 };
 
 export async function listAllExtractions(
-  callerRole: string
+  callerRole: string,
+  page = 1,
+  limit = 50
 ): Promise<ServiceResult<AdminExtraction[]>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
@@ -23,10 +25,12 @@ export async function listAllExtractions(
   }
   const client = await getSupabaseClient();
 
+  const from = (page - 1) * limit;
   const { data, error } = await client
     .from('raw_extractions')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, from + limit - 1);
 
   if (error) {
     return { data: null, error: new Error(error.message) };
@@ -69,6 +73,8 @@ export async function listAllExtractions(
       }
     }
   }
+
+  await logAdminAction(callerRole, 'list_all_extractions', { page, limit });
 
   return { data: extractions as AdminExtraction[], error: null };
 }
@@ -116,6 +122,8 @@ export async function getExtractionDetails(
   if (!profileError && profile) {
     user = profile as Profile;
   }
+
+  await logAdminAction(callerRole, 'get_extraction_details', { extractionId });
 
   return {
     data: {
@@ -177,8 +185,27 @@ export async function getPlatformStats(
     client.from('discovered_instructors').select('*', { count: 'exact', head: true }).eq('is_verified', false),
   ]);
 
-  const count = (result: { count: number | null; error: { message: string } | null }) =>
-    result.error ? 0 : (result.count || 0);
+  const errors = [
+    usersResult.error,
+    extractionsResult.error,
+    coursesResult.error,
+    instructorsResult.error,
+    majorsResult.error,
+    testsResult.error,
+    groupsResult.error,
+    verifiedCoursesResult.error,
+    unverifiedCoursesResult.error,
+    verifiedInstructorsResult.error,
+    unverifiedInstructorsResult.error,
+  ].filter(Boolean);
+
+  if (errors.length > 0) {
+    return { data: null, error: new Error(errors[0]!.message) };
+  }
+
+  const count = (result: { count: number | null }) => result.count || 0;
+
+  await logAdminAction(callerRole, 'get_platform_stats', {});
 
   return {
     data: {
@@ -196,4 +223,37 @@ export async function getPlatformStats(
     },
     error: null,
   };
+}
+
+async function logAdminAction(
+  callerId: string,
+  action: string,
+  payload: Record<string, unknown>
+): Promise<void> {
+  if (!hasSupabaseEnv()) return;
+  const client = await getSupabaseClient();
+
+  let ipAddress = 'unknown';
+  let userAgent = 'unknown';
+
+  try {
+    if (typeof window !== 'undefined') {
+      userAgent = navigator.userAgent;
+      const ipResponse = await fetch('/api/ip');
+      if (ipResponse.ok) {
+        const ipData = (await ipResponse.json()) as { ip: string };
+        ipAddress = ipData.ip;
+      }
+    }
+  } catch {
+    // keep fallback values
+  }
+
+  await client.from('admin_audit_log').insert({
+    caller_id: callerId,
+    action,
+    payload,
+    ip_address: ipAddress,
+    user_agent: userAgent,
+  });
 }

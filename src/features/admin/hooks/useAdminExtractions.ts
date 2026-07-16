@@ -9,18 +9,18 @@ import {
   type AdminExtraction,
 } from '../services/adminExtractionService.supabase';
 
-export function useAdminExtractions() {
+export function useAdminExtractions(page = 1, limit = 50) {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
   const callerRole = profile?.role || '';
 
   return useQuery({
-    queryKey: ['admin', 'extractions'],
+    queryKey: ['admin', 'extractions', page, limit],
     queryFn: async (): Promise<AdminExtraction[]> => {
       if (!isAdmin) {
         throw new Error('Unauthorized');
       }
-      const result = await listAllExtractions(callerRole);
+      const result = await listAllExtractions(callerRole, page, limit);
       if (result.error) throw result.error;
       return result.data as AdminExtraction[];
     },
@@ -70,7 +70,7 @@ export function usePlatformStats() {
 export function useRefreshAdminData() {
   const queryClient = useQueryClient();
 
-  return () => {
-    queryClient.invalidateQueries({ queryKey: ['admin'] });
+  return async () => {
+    await queryClient.invalidateQueries({ queryKey: ['admin'] });
   };
 }

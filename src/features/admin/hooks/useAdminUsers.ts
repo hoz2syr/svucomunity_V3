@@ -4,18 +4,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { listAllUsers, updateUserRole, type AdminUser } from '../services/adminUserService.supabase';
 
-export function useAdminUsers() {
+export function useAdminUsers(page = 1, limit = 50) {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
   const callerRole = profile?.role || '';
 
   return useQuery({
-    queryKey: ['admin', 'users'],
+    queryKey: ['admin', 'users', page, limit],
     queryFn: async (): Promise<AdminUser[]> => {
       if (!isAdmin) {
         throw new Error('Unauthorized');
       }
-      const result = await listAllUsers(callerRole);
+      const result = await listAllUsers(callerRole, page, limit);
       if (result.error) throw result.error;
       return result.data as AdminUser[];
     },

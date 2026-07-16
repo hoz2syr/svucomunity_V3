@@ -54,8 +54,10 @@ export function ExtractionTracking() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExtraction, setSelectedExtraction] = useState<DetailModalData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 50;
 
-  const { data: extractions, isLoading: extractionsLoading, error: extractionsError, refetch } = useAdminExtractions();
+  const { data: extractions, isLoading: extractionsLoading, error: extractionsError, refetch } = useAdminExtractions(page, limit);
   const { data: detail, isLoading: detailLoading } = useAdminExtractionDetail(
     isModalOpen && selectedExtraction ? selectedExtraction.extraction.id : null
   );
@@ -196,6 +198,26 @@ export function ExtractionTracking() {
               </div>
             </GlassCard>
           ))}
+        </div>
+      )}
+
+      {!extractionsLoading && filteredExtractions.length > 0 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-slate-400">صفحة {page}</span>
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={filteredExtractions.length < limit}
+          >
+            التالي
+          </Button>
         </div>
       )}
 

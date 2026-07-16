@@ -9,7 +9,9 @@ export type AdminUser = Profile & {
 };
 
 export async function listAllUsers(
-  callerRole: string
+  callerRole: string,
+  page = 1,
+  limit = 50
 ): Promise<ServiceResult<AdminUser[]>> {
   if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
@@ -20,14 +22,18 @@ export async function listAllUsers(
   }
   const client = await getSupabaseClient();
 
+  const from = (page - 1) * limit;
   const { data, error } = await client
     .from('profiles')
     .select('id, full_name, email, username, role, provider, provider_id, major, created_at, updated_at')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, from + limit - 1);
 
   if (error) {
     return { data: null, error: new Error(error.message) };
   }
+
+  await logAdminAction(callerRole, 'list_all_users', { page, limit });
 
   return { data: data as AdminUser[], error: null };
 }

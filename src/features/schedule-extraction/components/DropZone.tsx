@@ -10,6 +10,7 @@ interface DropZoneProps {
   isExtracting: boolean;
   onExtract: () => void;
   disabled?: boolean;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 export function DropZone({
@@ -19,9 +20,17 @@ export function DropZone({
   isExtracting,
   onExtract,
   disabled = false,
+  inputRef,
 }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalInputRef = useRef<HTMLInputElement>(null);
+
+  const resolvedInputRef = inputRef || internalInputRef;
+  const inputElement = (resolvedInputRef as React.RefObject<HTMLInputElement | null>).current;
+
+  const openFilePicker = () => {
+    inputElement?.click();
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -43,10 +52,6 @@ export function DropZone({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) onFileSelect(file);
-  };
-
-  const openFilePicker = () => {
-    inputRef.current?.click();
   };
 
   return (
@@ -77,7 +82,7 @@ export function DropZone({
         aria-label="رفع صورة الجدول"
       >
         <input
-          ref={inputRef}
+          ref={resolvedInputRef as React.Ref<HTMLInputElement>}
           type="file"
           accept="image/*"
           className="hidden"

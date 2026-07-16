@@ -11,44 +11,44 @@ import {
 import type { ServiceResult } from '@/src/types/admin';
 import type { DiscoveredCourse, DiscoveredInstructor } from '@/src/types/database';
 
-export const unverifiedCoursesQueryOptions = (callerRole: string) =>
+export const unverifiedCoursesQueryOptions = (callerRole: string, page = 1, limit = 50) =>
   queryOptions({
-    queryKey: ['admin', 'unverified-courses'],
+    queryKey: ['admin', 'unverified-courses', page, limit],
     queryFn: async (): Promise<DiscoveredCourse[]> => {
-      const result: ServiceResult<DiscoveredCourse[]> = await loadUnverifiedCourses(callerRole);
+      const result: ServiceResult<DiscoveredCourse[]> = await loadUnverifiedCourses(callerRole, page, limit);
       if (result.error) throw result.error;
       return result.data as DiscoveredCourse[];
     },
   });
 
-export const unverifiedInstructorsQueryOptions = (callerRole: string) =>
+export const unverifiedInstructorsQueryOptions = (callerRole: string, page = 1, limit = 50) =>
   queryOptions({
-    queryKey: ['admin', 'unverified-instructors'],
+    queryKey: ['admin', 'unverified-instructors', page, limit],
     queryFn: async (): Promise<DiscoveredInstructor[]> => {
-      const result: ServiceResult<DiscoveredInstructor[]> = await loadUnverifiedInstructors(callerRole);
+      const result: ServiceResult<DiscoveredInstructor[]> = await loadUnverifiedInstructors(callerRole, page, limit);
       if (result.error) throw result.error;
       return result.data as DiscoveredInstructor[];
     },
   });
 
-export function useUnverifiedCourses() {
+export function useUnverifiedCourses(page = 1, limit = 50) {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
   const callerRole = profile?.role || '';
 
   return useQuery({
-    ...unverifiedCoursesQueryOptions(callerRole),
+    ...unverifiedCoursesQueryOptions(callerRole, page, limit),
     enabled: isAdmin,
   });
 }
 
-export function useUnverifiedInstructors() {
+export function useUnverifiedInstructors(page = 1, limit = 50) {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
   const callerRole = profile?.role || '';
 
   return useQuery({
-    ...unverifiedInstructorsQueryOptions(callerRole),
+    ...unverifiedInstructorsQueryOptions(callerRole, page, limit),
     enabled: isAdmin,
   });
 }

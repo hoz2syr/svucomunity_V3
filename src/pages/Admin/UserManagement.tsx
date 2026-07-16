@@ -31,8 +31,10 @@ export function UserManagement() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<RoleOption>('user');
   const [confirmTarget, setConfirmTarget] = useState<{ userId: string; newRole: RoleOption; userName: string } | null>(null);
+  const [page, setPage] = useState(1);
+  const limit = 50;
 
-  const { data: users, isLoading: usersLoading, error: usersError, refetch } = useAdminUsers();
+  const { data: users, isLoading: usersLoading, error: usersError, refetch } = useAdminUsers(page, limit);
   const updateRoleMutation = useUpdateUserRole();
 
   const filteredUsers = useMemo(() => {
@@ -268,6 +270,26 @@ export function UserManagement() {
               </div>
             </GlassCard>
           ))}
+        </div>
+      )}
+
+      {!usersLoading && filteredUsers.length > 0 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-slate-400">صفحة {page}</span>
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={filteredUsers.length < limit}
+          >
+            التالي
+          </Button>
         </div>
       )}
 

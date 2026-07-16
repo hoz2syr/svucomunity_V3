@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
@@ -57,6 +58,7 @@ export function Reports() {
   const { profile, loading: authLoading } = useAuth();
   const isAdmin = profile?.role === 'admin';
   const refresh = useRefreshAdminData();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { data: stats, isLoading: statsLoading, error: statsError, refetch } = usePlatformStats();
 
@@ -91,13 +93,18 @@ export function Reports() {
         </div>
         <Button
           variant="secondary"
-          onClick={() => {
-            refetch();
-            refresh();
+          onClick={async () => {
+            setIsRefreshing(true);
+            try {
+              await Promise.all([refetch(), refresh()]);
+            } finally {
+              setIsRefreshing(false);
+            }
           }}
           icon={<Icon icon={RefreshCw} size="xs" />}
+          disabled={isRefreshing}
         >
-          تحديث
+          {isRefreshing ? 'جاري التحديث...' : 'تحديث'}
         </Button>
       </div>
 

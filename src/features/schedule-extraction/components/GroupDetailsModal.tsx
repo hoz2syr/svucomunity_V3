@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ModalShell } from "./shared/ModalShell";
 import { ProgressBar } from "./shared/ProgressBar";
+import { checkMembership } from "@/src/features/study-groups/services/studyGroup.supabase";
 
 interface GroupDetailsModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ interface GroupDetailsModalProps {
     group_link?: string | null;
   } | null;
   memberIds: string[];
+  currentUserId?: string;
   onJoin: () => void;
   onClose: () => void;
   isJoining: boolean;
@@ -44,13 +46,15 @@ interface GroupDetailsModalProps {
 export function GroupDetailsModal({
   isOpen,
   group,
-  memberIds,
+  memberIds: _memberIds,
+  currentUserId,
   onJoin,
   onClose,
   isJoining,
   i18n,
 }: GroupDetailsModalProps) {
   const [showConfirmJoin, setShowConfirmJoin] = useState(false);
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -65,9 +69,25 @@ export function GroupDetailsModal({
     }
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen || !group?.id || !currentUserId) {
+      setIsMember(false);
+      return;
+    }
+
+    let cancelled = false;
+    checkMembership(group.id, currentUserId).then((res) => {
+      if (!cancelled) {
+        setIsMember(res.data === true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, group?.id, currentUserId]);
+
   if (!isOpen || !group) return null;
 
-  const isMember = memberIds.length > 0;
   const isFull = group.current_members >= group.max_members;
 
   const handleConfirmJoin = () => {
