@@ -48,7 +48,7 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
 
   const form = useForm<LoginInput | RegisterInput>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema as any),
     mode: 'onSubmit',
     defaultValues: {
       email: '',

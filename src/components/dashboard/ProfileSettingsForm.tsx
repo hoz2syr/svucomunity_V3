@@ -23,7 +23,7 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
   const [loadingMajors, setLoadingMajors] = useState(true);
 
   const form = useForm<ProfileInput>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema as any),
     defaultValues: initial,
     mode: 'onBlur',
   });

@@ -4,11 +4,17 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Search, BookOpen, Monitor } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSubjects } from '../hooks/useSubjects';
+import { useCurrentSemesterCourses } from "../../../schedule-extraction/hooks/useCurrentSemesterCourses";
 import { SubjectCard } from '../../components/SubjectCard';
 
 export function SubjectsHome() {
   const { subjects, major } = useSubjects();
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: currentSemesterCourses = [] } = useCurrentSemesterCourses();
+
+  const currentSemesterCourseCodes = useMemo(() => {
+    return new Set(currentSemesterCourses.map(course => course.full_code));
+  }, [currentSemesterCourses]);
 
   const filteredSubjects = useMemo(() => {
     if (!searchQuery.trim()) return subjects;
@@ -113,7 +119,11 @@ export function SubjectsHome() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredSubjects.map((subject) => (
-            <SubjectCard key={subject.id} course={subject} />
+            <SubjectCard
+              key={subject.id}
+              course={subject}
+              isCurrentSemester={currentSemesterCourseCodes.has(subject.id)}
+            />
           ))}
         </div>
       )}

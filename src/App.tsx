@@ -16,7 +16,10 @@ import { StudyGroupsLayout } from './features/study-groups/components/StudyGroup
 import { ScheduleExtractionLayout } from './features/schedule-extraction';
 import { CoursesLayout } from './features/courses';
 import { SubjectsLayout } from './features/subjects';
+import { DashboardLayout } from './pages/Dashboard/DashboardLayout';
 import { ToastProvider } from './components/ui/Toast';
+import { AdminGuard } from './components/guards/AdminGuard';
+import { AdminLayout } from './pages/Admin/AdminLayout';
 
 const RouteLoader = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
@@ -50,6 +53,11 @@ const LazyScheduleExtractionPage = lazy(() => import('./features/schedule-extrac
 const LazyCoursesHome = lazy(() => import('./features/courses').then(m => ({ default: m.CoursesHome })));
 const LazySubjectsHome = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectsHome })));
 const LazySubjectDetailPage = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectDetailPage })));
+const LazyAnalyticsPage = lazy(() => import('./pages/Analytics').then(m => ({ default: m.AnalyticsPage })));
+const LazyVerificationPanel = lazy(() => import('./pages/Admin/VerificationPanel').then(m => ({ default: m.VerificationPanel })));
+const LazyUserManagement = lazy(() => import('./pages/Admin/UserManagement').then(m => ({ default: m.UserManagement })));
+const LazyExtractionTracking = lazy(() => import('./pages/Admin/ExtractionTracking').then(m => ({ default: m.ExtractionTracking })));
+const LazyReports = lazy(() => import('./pages/Admin/Reports').then(m => ({ default: m.Reports })));
 
 function App() {
   const [queryClient] = useState(() => createQueryClient());
@@ -218,17 +226,67 @@ function App() {
                        )
                      }
                    />
-                   <Route
-                     path="/dashboard/subjects/:courseCode"
-                     element={
-                       withRouteShell(
-                         <SubjectsLayout>
-                           <LazySubjectDetailPage />
-                         </SubjectsLayout>
-                       )
-                     }
-                   />
-                   <Route path="*" element={<NotFoundPage />} />
+                     <Route
+                       path="/dashboard/subjects/:courseCode"
+                       element={
+                         withRouteShell(
+                           <SubjectsLayout>
+                             <LazySubjectDetailPage />
+                           </SubjectsLayout>
+                         )
+                       }
+                     />
+                      <Route
+                        path="/admin"
+                        element={
+                          <AdminGuard>
+                            <AdminLayout />
+                          </AdminGuard>
+                        }
+                      >
+                        <Route
+                          path="users"
+                          element={
+                            <Suspense fallback={<RouteLoader />}>
+                              <LazyUserManagement />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="extractions"
+                          element={
+                            <Suspense fallback={<RouteLoader />}>
+                              <LazyExtractionTracking />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="reports"
+                          element={
+                            <Suspense fallback={<RouteLoader />}>
+                              <LazyReports />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="verification"
+                          element={
+                            <Suspense fallback={<RouteLoader />}>
+                              <LazyVerificationPanel />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="analytics"
+                          element={
+                            <Suspense fallback={<RouteLoader />}>
+                              <LazyAnalyticsPage />
+                            </Suspense>
+                          }
+                        />
+                        <Route index element={<Navigate to="users" replace />} />
+                      </Route>
+                      <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </ErrorBoundary>
             </Router>

@@ -35,6 +35,8 @@ import {
   BookOpen,
   Languages,
   MessageSquare,
+  CalendarDays,
+  BookMarked,
 } from 'lucide-react';
 import { useCourses } from '../hooks/useCourses';
 import { coursesDB, promotionThresholds, yearNames } from '../data/coursesData';
@@ -43,6 +45,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/src/components/ui/Button';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Icon } from '@/src/components/ui/Icon';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useCurrentSemesterCourses } from '@/src/features/schedule-extraction/hooks/useCurrentSemesterCourses';
+import { CourseSuggestionCard } from '@/src/features/schedule-extraction/components/CourseSuggestionCard';
 
 export function CoursesHome() {
   const {
@@ -63,6 +68,12 @@ export function CoursesHome() {
     getCourseStatus,
     getYearFromCredits,
   } = useCourses();
+
+  const { session: _session } = useAuth();
+  const [activeTab, setActiveTab] = useState<'plan' | 'current'>('plan');
+
+  const { data: currentSemesterCourses, isLoading: isLoadingSemester, error: semesterError } =
+    useCurrentSemesterCourses();
 
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [finishStatuses, setFinishStatuses] = useState<Record<string, 'passed' | 'carried'>>({});
@@ -235,178 +246,283 @@ export function CoursesHome() {
         </Link>
       </div>
 
-      <div className="bg-slate-800/60 border border-white/8 rounded-2xl p-4 sm:p-6 mb-8 shadow-xl max-w-5xl mx-auto">
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Icon icon={Zap} size="lg" className="text-orange-400" />
-            <span className="text-white font-black text-lg">الرصيد المُنجز:</span>
-            <span className="text-3xl font-black text-orange-400" style={{ textShadow: '0 0 15px rgba(255,126,0,0.4)' }}>
-              {totalEarnedCredits}
-            </span>
-            <small className="text-slate-500 text-xs font-bold hidden sm:inline">نقطة</small>
-          </div>
-
-          <div className="flex-1 min-w-[200px]">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-white font-black text-sm">التقدم نحو الترفع</span>
-              <span className="text-slate-400 text-xs font-bold">
-                {totalEarnedCredits < 260
-                  ? `تحتاج إلى ${nextTarget.credits - totalEarnedCredits} نقطة`
-                  : 'مبارك التخرج يا مهندس! 🎓'}
-              </span>
-            </div>
-            <div className="h-2.5 bg-slate-900/80 rounded-full overflow-hidden shadow-inner">
-              <motion.div
-                className="h-full bg-gradient-to-l from-amber-400 to-orange-500 rounded-full"
-                style={{ boxShadow: '0 0 10px rgba(255,126,0,0.5)' }}
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
-              />
-            </div>
-          </div>
+      <div className="max-w-5xl mx-auto mb-6">
+        <div className="flex bg-slate-800/80 border border-white/8 rounded-xl p-1.5 gap-1">
+          <button
+            onClick={() => setActiveTab('plan')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm transition-all ${
+              activeTab === 'plan'
+                ? 'bg-orange-500/15 text-orange-400 shadow-[0_0_12px_rgba(255,126,0,0.15)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Icon icon={BookMarked} size="sm" />
+            خطة الدراسة
+          </button>
+          <button
+            onClick={() => setActiveTab('current')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm transition-all ${
+              activeTab === 'current'
+                ? 'bg-orange-500/15 text-orange-400 shadow-[0_0_12px_rgba(255,126,0,0.15)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Icon icon={CalendarDays} size="sm" />
+            الفصل الحالي
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
-        {Object.entries(levels)
-          .filter(([key]) => key !== 'ENG')
-          .map(([year, courses]) => (
-            <GlassCard key={year} className="p-4 sm:p-5">
-              <h3 className="text-center font-black text-white bg-slate-800 rounded-xl p-3 mb-4 border-b-2 border-orange-500 shadow-lg">
-                {yearNames[Number(year) as keyof typeof yearNames]}
-              </h3>
-              <div className="flex flex-col gap-2.5">
-                {courses.map(course => {
-                  const status = getCourseStatus(course.id);
-                  const isLocked = status === 'locked';
-                  const isCarried = carriedCourses.includes(course.id) && !currentCart.includes(course.id);
-                  const CourseIcon = course.icon ? courseIconMap[course.icon] : defaultCourseIcon;
+      <AnimatePresence mode="wait">
+        {activeTab === 'current' && (
+          <motion.div
+            key="current-semester"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="max-w-5xl mx-auto mb-8"
+          >
+            <GlassCard className="p-5 sm:p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
+                  <Icon icon={CalendarDays} size="lg" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-white">الفصل الحالي</h2>
+                  <p className="text-slate-400 text-xs font-bold">المواد المسجّلة من الجدول extraction</p>
+                </div>
+              </div>
 
-                  return (
-                    <motion.div
+              {isLoadingSemester && (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-10 h-10 border-3 border-orange-500/20 border-t-orange-500 rounded-full"
+                  />
+                  <p className="text-slate-400 font-bold text-sm">جاري تحميل المواد...</p>
+                </div>
+              )}
+
+              {semesterError && (
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-5 text-center">
+                  <p className="text-rose-400 font-bold text-sm">حدث خطأ أثناء تحميل المواد</p>
+                  <p className="text-slate-400 text-xs mt-1">{semesterError.message}</p>
+                </div>
+              )}
+
+              {!isLoadingSemester && !semesterError && (!currentSemesterCourses || currentSemesterCourses.length === 0) && (
+                <div className="flex flex-col items-center justify-center py-14 gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-700/40 flex items-center justify-center text-slate-500">
+                    <Icon icon={BookOpen} size="xl" />
+                  </div>
+                  <p className="text-slate-400 font-bold text-sm">لا توجد مواد للفصل الحالي</p>
+                  <p className="text-slate-500 text-xs">قم بتحميل جدولك الدراسي لرؤية المواد هنا</p>
+                </div>
+              )}
+
+              {!isLoadingSemester && !semesterError && currentSemesterCourses && currentSemesterCourses.length > 0 && (
+                <div className="space-y-3">
+                  {currentSemesterCourses.map(course => (
+                    <CourseSuggestionCard
                       key={course.id}
-                      whileHover={!isLocked ? { y: -3 } : undefined}
-                      onClick={() => !isLocked && handleCourseClick(course.id)}
-                      className={`
-                        relative p-3.5 rounded-xl border cursor-pointer transition-all shadow-lg
-                        ${isLocked ? 'bg-slate-800/40 opacity-60 border-dashed cursor-not-allowed' : ''}
-                        ${status === 'available' ? 'border-r-4 border-cyan-500 bg-slate-800/60' : ''}
-                        ${status === 'selected' ? 'border-r-4 border-orange-500 bg-orange-500/10 scale-[1.02] shadow-orange-500/15' : ''}
-                        ${status === 'passed' ? 'border-r-4 border-emerald-500 bg-emerald-500/8' : ''}
-                        ${status === 'carried' ? 'border-r-4 border-rose-500 bg-rose-500/8' : ''}
-                      `}
-                    >
-                      <button
-                        onClick={(e) => handleInfoClick(e, course.id)}
-                        className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center z-10 font-bold hover:bg-orange-500 transition-all"
-                      >
-                        <Icon icon={Info} size="xs" />
-                      </button>
+                      course={course}
+                    />
+                  ))}
+                </div>
+              )}
+            </GlassCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-                      <div className="flex items-start gap-2.5 pr-9">
-                        <div className={`mt-0.5 flex-shrink-0 ${isLocked ? 'text-slate-600' : 'text-orange-400'}`}>
-                          <Icon icon={CourseIcon} size="sm" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-extrabold text-white text-sm leading-tight truncate">{course.name}</h3>
-                          <div className="flex justify-between items-center mt-1.5 text-xs font-bold text-slate-400">
-                            <span className="direction-ltr">{course.id}</span>
-                            <div className="flex items-center gap-2">
-                              {isCarried && <span className="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[10px] shadow-[0_0_8px_rgba(239,68,68,0.4)]">حمل</span>}
-                              <span className={`px-2 py-1 rounded-lg ${course.isEnglish ? 'text-[10px]' : ''}`}>
-                                {course.earned ? `${course.credits} تنزيل ← ${course.earned} ترفيع` : `${course.credits} نقطة`}
-                              </span>
+      <AnimatePresence mode="wait">
+        {activeTab === 'plan' && (
+          <motion.div
+            key="plan-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="bg-slate-800/60 border border-white/8 rounded-2xl p-4 sm:p-6 mb-8 shadow-xl max-w-5xl mx-auto">
+              <div className="flex flex-wrap justify-between items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <Icon icon={Zap} size="lg" className="text-orange-400" />
+                  <span className="text-white font-black text-lg">الرصيد المُنجز:</span>
+                  <span className="text-3xl font-black text-orange-400" style={{ textShadow: '0 0 15px rgba(255,126,0,0.4)' }}>
+                    {totalEarnedCredits}
+                  </span>
+                  <small className="text-slate-500 text-xs font-bold hidden sm:inline">نقطة</small>
+                </div>
+
+                <div className="flex-1 min-w-[200px]">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-black text-sm">التقدم نحو الترفع</span>
+                    <span className="text-slate-400 text-xs font-bold">
+                      {totalEarnedCredits < 260
+                        ? `تحتاج إلى ${nextTarget.credits - totalEarnedCredits} نقطة`
+                        : 'مبارك التخرج يا مهندس! 🎓'}
+                    </span>
+                  </div>
+                  <div className="h-2.5 bg-slate-900/80 rounded-full overflow-hidden shadow-inner">
+                    <motion.div
+                      className="h-full bg-gradient-to-l from-amber-400 to-orange-500 rounded-full"
+                      style={{ boxShadow: '0 0 10px rgba(255,126,0,0.5)' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 1, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
+              {(Object.entries(levels) as [string, (Course & { id: string })[]][])
+                .filter(([key]) => !isNaN(Number(key)))
+                .map(([year, courses]) => (
+                  <GlassCard key={year} className="p-4 sm:p-5">
+                    <h3 className="text-center font-black text-white bg-slate-800 rounded-xl p-3 mb-4 border-b-2 border-orange-500 shadow-lg">
+                      {yearNames[Number(year) as keyof typeof yearNames]}
+                    </h3>
+                    <div className="flex flex-col gap-2.5">
+                      {courses.map(course => {
+                        const status = getCourseStatus(course.id);
+                        const isLocked = status === 'locked';
+                        const isCarried = carriedCourses.includes(course.id) && !currentCart.includes(course.id);
+                        const CourseIcon = course.icon ? courseIconMap[course.icon] : defaultCourseIcon;
+
+                        return (
+                          <motion.div
+                            key={course.id}
+                            whileHover={!isLocked ? { y: -3 } : undefined}
+                            onClick={() => !isLocked && handleCourseClick(course.id)}
+                            className={`
+                              relative p-3.5 rounded-xl border cursor-pointer transition-all shadow-lg
+                              ${isLocked ? 'bg-slate-800/40 opacity-60 border-dashed cursor-not-allowed' : ''}
+                              ${status === 'available' ? 'border-r-4 border-cyan-500 bg-slate-800/60' : ''}
+                              ${status === 'selected' ? 'border-r-4 border-orange-500 bg-orange-500/10 scale-[1.02] shadow-orange-500/15' : ''}
+                              ${status === 'passed' ? 'border-r-4 border-emerald-500 bg-emerald-500/8' : ''}
+                              ${status === 'carried' ? 'border-r-4 border-rose-500 bg-rose-500/8' : ''}
+                            `}
+                          >
+                            <button
+                              onClick={(e) => handleInfoClick(e, course.id)}
+                              className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center z-10 font-bold hover:bg-orange-500 transition-all"
+                            >
+                              <Icon icon={Info} size="xs" />
+                            </button>
+
+                            <div className="flex items-start gap-2.5 pr-9">
+                              <div className={`mt-0.5 flex-shrink-0 ${isLocked ? 'text-slate-600' : 'text-orange-400'}`}>
+                                <Icon icon={CourseIcon} size="sm" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-extrabold text-white text-sm leading-tight truncate">{course.name}</h3>
+                                <div className="flex justify-between items-center mt-1.5 text-xs font-bold text-slate-400">
+                                  <span className="direction-ltr">{course.id}</span>
+                                  <div className="flex items-center gap-2">
+                                    {isCarried && <span className="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[10px] shadow-[0_0_8px_rgba(239,68,68,0.4)]">حمل</span>}
+                                    <span className={`px-2 py-1 rounded-lg ${course.isEnglish ? 'text-[10px]' : ''}`}>
+                                      {course.earned ? `${course.credits} تنزيل ← ${course.earned} ترفيع` : `${course.credits} نقطة`}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </GlassCard>
+                ))}
+            </div>
+
+            {levels.ENG.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-black text-white border-b-2 border-orange-500 inline-block pb-1 mb-4">🇬🇧 مسار اللغة الإنجليزية</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-orange-500/3 border border-dashed border-orange-500/20 rounded-2xl p-4">
+                  {levels.ENG.map(course => {
+                    const status = getCourseStatus(course.id);
+                    const isLocked = status === 'locked';
+                    const isCarried = carriedCourses.includes(course.id) && !currentCart.includes(course.id);
+                    const CourseIcon = course.icon ? courseIconMap[course.icon] : defaultCourseIcon;
+
+                    return (
+                      <motion.div
+                        key={course.id}
+                        whileHover={!isLocked ? { y: -3 } : undefined}
+                        onClick={() => !isLocked && handleCourseClick(course.id)}
+                        className={`
+                          relative p-3.5 rounded-xl border cursor-pointer transition-all shadow-lg
+                          ${isLocked ? 'bg-slate-800/40 opacity-60 border-dashed cursor-not-allowed' : ''}
+                          ${status === 'available' ? 'border-r-4 border-cyan-500 bg-slate-800/60' : ''}
+                          ${status === 'selected' ? 'border-r-4 border-orange-500 bg-orange-500/10 scale-[1.02]' : ''}
+                          ${status === 'passed' ? 'border-r-4 border-emerald-500 bg-emerald-500/8' : ''}
+                          ${status === 'carried' ? 'border-r-4 border-rose-500 bg-rose-500/8' : ''}
+                        `}
+                      >
+                        <button
+                          onClick={(e) => handleInfoClick(e, course.id)}
+                          className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center z-10 font-bold hover:bg-orange-500 transition-all"
+                        >
+                          <Icon icon={Info} size="xs" />
+                        </button>
+
+                        <div className="flex items-start gap-2.5 pr-9">
+                          <div className={`mt-0.5 flex-shrink-0 ${isLocked ? 'text-slate-600' : 'text-orange-400'}`}>
+                            <Icon icon={CourseIcon} size="sm" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-extrabold text-white text-sm leading-tight truncate">{course.name}</h3>
+                            <div className="flex justify-between items-center mt-1.5 text-xs font-bold text-slate-400">
+                              <span className="direction-ltr">{course.id}</span>
+                              <div className="flex items-center gap-2">
+                                {isCarried && <span className="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[10px]">حمل</span>}
+                                <span className="text-[10px]">{course.credits} تنزيل ← {course.earned} ترفيع</span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
-            </GlassCard>
-          ))}
-      </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {levels.ENG.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-black text-white border-b-2 border-orange-500 inline-block pb-1 mb-4">🇬🇧 مسار اللغة الإنجليزية</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-orange-500/3 border border-dashed border-orange-500/20 rounded-2xl p-4">
-            {levels.ENG.map(course => {
-              const status = getCourseStatus(course.id);
-              const isLocked = status === 'locked';
-              const isCarried = carriedCourses.includes(course.id) && !currentCart.includes(course.id);
-              const CourseIcon = course.icon ? courseIconMap[course.icon] : defaultCourseIcon;
+      {activeTab === 'plan' && (
+        <div
+          className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-white/5 z-40 shadow-[0_-5px_25px_rgba(0,0,0,0.3)]"
+          dir="rtl"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Icon icon={Zap} size="lg" className="text-orange-400" />
+              <span className="text-white font-black text-lg">عبء التنزيل الحالي:</span>
+              <span className={`px-4 py-1.5 rounded-xl text-xl font-black ${hoursValid ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/10 text-white border border-white/10'}`}>
+                {currentSemesterHours}
+              </span>
+              <small className="text-slate-500 text-xs font-bold hidden sm:inline">(مسموح 16 - 36)</small>
+            </div>
 
-              return (
-                <motion.div
-                  key={course.id}
-                  whileHover={!isLocked ? { y: -3 } : undefined}
-                  onClick={() => !isLocked && handleCourseClick(course.id)}
-                  className={`
-                    relative p-3.5 rounded-xl border cursor-pointer transition-all shadow-lg
-                    ${isLocked ? 'bg-slate-800/40 opacity-60 border-dashed cursor-not-allowed' : ''}
-                    ${status === 'available' ? 'border-r-4 border-cyan-500 bg-slate-800/60' : ''}
-                    ${status === 'selected' ? 'border-r-4 border-orange-500 bg-orange-500/10 scale-[1.02]' : ''}
-                    ${status === 'passed' ? 'border-r-4 border-emerald-500 bg-emerald-500/8' : ''}
-                    ${status === 'carried' ? 'border-r-4 border-rose-500 bg-rose-500/8' : ''}
-                  `}
-                >
-                  <button
-                    onClick={(e) => handleInfoClick(e, course.id)}
-                    className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center z-10 font-bold hover:bg-orange-500 transition-all"
-                  >
-                    <Icon icon={Info} size="xs" />
-                  </button>
-
-                  <div className="flex items-start gap-2.5 pr-9">
-                    <div className={`mt-0.5 flex-shrink-0 ${isLocked ? 'text-slate-600' : 'text-orange-400'}`}>
-                      <Icon icon={CourseIcon} size="sm" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-extrabold text-white text-sm leading-tight truncate">{course.name}</h3>
-                      <div className="flex justify-between items-center mt-1.5 text-xs font-bold text-slate-400">
-                        <span className="direction-ltr">{course.id}</span>
-                        <div className="flex items-center gap-2">
-                          {isCarried && <span className="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[10px]">حمل</span>}
-                          <span className="text-[10px]">{course.credits} تنزيل ← {course.earned} ترفيع</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+            <Button
+              onClick={openFinishModal}
+              disabled={!hoursValid || currentCart.length === 0}
+              variant="primary"
+              icon={<Save className="w-5 h-5" />}
+              className="text-lg"
+            >
+              تثبيت مواد الفصل
+            </Button>
           </div>
         </div>
       )}
-
-      <div
-        className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-white/5 z-40 shadow-[0_-5px_25px_rgba(0,0,0,0.3)]"
-        dir="rtl"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Icon icon={Zap} size="lg" className="text-orange-400" />
-            <span className="text-white font-black text-lg">عبء التنزيل الحالي:</span>
-            <span className={`px-4 py-1.5 rounded-xl text-xl font-black ${hoursValid ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/10 text-white border border-white/10'}`}>
-              {currentSemesterHours}
-            </span>
-            <small className="text-slate-500 text-xs font-bold hidden sm:inline">(مسموح 16 - 36)</small>
-          </div>
-
-          <Button
-            onClick={openFinishModal}
-            disabled={!hoursValid || currentCart.length === 0}
-            variant="primary"
-            icon={<Save className="w-5 h-5" />}
-            className="text-lg"
-          >
-            تثبيت مواد الفصل
-          </Button>
-        </div>
-      </div>
 
       <AnimatePresence>
         {modal && (
@@ -433,27 +549,27 @@ export function CoursesHome() {
 
                 {modal.title === 'حالة مواد الفصل' && (
                   <div className="space-y-3">
-                    {currentCart.map(id => {
-                      const course = coursesDB[id];
-                      if (!course) return null;
-                      const status = finishStatuses[id] || 'passed';
-                      return (
-                        <div
-                          key={id}
-                          className="flex justify-between items-center bg-slate-900/60 p-4 rounded-xl border border-white/5"
-                        >
-                          <span className="text-white font-bold">{course.name}</span>
-                          <select
-                            value={status}
-                            onChange={(e) => setFinishStatuses(prev => ({ ...prev, [id]: e.target.value as 'passed' | 'carried' }))}
-                            className="px-3 py-2 rounded-lg bg-slate-900 text-white border border-white/10 font-bold text-sm outline-none"
-                          >
-                            <option value="passed">✅ ناجح</option>
-                            <option value="carried">⚠️ حمل</option>
-                          </select>
-                        </div>
-                      );
-                    })}
+                     {currentCart.map(id => {
+                       const course = coursesDB[id];
+                       if (!course) return null;
+                       const status = finishStatuses[id] || 'passed';
+                       return (
+                         <div
+                           key={id}
+                           className="flex justify-between items-center bg-slate-900/60 p-4 rounded-xl border border-white/5"
+                         >
+                           <span className="text-white font-bold">{course.name}</span>
+                           <select
+                             value={status}
+                             onChange={(e) => setFinishStatuses(prev => ({ ...prev, [id]: e.target.value as 'passed' | 'carried' }))}
+                             className="px-3 py-2 rounded-lg bg-slate-900 text-white border border-white/10 font-bold text-sm outline-none"
+                           >
+                             <option value="passed">✅ ناجح</option>
+                             <option value="carried">⚠️ حمل</option>
+                           </select>
+                         </div>
+                       );
+                     })}
                     <Button
                       onClick={handleFinishClick}
                       variant="primary"
@@ -522,7 +638,7 @@ export function CoursesHome() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {selectedCourseId && selectedCourse && selectedCourseId !== 'about' && (
+        {selectedCourseId && selectedCourse && selectedCourseId !== 'about' && !modal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
