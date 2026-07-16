@@ -1,7 +1,6 @@
 import { TestModel, Question } from '../types';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header } from 'docx';
 import { saveAs } from 'file-saver';
-import { escapeHtml } from './utils';
+import { escapeHtml } from '@/src/lib/utils';
 
 const EXPORT_COLORS = {
   text: '#0f172a',
@@ -85,52 +84,6 @@ function renderQuestionPdf(test: TestModel, q: Question, _index: number): string
   return parts.join('');
 }
 
-function renderQuestionWord(test: TestModel, q: Question, index: number, children: Paragraph[]) {
-  children.push(new Paragraph({
-    bidirectional: true,
-    spacing: { before: 400, after: 200 },
-    children: [new TextRun({ text: `${index + 1}. ${q.text}`, bold: true, size: 32, color: EXPORT_COLORS.text, font: 'Arial' })]
-  }));
-
-  if (q.type === 'multiple_choice' && q.options) {
-    q.options.forEach(opt => {
-      const m = getMCQOptionMeta(opt, q.correctAnswer, test.settings.showExplanations);
-      children.push(new Paragraph({
-        bidirectional: true,
-        spacing: { before: 80, after: 80 },
-        indent: { start: 720 },
-        children: [new TextRun({ text: m.icon + m.text, bold: m.isCorrect, color: m.isCorrect ? EXPORT_COLORS.correct : EXPORT_COLORS.incorrect, size: 28, font: 'Arial' })]
-      }));
-    });
-  } else if (q.type === 'true_false') {
-    const tf = getTFState(q.correctAnswer, test.settings.showExplanations);
-    children.push(new Paragraph({
-      bidirectional: true,
-      spacing: { before: 80, after: 80 },
-      indent: { start: 720 },
-      children: [
-        new TextRun({ text: (tf.showT ? '☑ ' : '○ ') + 'صح        ', bold: tf.showT, color: tf.showTColor, size: 28, font: 'Arial' }),
-        new TextRun({ text: (tf.showF ? '☑ ' : '○ ') + 'خطأ', bold: tf.showF, color: tf.showFColor, size: 28, font: 'Arial' })
-      ]
-    }));
-  } else if (q.type === 'essay') {
-    children.push(new Paragraph({ bidirectional: true, spacing: { before: 200, after: 200 }, children: [new TextRun({ text: '(مساحة للإجابة)', color: EXPORT_COLORS.textFaint, size: 24, font: 'Arial' })] }));
-    children.push(new Paragraph({ text: '\n\n', bidirectional: true }));
-  }
-
-  if (test.settings.showExplanations && q.explanation) {
-    children.push(new Paragraph({
-      bidirectional: true,
-      spacing: { before: 200, after: 200 },
-      indent: { start: 720 },
-      children: [
-        new TextRun({ text: 'الشرح التوضيحي: ', bold: true, color: EXPORT_COLORS.accent, size: 28, font: 'Arial' }),
-        new TextRun({ text: q.explanation, color: EXPORT_COLORS.textMuted, size: 28, font: 'Arial' })
-      ]
-    }));
-  }
-}
-
 // Renders the test layout as a standalone HTML fragment and triggers browser print-to-PDF.
 export const exportToPdf = async (test: TestModel) => {
   const html = buildPdfHtml(test);
@@ -141,9 +94,10 @@ export const exportToPdf = async (test: TestModel) => {
     return;
   }
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  printWindow.location.href = url;
+  URL.revokeObjectURL(url);
 
   await new Promise<void>(resolve => {
     const onReady = () => {
@@ -256,7 +210,9 @@ function buildPdfHtml(test: TestModel): string {
 
 
 export const exportToWord = async (test: TestModel) => {
-  const children: Paragraph[] = [
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header } = await import('docx');
+
+  const children: any[] = [
     new Paragraph({
       text: test.title,
       heading: HeadingLevel.HEADING_1,
@@ -278,7 +234,49 @@ export const exportToWord = async (test: TestModel) => {
   }
 
   test.questions.forEach((q, index) => {
-    renderQuestionWord(test, q, index, children);
+    children.push(new Paragraph({
+      bidirectional: true,
+      spacing: { before: 400, after: 200 },
+      children: [new TextRun({ text: `${index + 1}. ${q.text}`, bold: true, size: 32, color: EXPORT_COLORS.text, font: 'Arial' })]
+    }));
+
+    if (q.type === 'multiple_choice' && q.options) {
+      q.options.forEach(opt => {
+        const m = getMCQOptionMeta(opt, q.correctAnswer, test.settings.showExplanations);
+        children.push(new Paragraph({
+          bidirectional: true,
+          spacing: { before: 80, after: 80 },
+          indent: { start: 720 },
+          children: [new TextRun({ text: m.icon + m.text, bold: m.isCorrect, color: m.isCorrect ? EXPORT_COLORS.correct : EXPORT_COLORS.incorrect, size: 28, font: 'Arial' })]
+        }));
+      });
+    } else if (q.type === 'true_false') {
+      const tf = getTFState(q.correctAnswer, test.settings.showExplanations);
+      children.push(new Paragraph({
+        bidirectional: true,
+        spacing: { before: 80, after: 80 },
+        indent: { start: 720 },
+        children: [
+          new TextRun({ text: (tf.showT ? '☑ ' : '○ ') + 'صح        ', bold: tf.showT, color: tf.showTColor, size: 28, font: 'Arial' }),
+          new TextRun({ text: (tf.showF ? '☑ ' : '○ ') + 'خطأ', bold: tf.showF, color: tf.showFColor, size: 28, font: 'Arial' })
+        ]
+      }));
+    } else if (q.type === 'essay') {
+      children.push(new Paragraph({ bidirectional: true, spacing: { before: 200, after: 200 }, children: [new TextRun({ text: '(مساحة للإجابة)', color: EXPORT_COLORS.textFaint, size: 24, font: 'Arial' })] }));
+      children.push(new Paragraph({ text: '\n\n', bidirectional: true }));
+    }
+
+    if (test.settings.showExplanations && q.explanation) {
+      children.push(new Paragraph({
+        bidirectional: true,
+        spacing: { before: 200, after: 200 },
+        indent: { start: 720 },
+        children: [
+          new TextRun({ text: 'الشرح التوضيحي: ', bold: true, color: EXPORT_COLORS.accent, size: 28, font: 'Arial' }),
+          new TextRun({ text: q.explanation, color: EXPORT_COLORS.textMuted, size: 28, font: 'Arial' })
+        ]
+      }));
+    }
   });
 
   const doc = new Document({
@@ -315,3 +313,4 @@ export const exportToWord = async (test: TestModel) => {
   const blob = await Packer.toBlob(doc);
   saveAs(blob, `${test.title || 'test'}.docx`);
 };
+

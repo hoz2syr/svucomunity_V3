@@ -1,32 +1,31 @@
 "use client";
 
-import { cn } from '../lib/utils';
+import { cn } from '@/src/lib/utils'; import DOMPurify from 'dompurify';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
-import { useEffect, useRef } from 'react';
-import mermaid from 'mermaid';
-
-mermaid.initialize({ startOnLoad: false });
-
+import { useEffect, useRef, useState } from 'react';
 import remarkGfm from 'remark-gfm';
 
 const MermaidBlock = ({ chart }: { chart: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       try {
+        const { default: mermaid } = await import('mermaid');
+        mermaid.initialize({ startOnLoad: false });
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
         const { svg } = await mermaid.render(id, chart);
         if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = svg;
+          if (containerRef.current) { containerRef.current.innerHTML = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } }); }
         }
       } catch {
-        if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = `<pre class="text-red-400 text-xs">${chart}</pre>`;
+        if (!cancelled) {
+          setError(true);
         }
       }
     };
@@ -36,6 +35,9 @@ const MermaidBlock = ({ chart }: { chart: string }) => {
     };
   }, [chart]);
 
+  if (error) {
+    return <pre className="text-red-400 text-xs whitespace-pre-wrap">{chart}</pre>;
+  }
   return <div ref={containerRef} className="flex justify-center my-3" />;
 };
 
@@ -126,3 +128,4 @@ const RichText = ({ children: _children, className = '' }: { children: string; c
 };
 
 export { RichText };
+

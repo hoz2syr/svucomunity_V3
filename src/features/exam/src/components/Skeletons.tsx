@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from '../lib/utils';
+import { cn } from '@/src/lib/utils';
 import React from 'react';
 
 interface SkeletonVariantProps extends React.ComponentProps<'div'> {
