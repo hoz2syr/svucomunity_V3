@@ -129,6 +129,15 @@ function parseScheduleText(rawText: string): OCRResult {
     const section = extractSection(fullCode) || extractSection(line);
     let name = '';
     let instructor: string | null = null;
+    let instructorUsername: string | null = null;
+
+    const usernameMatch = line.match(/t_([A-Za-z0-9_]+)/i);
+    if (usernameMatch) {
+      instructorUsername = 't_' + usernameMatch[1];
+    }
+
+    const semesterMatch = fullCode.match(/_([A-Z]\d+)$/);
+    const semester = semesterMatch ? semesterMatch[1] : null;
 
     const beforeCode = line.split(fullMatch[0])[0].trim();
     name = beforeCode.replace(/S\d{2}/g, '').replace(/^\d+\s+/, '').trim();
@@ -172,6 +181,10 @@ function parseScheduleText(rawText: string): OCRResult {
       name: name || code,
       section,
       instructor: instructor || null,
+      instructor_username: instructorUsername,
+      course_key: code,
+      semester,
+      major: null,
       time: null,
     });
   });

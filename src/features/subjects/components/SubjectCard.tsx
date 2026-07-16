@@ -7,13 +7,21 @@ import { Link } from 'react-router-dom';
 
 type SubjectCardProps = {
   course: Subject;
+  isCurrentSemester?: boolean;
 };
 
-export function SubjectCard({ course }: SubjectCardProps) {
+export function SubjectCard({ course, isCurrentSemester }: SubjectCardProps) {
   const levelLabel = typeof course.level === 'number' ? `السنة ${course.level}` : course.level;
 
   return (
     <GlassCard className="flex flex-col h-full">
+      {isCurrentSemester && (
+        <Link to={`/dashboard/subjects/${course.id}`} className="absolute top-2 right-2 z-20">
+          <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/15 border border-cyan-500/25 px-2 py-0.5 rounded-full backdrop-blur-sm hover:bg-cyan-500/25 transition-colors cursor-pointer">
+            مادة هذا الفصل
+          </span>
+        </Link>
+      )}
       <div className="p-5 flex flex-col h-full">
         <div className="flex items-start gap-3 mb-3">
           {course.icon && (

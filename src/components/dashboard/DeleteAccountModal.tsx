@@ -13,7 +13,7 @@ export const DeleteAccountModal = ({ username, onClose, onConfirm }: { username:
     watch,
     formState: { errors },
   } = useForm<DeleteAccountInput>({
-    resolver: zodResolver(deleteAccountSchema),
+    resolver: zodResolver(deleteAccountSchema as any),
     mode: 'onChange',
     defaultValues: { confirmation: '' },
   });

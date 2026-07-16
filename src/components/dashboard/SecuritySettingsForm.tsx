@@ -11,7 +11,7 @@ type SecuritySettingsFormProps = {
 
 export const SecuritySettingsForm = ({ onSubmit }: SecuritySettingsFormProps) => {
   const form = useForm<SecurityInput>({
-    resolver: zodResolver(securitySchema),
+    resolver: zodResolver(securitySchema as any),
     mode: 'onBlur',
   });
   const { isLoading, successMsg, errorMsg, submit } = useSecuritySettings(onSubmit, () => form.reset());
