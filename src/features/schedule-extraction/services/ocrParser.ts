@@ -96,10 +96,19 @@ function looksLikeInstructor(text: string): boolean {
 }
 
 function detectMajor(rawText: string): string {
-  if (/information\s*technology|ITE\b/i.test(rawText)) return 'ITE (Information Technology Engineering)';
+  if (/information\s*technology|ITE[\s_]|ITE$/i.test(rawText)) return 'ITE (Information Technology Engineering)';
   if (/engineering/i.test(rawText)) return 'ENG (Engineering)';
   if (/business|BA\b|BBA\b/i.test(rawText)) return 'BA (Business Administration)';
   if (/computer\s*science|CS\b/i.test(rawText)) return 'CS (Computer Science)';
+  return '';
+}
+
+function detectMajorFromCode(fullCode: string): string {
+  const upper = fullCode.toUpperCase();
+  if (upper.startsWith('ITE_')) return 'ITE (Information Technology Engineering)';
+  if (upper.startsWith('ENG_')) return 'ENG (Engineering)';
+  if (upper.startsWith('BA_') || upper.startsWith('BBA_')) return 'BA (Business Administration)';
+  if (upper.startsWith('CS_')) return 'CS (Computer Science)';
   return '';
 }
 
@@ -189,7 +198,9 @@ function parseScheduleText(rawText: string): OCRResult {
     });
   });
 
-  return { rawText, major, courses };
+  const detectedMajor = major || detectMajorFromCode(courses[0]?.course_key || '');
+
+  return { rawText, major: detectedMajor, courses };
 }
 
 export async function extractScheduleFromImage(

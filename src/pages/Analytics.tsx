@@ -280,6 +280,17 @@ export function AnalyticsPage() {
   const { profile, loading: authLoading } = useAuth();
   const isAdmin = profile?.role === 'admin';
 
+  const { data: courses } = usePopularCourses(20);
+  const { data: instructors } = usePopularInstructors(20);
+  const { data: majors } = useMajorDistribution();
+
+  const _totalItems = useMemo(() => {
+    const courseCount = courses?.length || 0;
+    const instructorCount = instructors?.length || 0;
+    const majorCount = majors?.length || 0;
+    return courseCount + instructorCount + majorCount;
+  }, [courses, instructors, majors]);
+
   if (!authLoading && !isAdmin) {
     return (
       <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
@@ -293,17 +304,6 @@ export function AnalyticsPage() {
       </div>
     );
   }
-
-  const { data: courses } = usePopularCourses(20);
-  const { data: instructors } = usePopularInstructors(20);
-  const { data: majors } = useMajorDistribution();
-
-  const _totalItems = useMemo(() => {
-    const courseCount = courses?.length || 0;
-    const instructorCount = instructors?.length || 0;
-    const majorCount = majors?.length || 0;
-    return courseCount + instructorCount + majorCount;
-  }, [courses, instructors, majors]);
 
   return (
     <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">

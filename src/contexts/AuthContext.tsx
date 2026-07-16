@@ -215,6 +215,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [refreshProfileForUser]);
 
+  useEffect(() => {
+    if (!session?.user?.id || profile) return;
+    refreshProfileForUser(session.user.id);
+  }, [session, profile, refreshProfileForUser]);
+
   return (
     <AuthContext.Provider value={{ session, profile, loading, refreshProfile, envMissing, error, clearError, sessionExpiring, sessionExpiryTime }}>
       {children}

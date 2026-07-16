@@ -1,26 +1,45 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, PlusCircle, FolderOpen, Globe } from 'lucide-react';
+import { prefetchOnHover } from '../../../utils/prefetch';
+
+const lazyExamImports = {
+  saved: () => import('@/src/features/exam').then(m => m.SavedTests),
+  home: () => import('@/src/features/exam').then(m => m.ExamHome),
+  create: () => import('@/src/features/exam').then(m => m.CreateTest),
+  browse: () => import('@/src/features/exam').then(m => m.BrowsePublishedTests),
+} as const;
+
+const _prefetchKeyToRouteKey: Record<string, keyof typeof lazyExamImports> = {
+  'exam-saved': 'saved',
+  'exam-home': 'home',
+  'exam-create': 'create',
+  'exam-browse': 'browse',
+};
 
 const NAV_ITEMS = [
   {
     label: 'الاختبارات المحفوظة',
     path: '/exam/saved',
     icon: FolderOpen,
+    prefetchKey: 'exam-saved',
   },
   {
     label: 'الرئيسية',
     path: '/exam/home',
     icon: Home,
+    prefetchKey: 'exam-home',
   },
   {
     label: 'إنشاء اختبار',
     path: '/exam/create',
     icon: PlusCircle,
+    prefetchKey: 'exam-create',
   },
   {
     label: 'الاختبارات المنشورة',
     path: '/exam/browse',
     icon: Globe,
+    prefetchKey: 'exam-browse',
   },
 ] as const;
 
@@ -57,6 +76,7 @@ export const ExamNavbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  {...prefetchOnHover(item.prefetchKey, lazyExamImports[_prefetchKeyToRouteKey[item.prefetchKey]])}
                   className={`
                     relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 min-h-[44px]
                     ${

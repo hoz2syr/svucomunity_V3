@@ -318,18 +318,37 @@ export function ScheduleExtractionPage() {
         inputRef={fileInputRef}
       />
 
+      {isExtracting && (
+        <div className="flex items-center gap-3 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+          <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-indigo-300 text-sm">جاري تحليل الصورة واستخراج الجدول...</p>
+        </div>
+      )}
+
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-          <p className="text-rose-400 text-sm">{error}</p>
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-2">
+          <p className="text-rose-400 text-sm font-medium">{error}</p>
+          <p className="text-slate-400 text-xs">
+            تأكد من أن الصورة واضحة وتحتوي على جدول دراسي، ثم حاول مرة أخرى.
+          </p>
+          <button
+            onClick={handleExtract}
+            className="text-xs text-rose-300 hover:text-rose-200 underline"
+          >
+            إعادة المحاولة
+          </button>
         </div>
       )}
 
       {processError && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-          <p className="text-rose-400 text-sm">{processError}</p>
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-2">
+          <p className="text-rose-400 text-sm font-medium">{processError}</p>
+          <p className="text-slate-400 text-xs">
+            يمكنك رفع صورة جديدة أو تعديل الإعدادات والمحاولة مرة أخرى.
+          </p>
           <button
             onClick={handleExtract}
-            className="mt-2 text-xs text-rose-300 hover:text-rose-200 underline"
+            className="text-xs text-rose-300 hover:text-rose-200 underline"
           >
             إعادة المحاولة
           </button>
@@ -337,8 +356,17 @@ export function ScheduleExtractionPage() {
       )}
 
       {actionError && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-          <p className="text-rose-400 text-sm">{actionError}</p>
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-2">
+          <p className="text-rose-400 text-sm font-medium">{actionError}</p>
+          <p className="text-slate-400 text-xs">
+            إذا استمرت المشكلة، حاول مرة أخرى أو تواصل مع الدعم الفني.
+          </p>
+          <button
+            onClick={() => setActionError(null)}
+            className="text-xs text-rose-300 hover:text-rose-200 underline"
+          >
+            إغلاق
+          </button>
         </div>
       )}
 
@@ -534,9 +562,17 @@ export function ScheduleExtractionPage() {
         </div>
       )}
 
-      {!result && !error && !previewUrl && (
+      {!result && !error && !previewUrl && !isExtracting && (
         <div className="text-center py-16 text-slate-500 text-sm">
           ارفع صورة للبدء
+        </div>
+      )}
+
+      {isExtracting && !result && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-indigo-300 text-sm font-medium">جاري تحليل الصورة...</p>
+          <p className="text-slate-500 text-xs">قد يستغرق هذا بضع ثوانٍ</p>
         </div>
       )}
 

@@ -36,7 +36,7 @@ export const refreshProfile = async (userId: string): Promise<RefreshProfileResu
 
     const { data, error } = await client
       .from('profiles')
-      .select('id, full_name, avatar_url, phone, major, created_at, updated_at')
+      .select('id, full_name, avatar_url, phone, major, role, created_at, updated_at')
       .eq('id', userId)
       .maybeSingle();
 

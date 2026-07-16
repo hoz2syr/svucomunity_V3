@@ -95,9 +95,20 @@ export function CourseCard({
             </div>
           </div>
         ) : (
-          <div className="mt-4 pt-4 border-t border-white/[0.08]">
-            <p className="text-slate-500 text-sm">
-              {i18n?.scheduleNoMatchedGroups || "لا توجد مجموعات لهذه المادة"}
+          <div className="mt-4 pt-4 border-t border-white/[0.08] space-y-3">
+            <p className="text-slate-400 text-sm">
+              {i18n?.scheduleNoMatchedGroups || "لا توجد مجموعات مطابقة لهذه المادة"}
+            </p>
+            <button
+              onClick={() => onOpenCreateGroup(course)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-[var(--color-primary-600)]/15 hover:bg-[var(--color-primary-600)]/25 text-[var(--color-primary-400)] rounded-lg text-xs font-medium transition-colors"
+              type="button"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>{i18n?.scheduleCreateGroup || "إنشاء مجموعة دراسية"}</span>
+            </button>
+            <p className="text-slate-500 text-xs">
+              يمكنك إنشاء مجموعة دراسية لهذه المادة والانضمام إليها مع زملائك
             </p>
           </div>
         )}

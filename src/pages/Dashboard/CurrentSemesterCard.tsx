@@ -8,7 +8,7 @@ import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Button } from '../../components/ui/Button';
 import { Icon } from '../../components/ui/Icon';
-import { GraduationCap, BookOpen, RefreshCw, AlertCircle } from 'lucide-react';
+import { GraduationCap, BookOpen, RefreshCw, AlertCircle, CalendarDays } from 'lucide-react';
 import { CourseSuggestionCard } from '../../features/schedule-extraction/components/CourseSuggestionCard';
 import { useUserCourseProgress } from '../../features/schedule-extraction/hooks/useUserCourseProgress';
 
@@ -88,9 +88,12 @@ export const CurrentSemesterCard = () => {
             <Icon icon={BookOpen} size="xl" className="text-[var(--color-text-secondary)]" />
           </div>
           <h3 className="text-lg font-bold text-white mb-2">لا توجد مقررات</h3>
-          <p className="text-sm text-[var(--color-text-secondary)] max-w-sm">
+          <p className="text-sm text-[var(--color-text-secondary)] max-w-sm mb-6">
             لم يتم العثور على مقررات للفصل الحالي. قم باستخراج جدولك الدراسي لعرض مقرراتك هنا.
           </p>
+          <Button variant="primary" to="/dashboard/schedule" icon={<CalendarDays size={16} />}>
+            استخراج الجدول
+          </Button>
         </GlassCard>
       )}
 

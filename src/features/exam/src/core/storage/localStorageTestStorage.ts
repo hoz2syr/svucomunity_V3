@@ -119,5 +119,15 @@ export class LocalFirstTestStorage implements ITestStorage {
   }
 }
 
-export const testStorage = new LocalFirstTestStorage();
+export const createLocalStorageTestStorage = () => new LocalFirstTestStorage();
+
+let testStorageInstance: LocalFirstTestStorage | null = null;
+export const getLocalStorageTestStorage = () => {
+  if (!testStorageInstance) {
+    testStorageInstance = new LocalFirstTestStorage();
+  }
+  return testStorageInstance;
+};
+
+export const testStorage = getLocalStorageTestStorage();
 export const localStorageTestStorage = testStorage;

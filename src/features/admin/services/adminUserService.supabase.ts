@@ -5,7 +5,7 @@ import { ROLES } from '@/src/types/admin';
 
 export type AdminUser = Profile & {
   extraction_count?: number;
-  last_extraction_at?: string;
+  last_extraction_at?: string | null;
 };
 
 export async function listAllUsers(
@@ -107,6 +107,18 @@ export async function getUserDetails(
     .order('created_at', { ascending: false });
 
   if (extractionsError) {
+    const message = extractionsError.message || '';
+    if (message.includes('schema cache') || message.includes('Could not find the table')) {
+      return {
+        data: {
+          ...(profile as Profile),
+          raw_extractions: [],
+          extraction_count: 0,
+          last_extraction_at: null,
+        },
+        error: null,
+      };
+    }
     return { data: null, error: new Error(extractionsError.message) };
   }
 
