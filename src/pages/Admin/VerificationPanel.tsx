@@ -18,6 +18,242 @@ import { ConfirmActionModal } from './ConfirmActionModal';
 type Tab = 'courses' | 'instructors';
 type ConfirmAction = { type: 'course'; courseCode: string; isVerified: boolean; courseName: string } | { type: 'instructor'; instructorUsername: string; isVerified: boolean; instructorName: string };
 
+type CourseVerificationListProps = {
+  courses: any[] | undefined;
+  coursesLoading: boolean;
+  filteredCourses: any[];
+  coursesPage: number;
+  setCoursesPage: (page: number) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  selectedMajor: string;
+  setSelectedMajor: (major: string) => void;
+  uniqueMajors: string[];
+  verifyCourseMutation: { mutate: (params: { courseCode: string; isVerified: boolean }) => void; isPending: boolean };
+  setConfirmAction: (action: ConfirmAction | null) => void;
+  limit: number;
+};
+
+type InstructorVerificationListProps = {
+  instructors: any[] | undefined;
+  instructorsLoading: boolean;
+  instructorsPage: number;
+  setInstructorsPage: (page: number) => void;
+  verifyInstructorMutation: { mutate: (params: { instructorUsername: string; isVerified: boolean }) => void; isPending: boolean };
+  setConfirmAction: (action: ConfirmAction | null) => void;
+  limit: number;
+};
+
+function CourseVerificationList({
+  courses,
+  coursesLoading,
+  filteredCourses,
+  coursesPage,
+  setCoursesPage,
+  searchQuery,
+  setSearchQuery,
+  selectedMajor,
+  setSelectedMajor,
+  uniqueMajors,
+  verifyCourseMutation,
+  setConfirmAction,
+  limit,
+}: CourseVerificationListProps) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Icon icon={Search} size="sm" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="بحث عن مادة..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
+          />
+        </div>
+        <select
+          value={selectedMajor}
+          onChange={(e) => setSelectedMajor(e.target.value)}
+          className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
+        >
+          <option value="all">كل التخصصات</option>
+          {uniqueMajors.map((major) => (
+            <option key={major} value={major}>
+              {major}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {coursesLoading ? (
+        <div className="grid gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <GlassCard key={i} className="p-5">
+              <Skeleton className="w-full h-20" />
+            </GlassCard>
+          ))}
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <GlassCard className="p-8 text-center">
+          <Icon icon={CheckCircle2} size="xl" className="text-emerald-400 mb-3" />
+          <p className="text-slate-400 text-sm">لا توجد مواد غير محققة</p>
+        </GlassCard>
+      ) : (
+        <div className="grid gap-4">
+          {filteredCourses.map((course) => (
+            <GlassCard key={course.course_code} className="p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Icon icon={BookOpen} size="sm" className="text-cyan-400 shrink-0" />
+                    <h3 className="text-white font-medium truncate">{course.course_name}</h3>
+                    <span className="text-xs text-slate-500 font-mono">{course.course_code}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <span className="px-2 py-0.5 bg-white/5 rounded-lg">{course.major}</span>
+                    <span>الظهور: {course.seen_count}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="primary"
+                    onClick={() =>
+                      setConfirmAction({ type: 'course', courseCode: course.course_code, isVerified: true, courseName: course.course_name })
+                    }
+                    disabled={verifyCourseMutation.isPending}
+                  >
+                    <Icon icon={CheckCircle2} size="xs" />
+                    تحقق
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() =>
+                      setConfirmAction({ type: 'course', courseCode: course.course_code, isVerified: false, courseName: course.course_name })
+                    }
+                    disabled={verifyCourseMutation.isPending}
+                  >
+                    <Icon icon={XCircle} size="xs" />
+                    رفض
+                  </Button>
+                </div>
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
+      {!coursesLoading && filteredCourses.length > 0 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
+            disabled={coursesPage === 1}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-slate-400">صفحة {coursesPage}</span>
+          <Button
+            variant="secondary"
+            onClick={() => setCoursesPage((p) => p + 1)}
+            disabled={filteredCourses.length < limit}
+          >
+            التالي
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InstructorVerificationList({
+  instructors,
+  instructorsLoading,
+  instructorsPage,
+  setInstructorsPage,
+  verifyInstructorMutation,
+  setConfirmAction,
+  limit,
+}: InstructorVerificationListProps) {
+  return (
+    <div className="space-y-4">
+      {instructorsLoading ? (
+        <div className="grid gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <GlassCard key={i} className="p-5">
+              <Skeleton className="w-full h-20" />
+            </GlassCard>
+          ))}
+        </div>
+      ) : !instructors || instructors.length === 0 ? (
+        <GlassCard className="p-8 text-center">
+          <Icon icon={CheckCircle2} size="xl" className="text-emerald-400 mb-3" />
+          <p className="text-slate-400 text-sm">لا يوجد محاضرين غير محققين</p>
+        </GlassCard>
+      ) : (
+        <div className="grid gap-4">
+          {instructors.map((instructor) => (
+            <GlassCard key={instructor.instructor_username} className="p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Icon icon={User} size="sm" className="text-cyan-400 shrink-0" />
+                    <h3 className="text-white font-medium truncate">{instructor.full_name}</h3>
+                    <span className="text-xs text-slate-500 font-mono">{instructor.instructor_username}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <span>الظهور: {instructor.seen_count}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="primary"
+                    onClick={() =>
+                      setConfirmAction({ type: 'instructor', instructorUsername: instructor.instructor_username, isVerified: true, instructorName: instructor.full_name })
+                    }
+                    disabled={verifyInstructorMutation.isPending}
+                  >
+                    <Icon icon={CheckCircle2} size="xs" />
+                    تحقق
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() =>
+                      setConfirmAction({ type: 'instructor', instructorUsername: instructor.instructor_username, isVerified: false, instructorName: instructor.full_name })
+                    }
+                    disabled={verifyInstructorMutation.isPending}
+                  >
+                    <Icon icon={XCircle} size="xs" />
+                    رفض
+                  </Button>
+                </div>
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
+      {!instructorsLoading && instructors && instructors.length > 0 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => setInstructorsPage((p) => Math.max(1, p - 1))}
+            disabled={instructorsPage === 1}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-slate-400">صفحة {instructorsPage}</span>
+          <Button
+            variant="secondary"
+            onClick={() => setInstructorsPage((p) => p + 1)}
+            disabled={instructors.length < limit}
+          >
+            التالي
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function VerificationPanel() {
   const { session: _session, profile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('courses');
@@ -158,187 +394,33 @@ export function VerificationPanel() {
       )}
 
       {activeTab === 'courses' && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Icon icon={Search} size="sm" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="بحث عن مادة..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
-              />
-            </div>
-            <select
-              value={selectedMajor}
-              onChange={(e) => setSelectedMajor(e.target.value)}
-              className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
-            >
-              <option value="all">كل التخصصات</option>
-              {uniqueMajors.map((major) => (
-                <option key={major} value={major}>
-                  {major}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {coursesLoading ? (
-            <div className="grid gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <GlassCard key={i} className="p-5">
-                  <Skeleton className="w-full h-20" />
-                </GlassCard>
-              ))}
-            </div>
-          ) : filteredCourses.length === 0 ? (
-            <GlassCard className="p-8 text-center">
-              <Icon icon={CheckCircle2} size="xl" className="text-emerald-400 mb-3" />
-              <p className="text-slate-400 text-sm">لا توجد مواد غير محققة</p>
-            </GlassCard>
-          ) : (
-            <div className="grid gap-4">
-              {filteredCourses.map((course) => (
-                <GlassCard key={course.course_code} className="p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon icon={BookOpen} size="sm" className="text-cyan-400 shrink-0" />
-                        <h3 className="text-white font-medium truncate">{course.course_name}</h3>
-                        <span className="text-xs text-slate-500 font-mono">{course.course_code}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
-                        <span className="px-2 py-0.5 bg-white/5 rounded-lg">{course.major}</span>
-                        <span>الظهور: {course.seen_count}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="primary"
-                        onClick={() =>
-                          setConfirmAction({ type: 'course', courseCode: course.course_code, isVerified: true, courseName: course.course_name })
-                        }
-                        disabled={verifyCourseMutation.isPending}
-                      >
-                        <Icon icon={CheckCircle2} size="xs" />
-                        تحقق
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() =>
-                          setConfirmAction({ type: 'course', courseCode: course.course_code, isVerified: false, courseName: course.course_name })
-                        }
-                        disabled={verifyCourseMutation.isPending}
-                      >
-                        <Icon icon={XCircle} size="xs" />
-                        رفض
-                      </Button>
-                    </div>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
-          )}
-          {!coursesLoading && filteredCourses.length > 0 && (
-            <div className="flex items-center justify-between">
-              <Button
-                variant="secondary"
-                onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
-                disabled={coursesPage === 1}
-              >
-                السابق
-              </Button>
-              <span className="text-sm text-slate-400">صفحة {coursesPage}</span>
-              <Button
-                variant="secondary"
-                onClick={() => setCoursesPage((p) => p + 1)}
-                disabled={filteredCourses.length < limit}
-              >
-                التالي
-              </Button>
-            </div>
-          )}
-        </div>
+        <CourseVerificationList
+          courses={courses}
+          coursesLoading={coursesLoading}
+          filteredCourses={filteredCourses}
+          coursesPage={coursesPage}
+          setCoursesPage={setCoursesPage}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedMajor={selectedMajor}
+          setSelectedMajor={setSelectedMajor}
+          uniqueMajors={uniqueMajors}
+          verifyCourseMutation={verifyCourseMutation}
+          setConfirmAction={setConfirmAction}
+          limit={limit}
+        />
       )}
 
       {activeTab === 'instructors' && (
-        <div className="space-y-4">
-          {instructorsLoading ? (
-            <div className="grid gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <GlassCard key={i} className="p-5">
-                  <Skeleton className="w-full h-20" />
-                </GlassCard>
-              ))}
-            </div>
-          ) : !instructors || instructors.length === 0 ? (
-            <GlassCard className="p-8 text-center">
-              <Icon icon={CheckCircle2} size="xl" className="text-emerald-400 mb-3" />
-              <p className="text-slate-400 text-sm">لا يوجد محاضرين غير محققين</p>
-            </GlassCard>
-          ) : (
-            <div className="grid gap-4">
-              {instructors.map((instructor) => (
-                <GlassCard key={instructor.instructor_username} className="p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon icon={User} size="sm" className="text-cyan-400 shrink-0" />
-                        <h3 className="text-white font-medium truncate">{instructor.full_name}</h3>
-                        <span className="text-xs text-slate-500 font-mono">{instructor.instructor_username}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
-                        <span>الظهور: {instructor.seen_count}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="primary"
-                        onClick={() =>
-                          setConfirmAction({ type: 'instructor', instructorUsername: instructor.instructor_username, isVerified: true, instructorName: instructor.full_name })
-                        }
-                        disabled={verifyInstructorMutation.isPending}
-                      >
-                        <Icon icon={CheckCircle2} size="xs" />
-                        تحقق
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() =>
-                          setConfirmAction({ type: 'instructor', instructorUsername: instructor.instructor_username, isVerified: false, instructorName: instructor.full_name })
-                        }
-                        disabled={verifyInstructorMutation.isPending}
-                      >
-                        <Icon icon={XCircle} size="xs" />
-                        رفض
-                      </Button>
-                    </div>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
-          )}
-          {!instructorsLoading && instructors && instructors.length > 0 && (
-            <div className="flex items-center justify-between">
-              <Button
-                variant="secondary"
-                onClick={() => setInstructorsPage((p) => Math.max(1, p - 1))}
-                disabled={instructorsPage === 1}
-              >
-                السابق
-              </Button>
-              <span className="text-sm text-slate-400">صفحة {instructorsPage}</span>
-              <Button
-                variant="secondary"
-                onClick={() => setInstructorsPage((p) => p + 1)}
-                disabled={instructors.length < limit}
-              >
-                التالي
-              </Button>
-            </div>
-          )}
-        </div>
+        <InstructorVerificationList
+          instructors={instructors}
+          instructorsLoading={instructorsLoading}
+          instructorsPage={instructorsPage}
+          setInstructorsPage={setInstructorsPage}
+          verifyInstructorMutation={verifyInstructorMutation}
+          setConfirmAction={setConfirmAction}
+          limit={limit}
+        />
       )}
 
       {confirmAction && (
