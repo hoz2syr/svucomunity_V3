@@ -1,5 +1,5 @@
 import { getErrorMessage, getSupabaseClient, hasSupabaseEnv, missingSupabaseEnvMessage } from '../lib/supabase';
-import type { Notification } from '../types/notification';
+import type { Notification, NotificationType, NotificationPriority } from '../types/notification';
 import type { SupabaseOperationError } from '../types/supabase';
 
 export type FetchNotificationsResult = {
@@ -11,10 +11,47 @@ const createMissingEnvError = (): SupabaseOperationError => ({
   message: missingSupabaseEnvMessage,
 });
 
-const updateNotificationRow = async (
-  id: string,
-  updates: Record<string, unknown>,
-): Promise<SupabaseOperationError | null> => {
+const mapNotificationRow = (row: Record<string, unknown>): Notification => ({
+  id: String(row.id),
+  user_id: String(row.user_id),
+  title: String(row.title ?? ''),
+  body: String(row.body ?? ''),
+  read: Boolean(row.read ?? false),
+  type: String(row.type ?? 'user') as NotificationType,
+  created_by: row.created_by ? String(row.created_by) : null,
+  priority: String(row.priority ?? 'normal') as NotificationPriority,
+  createdAt: String(row.created_at ?? ''),
+});
+
+export const fetchNotifications = async (
+  userId: string,
+): Promise<FetchNotificationsResult> => {
+  if (!hasSupabaseEnv()) {
+    return { data: [], error: createMissingEnvError() };
+  }
+
+  try {
+    const client = await getSupabaseClient();
+    const { data, error } = await client
+      .from('notifications')
+      .select('id, user_id, title, body, read, type, created_by, priority, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      return { data: [], error };
+    }
+
+    const notifications: Notification[] = (data ?? []).map(mapNotificationRow);
+
+    return { data: notifications, error: null };
+  } catch (error) {
+    return { data: [], error: { message: getErrorMessage(error) } };
+  }
+};
+
+export const markAsRead = async (id: string): Promise<SupabaseOperationError | null> => {
   if (!hasSupabaseEnv()) {
     return createMissingEnvError();
   }
@@ -23,7 +60,7 @@ const updateNotificationRow = async (
     const client = await getSupabaseClient();
     const { error } = await client
       .from('notifications')
-      .update(updates)
+      .update({ read: true })
       .eq('id', id);
 
     if (error) {
@@ -35,42 +72,6 @@ const updateNotificationRow = async (
     return { message: getErrorMessage(error) };
   }
 };
-
-export const fetchNotifications = async (): Promise<FetchNotificationsResult> => {
-  if (!hasSupabaseEnv()) {
-    return { data: [], error: createMissingEnvError() };
-  }
-
-  try {
-    const client = await getSupabaseClient();
-    const { data, error } = await client
-      .from('notifications')
-      .select('id, title, body, read, created_at')
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    if (error) {
-      return { data: [], error };
-    }
-
-    const notifications: Notification[] = (data ?? []).map(
-      (row: Record<string, unknown>) => ({
-        id: String(row.id),
-        title: String(row.title ?? ''),
-        body: String(row.body ?? ''),
-        read: Boolean(row.read ?? false),
-        createdAt: String(row.created_at ?? ''),
-      }),
-    );
-
-    return { data: notifications, error: null };
-  } catch (error) {
-    return { data: [], error: { message: getErrorMessage(error) } };
-  }
-};
-
-export const markAsRead = async (id: string): Promise<SupabaseOperationError | null> =>
-  updateNotificationRow(id, { read: true });
 
 export const markAllRead = async (
   userId: string,
@@ -120,3 +121,4 @@ export const deleteNotification = async (
     return { message: getErrorMessage(error) };
   }
 };
+

@@ -14,7 +14,10 @@ export const useDashboardNotifications = () => {
   const { data = [], isLoading, error } = useQuery({
     queryKey: ['notifications', userId],
     queryFn: async (): Promise<Notification[]> => {
-      const result = await fetchNotifications();
+      if (!userId) {
+        return [];
+      }
+      const result = await fetchNotifications(userId);
       if (result.error) {
         const message = result.error.message === missingSupabaseEnvMessage ? missingSupabaseEnvMessage : result.error.message;
         throw new Error(message);

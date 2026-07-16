@@ -9,17 +9,19 @@ import {
   BarChart3,
   ShieldCheck,
   TrendingUp,
+  Bell,
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
-type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'analytics';
+type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'analytics' | 'notifications';
 
 const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
   { id: 'extractions', label: 'الاستخراجات', icon: FileText, path: '/admin/extractions' },
   { id: 'reports', label: 'التقارير', icon: BarChart3, path: '/admin/reports' },
   { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
+  { id: 'notifications', label: 'الإشعارات', icon: Bell, path: '/admin/notifications' },
   { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
 ];
 
