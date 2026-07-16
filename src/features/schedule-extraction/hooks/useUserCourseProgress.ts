@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { loadProgress } from '@/src/features/courses/src/services/courses.supabase';
+import { COURSE_PROGRESS_STALE_TIME_MS } from '@/src/lib/constants';
 import type { UserCourseProgress } from '@/src/types/database';
 
 export function useUserCourseProgress() {
@@ -18,7 +19,7 @@ export function useUserCourseProgress() {
       return result.data ?? [];
     },
     enabled: Boolean(userId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: COURSE_PROGRESS_STALE_TIME_MS,
   });
 }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Clock, X, MousePointer2 } from 'lucide-react';
+import { MAP_STEP_DELAYS } from '@/src/lib/constants';
 
 interface MapNodeProps {
   title: string;
@@ -38,14 +39,7 @@ export const InteractiveMapSimulation = () => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const nextStep = () => setStep((s) => (s + 1) % 6);
 
-    switch (step) {
-      case 0: timer = setTimeout(nextStep, 1000); break;
-      case 1: timer = setTimeout(nextStep, 1000); break;
-      case 2: timer = setTimeout(nextStep, 600); break;
-      case 3: timer = setTimeout(nextStep, 300); break;
-      case 4: timer = setTimeout(nextStep, 5000); break;
-      case 5: timer = setTimeout(nextStep, 1000); break;
-    }
+    timer = setTimeout(nextStep, MAP_STEP_DELAYS[step]);
     return () => {
       if (timer) clearTimeout(timer);
     };

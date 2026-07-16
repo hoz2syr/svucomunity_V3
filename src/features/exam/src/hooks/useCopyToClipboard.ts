@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from 'react';
+import { CLIPBOARD_COPIED_FEEDBACK_MS } from '@/src/lib/constants';
 
 export function useCopyToClipboard(text: string) {
   const [isCopied, setIsCopied] = useState(false);
@@ -12,7 +13,7 @@ export function useCopyToClipboard(text: string) {
       fallbackCopy(text);
     }
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    setTimeout(() => setIsCopied(false), CLIPBOARD_COPIED_FEEDBACK_MS);
   }, [text]);
 
   return { isCopied, copy };

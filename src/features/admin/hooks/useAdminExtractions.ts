@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { ADMIN_EXTRACTIONS_STALE_TIME_MS } from '@/src/lib/constants';
 import {
   listAllExtractions,
   getExtractionDetails,
@@ -63,7 +64,7 @@ export function usePlatformStats() {
       return result.data;
     },
     enabled: isAdmin,
-    staleTime: 60 * 1000,
+    staleTime: ADMIN_EXTRACTIONS_STALE_TIME_MS,
   });
 }
 

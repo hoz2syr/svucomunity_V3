@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { completeAuthCallback } from '../services/auth.service';
+import { AUTH_CALLBACK_TIMEOUT_MS, RETRY_BASE_DELAY_MS, RETRY_MAX_DELAY_MS } from '@/src/lib/constants';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export const AuthCallback = () => {
         setStatus('error');
         setMessage('انتهت المهلة. يرجى المحاولة مرة أخرى.');
       }
-    }, 30000);
+    }, AUTH_CALLBACK_TIMEOUT_MS);
 
     runCallback();
 
@@ -48,7 +49,7 @@ export const AuthCallback = () => {
 
   useEffect(() => {
     if (status === 'error' && autoRetryCount < MAX_AUTO_RETRIES) {
-      const delay = Math.min(1000 * Math.pow(2, autoRetryCount), 5000);
+      const delay = Math.min(RETRY_BASE_DELAY_MS * Math.pow(2, autoRetryCount), RETRY_MAX_DELAY_MS);
       const timer = window.setTimeout(() => {
         setAutoRetryCount(c => c + 1);
         setRetryKey(k => k + 1);

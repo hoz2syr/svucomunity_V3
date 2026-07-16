@@ -3,6 +3,7 @@ import type { CourseStatus } from '../types';
 import { coursesDB, promotionThresholds } from '../data/coursesData';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { fetchUserProgress, upsertUserProgress } from '../services/courses.service';
+import { COURSE_CELEBRATION_DISPLAY_MS } from '@/src/lib/constants';
 
 const PASSED_KEY = 'svu_courses_passed';
 const CARRIED_KEY = 'svu_courses_carried';
@@ -180,7 +181,7 @@ export function useCourses() {
       const newYear = getYearFromCredits(newCredits);
       if (newYear !== oldYear && oldCredits < newCredits && oldCredits > 0) {
         setCelebration(true);
-        setTimeout(() => setCelebration(false), 6000);
+        setTimeout(() => setCelebration(false), COURSE_CELEBRATION_DISPLAY_MS);
       }
 
       setModal({ title: 'تم الحفظ!', content: 'تم تحديث سجل المواد بنجاح.', isAlert: true });

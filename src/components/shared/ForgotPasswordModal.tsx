@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { resetPasswordSchema } from '../../schemas/auth.schema';
 import { getErrorMessage, hasSupabaseEnv, missingSupabaseEnvMessage } from '../../lib/env';
 import { resetPassword } from '../../services/auth.service';
+import { RESET_EMAIL_RESEND_TIMEOUT_MS } from '@/src/lib/constants';
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -64,7 +65,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
       resetTimerRef.current = window.setTimeout(() => {
         onClose();
         setResetSuccess(false);
-      }, 4000);
+      }, RESET_EMAIL_RESEND_TIMEOUT_MS);
     } catch (error) {
       setResetError(getErrorMessage(error));
     } finally {

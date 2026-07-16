@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getCourseSuggestions, getAllCourseSuggestions, type CourseSuggestion, type AllSuggestionsResult } from '../services/suggestionService.supabase';
+import { COURSE_SUGGESTIONS_STALE_TIME_MS } from '@/src/lib/constants';
 
 export function useCourseSuggestions(courseCode: string, major: string, courseName: string, section: string | null, instructorName: string | null) {
   const { session } = useAuth();
@@ -13,7 +14,7 @@ export function useCourseSuggestions(courseCode: string, major: string, courseNa
       return result.data;
     },
     enabled: Boolean(session?.user?.id) && Boolean(courseCode),
-    staleTime: 5 * 60 * 1000,
+    staleTime: COURSE_SUGGESTIONS_STALE_TIME_MS,
   });
 }
 
@@ -28,7 +29,7 @@ export function useAllCourseSuggestions(courses: { courseCode: string; courseNam
       return result.data;
     },
     enabled: Boolean(session?.user?.id) && courses.length > 0,
-    staleTime: 5 * 60 * 1000,
+    staleTime: COURSE_SUGGESTIONS_STALE_TIME_MS,
   });
 }
 

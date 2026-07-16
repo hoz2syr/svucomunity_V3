@@ -1,4 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { DEFAULT_PARTICLE_COUNT, MOUSE_INTERACTION_MAX_DIST, LOOP_DURATION_MS, PARTICLE_TEXT_ASSEMBLY_OFFSET_MS, PARTICLE_DISSOLVE_OFFSET_BASE_MS, PARTICLE_TEXT_CHAR_SPACING_MS, PARTICLE_EASE_DURATION_MS } from '@/src/lib/constants';
 import type { TextParticle, LinkState, MouseState } from '../types';
 import {
   measureTextTargets,
@@ -36,7 +37,7 @@ export interface UseParticleCanvasOptions {
 
 export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
   const {
-    particleCount = 80,
+    particleCount = DEFAULT_PARTICLE_COUNT,
     enableTextAssemble = false,
     textChars = [],
   } = options;
@@ -60,7 +61,7 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const resizeHandlerRef = useRef<(() => void) | null>(null);
   const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, getReducedMotionSnapshot, getServerReducedMotionSnapshot);
-  const textCharsKey = textChars.join('');
+  const textCharsKey = textChars.join(');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -89,8 +90,8 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
     resizeCanvas(canvas, ctx, () => measureTextTargets(enableTextAssemble ? charRefs.current : [], textChars, particlesRef.current), activeLinksRef);
     lastTimeRef.current = Date.now();
 
-    const maxDist = 200;
-    const LOOP_DURATION = 8000;
+    const maxDist = MOUSE_INTERACTION_MAX_DIST;
+    const LOOP_DURATION = LOOP_DURATION_MS;
     const startTime = Date.now();
 
     const render = () => {
@@ -126,15 +127,15 @@ export function useParticleCanvas(options: UseParticleCanvasOptions = {}) {
 
         if (isHome && p.isText) {
           const tp = p as TextParticle;
-          const assembleStart = 500 + tp.textCharIndex * 50;
-          const dissolveStart = 6500 + (textChars.length - 1 - tp.textCharIndex) * 50;
+          const assembleStart = PARTICLE_TEXT_ASSEMBLY_OFFSET_MS + tp.textCharIndex * PARTICLE_TEXT_CHAR_SPACING_MS;
+          const dissolveStart = PARTICLE_DISSOLVE_OFFSET_BASE_MS + (textChars.length - 1 - tp.textCharIndex) * PARTICLE_TEXT_CHAR_SPACING_MS;
           let progress = 0;
 
           if (loopTime >= assembleStart && loopTime < dissolveStart) {
             progress = spring((loopTime - assembleStart) / 1000);
           } else if (loopTime >= dissolveStart) {
             const elapsed = loopTime - dissolveStart;
-            if (elapsed < 1000) progress = 1 - easeInOutCubic(elapsed / 1000);
+            if (elapsed < PARTICLE_EASE_DURATION_MS) progress = 1 - easeInOutCubic(elapsed / PARTICLE_EASE_DURATION_MS);
           }
 
           if (progress < 0.001) {

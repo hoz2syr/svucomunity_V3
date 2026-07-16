@@ -1,5 +1,6 @@
 import type { Particle, TextParticle, LinkState } from '../types';
 import { easeInOutQuad, easeInCubic, easeOutCubic } from '../utils/animation';
+import { LOOP_DURATION_MS, PARTICLE_TEXT_ASSEMBLY_OFFSET_MS, PARTICLE_DISSOLVE_OFFSET_BASE_MS, PARTICLE_TEXT_CHAR_SPACING_MS, PARTICLE_EASE_DURATION_MS } from '@/src/lib/constants';
 
 export function measureTextTargets(
   charRefs: (HTMLSpanElement | null)[],
@@ -176,9 +177,9 @@ export function drawParticles(
 }
 
 export function getLinesOpacity(loopTime: number): number {
-  if (loopTime < 1000) return easeInOutQuad(loopTime / 1000);
-  if (loopTime < 7000) return 1;
-  if (loopTime <= 8000) return 1 - easeInOutQuad((loopTime - 7000) / 1000);
+  if (loopTime < PARTICLE_EASE_DURATION_MS) return easeInOutQuad(loopTime / PARTICLE_EASE_DURATION_MS);
+  if (loopTime < PARTICLE_DISSOLVE_OFFSET_BASE_MS) return 1;
+  if (loopTime <= LOOP_DURATION_MS) return 1 - easeInOutQuad((loopTime - PARTICLE_DISSOLVE_OFFSET_BASE_MS) / PARTICLE_EASE_DURATION_MS);
   return 0;
 }
 
@@ -190,8 +191,8 @@ export function updateTextDOM(
   if (!charRefs) return;
   charRefs.forEach((el, i) => {
     if (!el) return;
-    const assembleStart = 500 + i * 50;
-    const dissolveStart = 6500 + (textChars.length - 1 - i) * 50;
+    const assembleStart = PARTICLE_TEXT_ASSEMBLY_OFFSET_MS + i * PARTICLE_TEXT_CHAR_SPACING_MS;
+    const dissolveStart = PARTICLE_DISSOLVE_OFFSET_BASE_MS + (textChars.length - 1 - i) * PARTICLE_TEXT_CHAR_SPACING_MS;
     let opacity = 0;
     let blur = 10;
 

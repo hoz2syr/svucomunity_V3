@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Icon } from '@/src/components/ui/Icon';
+import { TOAST_AUTO_DISMISS_MS } from '@/src/lib/constants';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -26,7 +27,7 @@ export function useToast() {
 
 function ToastItem({ toast: t, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(t.id), 4000);
+    const timer = setTimeout(() => onDismiss(t.id), TOAST_AUTO_DISMISS_MS);
     return () => clearTimeout(timer);
   }, [t.id, onDismiss]);
 

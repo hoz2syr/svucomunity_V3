@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { PREFERENCE_SAVE_FEEDBACK_MS } from '@/src/lib/constants';
 
 export interface PromptPreferences {
   topic: string;
@@ -42,7 +43,7 @@ export function usePromptPreferences() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
       setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
+      setTimeout(() => setIsSaved(false), PREFERENCE_SAVE_FEEDBACK_MS);
     } catch {
       // ignore storage errors
     }

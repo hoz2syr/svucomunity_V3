@@ -1,6 +1,7 @@
 import { TestModel, Question } from '../types';
 import { saveAs } from 'file-saver';
 import { escapeHtml } from '@/src/lib/utils';
+import { EXPORT_RENDER_DELAY_MS, EXPORT_STEP_DELAY_MS, EXPORT_PRINT_RENDER_DELAY_MS, PRINT_WINDOW_TIMEOUT_MS, PRINT_WINDOW_CLOSE_DELAY_MS } from '@/src/lib/constants';
 
 const EXPORT_COLORS = {
   text: '#0f172a',
@@ -105,18 +106,18 @@ export const exportToPdf = async (test: TestModel) => {
       setTimeout(() => {
         printWindow.print();
         resolve();
-      }, 400);
+      }, EXPORT_PRINT_RENDER_DELAY_MS);
     };
     printWindow.addEventListener('load', onReady);
     setTimeout(() => {
       printWindow.removeEventListener('load', onReady);
       resolve();
-    }, 2000);
+    }, PRINT_WINDOW_TIMEOUT_MS);
   });
 
   setTimeout(() => {
     try { printWindow.close(); } catch {}
-  }, 1000);
+  }, PRINT_WINDOW_CLOSE_DELAY_MS);
 };
 
 function buildPdfHtml(test: TestModel): string {

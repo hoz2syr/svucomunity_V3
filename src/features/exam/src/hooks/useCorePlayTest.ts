@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useToast } from '@/src/components/ui/Toast';
+import { CORE_PLAY_TICK_INTERVAL_MS } from '@/src/lib/constants';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { TestModel, Question } from '../types';
 import { localStorageTestStorage } from '../core/storage/localStorageTestStorage';
@@ -42,6 +44,7 @@ export interface UseCorePlayTestOptions {
 
 export function useCorePlayTest(testId: string | undefined, navigate: (path: string) => void, options?: UseCorePlayTestOptions): UseCorePlayTestReturn {
   const { session, envMissing } = useAuth();
+  const { toast } = useToast();
   const userId = session?.user?.id ?? null;
   const backPath = options?.backPath ?? '/exam/saved';
   const onComplete = options?.onComplete;
@@ -126,7 +129,7 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
         }
         return prev - 1;
       });
-    }, 1000);
+    }, CORE_PLAY_TICK_INTERVAL_MS);
     return () => clearInterval(timer);
   }, [hasStarted, showResults, timeLeft]);
 
@@ -264,16 +267,16 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
     try {
       const result = await rateTestInSupabase(test.id, stars);
       if (result.error) {
-        window.alert(result.error);
+        toast(result.error, 'error');
         return;
       }
       if (result.updatedRating !== undefined) {
         setTest(prev => prev ? { ...prev, rating: result.updatedRating } : prev);
       }
     } catch {
-      window.alert('حدث خطأ أثناء إرسال التقييم.');
+      toast('حدث خطأ أثناء إرسال التقييم.', 'error');
     }
-  }, [test]);
+  }, [test, toast]);
 
   const score = useMemo(() => {
     if (!test) return 0;
@@ -298,7 +301,11 @@ export function useCorePlayTest(testId: string | undefined, navigate: (path: str
     }).length;
   }, [test, selectedAnswers]);
 
-  const canRate = useMemo(() => answeredCount >= 1, [answeredCount]);
+  const canRate = useMemo(() => {
+    if (!test) return false;
+    const nonEssayQuestions = test.questions.filter(q => q.type !== 'essay').length;
+    return nonEssayQuestions > 0 && answeredCount >= nonEssayQuestions;
+  }, [test, answeredCount]);
 
   useEffect(() => {
     if (!showResults || !test || !onComplete) return;

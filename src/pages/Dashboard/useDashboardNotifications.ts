@@ -3,6 +3,7 @@ import { fetchNotifications, markAllRead, markAsRead, deleteNotification } from 
 import { missingSupabaseEnvMessage } from '../../lib/env';
 import { useGuest } from '../../contexts/GuestContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { NOTIFICATIONS_STALE_TIME_MS } from '@/src/lib/constants';
 import type { Notification } from '../../types/notification';
 
 export const useDashboardNotifications = () => {
@@ -25,7 +26,7 @@ export const useDashboardNotifications = () => {
       return result.data;
     },
     enabled: !isGuest && Boolean(userId),
-    staleTime: 1000 * 60,
+    staleTime: NOTIFICATIONS_STALE_TIME_MS,
   });
 
   const markAsReadMutation = useMutation({

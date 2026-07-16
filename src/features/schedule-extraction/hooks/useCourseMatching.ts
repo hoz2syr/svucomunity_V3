@@ -2,6 +2,7 @@
 
 import { useQuery, queryOptions } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { COURSE_MATCHING_STALE_TIME_MS } from '@/src/lib/constants';
 import {
   matchExtractedCoursesToProgress,
   suggestStudyGroups,
@@ -26,7 +27,7 @@ export function useCourseMatching(extractionId: string | null) {
         return result.data || [];
       },
       enabled: !!extractionId && !!userId,
-      staleTime: 60 * 1000,
+      staleTime: COURSE_MATCHING_STALE_TIME_MS,
     }),
     select: (data) => data,
   });
@@ -48,7 +49,7 @@ export function useCourseMatching(extractionId: string | null) {
         return result.data || [];
       },
       enabled: !!userId && courseCodesFromMatched.length > 0,
-      staleTime: 60 * 1000,
+      staleTime: COURSE_MATCHING_STALE_TIME_MS,
     }),
     select: (data) => data,
   });
