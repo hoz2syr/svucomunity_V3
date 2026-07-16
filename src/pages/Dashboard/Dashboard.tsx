@@ -9,6 +9,7 @@ import { deleteOwnAccount, signOutCurrentUser } from '../../services/account.ser
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
 import { EmptyDashboardState } from './EmptyDashboardState';
+import { CurrentSemesterCard } from './CurrentSemesterCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useDashboardNotifications } from './useDashboardNotifications';
 import { useDashboardState, type DashboardModal, type SettingsTab } from './useDashboardState';
@@ -147,7 +148,16 @@ export const DashboardPage = () => {
             setActiveModal('delete');
           }}
         />
-        <EmptyDashboardState userName={user.name} />
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-6xl mx-auto p-6 space-y-8">
+            <section aria-label="الفصل الحالي" className="mb-8">
+              <CurrentSemesterCard />
+            </section>
+            <section aria-label="أدوات الدراسة" className="space-y-6">
+              <EmptyDashboardState userName={user.name} />
+            </section>
+          </div>
+        </div>
       </main>
 
       <div className="fixed bottom-6 right-6 z-20">
