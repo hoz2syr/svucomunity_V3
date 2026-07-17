@@ -17,6 +17,12 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (profile?.role !== 'admin') {
+    console.warn('[AdminGuard] Redirecting to /dashboard', {
+      hasSession: !!session,
+      profileId: profile?.id ?? null,
+      profileRole: profile?.role ?? null,
+      profileEmail: profile?.email ?? null,
+    });
     return <Navigate to="/dashboard" replace />;
   }
 
