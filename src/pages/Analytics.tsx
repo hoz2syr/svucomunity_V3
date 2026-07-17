@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft, ShieldX } from 'lucide-react';
@@ -284,13 +283,6 @@ export function AnalyticsPage() {
   const { data: courses } = usePopularCourses(20);
   const { data: instructors } = usePopularInstructors(20);
   const { data: majors } = useMajorDistribution();
-
-  const _totalItems = useMemo(() => {
-    const courseCount = courses?.length || 0;
-    const instructorCount = instructors?.length || 0;
-    const majorCount = majors?.length || 0;
-    return courseCount + instructorCount + majorCount;
-  }, [courses, instructors, majors]);
 
   if (!authLoading && !isAdmin) {
     return (

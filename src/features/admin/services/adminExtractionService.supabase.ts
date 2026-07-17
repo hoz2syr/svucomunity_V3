@@ -249,11 +249,15 @@ async function logAdminAction(
     // keep fallback values
   }
 
-  await client.from('admin_audit_log').insert({
-    caller_id: callerId,
-    action,
-    payload,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-  });
+  try {
+    await client.from('admin_audit_log').insert({
+      caller_id: callerId,
+      action,
+      payload,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
+  } catch {
+    // audit log failure must not break the original operation
+  }
 }

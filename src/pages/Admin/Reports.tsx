@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
@@ -62,6 +62,28 @@ export function Reports() {
 
   const { data: stats, isLoading: statsLoading, error: statsError, refetch } = usePlatformStats();
 
+  const coursesVerificationRate = useMemo(() => {
+    if (!stats) return 0;
+    const total = stats.verified_courses + stats.unverified_courses;
+    return total > 0 ? (stats.verified_courses / total) * 100 : 0;
+  }, [stats]);
+
+  const instructorsVerificationRate = useMemo(() => {
+    if (!stats) return 0;
+    const total = stats.verified_instructors + stats.unverified_instructors;
+    return total > 0 ? (stats.verified_instructors / total) * 100 : 0;
+  }, [stats]);
+
+  const avgCoursesPerExtraction = useMemo(() => {
+    if (!stats || stats.total_extractions === 0) return '0';
+    return (stats.total_courses / stats.total_extractions).toFixed(1);
+  }, [stats]);
+
+  const avgExtractionsPerUser = useMemo(() => {
+    if (!stats || stats.total_users === 0) return '0';
+    return (stats.total_extractions / stats.total_users).toFixed(1);
+  }, [stats]);
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -119,7 +141,7 @@ export function Reports() {
 
       {statsLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 7 }).map((_, i) => (
             <GlassCard key={i} className="p-5">
               <Skeleton className="w-full h-20" />
             </GlassCard>
@@ -132,7 +154,7 @@ export function Reports() {
             <StatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={FileText} color="blue" />
             <StatCard label="إجمالي المواد" value={stats.total_courses} icon={BookOpen} color="emerald" />
             <StatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={User} color="amber" />
-            <StatCard label="إجمالي التخصصات" value={stats.total_majors} color="rose" icon={BarChart3} />
+            <StatCard label="إجمالي التخصصات" value={stats.total_majors} icon={BarChart3} color="rose" />
             <StatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={BookOpenCheck} color="cyan" />
             <StatCard label="إجمالي المجموعات" value={stats.total_groups} icon={UsersRound} color="blue" />
           </div>
@@ -154,9 +176,7 @@ export function Reports() {
                   <div className="w-full bg-white/5 rounded-full h-2">
                     <div
                       className="bg-emerald-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${stats.verified_courses + stats.unverified_courses > 0 ? (stats.verified_courses / (stats.verified_courses + stats.unverified_courses)) * 100 : 0}%`,
-                      }}
+                      style={{ width: `${coursesVerificationRate}%` }}
                     />
                   </div>
                 </div>
@@ -170,9 +190,7 @@ export function Reports() {
                   <div className="w-full bg-white/5 rounded-full h-2">
                     <div
                       className="bg-cyan-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${stats.verified_instructors + stats.unverified_instructors > 0 ? (stats.verified_instructors / (stats.verified_instructors + stats.unverified_instructors)) * 100 : 0}%`,
-                      }}
+                      style={{ width: `${instructorsVerificationRate}%` }}
                     />
                   </div>
                 </div>
@@ -187,24 +205,11 @@ export function Reports() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                   <span className="text-sm text-slate-400">متوسط المواد لكل استخراج</span>
-                  <span className="text-sm text-white font-medium">
-                    {stats.total_extractions > 0 ? (stats.total_courses / stats.total_extractions).toFixed(1) : '0'}
-                  </span>
+                  <span className="text-sm text-white font-medium">{avgCoursesPerExtraction}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                   <span className="text-sm text-slate-400">متوسط الاستخراجات لكل مستخدم</span>
-                  <span className="text-sm text-white font-medium">
-                    {stats.total_users > 0 ? (stats.total_extractions / stats.total_users).toFixed(1) : '0'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                  <span className="text-sm text-slate-400">نسبة التحقق للمواد</span>
-                  <span className="text-sm text-white font-medium">
-                    {stats.verified_courses + stats.unverified_courses > 0
-                      ? ((stats.verified_courses / (stats.verified_courses + stats.unverified_courses)) * 100).toFixed(1)
-                      : '0'}
-                    %
-                  </span>
+                  <span className="text-sm text-white font-medium">{avgExtractionsPerUser}</span>
                 </div>
               </div>
             </GlassCard>
