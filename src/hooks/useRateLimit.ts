@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_POLL_INTERVAL_MS } from '@/src/lib/constants';
+import { RATE_LIMIT_POLL_INTERVAL_MS } from '@/src/lib/constants';
 import { createRateLimiter, RateLimitOptions, RateLimitStatus, RateLimiter } from '../lib/rateLimit';
 
 export type { RateLimitOptions, RateLimitStatus, RateLimiter };
