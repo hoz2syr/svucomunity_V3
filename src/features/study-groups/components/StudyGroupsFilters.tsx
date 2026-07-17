@@ -42,7 +42,10 @@ export function StudyGroupsFilters({
     };
   }, [cancelSearch]);
 
-  const majorOptions = useMemo<SelectOption[]>(() => majors.map(m => ({ label: m, value: m })), [majors]);
+  const majorOptions = useMemo<SelectOption[]>(() => [
+    { label: 'كل التخصصات', value: '' },
+    ...majors.map(m => ({ label: m, value: m })),
+  ], [majors]);
   const courseOptions = useMemo<SelectOption[]>(() => courses.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code })), [courses]);
   const classOptions = useMemo<SelectOption[]>(() => classes.map(c => ({ label: c, value: c })), [classes]);
   const statusOptions = useMemo<SelectOption[]>(() => [

@@ -20,6 +20,8 @@ interface GroupDetailsModalProps {
   onEdit: () => void;
   joiningId: string | null;
   leavingId: string | null;
+  userId?: string;
+  onRequireLogin?: () => void;
 }
 
 export function GroupDetailsModal({
@@ -35,11 +37,14 @@ export function GroupDetailsModal({
   onEdit,
   joiningId,
   leavingId,
+  userId,
+  onRequireLogin,
 }: GroupDetailsModalProps) {
   const [showConfirmJoin, setShowConfirmJoin] = useState(false);
   const [showConfirmLeave, setShowConfirmLeave] = useState(false);
   const [majorMismatch, setMajorMismatch] = useState<{ groupMajor: string; userMajor: string } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   if (!isOpen || !group) return null;
 
@@ -47,6 +52,10 @@ export function GroupDetailsModal({
   const userMajor = currentUserMajor || '';
 
   const handleJoinClick = () => {
+    if (!userId) {
+      setShowLoginPrompt(true);
+      return;
+    }
     if (group.major && userMajor && group.major !== userMajor) {
       setMajorMismatch({ groupMajor: group.major, userMajor });
       return;
@@ -167,7 +176,7 @@ export function GroupDetailsModal({
                <AlertTriangle className="w-5 h-5 inline-block ml-1.5" />
                هذه المجموعة لتخصص {majorMismatch.groupMajor}
              </p>
-              <p className="text-[var(--color-warning-300)]/80 text-xs text-center mb-3">
+             <p className="text-[var(--color-warning-300)]/80 text-xs text-center mb-3">
                تخصصك: {majorMismatch.userMajor} - هل تريد المتابعة؟
              </p>
              <div className="flex gap-2">
@@ -180,6 +189,22 @@ export function GroupDetailsModal({
              </div>
            </div>
          )}
+
+        {showLoginPrompt && (
+           <div className="p-4 bg-[var(--color-info-light)] border border-[var(--color-info-border)] rounded-xl">
+              <p className="text-[var(--color-info-400)] text-sm font-semibold text-center mb-2">
+                يجب تسجيل الدخول للانضمام إلى المجموعات
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={onRequireLogin} className="flex-1">
+                  تسجيل الدخول
+                </Button>
+                <Button variant="secondary" onClick={() => setShowLoginPrompt(false)} className="flex-1">
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          )}
 
 {!isMember && !isFull && !showConfirmJoin && (
            <Button 

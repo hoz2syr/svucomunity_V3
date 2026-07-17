@@ -12,11 +12,13 @@ import { StudyGroupCardSkeleton } from '../../components/StudyGroupCardSkeleton'
 import { Button } from '@/src/components/ui/Button';
 import { Users } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function StudyGroupsHome() {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const userMajor = profile?.major || undefined;
+  const navigate = useNavigate();
 
   const page = useStudyGroupsPage(userId, userMajor);
 
@@ -104,19 +106,21 @@ export default function StudyGroupsHome() {
         />
 
        <GroupDetailsModal
-          group={page.selectedGroup as StudyGroupEnriched | null}
-          isOpen={!!page.selectedGroupId}
-          onClose={page.handleCloseDetails}
-          isMember={page.isMember}
-          canDelete={page.canDelete}
-          currentUserMajor={userMajor}
-          onJoin={page.handleJoin}
-          onLeave={page.handleLeave}
-          onEdit={page.handleEdit}
-          onDelete={page.handleDelete}
-          joiningId={page.joiningId}
-          leavingId={page.leavingId}
-        />
+           group={page.selectedGroup as StudyGroupEnriched | null}
+           isOpen={!!page.selectedGroupId}
+           onClose={page.handleCloseDetails}
+           isMember={page.isMember}
+           canDelete={page.canDelete}
+           currentUserMajor={userMajor}
+           onJoin={page.handleJoin}
+           onLeave={page.handleLeave}
+           onEdit={page.handleEdit}
+           onDelete={page.handleDelete}
+           joiningId={page.joiningId}
+           leavingId={page.leavingId}
+           userId={userId}
+           onRequireLogin={() => navigate('/login')}
+         />
     </ErrorBoundary>
   );
 }

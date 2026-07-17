@@ -52,9 +52,7 @@ export function useStudyGroups(userId: string | undefined, userMajor?: string) {
   }, []);
 
   useEffect(() => {
-    if (userId) {
-      loadGroups();
-    }
+    loadGroups();
   }, [userId, loadGroups]);
 
   useEffect(() => {
