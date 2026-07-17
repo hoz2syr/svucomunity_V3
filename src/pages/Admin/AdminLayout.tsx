@@ -12,10 +12,12 @@ import {
   Bell,
   Star,
   ChevronRight,
+  CalendarDays,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
-type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'notifications' | 'reviews' | 'analytics';
+type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'notifications' | 'reviews' | 'analytics' | 'semester' | 'sources';
 
 const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
@@ -24,7 +26,9 @@ const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
   { id: 'notifications', label: 'الإشعارات', icon: Bell, path: '/admin/notifications' },
   { id: 'reviews', label: 'التقييمات', icon: Star, path: '/admin/reviews' },
+  { id: 'sources', label: 'المصادر', icon: BookOpen, path: '/admin/sources' },
   { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
+  { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays, path: '/admin/semester' },
 ];
 
 export function AdminLayout() {

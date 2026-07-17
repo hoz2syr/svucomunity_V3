@@ -1,10 +1,16 @@
 import type { Course } from '@/src/features/courses/src/types';
 import { coursesDB } from '@/src/features/courses/src/data/coursesData';
-import type { SubjectReference, SubjectReferenceInsert, UserCourseProgress, UserCourseProgressInsert } from '../types';
+import type { SubjectReference, SubjectReferenceInsert, SubjectReferenceUpdate, UserCourseProgress, UserCourseProgressInsert } from '../types';
 import {
   getReferencesByCourseCode,
   insertReference as supabaseInsertReference,
+  updateReference as supabaseUpdateReference,
   deleteReference as supabaseDeleteReference,
+  likeReference as supabaseLikeReference,
+  unlikeReference as supabaseUnlikeReference,
+  checkUserLikedReference as supabaseCheckUserLiked,
+  fetchUserReferences as supabaseFetchUserReferences,
+  fetchAllReferences as supabaseFetchAllReferences,
   loadUserProgress,
   upsertUserProgress,
   deleteUserProgress,
@@ -31,12 +37,19 @@ export function getSubjectByCode(courseCode: string): Subject | undefined {
 
 export function filterSubjectsByMajor(subjects: Subject[], major?: string | null): Subject[] {
   if (!major) return subjects;
-  return subjects.filter((subject) => {
-    if (subject.level === 'ENG') return false;
-    const levelNum = typeof subject.level === 'number' ? subject.level : 0;
-    const majorNum = parseInt(major, 10);
-    return levelNum === majorNum || subject.name.includes(major);
-  });
+
+  const majorNum = parseInt(major, 10);
+
+  if (!isNaN(majorNum)) {
+    const levelNum = typeof majorNum === 'number' ? majorNum : 0;
+    return subjects.filter((subject) => {
+      if (subject.level === 'ENG') return false;
+      const subjectLevel = typeof subject.level === 'number' ? subject.level : 0;
+      return subjectLevel === levelNum;
+    });
+  }
+
+  return subjects.filter((subject) => subject.level !== 'ENG');
 }
 
 export async function fetchReferences(courseCode: string): Promise<ServiceResult<SubjectReference[]>> {
@@ -50,8 +63,35 @@ export async function addReference(
   return supabaseInsertReference(userId, reference);
 }
 
+export async function updateReference(
+  id: string,
+  updates: SubjectReferenceUpdate
+): Promise<ServiceResult<SubjectReference>> {
+  return supabaseUpdateReference(id, updates);
+}
+
 export async function removeReference(id: string): Promise<ServiceResult<null>> {
   return supabaseDeleteReference(id);
+}
+
+export async function likeReference(referenceId: string, userId: string): Promise<ServiceResult<null>> {
+  return supabaseLikeReference(referenceId, userId);
+}
+
+export async function unlikeReference(referenceId: string, userId: string): Promise<ServiceResult<null>> {
+  return supabaseUnlikeReference(referenceId, userId);
+}
+
+export async function checkUserLikedReference(referenceId: string, userId: string): Promise<ServiceResult<boolean>> {
+  return supabaseCheckUserLiked(referenceId, userId);
+}
+
+export async function fetchUserReferences(userId: string): Promise<ServiceResult<SubjectReference[]>> {
+  return supabaseFetchUserReferences(userId);
+}
+
+export async function fetchAllReferences(): Promise<ServiceResult<SubjectReference[]>> {
+  return supabaseFetchAllReferences();
 }
 
 export async function fetchUserProgress(userId: string): Promise<ServiceResult<UserCourseProgress[]>> {

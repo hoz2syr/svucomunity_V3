@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loadCurrentSemesterCourses } from '../../features/schedule-extraction/services';
-import { getCurrentSemesterCode, convertSemesterCodeToLabel } from '../../features/schedule-extraction/utils/semesterUtils';
+import { getCurrentSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Button } from '../../components/ui/Button';
@@ -19,7 +19,6 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const semesterCode = profile?.current_semester || getCurrentSemesterCode();
-  const semesterLabel = convertSemesterCodeToLabel(semesterCode);
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
     queryKey: ['current-semester-courses', userId, semesterCode],
@@ -48,7 +47,7 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">الفصل الحالي</h2>
-              <p className="text-sm text-[var(--color-text-secondary)]">{semesterLabel}</p>
+               <p className="text-sm text-[var(--color-text-secondary)]">{semesterCode}</p>
             </div>
           </div>
           {courses.length > 0 && (

@@ -12,6 +12,7 @@
   leaveGroup as leaveGroupRaw,
   updateGroup as updateGroupRaw,
   getMyGroups as getMyGroupsRaw,
+  reactivateGroup as reactivateGroupRaw,
   type ServiceResult,
   type StudyGroup,
   type Course,
@@ -75,6 +76,10 @@ export async function getMyGroups(userId: string): Promise<{ created: StudyGroup
   return throwOnError(await getMyGroupsRaw(userId));
 }
 
+export async function reactivateGroup(groupId: string): Promise<void> {
+  return throwOnError(await reactivateGroupRaw(groupId));
+}
+
 export const studyGroupService = {
   getAllWithCreators,
   getMyGroups,
@@ -88,4 +93,5 @@ export const studyGroupService = {
   checkIsAdmin,
   getCoursesByMajor,
   getAvailableMajors,
+  reactivateGroup,
 };

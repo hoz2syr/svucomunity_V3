@@ -7,9 +7,11 @@ import { Icon } from '@/src/components/ui/Icon';
 import { SubjectTabs } from './SubjectTabs';
 import { ReferencesList } from './ReferencesList';
 import { AddReferenceModal } from './AddReferenceModal';
+import { EditReferenceModal } from './EditReferenceModal';
 import { useSubjectDetail } from '../src/hooks/useSubjectDetail';
 import type { SubjectTab } from '../src/types';
 import { Plus } from 'lucide-react';
+import { useToast } from '@/src/components/ui/Toast';
 
 type SubjectDetailViewProps = {
   courseCode: string;
@@ -18,7 +20,25 @@ type SubjectDetailViewProps = {
 export function SubjectDetailView({ courseCode }: SubjectDetailViewProps) {
   const [activeTab, setActiveTab] = useState<SubjectTab>('info');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { subject, references, referencesError, addReference, removeReference, isAdding, isRemoving, canAdd } = useSubjectDetail(courseCode);
+  const [editingReference, setEditingReference] = useState<{ id: string; title: string; url: string; description?: string; type: 'video' | 'reference' | 'link' } | null>(null);
+  const { toast } = useToast();
+  const {
+    subject,
+    references,
+    referencesError,
+    addReference,
+    updateReference,
+    removeReference,
+    likeReference,
+    unlikeReference,
+    isAdding,
+    isUpdating,
+    isRemoving,
+    isLiking,
+    isUnliking,
+    canAdd,
+    currentUserId,
+  } = useSubjectDetail(courseCode);
 
   if (!subject) {
     return (
@@ -32,6 +52,12 @@ export function SubjectDetailView({ courseCode }: SubjectDetailViewProps) {
   }
 
   const levelLabel = typeof subject.level === 'number' ? `السنة ${subject.level}` : subject.level;
+
+  const userReferences = references.filter((r) => r.user_id === currentUserId);
+
+  const handleAddSuccess = () => {
+    toast('شكرا لك على المساهمة في تحسين الموقع', 'success');
+  };
 
   return (
     <div className="space-y-6">
@@ -128,9 +154,45 @@ export function SubjectDetailView({ courseCode }: SubjectDetailViewProps) {
             <ReferencesList
               references={references}
               onDelete={removeReference}
+              onEdit={(id, updates) => setEditingReference({ id, ...updates, type: updates.type || 'reference' })}
+              onLike={likeReference}
+              onUnlike={unlikeReference}
               isRemoving={isRemoving}
-              currentUserId={undefined}
+              isUpdating={isUpdating}
+              isLiking={isLiking}
+              isUnliking={isUnliking}
+              currentUserId={currentUserId}
+              showEdit={canAdd}
             />
+          </div>
+        )}
+
+        {activeTab === 'my-contributions' && (
+          <div className="space-y-4">
+            {canAdd && (
+              <div className="flex justify-end">
+                <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
+                  <Icon icon={Plus as ComponentType<SVGProps<SVGSVGElement>>} size="sm" />
+                  <span className="mr-2">إضافة مصدر</span>
+                </Button>
+              </div>
+            )}
+            {userReferences.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                <p>لم تقم بإضافة أي مصادر بعد في هذه المادة.</p>
+              </div>
+            ) : (
+              <ReferencesList
+                references={userReferences}
+                onDelete={removeReference}
+                onEdit={(id, updates) => setEditingReference({ id, ...updates, type: updates.type || 'reference' })}
+                isRemoving={isRemoving}
+                isUpdating={isUpdating}
+                currentUserId={currentUserId}
+                showEdit
+                showLikes={false}
+              />
+            )}
           </div>
         )}
 
@@ -157,9 +219,25 @@ export function SubjectDetailView({ courseCode }: SubjectDetailViewProps) {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         courseCode={courseCode}
-        onAdd={addReference}
+        onAdd={async (reference) => {
+          const result = await addReference(reference);
+          if (!result.error) {
+            handleAddSuccess();
+          }
+          return result;
+        }}
         isAdding={isAdding}
       />
+
+      {editingReference && (
+        <EditReferenceModal
+          isOpen={Boolean(editingReference)}
+          onClose={() => setEditingReference(null)}
+          initialData={editingReference}
+          onSave={(updates) => updateReference(editingReference.id, updates)}
+          isSaving={isUpdating}
+        />
+      )}
     </div>
   );
 }

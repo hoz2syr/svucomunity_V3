@@ -93,13 +93,16 @@ const LazyExtractionTracking = lazy(() => import('./pages/Admin/ExtractionTracki
 const LazyReports = lazy(() => import('./pages/Admin/Reports').then(m => ({ default: m.Reports })));
 const LazyNotificationManagement = lazy(() => import('./pages/Admin/NotificationManagement').then(m => ({ default: m.NotificationManagement })));
 const LazyReviews = lazy(() => import('./pages/Admin/Reviews').then(m => ({ default: m.Reviews })));
+const LazySemesterTransitionPage = lazy(() => import('./pages/Admin/SemesterTransitionPage').then(m => ({ default: m.SemesterTransitionPage })));
 
 const LazyExamLayout = lazy(() => import('./features/exam/components/ExamLayout').then(m => ({ default: m.ExamLayout })));
 const LazyStudyGroupsLayout = lazy(() => import('./features/study-groups/components/StudyGroupsLayout').then(m => ({ default: m.StudyGroupsLayout })));
 const LazyScheduleExtractionLayout = lazy(() => import('./features/schedule-extraction').then(m => ({ default: m.ScheduleExtractionLayout })));
 const LazyCoursesLayout = lazy(() => import('./features/courses').then(m => ({ default: m.CoursesLayout })));
 const LazySubjectsLayout = lazy(() => import('./features/subjects').then(m => ({ default: m.SubjectsLayout })));
+const LazyMyReferencesPage = lazy(() => import('./features/subjects').then(m => ({ default: m.MyReferencesPage })));
 const LazyAdminLayout = lazy(() => import('./pages/Admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const LazySourcesManagement = lazy(() => import('./pages/Admin/SourcesManagement').then(m => ({ default: m.SourcesManagement })));
 
 function App() {
   const [queryClient] = useState(() => createQueryClient());
@@ -276,83 +279,109 @@ function App() {
                   }
                 />
                    <Route
-                     path="/dashboard/subjects/:courseCode"
-                     element={
-                       withRouteShell(
-                         <LazySubjectsLayout>
-                           <LazySubjectDetailPage />
-                         </LazySubjectsLayout>
-                       )
-                     }
-                   />
-                    <Route
-                      path="/admin"
+                      path="/dashboard/subjects/:courseCode"
                       element={
-                        <LazyRoute>
-                          <AdminGuard>
-                            <LazyAdminLayout />
-                          </AdminGuard>
-                        </LazyRoute>
+                        withRouteShell(
+                          <LazySubjectsLayout>
+                            <LazySubjectDetailPage />
+                          </LazySubjectsLayout>
+                        )
                       }
-                    >
+                    />
+                    <Route
+                      path="/dashboard/subjects/my"
+                      element={
+                        withRouteShell(
+                          <LazySubjectsLayout>
+                            <LazyMyReferencesPage />
+                          </LazySubjectsLayout>
+                        )
+                      }
+                    />
                      <Route
-                       path="users"
+                       path="/admin"
                        element={
                          <LazyRoute>
-                           <LazyUserManagement />
+                           <AdminGuard>
+                             <LazyAdminLayout />
+                           </AdminGuard>
                          </LazyRoute>
                        }
-                     />
-                     <Route
-                       path="extractions"
-                       element={
-                         <LazyRoute>
-                           <LazyExtractionTracking />
-                         </LazyRoute>
-                       }
-                     />
-                     <Route
-                       path="reports"
-                       element={
-                         <LazyRoute>
-                           <LazyReports />
-                         </LazyRoute>
-                       }
-                     />
-                     <Route
-                       path="verification"
-                       element={
-                         <LazyRoute>
-                           <LazyVerificationPanel />
-                         </LazyRoute>
-                       }
-                     />
+                     >
                       <Route
-                        path="reviews"
+                        path="users"
                         element={
                           <LazyRoute>
-                            <LazyReviews />
+                            <LazyUserManagement />
+                          </LazyRoute>
+                        }
+                      />
+                      <Route
+                        path="extractions"
+                        element={
+                          <LazyRoute>
+                            <LazyExtractionTracking />
+                          </LazyRoute>
+                        }
+                      />
+                      <Route
+                        path="reports"
+                        element={
+                          <LazyRoute>
+                            <LazyReports />
+                          </LazyRoute>
+                        }
+                      />
+                      <Route
+                        path="verification"
+                        element={
+                          <LazyRoute>
+                            <LazyVerificationPanel />
                           </LazyRoute>
                         }
                       />
                        <Route
-                         path="notifications"
+                         path="reviews"
                          element={
                            <LazyRoute>
-                             <LazyNotificationManagement />
+                             <LazyReviews />
                            </LazyRoute>
                          }
                        />
-                      <Route
-                        path="analytics"
-                        element={
-                          <LazyRoute>
-                            <LazyAnalyticsPage />
-                          </LazyRoute>
-                        }
-                      />
-                     <Route index element={<Navigate to="users" replace />} />
-                   </Route>
+                        <Route
+                          path="notifications"
+                          element={
+                            <LazyRoute>
+                              <LazyNotificationManagement />
+                            </LazyRoute>
+                          }
+                        />
+                        <Route
+                          path="analytics"
+                          element={
+                            <LazyRoute>
+                              <LazyAnalyticsPage />
+                            </LazyRoute>
+                          }
+                        />
+                       <Route
+                         path="semester"
+                         element={
+                           <LazyRoute>
+                             <LazySemesterTransitionPage />
+                           </LazyRoute>
+                         }
+                       />
+                       <Route
+                         path="sources"
+                         element={
+                           <LazyRoute>
+                             <LazySourcesManagement />
+                           </LazyRoute>
+                         }
+                       />
+                       <Route index element={<Navigate to="users" replace />} />
+                    </Route>
                    <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Router>

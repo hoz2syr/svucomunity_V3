@@ -1,10 +1,11 @@
 import { useEffect, useMemo, memo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home } from 'lucide-react';
+import { Home, LogIn } from 'lucide-react';
 import { DeleteAccountModal, LogoutModal, SettingsModal } from '../../components/dashboard';
 import { SkipLink } from '../../components/accessibility/SkipLink';
 import { useAuth } from '../../contexts/AuthContext';
+import { useGuest } from '../../contexts/GuestContext';
 import { deleteOwnAccount, signOutCurrentUser } from '../../services/account.service';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardLayout } from './DashboardLayout';
@@ -17,6 +18,7 @@ import { useDashboardState, type DashboardModal, type SettingsTab } from './useD
 export const DashboardPage = memo(function DashboardPage() {
   const navigate = useNavigate();
   const { session, profile, loading: authLoading } = useAuth();
+  const { isGuest } = useGuest();
   const {
     profileMenuRef,
     isProfileMenuOpen,
@@ -78,6 +80,10 @@ export const DashboardPage = memo(function DashboardPage() {
     }
   };
 
+  const handleLogin = () => {
+    navigate('/login', { replace: true });
+  };
+
   const openSettings = (tab: SettingsTab) => {
     setSettingsTab(tab);
     setActiveModal('settings');
@@ -137,6 +143,7 @@ export const DashboardPage = memo(function DashboardPage() {
           notificationsError={notificationsError}
           notifications={notifications}
           isProfileMenuOpen={isProfileMenuOpen}
+          isGuest={isGuest}
           onToggleNotifications={() => setIsNotificationsOpen((prev) => !prev)}
           onToggleProfile={() => setIsProfileMenuOpen((prev) => !prev)}
           onOpenSettings={openSettings}
@@ -148,7 +155,31 @@ export const DashboardPage = memo(function DashboardPage() {
             setIsProfileMenuOpen(false);
             setActiveModal('delete');
           }}
+          onOpenLogin={() => {
+            setIsProfileMenuOpen(false);
+            handleLogin();
+          }}
         />
+        {isGuest && (
+          <div className="mt-3">
+            <div className="max-w-6xl mx-auto px-6">
+              <div className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 px-4 py-2.5 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-cyan-300">أنت تتصفح كزائر</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">سجّل دخولك لحفظ بياناتك والوصول لجميع الميزات</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  className="shrink-0 inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
+                >
+                  <LogIn size={14} />
+                  تسجيل الدخول
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto p-6 space-y-8">
             <section aria-label="الفصل الحالي" className="mb-8">

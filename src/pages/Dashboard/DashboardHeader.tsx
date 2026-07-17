@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import React from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Bell, ChevronDown, LogOut, Shield, Trash2, User, X, Search } from 'lucide-react';
+import { Bell, ChevronDown, LogIn, LogOut, Shield, Trash2, User, X, Search } from 'lucide-react';
 import type { Notification } from '../../types/notification';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useClickOutside } from '../../hooks/useClickOutside';
@@ -98,14 +98,16 @@ export const NotificationMenu = ({ isNotificationsOpen, unreadCount, loading, er
 type ProfileMenuProps = {
   isProfileMenuOpen: boolean;
   user: DashboardUser;
+  isGuest: boolean;
   onClose: () => void;
   onOpenSettings: (tab: 'profile' | 'security') => void;
   onOpenLogout: () => void;
   onOpenDelete: () => void;
+  onOpenLogin: () => void;
   reducedMotion?: boolean;
 };
 
-export const ProfileMenu = ({ isProfileMenuOpen, user, onClose, onOpenSettings, onOpenLogout, onOpenDelete, reducedMotion = false }: ProfileMenuProps) => (
+export const ProfileMenu = ({ isProfileMenuOpen, user, isGuest, onClose, onOpenSettings, onOpenLogout, onOpenDelete, onOpenLogin, reducedMotion = false }: ProfileMenuProps) => (
   <AnimatePresence>
     {isProfileMenuOpen && (
       <motion.div
@@ -116,28 +118,37 @@ export const ProfileMenu = ({ isProfileMenuOpen, user, onClose, onOpenSettings, 
         className="absolute left-0 mt-3 w-64 bg-[var(--color-bg-primary)]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-cyan-900/20 py-2.5 z-50"
         role="menu"
       >
-        <div className="px-4 py-3.5 border-b border-white/5">
-          <div className="font-extrabold text-white truncate text-[15px]">{user.name}</div>
-          <div className="text-xs text-slate-400 truncate mt-1 font-medium">@{user.username}</div>
-        </div>
-
-        <div className="py-2">
-          <button onClick={() => { onClose(); onOpenSettings('profile'); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
-            <User size={17} className="text-slate-400" /> إعدادات الحساب
-          </button>
-          <button onClick={() => { onClose(); onOpenSettings('security'); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
-            <Shield size={17} className="text-slate-400" /> الأمان وكلمة المرور
-          </button>
-        </div>
-
-        <div className="py-2 border-t border-white/5">
-          <button onClick={() => { onClose(); onOpenLogout(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
-            <LogOut size={17} className="text-slate-400" /> تسجيل الخروج
-          </button>
-          <button onClick={() => { onClose(); onOpenDelete(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-[var(--color-danger-400)] hover:bg-[var(--color-danger-light)] hover:text-[var(--color-danger-300)] flex items-center gap-3 transition-all mt-1 rounded-lg mx-2">
-            <Trash2 size={17} className="text-rose-400/80" /> حذف الحساب نهائياً
-          </button>
-        </div>
+        {isGuest ? (
+          <div className="py-2">
+            <button onClick={() => { onClose(); onOpenLogin(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-cyan-300 hover:bg-white/5 hover:text-cyan-200 flex items-center gap-3 transition-all">
+              <LogIn size={17} className="text-cyan-400" /> تسجيل الدخول
+            </button>
+            <p className="px-4 pt-2 text-xs text-slate-500">سجّل دخولك لحفظ بياناتك والوصول لجميع الميزات</p>
+          </div>
+        ) : (
+          <>
+            <div className="px-4 py-3.5 border-b border-white/5">
+              <div className="font-extrabold text-white truncate text-[15px]">{user.name}</div>
+              <div className="text-xs text-slate-400 truncate mt-1 font-medium">@{user.username}</div>
+            </div>
+            <div className="py-2">
+              <button onClick={() => { onClose(); onOpenSettings('profile'); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
+                <User size={17} className="text-slate-400" /> إعدادات الحساب
+              </button>
+              <button onClick={() => { onClose(); onOpenSettings('security'); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
+                <Shield size={17} className="text-slate-400" /> الأمان وكلمة المرور
+              </button>
+            </div>
+            <div className="py-2 border-t border-white/5">
+              <button onClick={() => { onClose(); onOpenLogout(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition-all">
+                <LogOut size={17} className="text-slate-400" /> تسجيل الخروج
+              </button>
+              <button onClick={() => { onClose(); onOpenDelete(); }} className="w-full text-right px-4 py-3 text-sm font-semibold text-[var(--color-danger-400)] hover:bg-[var(--color-danger-light)] hover:text-[var(--color-danger-300)] flex items-center gap-3 transition-all mt-1 rounded-lg mx-2">
+                <Trash2 size={17} className="text-rose-400/80" /> حذف الحساب نهائياً
+              </button>
+            </div>
+          </>
+        )}
       </motion.div>
     )}
   </AnimatePresence>
@@ -151,11 +162,13 @@ type DashboardHeaderProps = {
   notificationsError: string | null;
   notifications: Notification[];
   isProfileMenuOpen: boolean;
+  isGuest: boolean;
   onToggleNotifications: () => void;
   onToggleProfile: () => void;
   onOpenSettings: (tab: 'profile' | 'security') => void;
   onOpenLogout: () => void;
   onOpenDelete: () => void;
+  onOpenLogin: () => void;
 };
 
 export const DashboardHeader = React.memo(function DashboardHeader({
@@ -166,11 +179,13 @@ export const DashboardHeader = React.memo(function DashboardHeader({
   notificationsError,
   notifications,
   isProfileMenuOpen,
+  isGuest,
   onToggleNotifications,
   onToggleProfile,
   onOpenSettings,
   onOpenLogout,
   onOpenDelete,
+  onOpenLogin,
 }: DashboardHeaderProps) {
   const reducedMotion = useReducedMotion();
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -296,10 +311,12 @@ export const DashboardHeader = React.memo(function DashboardHeader({
           <ProfileMenu
             isProfileMenuOpen={isProfileMenuOpen}
             user={user}
+            isGuest={isGuest}
             onClose={onToggleProfile}
             onOpenSettings={onOpenSettings}
             onOpenLogout={onOpenLogout}
             onOpenDelete={onOpenDelete}
+            onOpenLogin={onOpenLogin}
             reducedMotion={reducedMotion}
           />
         </div>

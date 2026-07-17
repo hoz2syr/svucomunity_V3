@@ -3,13 +3,21 @@ import type { SubjectReference, ReferenceType } from '../src/types';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Icon } from '@/src/components/ui/Icon';
 import { Button } from '@/src/components/ui/Button';
-import { ExternalLink, Trash2, Video, FileText, Link2 } from 'lucide-react';
+import { ExternalLink, Trash2, Video, FileText, Link2, Heart, Pencil } from 'lucide-react';
 
 type ReferencesListProps = {
   references: SubjectReference[];
   onDelete: (id: string) => void;
+  onEdit?: (id: string, updates: { title: string; url: string; description?: string; type: ReferenceType }) => void;
+  onLike?: (id: string) => void;
+  onUnlike?: (id: string) => void;
   isRemoving: boolean;
+  isUpdating?: boolean;
+  isLiking?: boolean;
+  isUnliking?: boolean;
   currentUserId?: string;
+  showLikes?: boolean;
+  showEdit?: boolean;
 };
 
 const typeConfig: Record<ReferenceType, { icon: ComponentType<SVGProps<SVGSVGElement>>; label: string; color: string }> = {
@@ -18,7 +26,20 @@ const typeConfig: Record<ReferenceType, { icon: ComponentType<SVGProps<SVGSVGEle
   link: { icon: Link2, label: 'رابط', color: 'text-green-400 bg-green-500/10 border-green-500/20' },
 };
 
-export function ReferencesList({ references, onDelete, isRemoving, currentUserId }: ReferencesListProps) {
+export function ReferencesList({
+  references,
+  onDelete,
+  onEdit,
+  onLike,
+  onUnlike,
+  isRemoving,
+  isUpdating,
+  isLiking,
+  isUnliking,
+  currentUserId,
+  showLikes = true,
+  showEdit = true,
+}: ReferencesListProps) {
   if (references.length === 0) {
     return (
       <div className="text-center py-12 text-slate-500">
@@ -33,6 +54,7 @@ export function ReferencesList({ references, onDelete, isRemoving, currentUserId
         const config = typeConfig[ref.type];
         const TypeIcon = config.icon;
         const isOwner = currentUserId && ref.user_id === currentUserId;
+        const isLiked = ref.isLiked;
 
         return (
           <GlassCard key={ref.id}>
@@ -60,17 +82,59 @@ export function ReferencesList({ references, onDelete, isRemoving, currentUserId
                     <span className="truncate max-w-[200px]">{ref.url}</span>
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </a>
+                  {showLikes && (
+                    <div className="flex items-center gap-1 mt-2">
+                      {onLike && !isLiked && (
+                        <button
+                          onClick={() => onLike(ref.id)}
+                          disabled={isLiking}
+                          className="flex items-center gap-1 text-xs text-slate-400 hover:text-rose-400 transition-colors"
+                        >
+                          <Heart className="w-3.5 h-3.5" />
+                          <span>{ref.likes || 0}</span>
+                        </button>
+                      )}
+                      {onUnlike && isLiked && (
+                        <button
+                          onClick={() => onUnlike(ref.id)}
+                          disabled={isUnliking}
+                          className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 transition-colors"
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-rose-400" />
+                          <span>{ref.likes || 0}</span>
+                        </button>
+                      )}
+                      {!onLike && !onUnlike && (
+                        <span className="flex items-center gap-1 text-xs text-slate-400">
+                          <Heart className="w-3.5 h-3.5" />
+                          <span>{ref.likes || 0}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {isOwner && (
-                  <Button
-                    variant="danger"
-                    onClick={() => onDelete(ref.id)}
-                    disabled={isRemoving}
-                    className="shrink-0"
-                  >
-                    <Icon icon={Trash2} size="xs" />
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {showEdit && isOwner && onEdit && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => onEdit(ref.id, { title: ref.title, url: ref.url, description: ref.description, type: ref.type })}
+                      disabled={isUpdating}
+                      className="shrink-0"
+                    >
+                      <Icon icon={Pencil} size="xs" />
+                    </Button>
+                  )}
+                  {isOwner && (
+                    <Button
+                      variant="danger"
+                      onClick={() => onDelete(ref.id)}
+                      disabled={isRemoving}
+                      className="shrink-0"
+                    >
+                      <Icon icon={Trash2} size="xs" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </GlassCard>

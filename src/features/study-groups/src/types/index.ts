@@ -10,9 +10,13 @@
   current_members: number;
   whatsapp_link: string;
   group_link?: string;
+  is_full?: boolean;
   creator_id: string;
   creator_name: string;
   created_at: string;
+  updated_at?: string;
+  semester_code: string;
+  is_archived: boolean;
   _creatorFullName?: string;
   _creatorUsername?: string;
 }

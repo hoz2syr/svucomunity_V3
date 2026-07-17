@@ -36,6 +36,7 @@ export function useCourses() {
 
   const passedRef = useRef(passedCourses);
   const carriedRef = useRef(carriedCourses);
+  const isCancelledRef = useRef(false);
 
   useEffect(() => {
     passedRef.current = passedCourses;
@@ -51,24 +52,6 @@ export function useCourses() {
       return sum + (course ? (course.earned || course.credits) : 0);
     }, 0);
   }, []);
-
-  useEffect(() => {
-    if (!session?.user?.id || envMissing) return;
-    let cancelled = false;
-    fetchUserProgress(session.user.id).then((result) => {
-      if (cancelled || result.error) return;
-      const cloudPassed = result.data?.filter(p => p.status === 'passed').map(p => p.course_code) || [];
-      const cloudCarried = result.data?.filter(p => p.status === 'carried').map(p => p.course_code) || [];
-      if (cloudPassed.length > 0 || cloudCarried.length > 0) {
-        setPassedCourses(cloudPassed);
-        setCarriedCourses(cloudCarried);
-        setToStorage(PASSED_KEY, cloudPassed);
-        setToStorage(CARRIED_KEY, cloudCarried);
-        setTotalEarnedCredits(calculatePoints(cloudPassed));
-      }
-    });
-    return () => { cancelled = true; };
-  }, [session?.user?.id, envMissing, calculatePoints]);
 
   const getYearFromCredits = useCallback((credits: number): string => {
     for (const threshold of promotionThresholds) {
@@ -234,6 +217,63 @@ export function useCourses() {
   }, []);
 
   const closeModal = useCallback(() => setModal(null), []);
+
+  const currentUserId = session?.user?.id ?? null;
+
+  useEffect(() => {
+    isCancelledRef.current = false;
+    const resolvedUserId = currentUserId;
+
+    if (!resolvedUserId || envMissing) return;
+
+    fetchUserProgress(resolvedUserId)
+      .then((result) => {
+        if (isCancelledRef.current) return;
+        if (result.error || !result.data) {
+          const localPassed = getFromStorage<string[]>(PASSED_KEY, []);
+          const localCarried = getFromStorage<string[]>(CARRIED_KEY, []);
+          setTotalEarnedCredits(calculatePoints([...localPassed, ...localCarried]));
+          return;
+        }
+
+        const localPassed = getFromStorage<string[]>(PASSED_KEY, []);
+        const localCarried = getFromStorage<string[]>(CARRIED_KEY, []);
+
+        const cloudPassed = result.data.filter(p => p.status === 'passed').map(p => p.course_code);
+        const cloudCarried = result.data.filter(p => p.status === 'carried').map(p => p.course_code);
+        const cloudPassedSet = new Set(cloudPassed);
+        const cloudCarriedSet = new Set(cloudCarried);
+
+        const toUpsertPassed = localPassed.filter(code => !cloudPassedSet.has(code));
+        const toUpsertCarried = localCarried.filter(code => !cloudCarriedSet.has(code) && !cloudPassedSet.has(code));
+
+        Promise.allSettled([
+          ...toUpsertPassed.map(code => upsertUserProgress(resolvedUserId, { course_code: code, status: 'passed' })),
+          ...toUpsertCarried.map(code => upsertUserProgress(resolvedUserId, { course_code: code, status: 'carried' })),
+        ]).then(() => {
+          if (isCancelledRef.current) return;
+
+          const mergedPassed = [...cloudPassed, ...toUpsertPassed];
+          const mergedCarried = [...cloudCarried, ...toUpsertCarried];
+
+          setPassedCourses(mergedPassed);
+          setCarriedCourses(mergedCarried);
+          setToStorage(PASSED_KEY, mergedPassed);
+          setToStorage(CARRIED_KEY, mergedCarried);
+          setTotalEarnedCredits(calculatePoints(mergedPassed));
+        });
+      })
+      .catch(() => {
+        if (isCancelledRef.current) return;
+        const localPassed = getFromStorage<string[]>(PASSED_KEY, []);
+        const localCarried = getFromStorage<string[]>(CARRIED_KEY, []);
+        setTotalEarnedCredits(calculatePoints([...localPassed, ...localCarried]));
+      });
+
+    return () => {
+      isCancelledRef.current = true;
+    };
+  }, [currentUserId, envMissing, calculatePoints]);
 
   return {
     passedCourses,

@@ -9,6 +9,9 @@ export interface SubjectReference {
   url: string;
   description?: string;
   created_at: string;
+  likes: number;
+  isLiked?: boolean;
+  is_approved?: boolean;
 }
 
 export interface SubjectReferenceInsert {
@@ -17,6 +20,14 @@ export interface SubjectReferenceInsert {
   title: string;
   url: string;
   description?: string;
+}
+
+export interface SubjectReferenceUpdate {
+  title?: string;
+  url?: string;
+  description?: string;
+  type?: ReferenceType;
+  is_approved?: boolean;
 }
 
 export interface UserCourseProgress {
@@ -31,7 +42,7 @@ export interface UserCourseProgressInsert {
   status: 'passed' | 'carried';
 }
 
-export type SubjectTab = 'info' | 'references' | 'tests' | 'groups';
+export type SubjectTab = 'info' | 'references' | 'tests' | 'groups' | 'my-contributions';
 
 export interface Subject {
   id: string;
@@ -40,12 +51,7 @@ export interface Subject {
   level: number | 'ENG';
   prereqs: string[];
   diff: 1 | 2 | 3;
-  info?: {
-    over: string;
-    doc: string;
-    prac: string;
-    exam: string;
-  };
+  info?: { over: string; doc: string; prac: string; exam: string };
   isEnglish?: boolean;
   earned?: number;
   minTotalCredits?: number;

@@ -1,27 +1,31 @@
 export function convertSemesterCodeToLabel(code: string): string {
-  const match = code.match(/^(\d{4})\/(\d{4})-([12])$/);
-  if (match) {
-    const year1 = match[1];
-    const year2 = match[2];
-    const sem = match[3] === '1' ? 'الأول' : 'الثاني';
+  const shortMatch = code.match(/^([SF])(\d{2})$/i);
+  if (shortMatch) {
+    const sem = shortMatch[1].toUpperCase();
+    const year = 2000 + parseInt(shortMatch[2], 10);
+    const semLabel = sem === 'F' ? 'الأول' : 'الثاني';
+    return `${year}/${year + 1} - الفصل ${semLabel}`;
+  }
+
+  const longMatch = code.match(/^(\d{4})\/(\d{4})-([12])$/);
+  if (longMatch) {
+    const year1 = longMatch[1];
+    const year2 = longMatch[2];
+    const sem = longMatch[3] === '1' ? 'الأول' : 'الثاني';
     return `${year1}/${year2} - الفصل ${sem}`;
   }
 
-  const legacyMatch = code.match(/^S(\d{2})$/);
-  if (!legacyMatch) return code;
-
-  const year = 2000 + parseInt(legacyMatch[1], 10);
-  return `${year}/${year + 1} - الفصل الثاني`;
+  return code;
 }
 
 export function getCurrentSemesterCode(): string {
   const now = new Date();
-  const year = now.getFullYear();
+  const yearShort = now.getFullYear().toString().slice(-2);
   const month = now.getMonth();
 
   if (month >= 7) {
-    return `${year}/${year + 1}-1`;
+    return `F${yearShort}`;
   } else {
-    return `${year - 1}/${year}-2`;
+    return `S${(now.getFullYear() - 1).toString().slice(-2)}`;
   }
 }

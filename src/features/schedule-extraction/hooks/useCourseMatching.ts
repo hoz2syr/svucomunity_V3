@@ -33,8 +33,7 @@ export function useCourseMatching(extractionId: string | null) {
   });
 
   const courseCodesFromMatched = matchedCoursesQuery.data
-    ?.filter((c) => c.status !== 'new')
-    .map((c) => c.code) || [];
+    ?.map((c) => c.code) || [];
 
   const studyGroupQuery = useQuery({
     ...queryOptions({

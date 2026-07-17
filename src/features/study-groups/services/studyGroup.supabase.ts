@@ -11,7 +11,8 @@ export async function getAllWithCreators(): Promise<ServiceResult<StudyGroup[]>>
   const client = await getSupabase();
   const { data, error } = await client
     .from('groups')
-    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at, semester_code, is_archived')
+    .eq('is_archived', false)
     .order('created_at', { ascending: false });
 
   if (error) return { data: null, error: new Error(error.message) };
@@ -109,12 +110,23 @@ export async function createGroup(groupData: {
   creator_name: string;
 }): Promise<ServiceResult<StudyGroup>> {
   const client = await getSupabase();
+
+  const { data: profile, error: _profileError } = await client
+    .from('profiles')
+    .select('current_semester')
+    .eq('id', groupData.creator_id)
+    .single();
+
+  const semesterCode = profile?.current_semester ?? 'S25';
+
   const { data, error } = await client
     .from('groups')
     .insert({
       ...groupData,
       current_members: 1,
       is_full: false,
+      semester_code: semesterCode,
+      is_archived: false,
     })
     .select()
     .single();
@@ -229,16 +241,33 @@ export async function updateGroup(groupId: string, updates: {
   group_link?: string;
 }): Promise<ServiceResult<StudyGroup>> {
   const client = await getSupabase();
-  const { data, error } = await client
-    .from('groups')
-    .update(updates)
-    .eq('id', groupId)
-    .select()
-    .single();
+
+  const { data: { user }, error: userError } = await client.auth.getUser();
+  if (userError || !user) {
+    return { data: null, error: new Error('تعذر التحقق من الجلسة الحالية') };
+  }
+
+  const { data, error } = await client.functions.invoke<StudyGroup>('study-groups', {
+    body: {
+      action: 'update',
+      payload: { groupId, updates },
+    },
+  });
 
   if (error) return { data: null, error: new Error(error.message) };
   if (!data) return { data: null, error: new Error('فشل تحديث المجموعة') };
   return { data: data as StudyGroup, error: null };
+}
+
+export async function reactivateGroup(groupId: string): Promise<ServiceResult<void>> {
+  const client = await getSupabase();
+  const { error } = await client
+    .from('groups')
+    .update({ is_archived: false })
+    .eq('id', groupId);
+
+  if (error) return { data: null, error: new Error(error.message) };
+  return { data: undefined, error: null };
 }
 
 export async function getMyGroups(userId: string): Promise<ServiceResult<{ created: StudyGroup[]; joined: StudyGroup[] }>> {
@@ -247,7 +276,7 @@ export async function getMyGroups(userId: string): Promise<ServiceResult<{ creat
   const [createdResult, membershipsResult] = await Promise.all([
     client
       .from('groups')
-      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at, semester_code, is_archived')
       .eq('creator_id', userId)
       .order('created_at', { ascending: false }),
     client
@@ -269,7 +298,7 @@ export async function getMyGroups(userId: string): Promise<ServiceResult<{ creat
   if (joinedGroupIds.length > 0) {
     const { data: joinedData, error: joinedError } = await client
       .from('groups')
-      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at')
+      .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at, semester_code, is_archived')
       .in('id', joinedGroupIds);
     if (joinedError) return { data: null, error: new Error(joinedError.message) };
     joined = joinedData || [];

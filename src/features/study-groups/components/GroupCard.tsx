@@ -1,8 +1,9 @@
 "use client";
 
-import { BookOpen, GraduationCap } from 'lucide-react';
+import { BookOpen, GraduationCap, Archive } from 'lucide-react';
 import type { StudyGroup } from '../src/types';
 import { ProgressBar } from './ProgressBar';
+import { convertSemesterCodeToLabel } from '@/src/features/schedule-extraction/utils/semesterUtils';
 
 interface GroupCardProps {
   group: StudyGroup;
@@ -13,7 +14,7 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
   return (
     <button
       onClick={() => onClick(group.id)}
-      className="w-full text-right group"
+      className={`w-full text-right group ${group.is_archived ? 'opacity-70' : ''}`}
     >
        <div className="
           relative overflow-hidden
@@ -24,6 +25,9 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
           hover:shadow-[var(--shadow-card)]
           hover:-translate-y-1
         ">
+          {group.is_archived && (
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] z-10 rounded-2xl" />
+          )}
           {/* Subtle gradient overlay on hover */}
           <div className="
             absolute inset-0 opacity-0 group-hover:opacity-100
@@ -47,6 +51,13 @@ export function GroupCard({ group, onClick }: GroupCardProps) {
               {group.course_code}
             </span>
           </div>
+
+          {group.is_archived && (
+            <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
+              <Archive className="w-3.5 h-3.5" />
+              <span>تمت الأرشفة - {convertSemesterCodeToLabel(group.semester_code)}</span>
+            </div>
+          )}
 
           {/* Title */}
           <h3 className="text-white font-semibold mb-2 line-clamp-2 text-[15px] leading-snug">

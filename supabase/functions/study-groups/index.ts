@@ -344,7 +344,7 @@ async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: st
 
   const data = await updateResponse.json();
   if (!updateResponse.ok) throw new Error(data?.message || "Update failed");
-  return data;
+  return data[0];
 }
 
 async function handleDelete(supabaseUrl: string, serviceKey: string, groupId: string, userId: string, isAdmin: boolean) {

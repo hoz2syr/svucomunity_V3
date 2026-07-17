@@ -1,14 +1,20 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
+import { Button } from '@/src/components/ui/Button';
 import { Search, BookOpen, Monitor } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSubjects } from '../hooks/useSubjects';
 import { useCurrentSemesterCourses } from "../../../schedule-extraction/hooks/useCurrentSemesterCourses";
 import { SubjectCard } from '../../components/SubjectCard';
+import { MajorSupportSection } from '../../components/MajorSupportSection';
+import { useAuth } from '@/src/contexts/AuthContext';
+
+const SUPPORTED_TEXT_MAJORS = new Set(['ite']);
 
 export function SubjectsHome() {
   const { subjects, major } = useSubjects();
+  const { session } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: currentSemesterCourses = [] } = useCurrentSemesterCourses();
 
@@ -25,6 +31,14 @@ export function SubjectsHome() {
         subject.id.toLowerCase().includes(query)
     );
   }, [subjects, searchQuery]);
+
+  const hasUnsupportedMajor = useMemo(() => {
+    if (!major) return false;
+    if (SUPPORTED_TEXT_MAJORS.has(major.toLowerCase())) return false;
+    const majorNum = parseInt(major, 10);
+    if (!isNaN(majorNum)) return false;
+    return true;
+  }, [major]);
 
   return (
     <div className="space-y-6">
@@ -109,12 +123,33 @@ export function SubjectsHome() {
               <span>التخصص: {major}</span>
             </div>
           )}
+          <Link to="/dashboard/subjects/my" className="shrink-0">
+            <Button variant="secondary">مشاركاتي</Button>
+          </Link>
         </div>
       </GlassCard>
 
-      {filteredSubjects.length === 0 ? (
+      {searchQuery.trim() ? (
+        filteredSubjects.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            <p>لا توجد مواد تطابق بحثك.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredSubjects.map((subject) => (
+              <SubjectCard
+                key={subject.id}
+                course={subject}
+                isCurrentSemester={currentSemesterCourseCodes.has(subject.id)}
+              />
+            ))}
+          </div>
+        )
+      ) : hasUnsupportedMajor && major ? (
+        <MajorSupportSection userMajor={major} isGuest={!session?.user?.id} />
+      ) : filteredSubjects.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
-          <p>لا توجد مواد تطابق بحثك.</p>
+          <p>لا توجد مواد.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

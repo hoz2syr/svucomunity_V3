@@ -187,12 +187,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setEnvMissing(false);
           setSession(session);
           if (session?.user?.id) {
-            if (initializedUserIdRef.current !== session.user.id) {
-              initializedUserIdRef.current = session.user.id;
-              await refreshProfileForUser(session.user.id);
-            }
+            await refreshProfileForUser(session.user.id);
           } else {
-            initializedUserIdRef.current = null;
             setProfile(null);
           }
           setLoading(false);
@@ -214,13 +210,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription?.unsubscribe();
     };
   }, [refreshProfileForUser]);
-
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    if (initializedUserIdRef.current === session.user.id) return;
-    initializedUserIdRef.current = session.user.id;
-    refreshProfileForUser(session.user.id);
-  }, [session?.user?.id, refreshProfileForUser]);
 
   return (
     <AuthContext.Provider value={{ session, profile, loading, refreshProfile, envMissing, error, clearError, sessionExpiring, sessionExpiryTime }}>

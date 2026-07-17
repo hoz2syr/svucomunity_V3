@@ -25,10 +25,10 @@ import { cn } from '@/src/lib/utils';
 import type { Review } from '@/src/features/reviews/types';
 
 type StatusFilter = 'all' | 'pending' | 'reviewed' | 'responded';
-type CategoryFilter = 'all' | 'ui' | 'content' | 'performance' | 'other';
+type CategoryFilter = 'all' | 'ui' | 'content' | 'performance' | 'other' | 'major_support';
 
 const STATUS_OPTIONS: StatusFilter[] = ['all', 'pending', 'reviewed', 'responded'];
-const CATEGORY_OPTIONS: CategoryFilter[] = ['all', 'ui', 'content', 'performance', 'other'];
+const CATEGORY_OPTIONS: CategoryFilter[] = ['all', 'ui', 'content', 'performance', 'other', 'major_support'];
 
 const isStatusFilter = (value: string): value is StatusFilter => {
   return STATUS_OPTIONS.some(option => option === value);
@@ -51,6 +51,7 @@ const CATEGORY_LABELS: Record<CategoryFilter, string> = {
   content: 'المحتوى',
   performance: 'الأداء',
   other: 'أخرى',
+  major_support: 'دعم تخصص',
 };
 
 export function Reviews() {

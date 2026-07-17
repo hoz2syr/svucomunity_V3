@@ -19,14 +19,14 @@ type ProfileSettingsFormProps = {
 
 const SEMESTER_OPTIONS = [
   { value: '', label: 'بدون تحديد' },
-  { value: '2023/2024-1', label: '2023/2024 - الفصل الأول' },
-  { value: '2023/2024-2', label: '2023/2024 - الفصل الثاني' },
-  { value: '2024/2025-1', label: '2024/2025 - الفصل الأول' },
-  { value: '2024/2025-2', label: '2024/2025 - الفصل الثاني' },
-  { value: '2025/2026-1', label: '2025/2026 - الفصل الأول' },
-  { value: '2025/2026-2', label: '2025/2026 - الفصل الثاني' },
-  { value: '2026/2027-1', label: '2026/2027 - الفصل الأول' },
-  { value: '2026/2027-2', label: '2026/2027 - الفصل الثاني' },
+  { value: 'F23', label: '2023/2024 - الفصل الأول' },
+  { value: 'S23', label: '2023/2024 - الفصل الثاني' },
+  { value: 'F24', label: '2024/2025 - الفصل الأول' },
+  { value: 'S24', label: '2024/2025 - الفصل الثاني' },
+  { value: 'F25', label: '2025/2026 - الفصل الأول' },
+  { value: 'S25', label: '2025/2026 - الفصل الثاني' },
+  { value: 'F26', label: '2026/2027 - الفصل الأول' },
+  { value: 'S26', label: '2026/2027 - الفصل الثاني' },
 ];
 
 export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTakeSpecializationTest }: ProfileSettingsFormProps) => {

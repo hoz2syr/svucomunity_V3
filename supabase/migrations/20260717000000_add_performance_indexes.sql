@@ -18,9 +18,9 @@ create index if not exists idx_test_attempts_user_id_test_id
 create index if not exists idx_test_attempts_created_at
   on public.test_attempts (created_at desc);
 
--- study_groups: membership lookups
-create index if not exists idx_study_groups_member_id
-  on public.study_groups ((member_id));
+-- group_members: membership lookups
+create index if not exists idx_group_members_user_id_group_id
+  on public.group_members (user_id, group_id);
 
 comment on index public.idx_tests_course_id_is_published is
   'Optimizes fetching published tests by course';
@@ -30,5 +30,6 @@ comment on index public.idx_test_attempts_user_id_test_id is
   'Optimizes user attempt history per test';
 comment on index public.idx_test_attempts_created_at is
   'Optimizes recent attempts analytics queries';
-comment on index public.idx_study_groups_member_id is
+comment on index public.idx_group_members_user_id_group_id is
   'Optimizes study group membership lookups';
+

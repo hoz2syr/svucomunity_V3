@@ -8,6 +8,7 @@ type SubjectTabsProps = {
 const tabs: { key: SubjectTab; label: string }[] = [
   { key: 'info', label: 'معلومات المادة' },
   { key: 'references', label: 'المصادر' },
+  { key: 'my-contributions', label: 'مشاركاتي' },
   { key: 'tests', label: 'الاختبارات' },
   { key: 'groups', label: 'المجموعات' },
 ];

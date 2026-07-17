@@ -12,6 +12,7 @@ import { useScheduleMatching } from '../hooks';
 import { useCourseMatching } from '../hooks/useCourseMatching';
 import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
 import { saveRawExtraction, saveExtractedCourses } from '../services/extractionService.supabase';
+import { getCurrentSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
 import type { TableSchema } from '../utils/schemaDetection';
 
@@ -141,7 +142,12 @@ export function ScheduleExtractionPage() {
         setSaveError('فشل حفظ الاستخراج');
         return;
       }
-      const coursesResult = await saveExtractedCourses(newExtractionId, result.courses);
+      const currentSemester = profile?.current_semester || getCurrentSemesterCode();
+      const coursesWithSemester = result.courses.map((course) => ({
+        ...course,
+        semester: course.semester || currentSemester,
+      }));
+      const coursesResult = await saveExtractedCourses(newExtractionId, coursesWithSemester);
       if (coursesResult.error) {
         setSaveError(coursesResult.error.message);
         return;
@@ -152,7 +158,7 @@ export function ScheduleExtractionPage() {
     } finally {
       setIsSavingExtraction(false);
     }
-  }, [session, result]);
+  }, [session, result, profile]);
 
   const handleOpenGroupDetails = useCallback(async (groupId: string) => {
     setSelectedGroupId(groupId);

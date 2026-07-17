@@ -83,7 +83,7 @@ export function matchCoursesToGroups(
   existingGroups: MatchedGroup[],
   extractedMajor: string
 ): MatchResult {
-  const matched: MatchedGroup[] = [];
+  const matchedByGroupId = new Map<string, MatchScore>();
   const unmatched: ExtractedCourse[] = [];
 
   for (const course of extractedCourses) {
@@ -93,17 +93,21 @@ export function matchCoursesToGroups(
       .sort((a, b) => b.score - a.score);
 
     if (candidates.length > 0) {
-      for (const c of candidates) {
-        matched.push({
-          ...c.group,
-          matchScore: c.score,
-          matchReasons: c.reasons,
-        });
+      const best = candidates[0];
+      const existing = matchedByGroupId.get(best.group.id);
+      if (!existing || best.score > existing.score) {
+        matchedByGroupId.set(best.group.id, best);
       }
     } else {
       unmatched.push(course);
     }
   }
+
+  const matched = Array.from(matchedByGroupId.values()).map((c) => ({
+    ...c.group,
+    matchScore: c.score,
+    matchReasons: c.reasons,
+  }));
 
   return { matched, unmatched };
 }

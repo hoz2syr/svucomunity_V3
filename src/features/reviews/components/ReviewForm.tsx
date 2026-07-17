@@ -13,6 +13,7 @@ const categories: { value: ReviewCategory; label: string }[] = [
   { value: 'ui', label: 'واجهة المستخدم' },
   { value: 'content', label: 'المحتوى' },
   { value: 'performance', label: 'الأداء' },
+  { value: 'major_support', label: 'دعم تخصص' },
   { value: 'other', label: 'أخرى' },
 ];
 

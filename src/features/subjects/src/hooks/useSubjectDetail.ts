@@ -11,10 +11,17 @@ export function useSubjectDetail(courseCode: string) {
     isLoading: referencesLoading,
     error: referencesError,
     addReference,
+    updateReference,
     removeReference,
+    likeReference,
+    unlikeReference,
     isAdding,
+    isUpdating,
     isRemoving,
+    isLiking,
+    isUnliking,
     canAdd,
+    currentUserId,
   } = useReferences(courseCode);
 
   return {
@@ -23,9 +30,16 @@ export function useSubjectDetail(courseCode: string) {
     referencesLoading,
     referencesError: referencesError || null,
     addReference,
+    updateReference,
     removeReference,
+    likeReference,
+    unlikeReference,
     isAdding,
+    isUpdating,
     isRemoving,
+    isLiking,
+    isUnliking,
     canAdd,
+    currentUserId,
   };
 }

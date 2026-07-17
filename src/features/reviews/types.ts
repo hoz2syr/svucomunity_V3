@@ -1,4 +1,4 @@
-export type ReviewCategory = 'ui' | 'content' | 'performance' | 'other';
+export type ReviewCategory = 'ui' | 'content' | 'performance' | 'other' | 'major_support';
 
 export type ReviewStatus = 'pending' | 'reviewed' | 'responded';
 
