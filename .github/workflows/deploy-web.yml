@@ -23,6 +23,11 @@ jobs:
       - name: Install
         run: npm install --force
 
+      - name: Apply Supabase migrations
+        run: npx supabase db push --project-id svu-community
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Build
         run: npm run build
         env:
