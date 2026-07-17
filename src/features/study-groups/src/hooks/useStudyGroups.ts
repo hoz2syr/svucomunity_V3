@@ -15,9 +15,13 @@ export function useStudyGroups(userId: string | undefined, userMajor?: string) {
   const [groups, setGroups] = useState<StudyGroupEnriched[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<StudyGroupFilters>({
-    ...STUDY_GROUP_INITIAL_FILTERS,
-    major: userMajor || '',
+  const [filters, setFilters] = useState<StudyGroupFilters>(() => {
+    const urlCourseCode = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('course_code') : null;
+    return {
+      ...STUDY_GROUP_INITIAL_FILTERS,
+      major: userMajor || '',
+      course_code: urlCourseCode || '',
+    };
   });
   const [courses, setCourses] = useState<Course[]>([]);
 

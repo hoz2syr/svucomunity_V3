@@ -38,7 +38,10 @@ export function usePublishedTests(): UsePublishedTestsReturn {
   const [errorState, setError] = useState<string | null>(null);
   const [majors, setMajors] = useState<string[]>([]);
   const [selectedMajor, setSelectedMajor] = useState('');
-  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return new URLSearchParams(window.location.search).get('course_code') || '';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [courses, setCourses] = useState<{ code: string; name: string }[]>([]);

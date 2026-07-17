@@ -229,7 +229,14 @@ export async function loadCurrentSemesterCourses(
     return { data: null, error: new Error(error.message) };
   }
 
-  return { data: data as ExtractedCourseRecord[], error: null };
+  const seen = new Set<string>();
+  const deduped = (data ?? []).filter((course) => {
+    if (seen.has(course.full_code)) return false;
+    seen.add(course.full_code);
+    return true;
+  });
+
+  return { data: deduped as ExtractedCourseRecord[], error: null };
 }
 
 export async function loadDiscoveredCourses(
