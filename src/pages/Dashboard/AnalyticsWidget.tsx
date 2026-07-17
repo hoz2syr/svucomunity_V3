@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
@@ -14,10 +13,6 @@ export function AnalyticsWidget() {
   const { data: instructors } = usePopularInstructors(5);
   const { data: majors } = useMajorDistribution();
 
-  const _totalItems = useMemo(() => {
-    return (courses?.length || 0) + (instructors?.length || 0) + (majors?.length || 0);
-  }, [courses, instructors, majors]);
-
   const topCourses = courses?.slice(0, 5) || [];
 
   return (
@@ -27,7 +22,7 @@ export function AnalyticsWidget() {
           <Icon icon={TrendingUp} size="md" />
           إحصائيات الاستخراج
         </h3>
-        <Link to="/dashboard/analytics">
+        <Link to="/admin/analytics">
           <Button variant="ghost" icon={<ArrowLeft size={14} />} className="text-xs py-1.5 px-3">
             عرض الكل
           </Button>
@@ -82,7 +77,7 @@ export function AnalyticsWidget() {
       </div>
 
       <div className="mt-5 pt-4 border-t border-white/8">
-        <Link to="/dashboard/analytics" className="block">
+        <Link to="/admin/analytics" className="block">
           <Button variant="secondary" className="w-full justify-center text-xs">
             التحليلات الكاملة
           </Button>

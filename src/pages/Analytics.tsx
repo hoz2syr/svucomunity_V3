@@ -2,12 +2,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft, ShieldX } from 'lucide-react';
+import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Skeleton } from '@/src/components/ui/Skeleton';
 import { Button } from '@/src/components/ui/Button';
 import { Icon } from '@/src/components/ui/Icon';
-import { useAuth } from '@/src/contexts/AuthContext';
 import { usePopularCourses, usePopularInstructors, useMajorDistribution } from '@/src/features/schedule-extraction/hooks/useAnalytics';
 import type { DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/src/types/database';
 
@@ -84,8 +83,6 @@ const PopularCoursesTable = React.memo(function PopularCoursesTable() {
       </GlassCard>
     );
   }
-
-  const _maxCount = courses.length > 0 ? Math.max(...courses.map((c: DiscoveredCourse) => c.seen_count)) : 1;
 
   return (
     <GlassCard className="p-6">
@@ -277,26 +274,9 @@ const MajorDistributionList = React.memo(function MajorDistributionList() {
 });
 
 export function AnalyticsPage() {
-  const { profile, loading: authLoading } = useAuth();
-  const isAdmin = profile?.role === 'admin';
-
   const { data: courses } = usePopularCourses(20);
   const { data: instructors } = usePopularInstructors(20);
   const { data: majors } = useMajorDistribution();
-
-  if (!authLoading && !isAdmin) {
-    return (
-      <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
-        <div className="max-w-7xl mx-auto">
-          <GlassCard className="p-12 text-center">
-            <Icon icon={ShieldX} size="lg" className="text-slate-400 mx-auto mb-4" />
-            <h2 className="text-xl font-black text-white mb-2">غير مصرح بالوصول</h2>
-            <p className="text-slate-400">هذه الصفحة مخصصة للمشرفين فقط</p>
-          </GlassCard>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
