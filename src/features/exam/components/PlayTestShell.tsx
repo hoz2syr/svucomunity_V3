@@ -13,9 +13,9 @@ import {
   ChevronRight,
   Star,
 } from 'lucide-react';
-import { cn } from '../src/lib/utils';
-import { ErrorState } from '../src/components/ErrorState';
-import { PlayTestSkeleton } from '../src/components/Skeletons';
+import { cn } from '@/src/lib/utils';
+import { ErrorState } from '@/src/features/exam/src/components/ErrorState';
+import { PlayTestSkeleton } from '@/src/features/exam/src/components/Skeletons';
 import { Button } from '@/src/components/ui/Button';
 import { RichText } from '../src/components/RichText';
 import type { UseCorePlayTestReturn } from '../src/hooks/useCorePlayTest';

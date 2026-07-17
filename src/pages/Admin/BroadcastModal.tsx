@@ -5,7 +5,7 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
 import { Icon } from '@/src/components/ui/Icon';
 import { X } from 'lucide-react';
-import { isPriorityOption, PRIORITY_LABELS, type PriorityOption } from '../NotificationManagement';
+import { isPriorityOption, type PriorityOption } from './NotificationManagement';
 
 type BroadcastModalProps = {
   onClose: () => void;

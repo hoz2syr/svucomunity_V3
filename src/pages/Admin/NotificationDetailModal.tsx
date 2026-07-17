@@ -4,7 +4,7 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
 import { Icon } from '@/src/components/ui/Icon';
 import { X } from 'lucide-react';
-import { isPriorityOption, PRIORITY_LABELS, TYPE_LABELS } from '../NotificationManagement';
+import { isPriorityOption, PRIORITY_LABELS, TYPE_LABELS } from './NotificationManagement';
 import type { AdminNotification } from '../../features/admin/services/adminNotificationService.supabase';
 
 type NotificationDetailModalProps = {

@@ -26,10 +26,9 @@ export function DropZone({
   const internalInputRef = useRef<HTMLInputElement>(null);
 
   const resolvedInputRef = inputRef || internalInputRef;
-  const inputElement = (resolvedInputRef as React.RefObject<HTMLInputElement | null>).current;
 
   const openFilePicker = () => {
-    inputElement?.click();
+    (resolvedInputRef as React.RefObject<HTMLInputElement | null>).current?.click();
   };
 
   const handleDragOver = (e: React.DragEvent) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft, ShieldX } from 'lucide-react';
 import { GlassCard } from '@/src/components/ui/GlassCard';

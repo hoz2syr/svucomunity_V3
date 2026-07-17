@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useForm, UseFormReturn, FieldError, FieldErrors } from 'react-hook-form';
+import { useForm, UseFormReturn, FieldErrors, FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, registerSchema, LoginInput, RegisterInput } from '../schemas/auth.schema';
 
@@ -29,12 +29,15 @@ export type UseAuthFormReturn = {
   setLoading: (loading: boolean) => void;
 };
 
-const FIELD_KEYS = ['email', 'password', 'name'] as const;
-
-const extractFieldErrors = (errors: FieldErrors<LoginInput | RegisterInput>): AuthFieldErrors => {
+const extractFieldErrors = (errors: FieldErrors<LoginInput | RegisterInput>, mode: Mode): AuthFieldErrors => {
   const mapped: AuthFieldErrors = {};
-  for (const key of FIELD_KEYS) {
-    const err = errors[key];
+  const keys: (keyof LoginInput | keyof RegisterInput)[] = ['email', 'password'];
+  if (mode === 'register') {
+    keys.push('name');
+  }
+  const errorMap = errors as Record<string, FieldError>;
+  for (const key of keys) {
+    const err = errorMap[key];
     if (err?.message) mapped[key] = err.message;
   }
   return mapped;
@@ -70,13 +73,13 @@ export function useAuthForm({ mode = 'login' }: UseAuthFormOptions = {}): UseAut
             resolve(values);
           },
           (errors) => {
-            setFieldErrors(extractFieldErrors(errors));
+            setFieldErrors(extractFieldErrors(errors, mode));
             setIsLoading(false);
             resolve(null);
           }
       )();
     });
-  }, [rhfHandleSubmit]);
+  }, [rhfHandleSubmit, mode]);
 
   const reset = useCallback(() => {
     form.reset();

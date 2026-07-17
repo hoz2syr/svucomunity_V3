@@ -1,6 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
+import { type ClassValue } from 'clsx';
 import { cn } from './utils';
 
 interface VariantConfig {

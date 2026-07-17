@@ -1,7 +1,7 @@
 import { TestModel, Question } from '../types';
 import { saveAs } from 'file-saver';
 import { escapeHtml } from '@/src/lib/utils';
-import { EXPORT_RENDER_DELAY_MS, EXPORT_STEP_DELAY_MS, EXPORT_PRINT_RENDER_DELAY_MS, PRINT_WINDOW_TIMEOUT_MS, PRINT_WINDOW_CLOSE_DELAY_MS } from '@/src/lib/constants';
+import { EXPORT_PRINT_RENDER_DELAY_MS, PRINT_WINDOW_TIMEOUT_MS, PRINT_WINDOW_CLOSE_DELAY_MS } from '@/src/lib/constants';
 
 const EXPORT_COLORS = {
   text: '#0f172a',
@@ -213,7 +213,7 @@ function buildPdfHtml(test: TestModel): string {
 export const exportToWord = async (test: TestModel) => {
   const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header } = await import('docx');
 
-  const children: any[] = [
+  const children = [
     new Paragraph({
       text: test.title,
       heading: HeadingLevel.HEADING_1,

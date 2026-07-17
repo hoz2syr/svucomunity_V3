@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import React from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Bell, ChevronDown, LogOut, Shield, Trash2, User, X, Search } from 'lucide-react';
 import type { Notification } from '../../types/notification';
@@ -157,7 +158,7 @@ type DashboardHeaderProps = {
   onOpenDelete: () => void;
 };
 
-export const DashboardHeader = React.memo(({
+export const DashboardHeader = React.memo(function DashboardHeader({
   user,
   isNotificationsOpen,
   unreadCount,
@@ -170,7 +171,7 @@ export const DashboardHeader = React.memo(({
   onOpenSettings,
   onOpenLogout,
   onOpenDelete,
-}: DashboardHeaderProps) => {
+}: DashboardHeaderProps) {
   const reducedMotion = useReducedMotion();
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);

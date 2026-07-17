@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
@@ -14,15 +14,16 @@ import {
 } from '../../features/admin/hooks/useAdminVerification';
 import { CheckCircle2, XCircle, BookOpen, User, Search, Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { ConfirmActionModal } from './ConfirmActionModal';
+import type { DiscoveredCourse, DiscoveredInstructor } from '@/src/types/database';
 
 type Tab = 'courses' | 'instructors';
 type ConfirmAction = { type: 'course'; courseCode: string; isVerified: boolean; courseName: string } | { type: 'instructor'; instructorUsername: string; isVerified: boolean; instructorName: string };
 
 type CourseVerificationListProps = {
   coursesLoading: boolean;
-  filteredCourses: any[];
+  filteredCourses: DiscoveredCourse[];
   coursesPage: number;
-  setCoursesPage: (page: number) => void;
+  setCoursesPage: Dispatch<SetStateAction<number>>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedMajor: string;
@@ -34,10 +35,10 @@ type CourseVerificationListProps = {
 };
 
 type InstructorVerificationListProps = {
-  instructors: any[] | undefined;
+  instructors: DiscoveredInstructor[] | undefined;
   instructorsLoading: boolean;
   instructorsPage: number;
-  setInstructorsPage: (page: number) => void;
+  setInstructorsPage: Dispatch<SetStateAction<number>>;
   verifyInstructorMutation: { mutate: (params: { instructorUsername: string; isVerified: boolean }) => void; isPending: boolean };
   setConfirmAction: (action: ConfirmAction | null) => void;
   limit: number;
@@ -144,7 +145,7 @@ function CourseVerificationList({
         <div className="flex items-center justify-between">
           <Button
             variant="secondary"
-            onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
+            onClick={() => setCoursesPage((p: number) => Math.max(1, p - 1))}
             disabled={coursesPage === 1}
           >
             السابق
@@ -152,7 +153,7 @@ function CourseVerificationList({
           <span className="text-sm text-slate-400">صفحة {coursesPage}</span>
           <Button
             variant="secondary"
-            onClick={() => setCoursesPage((p) => p + 1)}
+            onClick={() => setCoursesPage((p: number) => p + 1)}
             disabled={filteredCourses.length < limit}
           >
             التالي
@@ -233,7 +234,7 @@ function InstructorVerificationList({
         <div className="flex items-center justify-between">
           <Button
             variant="secondary"
-            onClick={() => setInstructorsPage((p) => Math.max(1, p - 1))}
+            onClick={() => setInstructorsPage((p: number) => Math.max(1, p - 1))}
             disabled={instructorsPage === 1}
           >
             السابق
@@ -241,7 +242,7 @@ function InstructorVerificationList({
           <span className="text-sm text-slate-400">صفحة {instructorsPage}</span>
           <Button
             variant="secondary"
-            onClick={() => setInstructorsPage((p) => p + 1)}
+            onClick={() => setInstructorsPage((p: number) => p + 1)}
             disabled={instructors.length < limit}
           >
             التالي

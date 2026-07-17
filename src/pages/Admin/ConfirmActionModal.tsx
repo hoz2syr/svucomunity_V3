@@ -2,7 +2,6 @@
 
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
-import { Icon } from '@/src/components/ui/Icon';
 
 type ConfirmAction = { type: 'course'; courseCode: string; isVerified: boolean; courseName: string } | { type: 'instructor'; instructorUsername: string; isVerified: boolean; instructorName: string };
 

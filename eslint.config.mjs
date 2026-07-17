@@ -6,6 +6,13 @@ import storybook from 'eslint-plugin-storybook';
 
 export default [
   {
+    ignores: [
+      '**/.kilo/worktrees/**',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.next/**',
+    ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
@@ -27,6 +34,7 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+      'react/no-unknown-property': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/purity': 'off',

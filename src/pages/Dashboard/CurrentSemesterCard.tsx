@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loadCurrentSemesterCourses } from '../../features/schedule-extraction/services';
 import { getCurrentSemesterCode, convertSemesterCodeToLabel } from '../../features/schedule-extraction/utils/semesterUtils';
@@ -14,7 +15,7 @@ import { useUserCourseProgress } from '../../features/schedule-extraction/hooks/
 
 const COURSE_SKELETON_COUNT = 3;
 
-export const CurrentSemesterCard = React.memo(() => {
+export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const semesterCode = profile?.current_semester || getCurrentSemesterCode();

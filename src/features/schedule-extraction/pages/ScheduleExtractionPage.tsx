@@ -59,6 +59,7 @@ export function ScheduleExtractionPage() {
   } = useScheduleMatching();
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const selectedFileRef = useRef<File | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [groupDetails, setGroupDetails] = useState<MatchedGroup | null>(null);
   const [memberIds, setMemberIds] = useState<string[]>([]);
@@ -86,6 +87,7 @@ export function ScheduleExtractionPage() {
       const url = URL.createObjectURL(file);
       return url;
     });
+    selectedFileRef.current = file;
   }, []);
 
   const handleClear = useCallback(() => {
@@ -106,8 +108,11 @@ export function ScheduleExtractionPage() {
   }, []);
 
   const handleExtract = useCallback(async () => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) return;
+    const file = selectedFileRef.current || fileInputRef.current?.files?.[0];
+    if (!file) {
+      setProcessError('الرجاء اختيار صورة الجدول أولاً');
+      return;
+    }
 
     setProcessError(null);
     try {
