@@ -28,7 +28,7 @@ export function SemesterTransitionPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
@@ -56,7 +56,7 @@ export function SemesterTransitionPage() {
     return () => {
       cancelled = true;
     };
-  });
+  }, []);
 
   const handleTransition = async () => {
     if (!nextSemester || !profile?.id) return;

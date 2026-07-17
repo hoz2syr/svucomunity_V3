@@ -6,8 +6,8 @@ import { Icon } from '@/src/components/ui/Icon';
 import { ReferencesList } from '../../components/ReferencesList';
 import { EditReferenceModal } from '../../components/EditReferenceModal';
 import { useUserReferences } from '../hooks/useUserReferences';
-import { getSubjectByCode } from '../../services/subjects.service';
-import type { ReferenceType } from '../../types';
+import { getSubjectByCode } from '../services/subjects.service';
+import type { ReferenceType } from '../types';
 import { ArrowLeft, Plus } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 
@@ -100,7 +100,7 @@ export function MyReferencesPage() {
           isOpen={Boolean(editingReference)}
           onClose={() => setEditingReference(null)}
           initialData={editingReference}
-          onSave={(updates) => updateReference(editingReference.id, updates)}
+          onSave={async (updates) => { await updateReference(editingReference.id, updates); }}
           isSaving={isUpdating}
         />
       )}

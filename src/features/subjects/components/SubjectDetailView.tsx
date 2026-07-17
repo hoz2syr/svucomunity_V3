@@ -234,7 +234,7 @@ export function SubjectDetailView({ courseCode }: SubjectDetailViewProps) {
           isOpen={Boolean(editingReference)}
           onClose={() => setEditingReference(null)}
           initialData={editingReference}
-          onSave={(updates) => updateReference(editingReference.id, updates)}
+          onSave={async (updates) => { await updateReference(editingReference.id, updates); }}
           isSaving={isUpdating}
         />
       )}
