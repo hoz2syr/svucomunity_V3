@@ -38,6 +38,10 @@ export async function getAllMajorsStatic(): Promise<string[]> {
   return Object.keys(catalog).sort();
 }
 
+export async function getAllLevelsStatic(): Promise<string[]> {
+  return ['1', '2', '3', '4', '5'];
+}
+
 export async function searchCourses(query: string, major?: string): Promise<Course[]> {
   const q = query.toLowerCase();
   const catalog = await loadCatalog();

@@ -9,6 +9,7 @@ export type Profile = {
   avatar_url: string | null;
   phone: string | null;
   major: string | null;
+  level: string | null;
   current_semester: string | null;
   created_at: string;
   updated_at: string;

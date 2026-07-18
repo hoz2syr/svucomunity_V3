@@ -19,6 +19,7 @@ interface GroupFormModalProps {
     course_name: string;
     course_code: string;
     class_number: string;
+    doctor_name: string;
     major: string;
     max_members: number;
     whatsapp_link: string;
@@ -47,6 +48,7 @@ export function GroupFormModal({
   const [maxMembers, setMaxMembers] = useState(5);
   const [whatsappLink, setWhatsappLink] = useState('');
   const [groupLink, setGroupLink] = useState('');
+  const [doctorName, setDoctorName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [courses, setCourses] = useState<Course[]>([]);
@@ -60,15 +62,15 @@ export function GroupFormModal({
         setMaxMembers(group.max_members);
         setWhatsappLink(group.whatsapp_link);
         setGroupLink(group.group_link || '');
-        setSelectedCourse(null);
+        setDoctorName(group.doctor_name || '');
       } else {
         setGroupName('');
-        setSelectedCourse(null);
         setSelectedClass('');
         setSelectedMajor('');
         setMaxMembers(5);
         setWhatsappLink('');
         setGroupLink('');
+        setDoctorName('');
       }
       setErrors({});
       setIsSubmitting(false);
@@ -90,6 +92,13 @@ export function GroupFormModal({
       setCourses([]);
     }
   }, [selectedMajor, getCoursesByMajor]);
+
+  useEffect(() => {
+    if (mode === 'edit' && group && courses.length > 0 && !selectedCourse) {
+      const course = courses.find((c) => c.code === group.course_code) || null;
+      setSelectedCourse(course);
+    }
+  }, [mode, group, courses, selectedCourse]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -115,16 +124,17 @@ export function GroupFormModal({
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
-        name: groupName.trim(),
-        course_name: selectedCourse ? selectedCourse.name : (group?.course_name || ''),
-        course_code: selectedCourse ? selectedCourse.code : (group?.course_code || ''),
-        class_number: selectedClass,
-        major: selectedMajor,
-        max_members: maxMembers,
-        whatsapp_link: whatsappLink.trim(),
-        group_link: groupLink.trim() || undefined,
-      });
+    await onSubmit({
+      name: groupName.trim(),
+      course_name: selectedCourse ? selectedCourse.name : (group?.course_name || ''),
+      course_code: selectedCourse ? selectedCourse.code : (group?.course_code || ''),
+      class_number: selectedClass,
+      doctor_name: doctorName.trim() || (group?.doctor_name || ''),
+      major: selectedMajor,
+      max_members: maxMembers,
+      whatsapp_link: whatsappLink.trim(),
+      group_link: groupLink.trim() || undefined,
+    });
       onClose();
     } catch (err) {
       setErrors({ submit: err instanceof Error ? err.message : `فشل ${mode === 'create' ? 'إنشاء' : 'تحديث'} المجموعة` });
@@ -218,6 +228,20 @@ export function GroupFormModal({
               placeholder="اختر التخصص..."
               error={errors.major}
               className="font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 text-sm mb-2 font-medium">
+              <GraduationCap className="w-4 h-4 inline-block ml-1.5 text-cyan-400" />
+              اسم الدكتور <span className="text-slate-500 text-xs">(اختياري)</span>
+            </label>
+            <input
+              type="text"
+              value={doctorName}
+              onChange={(e) => setDoctorName(e.target.value)}
+              className="input-field w-full px-4 py-3 rounded-xl text-white text-sm"
+              placeholder="مثال: د. أحمد محمد"
             />
           </div>
 

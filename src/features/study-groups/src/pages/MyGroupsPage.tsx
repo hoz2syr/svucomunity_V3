@@ -10,6 +10,7 @@ import { GroupDetailsModal } from '../../components/GroupDetailsModal';
 import type { StudyGroupEnriched } from '../hooks/useStudyGroups';
 import type { StudyGroup } from '../types';
 import { useStudyGroupsPage } from '../hooks/useStudyGroupsPage';
+import { useStudyGroupsToast } from '../hooks/useStudyGroupsToast';
 import { ErrorState } from '../../components/ErrorState';
 import { Button } from '@/src/components/ui/Button';
 import { convertSemesterCodeToLabel } from '@/src/features/schedule-extraction/utils/semesterUtils';
@@ -56,12 +57,19 @@ export default function MyGroupsPage() {
     setJoinedGroups(prev => update(prev));
   }, []);
 
+  const { notifyDeleteSuccess, notifyError } = useStudyGroupsToast();
+
   const handleDelete = useCallback(async (groupId: string) => {
-    await studyGroupService.deleteGroup(groupId);
-    const filter = (groups: StudyGroup[]) => groups.filter(g => g.id !== groupId);
-    setCreatedGroups(prev => filter(prev));
-    setJoinedGroups(prev => filter(prev));
-  }, []);
+    try {
+      await studyGroupService.deleteGroup(groupId);
+      notifyDeleteSuccess();
+      const filter = (groups: StudyGroup[]) => groups.filter(g => g.id !== groupId);
+      setCreatedGroups(prev => filter(prev));
+      setJoinedGroups(prev => filter(prev));
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : 'فشل حذف المجموعة');
+    }
+  }, [notifyDeleteSuccess, notifyError]);
 
   if (!userId) {
     return (

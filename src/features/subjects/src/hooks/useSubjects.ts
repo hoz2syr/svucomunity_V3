@@ -16,13 +16,13 @@ export function useSubjects() {
   const subjects = useMemo(() => getAllSubjects(), []);
 
   const filteredSubjects = useMemo(() => {
-    return filterSubjectsByMajor(subjects, profile?.major);
-  }, [subjects, profile?.major]);
+    return filterSubjectsByMajor(subjects, profile?.level);
+  }, [subjects, profile?.level]);
 
   return {
     subjects: filteredSubjects,
     allSubjects: subjects,
-    major: profile?.major,
+    level: profile?.level,
   };
 }
 

@@ -21,6 +21,7 @@ export const profileSchema = z.object({
   username: z.string().min(1, 'اسم المستخدم مطلوب').min(2, 'اسم المستخدم قصير جداً').max(50).regex(/^[a-zA-Z0-9_]+$/, 'اسم المستخدم يجب أن يحتوي على أحرف وأرقام و _ فقط'),
   email: z.string().min(1, 'البريد الإلكتروني مطلوب').email('صيغة البريد غير صحيحة').max(255),
   major: z.string().optional(),
+  level: z.string().optional(),
   current_semester: z.string().optional(),
 });
 

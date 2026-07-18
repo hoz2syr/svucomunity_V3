@@ -13,6 +13,7 @@ type SettingsUser = {
   username: string;
   email: string;
   major?: string;
+  level?: string;
   current_semester?: string;
 };
 
@@ -31,11 +32,12 @@ export const SettingsModal = ({ user, tab, setTab, onClose, onTakeSpecialization
     username: user.username,
     email: user.email,
     major: user.major || '',
+    level: user.level || '',
     current_semester: user.current_semester || '',
   };
 
   const handleProfileSubmit = async (data: ProfileInput): Promise<string | null> => {
-    const result = await updateProfile(user.id, data.full_name, data.username, data.major, data.current_semester);
+    const result = await updateProfile(user.id, data.full_name, data.username, data.major, data.level, data.current_semester);
     if (!result.error) {
       await refreshProfile();
     }

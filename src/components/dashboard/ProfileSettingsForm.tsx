@@ -7,7 +7,7 @@ import { profileSchema, type ProfileInput } from '../../schemas/auth.schema';
 import { InputField } from '../ui/InputField';
 import { Dropdown } from '../ui/Dropdown';
 import { useProfileSettings } from '@/src/hooks/useProfileSettings';
-import { getAllMajorsStatic } from '@/src/features/study-groups/services/courseCatalog';
+import { getAllMajorsStatic, getAllLevelsStatic } from '@/src/features/study-groups/services/courseCatalog';
 import { Button } from '../ui/Button';
 
 type ProfileSettingsFormProps = {
@@ -33,6 +33,8 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
   const { isLoading, successMsg, errorMsg, submit } = useProfileSettings(onSubmit);
   const [majors, setMajors] = useState<string[]>([]);
   const [loadingMajors, setLoadingMajors] = useState(true);
+  const [levels, setLevels] = useState<string[]>([]);
+  const [loadingLevels, setLoadingLevels] = useState(true);
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -41,6 +43,7 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
   });
 
   const selectedMajor = form.watch('major');
+  const selectedLevel = form.watch('level');
   const selectedSemester = form.watch('current_semester');
 
   useEffect(() => {
@@ -50,6 +53,18 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
       if (!cancelled) {
         setMajors(list);
         setLoadingMajors(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingLevels(true);
+    getAllLevelsStatic().then((staticLevels) => {
+      if (!cancelled) {
+        setLevels(staticLevels);
+        setLoadingLevels(false);
       }
     });
     return () => { cancelled = true; };
@@ -89,6 +104,21 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
           placeholder={loadingMajors ? 'جاري تحميل التخصصات...' : 'اختر التخصص...'}
           searchPlaceholder="ابحث بالتخصص..."
           error={form.formState.errors.major?.message}
+        />
+      </div>
+      <div>
+        <label className="block text-slate-300 text-sm mb-2 font-medium">
+          <GraduationCap className="w-4 h-4 inline-block ml-1.5 text-cyan-400" />
+          السنة الدراسية
+        </label>
+        <Dropdown
+          searchable
+          value={selectedLevel || ''}
+          onChange={(value) => form.setValue('level', value)}
+          options={levels.map((l) => ({ value: l, label: `السنة ${l}` }))}
+          placeholder={loadingLevels ? 'جاري تحميل السنوات...' : 'اختر السنة...'}
+          searchPlaceholder="ابحث بالسنة..."
+          error={form.formState.errors.level?.message}
           className="font-mono"
         />
       </div>

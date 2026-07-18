@@ -42,3 +42,9 @@ verify_jwt = false
 
 [functions."mistral-chat"]
 verify_jwt = false
+
+[seed]
+files = [
+  "supabase/seed/001_seed.sql",
+  "supabase/seed/002_expanded_seed.sql",
+]

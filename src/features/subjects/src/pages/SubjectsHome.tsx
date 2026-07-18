@@ -10,10 +10,16 @@ import { SubjectCard } from '../../components/SubjectCard';
 import { MajorSupportSection } from '../../components/MajorSupportSection';
 import { useAuth } from '@/src/contexts/AuthContext';
 
-const SUPPORTED_TEXT_MAJORS = new Set(['ite']);
+const LEVEL_LABELS: Record<string, string> = {
+  '1': 'السنة الأولى',
+  '2': 'السنة الثانية',
+  '3': 'السنة الثالثة',
+  '4': 'السنة الرابعة',
+  '5': 'السنة الخامسة',
+};
 
 export function SubjectsHome() {
-  const { subjects, major } = useSubjects();
+  const { subjects, level } = useSubjects();
   const { session } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: currentSemesterCourses = [] } = useCurrentSemesterCourses();
@@ -32,13 +38,14 @@ export function SubjectsHome() {
     );
   }, [subjects, searchQuery]);
 
-  const hasUnsupportedMajor = useMemo(() => {
-    if (!major) return false;
-    if (SUPPORTED_TEXT_MAJORS.has(major.toLowerCase())) return false;
-    const majorNum = parseInt(major, 10);
-    if (!isNaN(majorNum)) return false;
+  const hasUnsupportedLevel = useMemo(() => {
+    if (!level) return false;
+    const levelNum = parseInt(level, 10);
+    if (!isNaN(levelNum)) return false;
     return true;
-  }, [major]);
+  }, [level]);
+
+  const levelLabel = level ? LEVEL_LABELS[level] || level : '';
 
   return (
     <div className="space-y-6">
@@ -117,10 +124,10 @@ export function SubjectsHome() {
               className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-white/5 border border-white/8 text-white placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50 transition-colors"
             />
           </div>
-          {major && (
+          {level && (
             <div className="flex items-center gap-2 text-sm text-slate-400">
               <BookOpen className="w-4 h-4" />
-              <span>التخصص: {major}</span>
+              <span>السنة: {levelLabel}</span>
             </div>
           )}
           <Link to="/dashboard/subjects/my" className="shrink-0">
@@ -145,8 +152,8 @@ export function SubjectsHome() {
             ))}
           </div>
         )
-      ) : hasUnsupportedMajor && major ? (
-        <MajorSupportSection userMajor={major} isGuest={!session?.user?.id} />
+      ) : hasUnsupportedLevel && level ? (
+        <MajorSupportSection userMajor={level} isGuest={!session?.user?.id} />
       ) : filteredSubjects.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
           <p>لا توجد مواد.</p>

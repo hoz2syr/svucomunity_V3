@@ -310,7 +310,16 @@ async function handleLeave(supabaseUrl: string, serviceKey: string, groupId: str
   );
 }
 
-async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: string, updates: any, userId: string) {
+async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: string, updates: any, userId: string, isAdmin: boolean) {
+  if (updates.name !== undefined && (!updates.name || typeof updates.name !== 'string' || updates.name.trim().length < 3)) {
+    throw new Error('اسم المجموعة مطلوب (3 أحرف على الأقل)');
+  }
+  if (updates.max_members !== undefined && (updates.max_members < 2 || updates.max_members > 20)) {
+    throw new Error('عدد الأعضاء يجب أن يكون بين 2 و 20');
+  }
+  if (updates.whatsapp_link !== undefined && !updates.whatsapp_link) {
+    throw new Error('رابط الواتساب مطلوب');
+  }
   if (updates.whatsapp_link && !validateUrl(updates.whatsapp_link)) {
     throw new Error('رابط الواتساب غير صالح');
   }
@@ -321,16 +330,26 @@ async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: st
   const groupResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
-    `groups?select=creator_id&id=eq.${encodeURIComponent(groupId)}&limit=1`,
+    `groups?select=creator_id,current_members,max_members&id=eq.${encodeURIComponent(groupId)}&limit=1`,
   );
   const group = await groupResponse.json();
   if (!groupResponse.ok || !group || group.length === 0) {
     throw new Error('المجموعة غير موجودة');
   }
 
-  if (group[0]?.creator_id !== userId) {
+  if (!isAdmin && group[0]?.creator_id !== userId) {
     throw new Error('غير مخول لتعديل هذه المجموعة');
   }
+
+  if (updates.max_members !== undefined && updates.max_members < (group[0]?.current_members || 0)) {
+    throw new Error(`لا يمكن تحديد عدد أعضاء أقل من العدد الحالي (${group[0]?.current_members || 0})`);
+  }
+
+  const isFull = updates.max_members !== undefined
+    ? updates.max_members <= (group[0]?.current_members || 0)
+    : (group[0]?.max_members || 0) <= (group[0]?.current_members || 0);
+
+  const updateBody = { ...updates, is_full: isFull };
 
   const updateResponse = await supabaseRest(
     supabaseUrl,
@@ -338,7 +357,7 @@ async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: st
     `groups?select=*&id=eq.${encodeURIComponent(groupId)}`,
     {
       method: "PATCH",
-      body: JSON.stringify(updates),
+      body: JSON.stringify(updateBody),
     },
   );
 
@@ -525,7 +544,7 @@ serve(async (req) => {
         break;
       case "update":
         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
-        result = await handleUpdate(supabaseAdmin.url, supabaseAdmin.key, payload.groupId, payload.updates, userId);
+        result = await handleUpdate(supabaseAdmin.url, supabaseAdmin.key, payload.groupId, payload.updates, userId, isAdmin);
         break;
       case "delete":
         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
