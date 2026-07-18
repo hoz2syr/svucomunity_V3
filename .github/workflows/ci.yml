@@ -73,12 +73,6 @@ jobs:
       - name: Push DB migrations
         run: echo "Y" | supabase db push --include-all
 
-      - name: Run seed data
-        run: |
-          echo "Running seed files..."
-          supabase db query --file supabase/seed/001_seed.sql
-          supabase db query --file supabase/seed/002_expanded_seed.sql
-
       - name: Set Edge Function secrets
         run: |
           supabase secrets set \
