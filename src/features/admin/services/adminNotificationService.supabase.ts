@@ -6,7 +6,7 @@ export type AdminNotification = {
   id: string;
   user_id: string;
   title: string;
-  body: string;
+  body: string | null;
   read: boolean;
   type: string;
   created_by: string | null;

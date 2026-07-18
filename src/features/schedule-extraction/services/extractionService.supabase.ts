@@ -88,6 +88,7 @@ export async function upsertDiscoveredCourses(
           course_name: course.name,
           section: course.section,
           semester_code: course.semester || '',
+          first_seen_at: new Date().toISOString(),
           last_seen_at: new Date().toISOString(),
         },
         {
@@ -133,6 +134,7 @@ export async function upsertDiscoveredInstructors(
         {
           instructor_username: course.instructor_username,
           full_name: course.instructor || course.instructor_username,
+          first_seen_at: new Date().toISOString(),
           last_seen_at: new Date().toISOString(),
         },
         {
@@ -171,6 +173,7 @@ export async function upsertDiscoveredMajors(
       .upsert(
         {
           major_code: major,
+          first_seen_at: new Date().toISOString(),
           last_seen_at: new Date().toISOString(),
         },
         {
@@ -178,7 +181,7 @@ export async function upsertDiscoveredMajors(
           count: 'exact',
         }
       )
-      .select('major_code, major_name_ar, major_name_en, seen_count, first_seen_at')
+      .select('major_code, major_name_ar, major_name_en, seen_count, first_seen_at, last_seen_at')
       .single();
 
     if (error) {

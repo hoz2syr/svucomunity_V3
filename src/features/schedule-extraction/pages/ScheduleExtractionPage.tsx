@@ -11,7 +11,7 @@ import { GroupDetailsModal } from '../components/GroupDetailsModal';
 import { useScheduleMatching } from '../hooks';
 import { useCourseMatching } from '../hooks/useCourseMatching';
 import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
-import { saveRawExtraction, saveExtractedCourses } from '../services/extractionService.supabase';
+import { saveRawExtraction, saveExtractedCourses, upsertDiscoveredCourses, upsertDiscoveredInstructors, upsertDiscoveredMajors } from '../services/extractionService.supabase';
 import { getCurrentSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
 import type { TableSchema } from '../utils/schemaDetection';
@@ -151,6 +151,21 @@ export function ScheduleExtractionPage() {
       if (coursesResult.error) {
         setSaveError(coursesResult.error.message);
         return;
+      }
+      const majors = Array.from(new Set(coursesWithSemester.map((c) => c.major).filter((m): m is string => !!m)));
+      const [coursesUpsert, instructorsUpsert, majorsUpsert] = await Promise.all([
+        upsertDiscoveredCourses(coursesWithSemester),
+        upsertDiscoveredInstructors(coursesWithSemester),
+        upsertDiscoveredMajors(majors),
+      ]);
+      if (coursesUpsert.error) {
+        console.error('Failed to upsert discovered courses:', coursesUpsert.error);
+      }
+      if (instructorsUpsert.error) {
+        console.error('Failed to upsert discovered instructors:', instructorsUpsert.error);
+      }
+      if (majorsUpsert.error) {
+        console.error('Failed to upsert discovered majors:', majorsUpsert.error);
       }
       setExtractionId(newExtractionId);
     } catch (err) {
