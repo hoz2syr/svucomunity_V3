@@ -119,13 +119,13 @@ export function Reports() {
       ) : stats ? (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            <AdminStatCard label="إجمالي المستخدمين" value={stats.total_users} icon={Users} color="cyan" />
-            <AdminStatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={FileText} color="blue" />
-            <AdminStatCard label="إجمالي المواد" value={stats.total_courses} icon={BookOpen} color="emerald" />
-            <AdminStatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={User} color="amber" />
-            <AdminStatCard label="إجمالي التخصصات" value={stats.total_majors} icon={BarChart3} color="rose" />
-            <AdminStatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={BookOpenCheck} color="cyan" />
-            <AdminStatCard label="إجمالي المجموعات" value={stats.total_groups} icon={UsersRound} color="blue" />
+            <AdminStatCard label="إجمالي المستخدمين" value={stats.total_users} icon={<Users size={24} />} color="cyan" />
+            <AdminStatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={<FileText size={24} />} color="blue" />
+            <AdminStatCard label="إجمالي المواد" value={stats.total_courses} icon={<BookOpen size={24} />} color="emerald" />
+            <AdminStatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={<User size={24} />} color="amber" />
+            <AdminStatCard label="إجمالي التخصصات" value={stats.total_majors} icon={<BarChart3 size={24} />} color="rose" />
+            <AdminStatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={<BookOpenCheck size={24} />} color="cyan" />
+            <AdminStatCard label="إجمالي المجموعات" value={stats.total_groups} icon={<UsersRound size={24} />} color="blue" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

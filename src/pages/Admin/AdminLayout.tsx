@@ -33,24 +33,24 @@ const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays, path: '/admin/semester' },
 ];
 
-const mobileBottomTabs: { id: Tab; label: string; icon: typeof Users }[] = [
-  { id: 'users', label: 'المستخدمين', icon: Users },
-  { id: 'extractions', label: 'الاستخراجات', icon: FileText },
-  { id: 'reports', label: 'التقارير', icon: BarChart3 },
-  { id: 'verification', label: 'التحقق', icon: ShieldCheck },
-  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp },
+const mobileBottomTabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
+  { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
+  { id: 'extractions', label: 'الاستخراجات', icon: FileText, path: '/admin/extractions' },
+  { id: 'reports', label: 'التقارير', icon: BarChart3, path: '/admin/reports' },
+  { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
+  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
 ];
 
-const mobileMenuTabs: { id: Tab; label: string; icon: typeof Users }[] = [
-  { id: 'users', label: 'المستخدمين', icon: Users },
-  { id: 'extractions', label: 'الاستخراجات', icon: FileText },
-  { id: 'reports', label: 'التقارير', icon: BarChart3 },
-  { id: 'verification', label: 'التحقق', icon: ShieldCheck },
-  { id: 'notifications', label: 'الإشعارات', icon: Bell },
-  { id: 'reviews', label: 'التقييمات', icon: Star },
-  { id: 'sources', label: 'المصادر', icon: BookOpen },
-  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp },
-  { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays },
+const mobileMenuTabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
+  { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
+  { id: 'extractions', label: 'الاستخراجات', icon: FileText, path: '/admin/extractions' },
+  { id: 'reports', label: 'التقارير', icon: BarChart3, path: '/admin/reports' },
+  { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
+  { id: 'notifications', label: 'الإشعارات', icon: Bell, path: '/admin/notifications' },
+  { id: 'reviews', label: 'التقييمات', icon: Star, path: '/admin/reviews' },
+  { id: 'sources', label: 'المصادر', icon: BookOpen, path: '/admin/sources' },
+  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
+  { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays, path: '/admin/semester' },
 ];
 
 export function AdminLayout() {
