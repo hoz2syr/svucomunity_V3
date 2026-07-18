@@ -335,7 +335,14 @@ export function NotificationManagement() {
                     <p className="text-sm text-slate-400 mb-2 line-clamp-2">{notification.body}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span>المستخدم: {notification.profiles?.full_name || notification.profiles?.email || notification.user_id}</span>
+                    {notification.type === 'admin_broadcast' && notification.recipientCount ? (
+                      <span className="flex items-center gap-1">
+                        <Icon icon={Users} size="xs" />
+                        المستلمون: {notification.recipientCount}
+                      </span>
+                    ) : (
+                      <span>المستخدم: {notification.profiles?.full_name || notification.profiles?.email || notification.user_id}</span>
+                    )}
                     <span className="flex items-center gap-1">
                       <Icon icon={ArrowUpRight} size="xs" />
                       {new Date(notification.created_at).toLocaleString('ar-SA')}

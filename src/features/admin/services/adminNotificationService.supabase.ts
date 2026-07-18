@@ -18,6 +18,7 @@ export type AdminNotification = {
     email: string | null;
     username: string | null;
   } | null;
+  recipientCount?: number;
 };
 
 type NotificationRow = AdminNotification;
@@ -34,6 +35,40 @@ const mapRow = (row: Record<string, unknown>): NotificationRow => ({
   created_at: String(row.created_at ?? ''),
   profiles: row.profiles as NotificationRow['profiles'],
 });
+
+const deduplicateNotifications = (notifications: NotificationRow[]): NotificationRow[] => {
+  const groups = new Map<string, NotificationRow[]>();
+
+  for (const notification of notifications) {
+    if (notification.type === 'admin_broadcast') {
+      const key = `${notification.title}|${notification.body}|${notification.created_at}|${notification.type}|${notification.priority}|${notification.created_by}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.push(notification);
+      } else {
+        groups.set(key, [notification]);
+      }
+    } else {
+      const key = notification.id;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.push(notification);
+      } else {
+        groups.set(key, [notification]);
+      }
+    }
+  }
+
+  return Array.from(groups.values()).map((group) => {
+    const representative = group[0];
+    const allRead = group.every((n) => n.read);
+    return {
+      ...representative,
+      read: allRead,
+      recipientCount: group.length,
+    };
+  });
+};
 
 export async function listAllNotifications(
   callerRole: string,
@@ -80,7 +115,9 @@ export async function listAllNotifications(
     return { data: null, error: new Error(error.message) };
   }
 
-  const notifications: NotificationRow[] = ((data as unknown) as Record<string, unknown>[]).map(mapRow);
+  const notifications: NotificationRow[] = deduplicateNotifications(
+    ((data as unknown) as Record<string, unknown>[]).map(mapRow),
+  );
 
   return { data: notifications, error: null };
 }

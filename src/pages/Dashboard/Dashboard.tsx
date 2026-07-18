@@ -37,6 +37,7 @@ export const DashboardPage = memo(function DashboardPage() {
     notifications,
     notificationsLoading,
     notificationsError,
+    handleMarkAllRead,
   } = useDashboardNotifications();
 
   const user = useMemo(() => ({
@@ -59,6 +60,11 @@ export const DashboardPage = memo(function DashboardPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isProfileMenuOpen, setIsProfileMenuOpen, profileMenuRef]);
+
+  useEffect(() => {
+    if (!isNotificationsOpen) return;
+    handleMarkAllRead();
+  }, [isNotificationsOpen, handleMarkAllRead]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
