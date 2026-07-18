@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GraduationCap, FileText, CalendarDays } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Dropdown } from '../ui/Dropdown';
 import { useProfileSettings } from '@/src/hooks/useProfileSettings';
 import { getAllMajorsStatic, getAllLevelsStatic } from '@/src/features/study-groups/services/courseCatalog';
 import { Button } from '../ui/Button';
+import { getCurrentSemesterCode, getNextSemesterCode, convertSemesterCodeToLabel } from '@/src/features/schedule-extraction/utils/semesterUtils';
 
 type ProfileSettingsFormProps = {
   userId: string;
@@ -17,17 +18,22 @@ type ProfileSettingsFormProps = {
   onTakeSpecializationTest?: (major: string) => void;
 };
 
-const SEMESTER_OPTIONS = [
-  { value: '', label: 'بدون تحديد' },
-  { value: 'F23', label: '2023/2024 - الفصل الأول' },
-  { value: 'S23', label: '2023/2024 - الفصل الثاني' },
-  { value: 'F24', label: '2024/2025 - الفصل الأول' },
-  { value: 'S24', label: '2024/2025 - الفصل الثاني' },
-  { value: 'F25', label: '2025/2026 - الفصل الأول' },
-  { value: 'S25', label: '2025/2026 - الفصل الثاني' },
-  { value: 'F26', label: '2026/2027 - الفصل الأول' },
-  { value: 'S26', label: '2026/2027 - الفصل الثاني' },
-];
+const generateSemesterOptions = () => {
+  const current = getCurrentSemesterCode();
+  const options = [{ value: '', label: 'بدون تحديد' }];
+
+  for (let i = -2; i <= 4; i++) {
+    let code = current;
+    for (let j = 0; j < i; j++) {
+      code = getNextSemesterCode(code);
+    }
+    options.push({ value: code, label: convertSemesterCodeToLabel(code) });
+  }
+
+  return options;
+};
+
+const SEMESTER_OPTIONS = generateSemesterOptions();
 
 export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTakeSpecializationTest }: ProfileSettingsFormProps) => {
   const { isLoading, successMsg, errorMsg, submit } = useProfileSettings(onSubmit);

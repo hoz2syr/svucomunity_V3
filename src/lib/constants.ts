@@ -49,6 +49,7 @@ export const CORE_PLAY_TICK_INTERVAL_MS = 1000;
 
 // Feature-specific stale times
 export const ADMIN_EXTRACTIONS_STALE_TIME_MS = 60 * 1000;
+export const ANALYTICS_STALE_TIME_MS = 2 * 60 * 1000;
 export const COURSE_MATCHING_STALE_TIME_MS = 60 * 1000;
 export const COURSE_SUGGESTIONS_STALE_TIME_MS = 5 * 60 * 1000;
 export const COURSE_PROGRESS_STALE_TIME_MS = 5 * 60 * 1000;

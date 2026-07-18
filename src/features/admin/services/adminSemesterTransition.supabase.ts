@@ -2,12 +2,12 @@ import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { ServiceResult } from '@/src/types/admin';
 import { ROLES } from '@/src/types/admin';
 import { broadcastToAllUsers } from './adminNotificationService.supabase';
+import { getNextSemesterCode } from '@/src/features/schedule-extraction/utils/semesterUtils';
 
 export async function confirmSemesterTransition(
   callerRole: string,
   callerId: string,
-  nextSemester: string,
-): Promise<ServiceResult<{ oldSemester: string; updatedCount: number; archivedCount: number }>> {
+): Promise<ServiceResult<{ oldSemester: string; nextSemester: string; updatedCount: number; archivedCount: number }>> {
   if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
   }
@@ -28,10 +28,11 @@ export async function confirmSemesterTransition(
     return { data: null, error: new Error(profileError.message) };
   }
 
-  const oldSemester = currentProfile?.current_semester ?? 'S25';
+  const oldSemester = currentProfile?.current_semester ?? getCurrentSystemSemesterFallback();
+  const nextSemester = getNextSemesterCode(oldSemester);
 
   if (nextSemester === oldSemester) {
-    return { data: { oldSemester, updatedCount: 0, archivedCount: 0 }, error: null };
+    return { data: { oldSemester, nextSemester, updatedCount: 0, archivedCount: 0 }, error: null };
   }
 
   const { error: updateError } = await client
@@ -45,7 +46,7 @@ export async function confirmSemesterTransition(
 
   const { data: archiveData, error: archiveError } = await client
     .from('groups')
-    .update({ is_archived: true })
+    .update({ is_archived: true, semester_code: nextSemester })
     .eq('semester_code', oldSemester)
     .select('id');
 
@@ -54,6 +55,15 @@ export async function confirmSemesterTransition(
   }
 
   const archivedCount = archiveData?.length ?? 0;
+
+  const { error: coursesError } = await client
+    .from('extracted_courses')
+    .update({ semester_code: nextSemester })
+    .eq('semester_code', oldSemester);
+
+  if (coursesError) {
+    return { data: null, error: new Error(coursesError.message) };
+  }
 
   const { error: logError } = await client
     .from('admin_audit_log')
@@ -81,7 +91,11 @@ export async function confirmSemesterTransition(
     return { data: null, error: broadcastResult.error };
   }
 
-  return { data: { oldSemester, updatedCount: 0, archivedCount }, error: null };
+  return { data: { oldSemester, nextSemester, updatedCount: 0, archivedCount }, error: null };
+}
+
+function getCurrentSystemSemesterFallback(): string {
+  return 'S25';
 }
 
 export async function getCurrentSystemSemester(): Promise<ServiceResult<string>> {

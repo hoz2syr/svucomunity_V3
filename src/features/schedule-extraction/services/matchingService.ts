@@ -80,15 +80,14 @@ function calculateMatchScore(course: ExtractedCourse, group: MatchedGroup, extra
 
 export function matchCoursesToGroups(
   extractedCourses: ExtractedCourse[],
-  existingGroups: MatchedGroup[],
-  extractedMajor: string
+  existingGroups: MatchedGroup[]
 ): MatchResult {
   const matchedByGroupId = new Map<string, MatchScore>();
   const unmatched: ExtractedCourse[] = [];
 
   for (const course of extractedCourses) {
     const candidates = existingGroups
-      .map((g) => calculateMatchScore(course, g, extractedMajor))
+      .map((g) => calculateMatchScore(course, g, course.major || ''))
       .filter((m): m is MatchScore => m !== null)
       .sort((a, b) => b.score - a.score);
 

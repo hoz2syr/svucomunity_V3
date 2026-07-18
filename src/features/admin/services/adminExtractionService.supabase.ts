@@ -225,7 +225,7 @@ export async function getPlatformStats(
   };
 }
 
-async function logAdminAction(
+export async function logAdminAction(
   callerId: string,
   action: string,
   payload: Record<string, unknown>

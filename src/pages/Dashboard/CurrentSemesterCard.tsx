@@ -19,6 +19,7 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
   const semesterCode = profile?.current_semester || getCurrentSemesterCode();
+  const studentMajor = profile?.major || '';
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
     queryKey: ['current-semester-courses', userId, semesterCode],
@@ -32,6 +33,9 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   });
 
   const { data: progress = [] } = useUserCourseProgress();
+
+  const mainCourses = studentMajor ? courses.filter(c => c.major === studentMajor) : courses;
+  const additionalCourses = studentMajor ? courses.filter(c => c.major !== studentMajor && c.major) : [];
 
   const handleRetry = () => {
     refetch();
@@ -99,7 +103,7 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
 
       {!isLoading && !error && courses.length > 0 && (
         <div className="space-y-4">
-          {courses.map((course) => {
+          {mainCourses.map((course) => {
             const courseProgress = progress.find(p => p.course_code === course.full_code);
             return (
               <CourseSuggestionCard
@@ -109,6 +113,25 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
               />
             );
           })}
+
+          {additionalCourses.length > 0 && (
+            <div className="mt-6 space-y-3">
+              <h3 className="text-sm font-bold text-orange-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-400" />
+                المواد الإضافية
+              </h3>
+              {additionalCourses.map((course) => {
+                const courseProgress = progress.find(p => p.course_code === course.full_code);
+                return (
+                  <CourseSuggestionCard
+                    key={course.id}
+                    course={course}
+                    userProgress={courseProgress}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

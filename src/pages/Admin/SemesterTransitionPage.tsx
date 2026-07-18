@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
@@ -12,17 +12,14 @@ import {
   Loader2,
 } from 'lucide-react';
 import { confirmSemesterTransition, getCurrentSystemSemester } from '../../features/admin/services/adminSemesterTransition.supabase';
-import { convertSemesterCodeToLabel } from '../../features/schedule-extraction/utils/semesterUtils';
+import { convertSemesterCodeToLabel, getNextSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
 import { cn } from '@/src/lib/utils';
-
-const VALID_SEMESTERS = ['S25', 'F25', 'S26', 'F26'];
 
 export function SemesterTransitionPage() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
 
   const [currentSemester, setCurrentSemester] = useState<string | null>(null);
-  const [nextSemester, setNextSemester] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,20 +55,24 @@ export function SemesterTransitionPage() {
     };
   }, []);
 
+  const nextSemester = useMemo(() => {
+    if (!currentSemester) return '';
+    return getNextSemesterCode(currentSemester);
+  }, [currentSemester]);
+
   const handleTransition = async () => {
     if (!nextSemester || !profile?.id) return;
     setTransitioning(true);
     setError(null);
     setSuccess(null);
 
-    const result = await confirmSemesterTransition(profile?.role || '', profile.id, nextSemester);
+    const result = await confirmSemesterTransition(profile?.role || '', profile.id);
 
     if (result.error) {
       setError(result.error.message);
-    } else {
-      setSuccess(`تم الانتقال إلى ${convertSemesterCodeToLabel(nextSemester)} بنجاح`);
-      setCurrentSemester(nextSemester);
-      setNextSemester('');
+    } else if (result.data) {
+      setSuccess(`تم الانتقال إلى ${convertSemesterCodeToLabel(result.data.nextSemester)} بنجاح`);
+      setCurrentSemester(result.data.nextSemester);
     }
     setTransitioning(false);
   };
@@ -87,8 +88,6 @@ export function SemesterTransitionPage() {
       </div>
     );
   }
-
-  const availableSemesters = VALID_SEMESTERS.filter(s => s !== currentSemester);
 
   return (
     <div className="space-y-6">
@@ -139,29 +138,16 @@ export function SemesterTransitionPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm text-slate-400">اختر الفصل التالي</label>
-            <select
-              value={nextSemester}
-              onChange={(e) => setNextSemester(e.target.value)}
-              className={cn(
-                'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white',
-                'focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50',
-                'disabled:opacity-50 disabled:cursor-not-allowed'
-              )}
-              disabled={transitioning || availableSemesters.length === 0}
-            >
-              <option value="">-- اختر الفصل --</option>
-              {availableSemesters.map((sem) => (
-                <option key={sem} value={sem}>
-                  {convertSemesterCodeToLabel(sem)}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm text-slate-400">الفصل التالي</label>
+            <div className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white">
+              {nextSemester ? convertSemesterCodeToLabel(nextSemester) : 'غير محدد'}
+            </div>
+            <p className="text-xs text-slate-500">يتم احتساب الفصل التالي تلقائياً بناءً على الفصل الحالي</p>
           </div>
 
           <Button
             onClick={handleTransition}
-            disabled={!nextSemester || transitioning}
+            disabled={!nextSemester || transitioning || nextSemester === currentSemester}
             className="w-full"
           >
             {transitioning ? (

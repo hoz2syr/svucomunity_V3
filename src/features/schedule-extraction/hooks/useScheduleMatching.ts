@@ -90,7 +90,7 @@ export function useScheduleMatching() {
         setGroups(existing);
       }
 
-      const { matched, unmatched } = matchCoursesToGroups(ocrResult.courses, existing, ocrResult.major);
+      const { matched, unmatched } = matchCoursesToGroups(ocrResult.courses, existing);
 
       const grouped: Record<string, MatchedGroup[]> = {};
       for (const m of matched) {
@@ -105,7 +105,7 @@ export function useScheduleMatching() {
         course_code: course.code,
         course_name: course.name,
         name: `مراجعة - ${course.name}`,
-        major: ocrResult.major,
+        major: course.major || '',
         class_number: course.section,
         instructor: course.instructor,
         max_members: 5,

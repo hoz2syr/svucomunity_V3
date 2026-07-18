@@ -2,35 +2,17 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft } from 'lucide-react';
+import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Skeleton } from '@/src/components/ui/Skeleton';
 import { Button } from '@/src/components/ui/Button';
 import { Icon } from '@/src/components/ui/Icon';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { usePopularCourses, usePopularInstructors, useMajorDistribution } from '@/src/features/schedule-extraction/hooks/useAnalytics';
+import { AdminStatCard } from '@/src/components/admin/AdminStatCard';
 import type { DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/src/types/database';
 
 const SKELETON_COUNT = 5;
-
-const StatCard = React.memo(function StatCard({ title, value, icon, isLoading }: { title: string; value: number | string; icon: React.ReactNode; isLoading?: boolean }) {
-  return (
-    <GlassCard className="p-6">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg">
-          {icon}
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{title}</span>
-          {isLoading ? (
-            <Skeleton className="w-16 h-8" />
-          ) : (
-            <span className="text-2xl font-black text-white">{typeof value === 'number' ? value.toLocaleString('ar-SA') : value}</span>
-          )}
-        </div>
-      </div>
-    </GlassCard>
-  );
-});
 
 const PopularCoursesTable = React.memo(function PopularCoursesTable() {
   const { data: courses, isLoading, error } = usePopularCourses(20);
@@ -62,12 +44,15 @@ const PopularCoursesTable = React.memo(function PopularCoursesTable() {
 
   if (error) {
     return (
-      <GlassCard className="p-6">
+      <GlassCard className="p-6 border-rose-500/30">
         <h3 className="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
           <Icon icon={BookOpen} size="md" />
           المواد الأكثر ظهوراً
         </h3>
-        <div className="text-center py-8 text-slate-400">حدث خطأ في تحميل البيانات</div>
+        <div className="flex items-center gap-2 text-rose-400">
+          <Icon icon={AlertTriangle} size="sm" />
+          <span className="text-sm">{error instanceof Error ? error.message : 'حدث خطأ في تحميل البيانات'}</span>
+        </div>
       </GlassCard>
     );
   }
@@ -140,12 +125,15 @@ const PopularInstructorsTable = React.memo(function PopularInstructorsTable() {
 
   if (error) {
     return (
-      <GlassCard className="p-6">
+      <GlassCard className="p-6 border-rose-500/30">
         <h3 className="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
           <Icon icon={User} size="md" />
           الأساتذة الأكثر ظهوراً
         </h3>
-        <div className="text-center py-8 text-slate-400">حدث خطأ في تحميل البيانات</div>
+        <div className="flex items-center gap-2 text-rose-400">
+          <Icon icon={AlertTriangle} size="sm" />
+          <span className="text-sm">{error instanceof Error ? error.message : 'حدث خطأ في تحميل البيانات'}</span>
+        </div>
       </GlassCard>
     );
   }
@@ -218,12 +206,15 @@ const MajorDistributionList = React.memo(function MajorDistributionList() {
 
   if (error) {
     return (
-      <GlassCard className="p-6">
+      <GlassCard className="p-6 border-rose-500/30">
         <h3 className="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
           <Icon icon={GraduationCap} size="md" />
           توزيع التخصصات
         </h3>
-        <div className="text-center py-8 text-slate-400">حدث خطأ في تحميل البيانات</div>
+        <div className="flex items-center gap-2 text-rose-400">
+          <Icon icon={AlertTriangle} size="sm" />
+          <span className="text-sm">{error instanceof Error ? error.message : 'حدث خطأ في تحميل البيانات'}</span>
+        </div>
       </GlassCard>
     );
   }
@@ -274,9 +265,31 @@ const MajorDistributionList = React.memo(function MajorDistributionList() {
 });
 
 export function AnalyticsPage() {
+  const { profile, loading: authLoading } = useAuth();
+  const isAdmin = profile?.role === 'admin';
   const { data: courses } = usePopularCourses(20);
   const { data: instructors } = usePopularInstructors(20);
   const { data: majors } = useMajorDistribution();
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-cyan-400 text-lg">جاري التحميل...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <GlassCard className="p-8 text-center max-w-md">
+          <Icon icon={TrendingUp} size="xl" className="text-rose-400 mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">غير مصرح</h2>
+          <p className="text-slate-400 text-sm">ليس لديك صلاحية الوصول لهذه الصفحة</p>
+        </GlassCard>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
@@ -292,28 +305,31 @@ export function AnalyticsPage() {
         <div className="mb-10">
           <h1 className="text-3xl font-black text-white tracking-tight mb-2 flex items-center gap-3">
             <Icon icon={TrendingUp} size="lg" />
-            التحليلات والإحصائيات
+            إحصائيات الاستخراج
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed">
-            تحليل شامل للبيانات المستخرجة من الجداول الدراسية
+            تحليل المواد والأساتذة والتخصصات الأكثر ظهوراً
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-7 mb-10">
-          <StatCard
-            title="إجمالي المواد"
+          <AdminStatCard
+            label="إجمالي المواد"
             value={courses?.length ?? 0}
             icon={<BookOpen size={24} />}
+            color="cyan"
           />
-          <StatCard
-            title="إجمالي الأساتذة"
+          <AdminStatCard
+            label="إجمالي الأساتذة"
             value={instructors?.length ?? 0}
             icon={<User size={24} />}
+            color="blue"
           />
-          <StatCard
-            title="إجمالي التخصصات"
+          <AdminStatCard
+            label="إجمالي التخصصات"
             value={majors?.length ?? 0}
             icon={<GraduationCap size={24} />}
+            color="emerald"
           />
         </div>
 

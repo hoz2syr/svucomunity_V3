@@ -21,38 +21,7 @@ import {
   UsersRound,
   Shield,
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
-
-interface StatCardProps {
-  label: string;
-  value: number;
-  icon: typeof Users;
-  color: 'cyan' | 'blue' | 'emerald' | 'amber' | 'rose';
-}
-
-function StatCard({ label, value, icon: IconComponent, color }: StatCardProps) {
-  const colorClasses = {
-    cyan: 'bg-cyan-500/10 text-cyan-400',
-    blue: 'bg-blue-500/10 text-blue-400',
-    emerald: 'bg-emerald-500/10 text-emerald-400',
-    amber: 'bg-amber-500/10 text-amber-400',
-    rose: 'bg-rose-500/10 text-rose-400',
-  };
-
-  return (
-    <GlassCard className="p-5">
-      <div className="flex items-center gap-4">
-        <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center', colorClasses[color])}>
-          <IconComponent size="lg" />
-        </div>
-        <div>
-          <p className="text-3xl font-bold text-white">{value}</p>
-          <p className="text-sm text-slate-400">{label}</p>
-        </div>
-      </div>
-    </GlassCard>
-  );
-}
+import { AdminStatCard } from '@/src/components/admin/AdminStatCard';
 
 export function Reports() {
   const { profile, loading: authLoading } = useAuth();
@@ -108,7 +77,7 @@ export function Reports() {
     <div className="space-y-6">
       <div className="flex items-center justify-between pt-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-white tracking-tight">التقارير والإحصائيات</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">التقارير</h1>
           <p className="text-slate-400 text-sm max-w-xl">
             نظرة عامة على أداء المنصة والنشاط
           </p>
@@ -150,13 +119,13 @@ export function Reports() {
       ) : stats ? (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            <StatCard label="إجمالي المستخدمين" value={stats.total_users} icon={Users} color="cyan" />
-            <StatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={FileText} color="blue" />
-            <StatCard label="إجمالي المواد" value={stats.total_courses} icon={BookOpen} color="emerald" />
-            <StatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={User} color="amber" />
-            <StatCard label="إجمالي التخصصات" value={stats.total_majors} icon={BarChart3} color="rose" />
-            <StatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={BookOpenCheck} color="cyan" />
-            <StatCard label="إجمالي المجموعات" value={stats.total_groups} icon={UsersRound} color="blue" />
+            <AdminStatCard label="إجمالي المستخدمين" value={stats.total_users} icon={Users} color="cyan" />
+            <AdminStatCard label="إجمالي الاستخراجات" value={stats.total_extractions} icon={FileText} color="blue" />
+            <AdminStatCard label="إجمالي المواد" value={stats.total_courses} icon={BookOpen} color="emerald" />
+            <AdminStatCard label="إجمالي المحاضرين" value={stats.total_instructors} icon={User} color="amber" />
+            <AdminStatCard label="إجمالي التخصصات" value={stats.total_majors} icon={BarChart3} color="rose" />
+            <AdminStatCard label="إجمالي الاختبارات" value={stats.total_tests} icon={BookOpenCheck} color="cyan" />
+            <AdminStatCard label="إجمالي المجموعات" value={stats.total_groups} icon={UsersRound} color="blue" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

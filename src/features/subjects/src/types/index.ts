@@ -57,3 +57,19 @@ export interface Subject {
   minTotalCredits?: number;
   icon?: string;
 }
+
+export interface BulkImportItem {
+  course_code: string;
+  type: ReferenceType;
+  title: string;
+  url: string;
+  description?: string;
+  is_approved?: boolean;
+}
+
+export interface BulkImportResult {
+  total: number;
+  succeeded: number;
+  failed: number;
+  errors: { index: number; message: string }[];
+}

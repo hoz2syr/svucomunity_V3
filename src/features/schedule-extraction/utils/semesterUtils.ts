@@ -18,6 +18,20 @@ export function convertSemesterCodeToLabel(code: string): string {
   return code;
 }
 
+export function getNextSemesterCode(current: string): string {
+  const match = current.match(/^([FS])(\d{2})$/i);
+  if (!match) {
+    return current;
+  }
+  const prefix = match[1].toUpperCase();
+  const year = parseInt(match[2], 10);
+
+  if (prefix === 'F') {
+    return `S${year.toString().padStart(2, '0')}`;
+  }
+  return `F${(year + 1).toString().padStart(2, '0')}`;
+}
+
 export function getCurrentSemesterCode(): string {
   const now = new Date();
   const yearShort = now.getFullYear().toString().slice(-2);

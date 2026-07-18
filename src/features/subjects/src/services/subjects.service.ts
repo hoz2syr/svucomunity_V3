@@ -1,6 +1,6 @@
 import type { Course } from '@/src/features/courses/src/types';
 import { coursesDB } from '@/src/features/courses/src/data/coursesData';
-import type { SubjectReference, SubjectReferenceInsert, SubjectReferenceUpdate, UserCourseProgress, UserCourseProgressInsert } from '../types';
+import type { SubjectReference, SubjectReferenceInsert, SubjectReferenceUpdate, UserCourseProgress, UserCourseProgressInsert, BulkImportItem, BulkImportResult } from '../types';
 import {
   getReferencesByCourseCode,
   insertReference as supabaseInsertReference,
@@ -14,6 +14,7 @@ import {
   loadUserProgress,
   upsertUserProgress,
   deleteUserProgress,
+  bulkInsertReferences as supabaseBulkInsertReferences,
 } from './subjects.supabase';
 
 export type ServiceResult<T> = { data: T | null; error: Error | null };
@@ -107,4 +108,12 @@ export async function saveUserProgress(
 
 export async function removeUserProgress(userId: string, courseCode: string): Promise<ServiceResult<null>> {
   return deleteUserProgress(userId, courseCode);
+}
+
+export async function bulkInsertReferences(
+  adminId: string,
+  items: BulkImportItem[],
+  batchSize = 50
+): Promise<ServiceResult<BulkImportResult>> {
+  return supabaseBulkInsertReferences(adminId, items, batchSize);
 }

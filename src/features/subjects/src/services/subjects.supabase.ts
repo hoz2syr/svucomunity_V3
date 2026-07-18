@@ -1,4 +1,4 @@
-import type { SubjectReference, SubjectReferenceInsert, SubjectReferenceUpdate, UserCourseProgress, UserCourseProgressInsert } from '../types';
+import type { SubjectReference, SubjectReferenceInsert, SubjectReferenceUpdate, UserCourseProgress, UserCourseProgressInsert, BulkImportResult, BulkImportItem } from '../types';
 import { hasSupabaseEnv } from '@/src/lib/env';
 import { getSupabaseClient } from '@/src/lib/supabase';
 
@@ -265,5 +265,57 @@ export async function deleteUserProgress(userId: string, courseCode: string): Pr
     return { data: null, error: null };
   } catch (error) {
     return { data: null, error: error instanceof Error ? error : new Error('Failed to delete progress') };
+  }
+}
+
+export async function bulkInsertReferences(
+  adminId: string,
+  items: BulkImportItem[],
+  batchSize = 50
+): Promise<ServiceResult<BulkImportResult>> {
+  if (!hasSupabaseEnv()) {
+    return { data: null, error: new Error('Supabase environment not configured') };
+  }
+  try {
+    const client = await getSupabaseClient();
+    const result: BulkImportResult = {
+      total: items.length,
+      succeeded: 0,
+      failed: 0,
+      errors: [],
+    };
+
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      const rows = batch.map((item) => ({
+        course_code: item.course_code,
+        type: item.type,
+        title: item.title,
+        url: item.url,
+        description: item.description ?? null,
+        is_approved: item.is_approved ?? true,
+        user_id: adminId,
+        likes: 0,
+      }));
+
+      const { error } = await client
+        .from('subject_references')
+        .insert(rows)
+        .select('id');
+
+      if (error) {
+        result.failed += batch.length;
+        result.errors.push({
+          index: i,
+          message: error.message,
+        });
+      } else {
+        result.succeeded += batch.length;
+      }
+    }
+
+    return { data: result, error: null };
+  } catch (error) {
+    return { data: null, error: error instanceof Error ? error : new Error('Failed to bulk insert references') };
   }
 }

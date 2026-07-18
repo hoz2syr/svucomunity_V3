@@ -116,7 +116,6 @@ function parseScheduleText(rawText: string): OCRResult {
   const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const courses: ExtractedCourse[] = [];
   const seen: Record<string, boolean> = {};
-  const major = detectMajor(rawText);
 
   const fullCodeRegex = /(?:ITE|ENG|BA|CS)_[A-Z]{2,5}\d{2,4}_C\d+_[A-Z]\d+/i;
 
@@ -193,12 +192,12 @@ function parseScheduleText(rawText: string): OCRResult {
       instructor_username: instructorUsername,
       course_key: code,
       semester,
-      major: null,
+      major: detectMajorFromCode(fullCode),
       time: null,
     });
   });
 
-  const detectedMajor = major || detectMajorFromCode(courses[0]?.course_key || '');
+  const detectedMajor = courses[0] ? detectMajorFromCode(courses[0].course_key || '') : '';
 
   return { rawText, major: detectedMajor, courses };
 }
