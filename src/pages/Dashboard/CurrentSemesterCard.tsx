@@ -35,7 +35,10 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   const { data: progress = [] } = useUserCourseProgress();
 
   const mainCourses = studentMajor ? courses.filter(c => c.major === studentMajor) : courses;
-  const additionalCourses = studentMajor ? courses.filter(c => c.major !== studentMajor && c.major) : [];
+  const englishCourses = courses.filter(c => c.major === 'ENG (English Language)');
+  const additionalCourses = studentMajor
+    ? courses.filter(c => c.major !== studentMajor && c.major !== 'ENG (English Language)' && c.major)
+    : courses.filter(c => c.major !== 'ENG (English Language)' && c.major);
 
   const handleRetry = () => {
     refetch();
@@ -113,6 +116,25 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
               />
             );
           })}
+
+          {englishCourses.length > 0 && (
+            <div className="mt-6 space-y-3">
+              <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-sky-400" />
+                مواد اللغة الإنجليزية
+              </h3>
+              {englishCourses.map((course) => {
+                const courseProgress = progress.find(p => p.course_code === course.full_code);
+                return (
+                  <CourseSuggestionCard
+                    key={course.id}
+                    course={course}
+                    userProgress={courseProgress}
+                  />
+                );
+              })}
+            </div>
+          )}
 
           {additionalCourses.length > 0 && (
             <div className="mt-6 space-y-3">

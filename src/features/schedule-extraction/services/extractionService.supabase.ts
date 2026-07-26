@@ -1,5 +1,6 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import { TableSchema } from '../utils/schemaDetection';
+import { normalizeSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse } from '../types';
 import type { Json, RawExtraction, ExtractedCourseRecord, DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/src/types/database';
 
@@ -42,14 +43,14 @@ export async function saveExtractedCourses(
   const rows = courses.map(course => ({
     extraction_id: extractionId,
     course_name: course.name,
-    semester_code: course.semester || '',
+    semester_code: normalizeSemesterCode(course.semester),
     full_code: course.code,
     instructor_name: course.instructor,
     instructor_username: course.instructor_username,
     major: course.major || '',
-    course_key: course.course_key || '',
+    course_key: course.course_key || course.code,
     section: course.section,
-    semester_year: course.semester || '',
+    semester_year: normalizeSemesterCode(course.semester),
     discovered_course_code: course.code,
     discovered_instructor_username: course.instructor_username || undefined,
   }));
@@ -205,6 +206,7 @@ export async function loadCurrentSemesterCourses(
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
+  const normalizedSemester = normalizeSemesterCode(semesterCode);
   const { data, error } = await client
     .from('extracted_courses')
     .select(`
@@ -225,7 +227,7 @@ export async function loadCurrentSemesterCourses(
       raw_extractions!inner(user_id)
     `)
     .eq('raw_extractions.user_id', userId)
-    .eq('semester_code', semesterCode)
+    .eq('semester_code', normalizedSemester)
     .order('created_at', { ascending: false });
 
   if (error) {

@@ -43,3 +43,20 @@ export function getCurrentSemesterCode(): string {
     return `S${(now.getFullYear() - 1).toString().slice(-2)}`;
   }
 }
+
+export function normalizeSemesterCode(code: string | null | undefined): string {
+  if (!code) return '';
+  const trimmed = code.trim();
+  const shortMatch = trimmed.match(/^([SF])(\d{2})$/i);
+  if (shortMatch) {
+    return `${shortMatch[1].toUpperCase()}${shortMatch[2]}`;
+  }
+  const longMatch = trimmed.match(/^(\d{4})-([12])$/);
+  if (longMatch) {
+    const year = parseInt(longMatch[1], 10);
+    const semester = longMatch[2];
+    const yearShort = year.toString().slice(-2);
+    return semester === '1' ? `F${yearShort}` : `S${yearShort}`;
+  }
+  return trimmed;
+}

@@ -15,9 +15,9 @@ export default function PlayTestShared() {
       backPath="/exam"
       showBackIcon={false}
       showRateUI={false}
-      showAnswerReview={false}
-      showSettingsInPreStart={false}
-      preStartIcon={<span className="text-2xl">🔗</span>}
+    showAnswerReview={false}
+    showSettingsInPreStart={true}
+    preStartIcon={<span className="text-2xl">🔗</span>}
     />
   );
 }

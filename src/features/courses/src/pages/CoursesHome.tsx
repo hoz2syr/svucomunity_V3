@@ -322,16 +322,38 @@ export function CoursesHome() {
                 </div>
               )}
 
-              {!isLoadingSemester && !semesterError && currentSemesterCourses && currentSemesterCourses.length > 0 && (
-                <div className="space-y-3">
-                  {currentSemesterCourses.map(course => (
-                    <CourseSuggestionCard
-                      key={course.id}
-                      course={course}
-                    />
-                  ))}
-                </div>
-              )}
+               {!isLoadingSemester && !semesterError && currentSemesterCourses && currentSemesterCourses.length > 0 && (
+                 <div className="space-y-3">
+                   {(() => {
+                     const englishCourses = currentSemesterCourses.filter(c => c.major === 'ENG (English Language)');
+                     const otherCourses = currentSemesterCourses.filter(c => c.major !== 'ENG (English Language)');
+                     return (
+                       <>
+                         {englishCourses.length > 0 && (
+                           <div className="space-y-3 mb-4">
+                             <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
+                               <span className="w-2 h-2 rounded-full bg-sky-400" />
+                               مواد اللغة الإنجليزية
+                             </h3>
+                             {englishCourses.map(course => (
+                               <CourseSuggestionCard
+                                 key={course.id}
+                                 course={course}
+                               />
+                             ))}
+                           </div>
+                         )}
+                         {otherCourses.map(course => (
+                           <CourseSuggestionCard
+                             key={course.id}
+                             course={course}
+                           />
+                         ))}
+                       </>
+                     );
+                   })()}
+                 </div>
+               )}
             </GlassCard>
           </motion.div>
         )}
