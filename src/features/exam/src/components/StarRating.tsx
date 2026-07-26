@@ -29,13 +29,13 @@ export function StarRating({ rating, onRate, readonly = false, size = 20 }: Star
           aria-label={`${star} من 5`}
           tabIndex={readonly ? -1 : 0}
         >
-          <Star
-            className="transition-colors"
-            style={{ width: size, height: size }}
-            fill={star <= displayRating ? 'currentColor' : 'none'}
-            color={star <= displayRating ? 'var(--color-warning-400)' : 'var(--color-text-muted)'}
-            strokeWidth={star <= displayRating ? 0 : 2}
-          />
+           <Star
+             className="transition-colors"
+             style={{ width: size, height: size }}
+             fill={star <= displayRating ? 'currentColor' : 'none'}
+             color={star <= displayRating ? 'var(--color-amber-600)' : 'var(--color-stone-500)'}
+             strokeWidth={star <= displayRating ? 0 : 2}
+           />
         </button>
       ))}
     </div>

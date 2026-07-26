@@ -97,60 +97,60 @@ export function PlayTestShell({
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 animation-fade-in-up px-3 sm:px-0 pb-24">
         <BackButton label="العودة للاختبارات" backPath={backPath} showBackIcon={showBackIcon} />
 
-        <div className="glass-card p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6">
+        <div className="glass-card border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)] p-4 sm:p-5 md:p-6 text-center space-y-3 sm:space-y-4">
           <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 border border-cyan-500/30">
             {preStartIcon || <FileText className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-cyan-400" />}
           </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 px-2">{test.title}</h1>
-          {test.description && <div className="text-secondary-300 max-w-xl mx-auto px-4 text-xs sm:text-sm"><RichText>{test.description}</RichText></div>}
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100 mb-1.5 px-2 line-clamp-2">{test.title}</h1>
+          {test.description && <div className="text-stone-400 max-w-xl mx-auto px-4 text-xs sm:text-sm"><RichText>{test.description}</RichText></div>}
 
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 py-4 sm:py-6 border-y border-white/10">
             <div className="text-center px-2 sm:px-3 md:px-4">
-              <FileText className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-cyan-400 mx-auto mb-1.5 sm:mb-2" />
-              <p className="text-secondary-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الأسئلة</p>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{test.questions.length}</p>
+              <FileText className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-amber-600 mx-auto mb-1 sm:mb-2" />
+              <p className="text-stone-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الأسئلة</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100">{test.questions.length}</p>
             </div>
             <div className="text-center px-2 sm:px-3 md:px-4">
-              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-cyan-400 mx-auto mb-1.5 sm:mb-2" />
-              <p className="text-secondary-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الشروحات المرفقة</p>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{test.settings.showExplanations ? 'متوفرة' : 'غير متوفرة'}</p>
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-amber-600 mx-auto mb-1 sm:mb-2" />
+              <p className="text-stone-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الشروحات المرفقة</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100">{test.settings.showExplanations ? 'متوفرة' : 'غير متوفرة'}</p>
             </div>
             {test.settings.globalTimeLimitMinutes ? (
               <div className="text-center px-2 sm:px-3 md:px-4">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-cyan-400 mx-auto mb-1.5 sm:mb-2" />
-                <p className="text-secondary-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الوقت المخصص</p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{test.settings.globalTimeLimitMinutes} دقيقة</p>
+                <Clock className="w-4 h-4 sm:w-5 sm:h-6 md:w-6 md:h-6 text-amber-600 mx-auto mb-1 sm:mb-2" />
+                <p className="text-stone-400 text-[10px] sm:text-xs md:text-sm mb-0.5 sm:mb-1">الوقت المخصص</p>
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100">{test.settings.globalTimeLimitMinutes} دقيقة</p>
               </div>
             ) : null}
           </div>
 
           {showSettingsInPreStart && (
-             <div className="text-right space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto bg-slate-800/50 p-4 sm:p-5 rounded-2xl border border-slate-700/50">
-              <div className="flex items-center gap-2 text-white font-medium mb-3 sm:mb-4">
-                <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-                <h3 className="text-sm sm:text-base">إعدادات بدء الاختبار</h3>
-              </div>
+             <div className="text-right space-y-2.5 sm:space-y-3 max-w-sm sm:max-w-md mx-auto bg-stone-800/50 p-3.5 sm:p-4 rounded-2xl border border-amber-700/30">
+               <div className="flex items-center gap-2 text-stone-100 font-medium mb-2 sm:mb-3">
+                 <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                 <h3 className="text-sm sm:text-base">إعدادات بدء الاختبار</h3>
+               </div>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
                 <input type="radio" name="feedbackType" checked={!immediateFeedback} onChange={() => setImmediateFeedback(false)} className="mt-0.5 sm:mt-1 w-4 h-4 text-indigo-500 focus:ring-indigo-500 bg-slate-950 border-slate-600" />
-                <div>
-                  <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح في النهاية (وضع الاختبار)</p>
-                  <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">إظهار الإجابات الصحيحة والشروح والنتيجة بعد الانتهاء من جميع الأسئلة.</p>
-                </div>
+                 <div>
+                   <p className="text-stone-100 font-medium group-hover:text-amber-300 transition text-sm sm:text-base">تصحيح في النهاية (وضع الاختبار)</p>
+                   <p className="text-[10px] sm:text-xs text-stone-400 mt-0.5 sm:mt-1">إظهار الإجابات الصحيحة والشروح والنتيجة بعد الانتهاء من جميع الأسئلة.</p>
+                 </div>
               </label>
 
               <label className="flex items-start gap-3 cursor-pointer group p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition">
                 <input type="radio" name="feedbackType" checked={immediateFeedback} onChange={() => setImmediateFeedback(true)} className="mt-0.5 sm:mt-1 w-4 h-4 text-indigo-500 focus:ring-indigo-500 bg-slate-950 border-slate-600" />
-                <div>
-                  <p className="text-white font-medium group-hover:text-cyan-300 transition text-sm sm:text-base">تصحيح فوري (وضع التعلم)</p>
-                  <p className="text-[10px] sm:text-xs text-secondary-400 mt-0.5 sm:mt-1">تأكيد كل إجابة وإظهار صحتها مع الشرح التوضيحي فوراً لغرض المراجعة.</p>
-                </div>
+                 <div>
+                   <p className="text-stone-100 font-medium group-hover:text-amber-300 transition text-sm sm:text-base">تصحيح فوري (وضع التعلم)</p>
+                   <p className="text-[10px] sm:text-xs text-stone-400 mt-0.5 sm:mt-1">تأكيد كل إجابة وإظهار صحتها مع الشرح التوضيحي فوراً لغرض المراجعة.</p>
+                 </div>
               </label>
             </div>
           )}
 
           <div className="pt-3 sm:pt-4">
-            <Button onClick={() => setHasStarted(true)} variant="primary" className="w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 sm:py-3.5 text-sm sm:text-base sm:text-lg">
+            <Button onClick={() => setHasStarted(true)} variant="primary" className="w-full sm:max-w-sm mx-auto flex justify-center items-center gap-2 py-3 text-sm sm:text-base">
               <Play className="w-5 h-5 sm:w-6 sm:h-6" />
                <span>ابدأ الاختبار الآن</span>
              </Button>
@@ -164,16 +164,16 @@ export function PlayTestShell({
     return (
       <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 pb-24">
         <BackButton label="العودة للاختبارات" backPath={backPath} showBackIcon={showBackIcon} />
-        <div className="glass-card text-center p-5 sm:p-8 md:p-12">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">النتيجة النهائية</h2>
-          <p className="text-secondary-400 mb-3 sm:mb-5 text-xs sm:text-sm">لقد أكملت اختبار: {test.title}</p>
-          <div className="text-4xl sm:text-5xl md:text-6xl font-black gradient-text mb-2 sm:mb-3">{score} / {test.questions.length} <span className="text-2xl sm:text-3xl md:text-4xl text-secondary-300">({Math.round((score / test.questions.length) * 100)}%)</span></div>
-          <p className="text-secondary-300 font-medium mb-4 sm:mb-6 text-xs sm:text-sm">
+        <div className="glass-card border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)] text-center p-5 sm:p-6 md:p-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100 mb-1.5 sm:mb-2">النتيجة النهائية</h2>
+          <p className="text-stone-400 mb-2.5 sm:mb-4 text-xs sm:text-sm">لقد أكملت اختبار: {test.title}</p>
+          <div className="text-3xl sm:text-4xl md:text-5xl font-black text-amber-600 mb-1.5 sm:mb-2">{score} / {test.questions.length} <span className="text-xl sm:text-2xl md:text-3xl text-stone-400">({Math.round((score / test.questions.length) * 100)}%)</span></div>
+          <p className="text-stone-300 font-medium mb-3 sm:mb-5 text-xs sm:text-sm">
             {score === test.questions.length ? 'أداء مثالي! أحسنت صنعاً.' : 'أداء جيد، يمكنك المحاولة مرة أخرى لتحسين النتيجة.'}
           </p>
 
           {showRateUI && (
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -182,18 +182,18 @@ export function PlayTestShell({
                   aria-label={`تقييم ${star} من 5`}
                 >
                   <Star
-                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${star <= (test.rating || 0) ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`}
+                    className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 ${star <= (test.rating || 0) ? 'text-amber-600 fill-amber-600' : 'text-stone-500'}`}
                   />
                 </button>
               ))}
             </div>
           )}
-          {showRateUI && <p className="text-[10px] sm:text-xs text-secondary-400">تقييم الاختبار</p>}
+          {showRateUI && <p className="text-[10px] sm:text-xs text-stone-400">تقييم الاختبار</p>}
         </div>
 
         {showAnswerReview && (
-          <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-lg sm:text-xl font-bold text-white px-2">مراجعة الإجابات</h3>
+          <div className="space-y-2.5 sm:space-y-3">
+            <h3 className="text-base sm:text-lg font-bold text-stone-100 px-2">مراجعة الإجابات</h3>
             {test.questions.map((q, i) => {
               const userAnswer = selectedAnswers[q.id];
               const isEssay = q.type === 'essay';
@@ -201,13 +201,13 @@ export function PlayTestShell({
               const correctAnswers = q.correctAnswers && q.correctAnswers.length > 0 ? q.correctAnswers : (q.correctAnswer ? [q.correctAnswer] : []);
               const borderClass = isEssay ? 'border-s-yellow-500' : (isCorrect ? 'border-s-green-500' : 'border-s-red-500');
               return (
-                <div key={q.id} className={cn('glass-card border-s-4', borderClass)}>
-                  <div className="flex items-start gap-4">
-                    {isEssay ? <span className="mt-1 text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-6 h-6 text-emerald-400 mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-rose-400 mt-1 flex-shrink-0" />)}
+                <div key={q.id} className={cn('glass-card border-s-4 border-amber-700/30', borderClass)}>
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    {isEssay ? <span className="mt-1 text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/30 px-2 py-1 rounded-lg">مقالي</span> : (isCorrect ? <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 mt-1 flex-shrink-0" /> : <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400 mt-1 flex-shrink-0" />)}
                     <div>
-                      <h4 className="text-white font-medium mb-2">السؤال {i + 1}: <RichText>{q.text}</RichText></h4>
-                  <p className="text-sm text-secondary-300 mb-1">
-                    إجابتك: <span className="text-white font-bold">{userAnswer || '(تم التخطي)'}</span>
+                      <h4 className="text-stone-100 font-medium mb-1.5 text-sm sm:text-base">السؤال {i + 1}: <RichText>{q.text}</RichText></h4>
+                  <p className="text-sm text-stone-300 mb-1">
+                    إجابتك: <span className="text-stone-100 font-bold">{userAnswer || '(تم التخطي)'}</span>
                   </p>
                    {isEssay && correctAnswers.length > 0 && (
                       <div className="mt-2 p-3 rounded-lg border border-slate-700 bg-slate-800/50">
@@ -215,15 +215,15 @@ export function PlayTestShell({
                        <div className="text-sm text-emerald-300"><RichText>{correctAnswers.join(' / ')}</RichText></div>
                      </div>
                    )}
-                   {!isEssay && !isCorrect && q.correctAnswer && (
-                      <div className="text-sm text-slate-300 text-emerald-400">الإجابة الصحيحة: <RichText>{q.correctAnswer}</RichText></div>
-                   )}
-                   {q.explanation && test.settings.showExplanations && (
-                      <div className="mt-3 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                       <span className="text-primary-400 font-bold text-sm block mb-1">الشرح:</span>
-                       <div className="text-secondary-300 text-sm"><RichText>{q.explanation}</RichText></div>
-                     </div>
-                   )}
+                    {!isEssay && !isCorrect && q.correctAnswer && (
+                       <div className="text-sm text-stone-300 text-emerald-400">الإجابة الصحيحة: <RichText>{q.correctAnswer}</RichText></div>
+                    )}
+                    {q.explanation && test.settings.showExplanations && (
+                       <div className="mt-2.5 bg-stone-800/50 p-3 sm:p-3.5 rounded-lg border border-stone-700">
+                        <span className="text-amber-600 font-bold text-sm block mb-0.5">الشرح:</span>
+                        <div className="text-stone-300 text-sm"><RichText>{q.explanation}</RichText></div>
+                      </div>
+                    )}
                     </div>
                   </div>
                 </div>
@@ -270,13 +270,13 @@ export function PlayTestShell({
         </button>
       </div>
 
-      <div className="glass-card" tabIndex={showBackIcon ? 0 : undefined}>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-relaxed mb-1.5 sm:mb-2 px-1">
+      <div className="glass-card border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]" tabIndex={showBackIcon ? 0 : undefined}>
+        <h2 className="text-base sm:text-lg md:text-xl font-bold text-stone-100 leading-relaxed mb-1 sm:mb-1.5 px-1">
           <RichText>{currentQ.text}</RichText>
         </h2>
-        <p className="text-[10px] sm:text-xs text-secondary-400 mb-4 sm:mb-6 px-1">الأسهم للتنقل بين الأسئلة · 1-9 للاختيار · t/f لصح/خطأ · Enter للتأكيد</p>
+        <p className="text-[10px] sm:text-xs text-stone-400 mb-3 sm:mb-4 px-1">الأسهم للتنقل بين الأسئلة · 1-9 للاختيار · t/f لصح/خطأ · Enter للتأكيد</p>
 
-        <div className="space-y-2.5 sm:space-y-3">
+        <div className="space-y-2 sm:space-y-2.5">
           {currentQ.type === 'multiple_choice' && currentQ.options?.map((opt, i) => {
             const isMulti = currentQ.correctAnswers && currentQ.correctAnswers.length > 0;
             const currentSelected = selectedAnswers[currentQ.id];
@@ -284,7 +284,7 @@ export function PlayTestShell({
               ? currentSelected.includes(opt)
               : currentSelected === opt;
             const correctList = isMulti ? (currentQ.correctAnswers ?? []) : (currentQ.correctAnswer ? [currentQ.correctAnswer] : []);
-            let btnStateClass = 'bg-secondary-800 border-secondary-700 hover:border-secondary-500';
+             let btnStateClass = 'bg-stone-800 border-stone-700 hover:border-stone-500';
 
             if (isAnswerRevealed) {
               const isCorrectOption = correctList.includes(opt);
@@ -293,24 +293,24 @@ export function PlayTestShell({
               } else if (isSelected) {
                  btnStateClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
               } else {
-                 btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
+                 btnStateClass = 'bg-stone-800/50 border-stone-800 opacity-50';
               }
              } else if (isSelected) {
-                btnStateClass = 'bg-primary-500/20 border-primary-500 shadow-md';
+                btnStateClass = 'bg-amber-600/20 border-amber-600 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]';
              }
 
-            return (
-              <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-white text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
-                <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className={cn('w-4 h-4 sm:w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition border-2',
-                     isSelected ? (!isAnswerRevealed ? 'border-cyan-500/30 bg-cyan-500' : 'border-emerald-500/30 bg-emerald-500') : 'border-slate-500',
-                     isAnswerRevealed && correctList.includes(opt) && 'border-emerald-500/30 bg-emerald-500')}>
-                    {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
-                  </div>
-                  <span className="text-sm sm:text-base flex-1"><RichText>{opt}</RichText></span>
-                </div>
-              </button>
-            );
+             return (
+               <button key={i} onClick={() => isMulti ? handleToggleOption(opt) : handleSelect(opt)} disabled={isAnswerRevealed} className={cn('w-full text-right p-3 sm:p-4 rounded-xl border transition-all text-stone-100 text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
+                 <div className="flex items-center gap-2.5 sm:gap-3">
+                   <div className={cn('w-4 h-4 sm:w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition border-2',
+                      isSelected ? (!isAnswerRevealed ? 'border-amber-600/30 bg-amber-600' : 'border-emerald-500/30 bg-emerald-500') : 'border-stone-500',
+                      isAnswerRevealed && correctList.includes(opt) && 'border-emerald-500/30 bg-emerald-500')}>
+                     {(isSelected || (isAnswerRevealed && correctList.includes(opt))) && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-white" />}
+                   </div>
+                   <span className="text-sm sm:text-base flex-1"><RichText>{opt}</RichText></span>
+                 </div>
+               </button>
+             );
           })}
 
           {currentQ.type === 'true_false' && (

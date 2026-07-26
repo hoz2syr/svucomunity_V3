@@ -22,41 +22,41 @@ export function TestCard({ test, loadingPdf, onPrintPdf, onExportWord, onDelete,
   const isPublishing = publishingId === test.id;
 
   return (
-    <div className="bg-slate-900/60 border border-white/8 flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-150 hover:shadow-md hover:border-white/14">
-      <div className="flex-1 p-5 pb-4">
+     <div className="bg-stone-900/60 border border-amber-700/30 flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-150 hover:shadow-[6px_6px_0px_0px_rgba(180,130,50,0.3)] hover:border-amber-600/50">
+       <div className="flex-1 p-4 pb-3">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">{test.title}</h3>
+           <h3 className="text-base font-bold text-stone-100 leading-snug line-clamp-2">{test.title}</h3>
           <PrivacyBadge published={test.published} />
         </div>
 
         {test.description && (
-          <p className="text-secondary-400 text-sm mb-4 leading-relaxed line-clamp-2 min-h-[2.5rem]">
+          <p className="text-stone-400 text-sm mb-3 leading-relaxed line-clamp-2 min-h-[2.5rem]">
             {test.description}
           </p>
         )}
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-stone-800 text-stone-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <FileText className="w-3.5 h-3.5 text-primary-400" />
             <span>{test.questions.length} سؤال</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
+          <span className="inline-flex items-center gap-1.5 bg-stone-800 text-stone-300 text-xs font-medium px-2.5 py-1.5 rounded-lg border border-white/5">
             <Clock className="w-3.5 h-3.5 text-primary-400" />
             <span>{new Date(test.createdAt).toLocaleDateString('ar-SA')}</span>
           </span>
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2.5 flex items-center justify-between">
           <StarRating rating={test.rating ?? 0} readonly size={16} onRate={() => {}} />
           {test.rating ? (
-            <span className="text-xs text-slate-500">{test.rating}/5</span>
+            <span className="text-xs text-stone-500">{test.rating}/5</span>
           ) : (
-            <span className="text-xs text-slate-500">غير مقيم</span>
+            <span className="text-xs text-stone-500">غير مقيم</span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-5 pt-2 border-t border-white/5 bg-slate-900/60">
+      <div className="flex flex-col gap-2 p-4 pt-2 border-t border-white/5 bg-stone-900/60">
         {!test.published && onPublish && (
           <button
             onClick={() => onPublish(test.id)}

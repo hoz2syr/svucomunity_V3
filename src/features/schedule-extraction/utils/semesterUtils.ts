@@ -39,8 +39,10 @@ export function getCurrentSemesterCode(): string {
 
   if (month >= 7) {
     return `F${yearShort}`;
+  } else if (month >= 2) {
+    return `S${yearShort}`;
   } else {
-    return `S${(now.getFullYear() - 1).toString().slice(-2)}`;
+    return `F${(now.getFullYear() - 1).toString().slice(-2)}`;
   }
 }
 
