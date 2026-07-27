@@ -1,11 +1,11 @@
 -- Migration: Create student semester tables for structured per-user per-semester course storage
--- Created: 2026-07-18
+-- Created: 2026-07-27
 -- Purpose: Replace ad-hoc extracted_courses usage with explicit student_semesters + student_semester_courses
 
 -- ============================================================================
 -- Table 1: student_semesters — One record per student per semester
 -- ============================================================================
-create table public.student_semesters (
+create table if not exists public.student_semesters (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   semester_code text not null,
@@ -16,24 +16,27 @@ create table public.student_semesters (
   constraint uq_student_semester unique (user_id, semester_code)
 );
 
-create index idx_student_semesters_user
+create index if not exists idx_student_semesters_user
   on public.student_semesters (user_id);
 
-create index idx_student_semesters_semester
+create index if not exists idx_student_semesters_semester
   on public.student_semesters (semester_code);
 
 alter table public.student_semesters enable row level security;
 
+drop policy if exists "Users view own semesters" on public.student_semesters;
 create policy "Users view own semesters"
   on public.student_semesters
   for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users insert own semesters" on public.student_semesters;
 create policy "Users insert own semesters"
   on public.student_semesters
   for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users update own semesters" on public.student_semesters;
 create policy "Users update own semesters"
   on public.student_semesters
   for update
@@ -42,7 +45,7 @@ create policy "Users update own semesters"
 -- ============================================================================
 -- Table 2: student_semester_courses — Courses for a specific student semester
 -- ============================================================================
-create table public.student_semester_courses (
+create table if not exists public.student_semester_courses (
   id uuid primary key default gen_random_uuid(),
   semester_id uuid not null references public.student_semesters(id) on delete cascade,
 
@@ -59,14 +62,15 @@ create table public.student_semester_courses (
   constraint uq_semester_course unique (semester_id, full_code)
 );
 
-create index idx_student_semester_courses_semester
+create index if not exists idx_student_semester_courses_semester
   on public.student_semester_courses (semester_id);
 
-create index idx_student_semester_courses_full_code
+create index if not exists idx_student_semester_courses_full_code
   on public.student_semester_courses (full_code);
 
 alter table public.student_semester_courses enable row level security;
 
+drop policy if exists "Users view own semester courses" on public.student_semester_courses;
 create policy "Users view own semester courses"
   on public.student_semester_courses
   for select
@@ -78,6 +82,7 @@ create policy "Users view own semester courses"
     )
   );
 
+drop policy if exists "Users insert own semester courses" on public.student_semester_courses;
 create policy "Users insert own semester courses"
   on public.student_semester_courses
   for insert
