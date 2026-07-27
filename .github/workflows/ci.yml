@@ -71,7 +71,14 @@ jobs:
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
 
       - name: Repair orphaned migration history
-        run: supabase migration repair --status applied 001 002 003 004 005 006 007 008 20260727000000
+        run: |
+          mkdir -p supabase/migrations
+          for v in 006 007 008; do
+            touch "supabase/migrations/${v}_placeholder.sql"
+          done
+          touch "supabase/migrations/20260727000000_placeholder.sql"
+
+          supabase migration repair --status applied 001 002 003 004 005 006 007 008 20260727000000
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
