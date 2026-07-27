@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { confirmSemesterTransition, getCurrentSystemSemester } from '../../features/admin/services/adminSemesterTransition.supabase';
 import { convertSemesterCodeToLabel, getNextSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
-import { cn } from '@/src/lib/utils';
 
 export function SemesterTransitionPage() {
   const { profile } = useAuth();
