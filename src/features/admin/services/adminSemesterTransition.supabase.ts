@@ -56,15 +56,6 @@ export async function confirmSemesterTransition(
 
   const archivedCount = archiveData?.length ?? 0;
 
-  const { error: coursesError } = await client
-    .from('extracted_courses')
-    .update({ semester_code: nextSemester })
-    .eq('semester_code', oldSemester);
-
-  if (coursesError) {
-    return { data: null, error: new Error(coursesError.message) };
-  }
-
   const { error: logError } = await client
     .from('admin_audit_log')
     .insert({

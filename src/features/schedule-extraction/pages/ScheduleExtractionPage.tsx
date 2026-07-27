@@ -11,7 +11,7 @@ import { GroupDetailsModal } from '../components/GroupDetailsModal';
 import { useScheduleMatching } from '../hooks';
 import { useCourseMatching } from '../hooks/useCourseMatching';
 import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
-import { saveRawExtraction, saveExtractedCourses, upsertDiscoveredCourses, upsertDiscoveredInstructors, upsertDiscoveredMajors } from '../services/extractionService.supabase';
+import { saveRawExtraction, saveStudentSemesterCourses, upsertDiscoveredCourses, upsertDiscoveredInstructors, upsertDiscoveredMajors } from '../services/extractionService.supabase';
 import { getCurrentSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
 import type { TableSchema } from '../utils/schemaDetection';
@@ -75,12 +75,13 @@ export function ScheduleExtractionPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const currentSemester = profile?.current_semester || getCurrentSemesterCode();
   const {
     matchedCourses,
     studyGroupSuggestions,
     isMatching,
     refetch: _refetchMatching,
-  } = useCourseMatching(extractionId);
+  } = useCourseMatching(session?.user?.id || null, currentSemester);
 
   const handleFileSelect = useCallback((file: File) => {
     setPreviewUrl((prev) => {
@@ -147,7 +148,7 @@ export function ScheduleExtractionPage() {
         ...course,
         semester: course.semester || currentSemester,
       }));
-      const coursesResult = await saveExtractedCourses(newExtractionId, coursesWithSemester);
+      const coursesResult = await saveStudentSemesterCourses(session.user.id, coursesWithSemester);
       if (coursesResult.error) {
         setSaveError(coursesResult.error.message);
         return;
@@ -530,30 +531,30 @@ export function ScheduleExtractionPage() {
       {extractionId && studyGroupSuggestions.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-xl font-bold text-white">المجموعات المقترحة</h2>
-            <span className="text-sm text-slate-500">
+            <h2 className="text-xl font-bold text-stone-100">المجموعات المقترحة</h2>
+            <span className="text-sm text-stone-500">
               ({studyGroupSuggestions.length})
             </span>
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-stone-400">
             مجموعات دراسية مقترحة بناءً على موادك
           </p>
           <div className="grid gap-4">
             {studyGroupSuggestions.map((suggestion) => (
               <div
                 key={suggestion.group.id}
-                className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl space-y-3"
+                className="p-4 bg-stone-800/50 border border-amber-700/30 rounded-xl space-y-2.5 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.2)]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-sm truncate">
+                    <p className="text-stone-100 font-medium text-sm truncate">
                       {suggestion.group.course_name}
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">
+                    <p className="text-stone-500 text-xs mt-1">
                       {suggestion.group.course_code} • {suggestion.group.major}
                     </p>
                   </div>
-                  <span className="text-xs text-indigo-400 font-medium whitespace-nowrap">
+                  <span className="text-xs text-amber-600 font-medium whitespace-nowrap">
                     {suggestion.relevanceScore}% تطابق
                   </span>
                 </div>
@@ -561,24 +562,24 @@ export function ScheduleExtractionPage() {
                   {suggestion.reasons.slice(0, 3).map((reason, idx) => (
                     <span
                       key={`${suggestion.group.id}-reason-${idx}`}
-                      className="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 rounded-full text-xs"
+                      className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded-full text-xs"
                     >
                       {reason}
                     </span>
                   ))}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-stone-500">
                     {suggestion.group.current_members}/{suggestion.group.max_members} عضو
                   </span>
-                  <span className="text-xs text-slate-600">•</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-stone-600">•</span>
+                  <span className="text-xs text-stone-500">
                     {suggestion.group.creator_name}
                   </span>
                 </div>
                 <button
                   onClick={() => handleOpenGroupDetails(suggestion.group.id)}
-                  className="w-full py-2 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 rounded-lg text-sm font-medium transition-colors"
+                  className="w-full py-2 px-4 bg-amber-600/10 hover:bg-amber-600/20 text-amber-300 rounded-lg text-sm font-medium transition-colors"
                 >
                   عرض المجموعة
                 </button>

@@ -42,22 +42,22 @@ export function MajorSupportSection({ userMajor, isGuest }: MajorSupportSectionP
   };
 
   return (
-    <div className="space-y-6">
-      <GlassCard className="p-6 border-amber-500/20">
-        <div className="flex items-start gap-3 mb-4">
-          <Icon icon={AlertTriangle} size="lg" className="text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <h2 className="text-xl font-bold text-white mb-2">نعتذر، التخصص الحالي غير مدعوم في المنصة</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              نحن نعمل حالياً على إضافة المزيد من التخصصات. يمكنك إرسال طلب دعم تخصصك وسيتم إعلامك عند توفره.
-            </p>
-          </div>
-        </div>
-      </GlassCard>
+     <div className="space-y-5">
+       <GlassCard className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+         <div className="flex items-start gap-3 mb-3">
+           <Icon icon={AlertTriangle} size="lg" className="text-amber-600 shrink-0 mt-0.5" />
+           <div>
+             <h2 className="text-lg font-bold text-stone-100 mb-1.5">نعتذر، التخصص الحالي غير مدعوم في المنصة</h2>
+             <p className="text-sm text-stone-300 leading-relaxed">
+               نحن نعمل حالياً على إضافة المزيد من التخصصات. يمكنك إرسال طلب دعم تخصصك وسيتم إعلامك عند توفره.
+             </p>
+           </div>
+         </div>
+       </GlassCard>
 
-      <GlassCard className="p-6">
-        <h3 className="text-lg font-bold text-white mb-4">أرسل طلب دعم تخصص</h3>
-        <form onSubmit={handleSubmit} className="space-y-5">
+       <GlassCard className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+         <h3 className="text-base font-bold text-stone-100 mb-3">أرسل طلب دعم تخصص</h3>
+         <form onSubmit={handleSubmit} className="space-y-3">
           {isGuest && (
             <InputField
               label="التخصص"
@@ -69,7 +69,7 @@ export function MajorSupportSection({ userMajor, isGuest }: MajorSupportSectionP
           )}
 
           <div>
-            <label className="block text-sm text-slate-400 mb-2">التقييم</label>
+            <label className="block text-sm text-stone-400 mb-1.5">التقييم</label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -84,25 +84,25 @@ export function MajorSupportSection({ userMajor, isGuest }: MajorSupportSectionP
                     size={28}
                     className={
                       star <= (hoverRating || rating)
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-slate-600'
+                        ? 'fill-amber-600 text-amber-600'
+                        : 'text-stone-600'
                     }
                   />
                 </button>
               ))}
               {rating > 0 && (
-                <span className="mr-2 text-sm text-slate-400">{rating}/5</span>
+                <span className="mr-2 text-sm text-stone-400">{rating}/5</span>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-2">الرسالة</label>
+            <label className="block text-sm text-stone-400 mb-1.5">الرسالة</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 resize-none"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-amber-600/50 resize-none"
             />
           </div>
 

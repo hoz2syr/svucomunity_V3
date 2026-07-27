@@ -12,6 +12,9 @@ cat > "$HOOK_PATH" << 'EOF'
 #!/bin/sh
 echo "Running pre-push checks..."
 
+npx tsx scripts/bump-version.ts
+BUMP_EXIT=$?
+
 npm run lint
 LINT_EXIT=$?
 
@@ -21,7 +24,7 @@ TEST_EXIT=$?
 npm run build
 BUILD_EXIT=$?
 
-if [ $LINT_EXIT -ne 0 ] || [ $TEST_EXIT -ne 0 ] || [ $BUILD_EXIT -ne 0 ]; then
+if [ $BUMP_EXIT -ne 0 ] || [ $LINT_EXIT -ne 0 ] || [ $TEST_EXIT -ne 0 ] || [ $BUILD_EXIT -ne 0 ]; then
   echo "Pre-push checks failed. Push aborted."
   exit 1
 fi

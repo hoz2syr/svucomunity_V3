@@ -872,39 +872,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ============================================================
--- 16. EXTRACTED COURSES (from raw extractions)
--- ============================================================
-INSERT INTO public.extracted_courses (id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at)
-SELECT
-  gen_random_uuid(),
-  re.id,
-  c.course_name,
-  c.semester_code,
-  c.full_code,
-  c.instructor_name,
-  c.instructor_username,
-  c.major,
-  c.course_key,
-  c.section,
-  c.semester_year,
-  c.discovered_course_code,
-  c.discovered_instructor_username,
-  now()
-FROM public.raw_extractions re
-CROSS JOIN LATERAL (
-  VALUES
-    ('Introduction to Computer Science', '2026-1', 'CS101', 'Dr. Mahmoud Abdel Rahman', 'dr_mahmoud', 'CS', 'cs101', 'A', '2026', 'CS101', 'dr_mahmoud'),
-    ('Data Structures', '2026-1', 'CS201', 'Dr. Salah Ali', 'dr_salah', 'CS', 'cs201', 'A', '2026', 'CS201', 'dr_salah'),
-    ('Introduction to Information Systems', '2026-1', 'IS101', 'Dr. Karim Farid', 'dr_karim', 'IS', 'is101', 'A', '2026', 'IS101', 'dr_karim'),
-    ('Systems Analysis & Design', '2026-1', 'IS201', 'Dr. Mona Tariq', 'dr_mona', 'IS', 'is201', 'A', '2026', 'IS201', 'dr_mona'),
-    ('Business Programming', '2026-1', 'IS102', 'Dr. Amr Samir', 'dr_amr', 'IS', 'is102', 'A', '2026', 'IS102', 'dr_amr'),
-    ('Database Systems', '2025-1', 'CS301', 'Dr. Nadia Hassan', 'dr_nadia', 'CS', 'cs301', 'A', '2025', 'CS301', 'dr_nadia')
-) AS c(course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username)
-WHERE re.raw_markdown LIKE '%' || c.full_code || '%'
-ON CONFLICT DO NOTHING;
-
--- ============================================================
--- 17. ADMIN AUDIT LOG
+-- 16. ADMIN AUDIT LOG
 -- ============================================================
 INSERT INTO public.admin_audit_log (id, caller_id, action, payload, ip_address, user_agent, created_at)
 VALUES

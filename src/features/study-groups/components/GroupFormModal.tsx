@@ -60,7 +60,7 @@ export function GroupFormModal({
         setSelectedClass(group.class_number || '');
         setSelectedMajor(group.major);
         setMaxMembers(group.max_members);
-        setWhatsappLink(group.whatsapp_link);
+        setWhatsappLink(group.whatsapp_link || '');
         setGroupLink(group.group_link || '');
         setDoctorName(group.doctor_name || '');
       } else {

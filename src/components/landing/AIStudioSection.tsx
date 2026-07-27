@@ -57,12 +57,12 @@ export const AIStudioSection = () => {
                 AI Studio قيد البناء — وسيتم إطلاقه قريباً. يمكنك اقتراح ميزات إضافية أو سيناريوهات استخدام تهمك.
               </p>
             </div>
-            <a
-              href="#join"
-              className="shrink-0 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md whitespace-nowrap"
-            >
-              اقترح ميزة
-            </a>
+             <a
+               href="#join"
+               className="shrink-0 bg-amber-600 hover:bg-amber-500 text-stone-100 font-bold py-2.5 px-5 rounded-xl transition-all shadow-[4px_4px_0px_0px_rgba(180,130,50,0.35)] border border-amber-700/50 whitespace-nowrap"
+             >
+               اقترح ميزة
+             </a>
           </div>
         </FadeIn>
       </div>

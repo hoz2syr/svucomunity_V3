@@ -74,6 +74,12 @@ export function useStudyGroupsPage(userId: string | undefined, userMajor?: strin
     if (userId) {
       const member = await studyGroupService.checkMembership(groupId, userId);
       setIsMember(member);
+      if (member) {
+        const links = await studyGroupService.getGroupLinks(groupId, userId);
+        if (links) {
+          setSelectedGroup(prev => prev ? { ...prev, ...links } : prev);
+        }
+      }
     } else {
       setIsMember(false);
     }
@@ -90,8 +96,14 @@ export function useStudyGroupsPage(userId: string | undefined, userMajor?: strin
   const handleJoin = useCallback(async (groupId: string) => {
     setJoiningId(groupId);
     await handleJoinGroup(groupId, () => setIsMember(true));
+    if (userId) {
+      const links = await studyGroupService.getGroupLinks(groupId, userId);
+      if (links) {
+        setSelectedGroup(prev => prev ? { ...prev, ...links } : prev);
+      }
+    }
     setJoiningId(null);
-  }, [handleJoinGroup]);
+  }, [handleJoinGroup, userId]);
 
   const handleDelete = useCallback(() => {
     if (!selectedGroup) return;
@@ -104,6 +116,7 @@ export function useStudyGroupsPage(userId: string | undefined, userMajor?: strin
     setLeavingId(groupId);
     await handleLeaveGroup(groupId, groupName, () => {
       setIsMember(false);
+      setSelectedGroup(prev => prev ? { ...prev, whatsapp_link: undefined, group_link: undefined } : prev);
     });
     setLeavingId(null);
   }, [handleLeaveGroup]);

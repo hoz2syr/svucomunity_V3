@@ -1,27 +1,39 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { ServiceResult } from './extractionService.supabase';
-import type { ExtractedCourseRecord, UserCourseProgress } from '@/src/types/database';
+import type { UserCourseProgress, StudentSemesterCourse } from '@/src/types/database';
 import type { MatchedGroup, StudyGroupSuggestion, MatchedCourseWithStatus, CourseStatus } from '../types';
 
 export async function matchExtractedCoursesToProgress(
   userId: string,
-  extractionId: string
+  semesterCode: string
 ): Promise<ServiceResult<MatchedCourseWithStatus[]>> {
   if (!hasSupabaseEnv()) {
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
+  const normalizedSemester = semesterCode;
+
+  const { data: semester, error: semesterError } = await client
+    .from('student_semesters')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('semester_code', normalizedSemester)
+    .single();
+
+  if (semesterError || !semester) {
+    return { data: [], error: null };
+  }
 
   const { data: courses, error: coursesError } = await client
-    .from('extracted_courses')
-    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at')
-    .eq('extraction_id', extractionId);
+    .from('student_semester_courses')
+    .select('id, semester_id, course_name, full_code, instructor_name, instructor_username, major, course_key, section, created_at')
+    .eq('semester_id', semester.id);
 
   if (coursesError) {
     return { data: null, error: new Error(coursesError.message) };
   }
 
-  const extractedCourses = (courses || []) as ExtractedCourseRecord[];
+  const extractedCourses = (courses || []) as StudentSemesterCourse[];
   if (extractedCourses.length === 0) {
     return { data: [], error: null };
   }

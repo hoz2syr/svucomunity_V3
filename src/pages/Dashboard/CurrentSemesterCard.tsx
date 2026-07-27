@@ -45,64 +45,64 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   };
 
   return (
-    <div className="w-full space-y-4">
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
-              <Icon icon={GraduationCap} size="lg" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">الفصل الحالي</h2>
-               <p className="text-sm text-[var(--color-text-secondary)]">{semesterCode}</p>
-            </div>
-          </div>
-          {courses.length > 0 && (
-            <span className="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-              {courses.length} مقرر
-            </span>
-          )}
-        </div>
-      </GlassCard>
+     <div className="w-full space-y-4">
+       <GlassCard className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+         <div className="flex items-center justify-between">
+           <div className="flex items-center gap-2.5">
+             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+               <Icon icon={GraduationCap} size="lg" />
+             </div>
+             <div>
+               <h2 className="text-lg font-bold text-stone-100">الفصل الحالي</h2>
+                <p className="text-xs text-stone-400">{semesterCode}</p>
+             </div>
+           </div>
+           {courses.length > 0 && (
+             <span className="text-xs font-bold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+               {courses.length} مقرر
+             </span>
+           )}
+         </div>
+       </GlassCard>
 
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: COURSE_SKELETON_COUNT }).map((_, i) => (
-            <GlassCard key={i} className="p-5">
-              <Skeleton className="w-3/4 h-5 mb-3" />
-              <Skeleton className="w-1/2 h-4 mb-4" />
-              <Skeleton className="w-full h-10" />
-            </GlassCard>
-          ))}
-        </div>
-      )}
+       {isLoading && (
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+           {Array.from({ length: COURSE_SKELETON_COUNT }).map((_, i) => (
+             <GlassCard key={i} className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+               <Skeleton className="w-3/4 h-5 mb-2.5" />
+               <Skeleton className="w-1/2 h-4 mb-3" />
+               <Skeleton className="w-full h-10" />
+             </GlassCard>
+           ))}
+         </div>
+       )}
 
-      {error && !isLoading && (
-        <GlassCard className="p-6 flex flex-col items-center text-center">
-          <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-            <Icon icon={AlertCircle} size="lg" className="text-red-400" />
-          </div>
-          <p className="text-red-400 text-sm mb-4">فشل تحميل المقررات</p>
-          <Button variant="secondary" onClick={handleRetry} icon={<RefreshCw size={16} />}>
-            إعادة المحاولة
-          </Button>
-        </GlassCard>
-      )}
+       {error && !isLoading && (
+         <GlassCard className="p-5 flex flex-col items-center text-center border-rose-500/30">
+           <div className="h-11 w-11 rounded-full bg-red-500/10 flex items-center justify-center mb-3">
+             <Icon icon={AlertCircle} size="lg" className="text-red-400" />
+           </div>
+           <p className="text-red-400 text-sm mb-3">فشل تحميل المقررات</p>
+           <Button variant="secondary" onClick={handleRetry} icon={<RefreshCw size={16} />}>
+             إعادة المحاولة
+           </Button>
+         </GlassCard>
+       )}
 
-      {!isLoading && !error && courses.length === 0 && (
-        <GlassCard className="p-8 flex flex-col items-center text-center">
-          <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-            <Icon icon={BookOpen} size="xl" className="text-[var(--color-text-secondary)]" />
-          </div>
-          <h3 className="text-lg font-bold text-white mb-2">لا توجد مقررات</h3>
-          <p className="text-sm text-[var(--color-text-secondary)] max-w-sm mb-6">
-            لم يتم العثور على مقررات للفصل الحالي. قم باستخراج جدولك الدراسي لعرض مقرراتك هنا.
-          </p>
-          <Button variant="primary" to="/dashboard/schedule" icon={<CalendarDays size={16} />}>
-            استخراج الجدول
-          </Button>
-        </GlassCard>
-      )}
+       {!isLoading && !error && courses.length === 0 && (
+         <GlassCard className="p-6 flex flex-col items-center text-center border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+           <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center mb-3">
+             <Icon icon={BookOpen} size="xl" className="text-stone-400" />
+           </div>
+           <h3 className="text-base font-bold text-stone-100 mb-1.5">لا توجد مقررات</h3>
+           <p className="text-sm text-stone-400 max-w-sm mb-5">
+             لم يتم العثور على مقررات للفصل الحالي. قم باستخراج جدولك الدراسي لعرض مقرراتك هنا.
+           </p>
+           <Button variant="primary" to="/dashboard/schedule" icon={<CalendarDays size={16} />}>
+             استخراج الجدول
+           </Button>
+         </GlassCard>
+       )}
 
       {!isLoading && !error && courses.length > 0 && (
         <div className="space-y-4">
@@ -117,12 +117,12 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
             );
           })}
 
-          {englishCourses.length > 0 && (
-            <div className="mt-6 space-y-3">
-              <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-sky-400" />
-                مواد اللغة الإنجليزية
-              </h3>
+           {englishCourses.length > 0 && (
+             <div className="mt-5 space-y-2.5">
+               <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
+                 <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                 مواد اللغة الإنجليزية
+               </h3>
               {englishCourses.map((course) => {
                 const courseProgress = progress.find(p => p.course_code === course.full_code);
                 return (
@@ -136,12 +136,12 @@ export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
             </div>
           )}
 
-          {additionalCourses.length > 0 && (
-            <div className="mt-6 space-y-3">
-              <h3 className="text-sm font-bold text-orange-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-400" />
-                المواد الإضافية
-              </h3>
+           {additionalCourses.length > 0 && (
+             <div className="mt-5 space-y-2.5">
+               <h3 className="text-sm font-bold text-orange-400 flex items-center gap-2">
+                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                 المواد الإضافية
+               </h3>
               {additionalCourses.map((course) => {
                 const courseProgress = progress.find(p => p.course_code === course.full_code);
                 return (

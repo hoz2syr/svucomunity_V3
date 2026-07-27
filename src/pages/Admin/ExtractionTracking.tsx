@@ -272,9 +272,9 @@ export function ExtractionTracking() {
                     المواد المستخرجة
                   </h3>
                   <div className="grid gap-3">
-                    {detail.courses.map((course: { id: string; course_name: string; semester_code: string; full_code: string; instructor_name: string | null; major: string; }) => (
+                    {detail.courses.map((course: { course_name: string; semester_code: string; full_code: string; instructor_name: string | null; major: string; }) => (
                       <div
-                        key={course.id}
+                        key={course.full_code}
                         className="p-4 bg-white/5 rounded-xl border border-white/5"
                       >
                         <div className="flex items-center justify-between">

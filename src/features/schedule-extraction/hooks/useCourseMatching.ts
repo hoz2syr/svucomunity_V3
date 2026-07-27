@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery, queryOptions } from '@tanstack/react-query';
-import { useAuth } from '@/src/contexts/AuthContext';
 import { COURSE_MATCHING_STALE_TIME_MS } from '@/src/lib/constants';
 import {
   matchExtractedCoursesToProgress,
@@ -10,23 +9,20 @@ import {
 import type { ServiceResult } from '../services/extractionService.supabase';
 import type { MatchedCourseWithStatus, StudyGroupSuggestion } from '../types';
 
-export function useCourseMatching(extractionId: string | null) {
-  const { session } = useAuth();
-  const userId = session?.user?.id;
-
+export function useCourseMatching(userId: string | null, semesterCode: string | null) {
   const matchedCoursesQuery = useQuery({
     ...queryOptions({
-      queryKey: ['schedule-extraction', 'matched-courses', extractionId, userId],
+      queryKey: ['schedule-extraction', 'matched-courses', userId, semesterCode],
       queryFn: async (): Promise<MatchedCourseWithStatus[]> => {
-        if (!extractionId || !userId) {
+        if (!userId || !semesterCode) {
           return [];
         }
         const result: ServiceResult<MatchedCourseWithStatus[]> =
-          await matchExtractedCoursesToProgress(userId, extractionId);
+          await matchExtractedCoursesToProgress(userId, semesterCode);
         if (result.error) throw result.error;
         return result.data || [];
       },
-      enabled: !!extractionId && !!userId,
+      enabled: !!userId && !!semesterCode,
       staleTime: COURSE_MATCHING_STALE_TIME_MS,
     }),
     select: (data) => data,
@@ -37,7 +33,7 @@ export function useCourseMatching(extractionId: string | null) {
 
   const studyGroupQuery = useQuery({
     ...queryOptions({
-      queryKey: ['schedule-extraction', 'study-group-suggestions', extractionId, userId, courseCodesFromMatched],
+      queryKey: ['schedule-extraction', 'study-group-suggestions', userId, semesterCode, courseCodesFromMatched],
       queryFn: async (): Promise<StudyGroupSuggestion[]> => {
         if (!userId || courseCodesFromMatched.length === 0) {
           return [];

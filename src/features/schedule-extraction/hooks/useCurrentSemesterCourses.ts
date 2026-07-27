@@ -6,7 +6,7 @@ import {
   type ServiceResult,
 } from '../services/extractionService.supabase';
 import { getCurrentSemesterCode } from '../utils/semesterUtils';
-import type { ExtractedCourseRecord } from '@/src/types/database';
+import type { StudentSemesterCourse } from '@/src/types/database';
 
 export const currentSemesterCoursesQueryOptions = (
   userId: string,
@@ -15,12 +15,12 @@ export const currentSemesterCoursesQueryOptions = (
   queryOptions({
     queryKey: ['schedule-extraction', 'current-semester', userId, semesterCode],
     queryFn: async () => {
-      const result: ServiceResult<ExtractedCourseRecord[]> = await loadCurrentSemesterCourses(
+      const result: ServiceResult<StudentSemesterCourse[]> = await loadCurrentSemesterCourses(
         userId,
         semesterCode!
       );
       if (result.error) throw result.error;
-      return result.data as ExtractedCourseRecord[];
+      return result.data as StudentSemesterCourse[];
     },
   });
 

@@ -8,7 +8,7 @@
   major: string;
   max_members: number;
   current_members: number;
-  whatsapp_link: string;
+  whatsapp_link?: string;
   group_link?: string;
   is_full?: boolean;
   creator_id: string;

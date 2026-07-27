@@ -11,7 +11,7 @@ export async function getAllWithCreators(): Promise<ServiceResult<StudyGroup[]>>
   const client = await getSupabase();
   const { data, error } = await client
     .from('groups')
-    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, whatsapp_link, group_link, is_full, creator_id, creator_name, created_at, semester_code, is_archived')
+    .select('id, name, course_name, course_code, class_number, doctor_name, major, max_members, current_members, is_full, creator_id, creator_name, created_at, semester_code, is_archived')
     .eq('is_archived', false)
     .order('created_at', { ascending: false });
 
@@ -69,30 +69,14 @@ export async function getAvailableMajors(): Promise<ServiceResult<string[]>> {
 
 export async function joinGroup(groupId: string, userId: string): Promise<ServiceResult<void>> {
   const client = await getSupabase();
-  const { error: memberError } = await client
-    .from('group_members')
-    .insert({ group_id: groupId, user_id: userId });
+  const { error } = await client.functions.invoke('study-groups', {
+    body: {
+      action: 'join',
+      payload: { groupId, userId },
+    },
+  });
 
-  if (memberError) return { data: null, error: new Error(memberError.message) };
-
-  const { data: group, error: groupFetchError } = await client
-    .from('groups')
-    .select('current_members, max_members')
-    .eq('id', groupId)
-    .single();
-
-  if (groupFetchError) return { data: null, error: new Error(groupFetchError.message) };
-
-  const newCount = (group?.current_members || 0) + 1;
-  const isFull = newCount >= (group?.max_members || 1);
-
-  const updateClient = await getSupabase();
-  const { error: updateError } = await updateClient
-    .from('groups')
-    .update({ current_members: newCount, is_full: isFull })
-    .eq('id', groupId);
-
-  if (updateError) return { data: null, error: new Error(updateError.message) };
+  if (error) return { data: null, error: new Error(error.message) };
   return { data: undefined, error: null };
 }
 
@@ -173,11 +157,25 @@ export async function getGroupMembers(groupId: string): Promise<ServiceResult<Gr
   return { data: (data || []) as GroupMember[], error: null };
 }
 
-export async function checkMembership(_groupId: string, userId: string): Promise<ServiceResult<boolean>> {
+export async function getGroupLinks(groupId: string, userId: string): Promise<ServiceResult<{ whatsapp_link?: string; group_link?: string }>> {
+  const client = await getSupabase();
+  const { data, error } = await client.functions.invoke('study-groups', {
+    body: {
+      action: 'getGroupLinks',
+      payload: { groupId, userId },
+    },
+  });
+
+  if (error) return { data: null, error: new Error(error.message) };
+  return { data: data as { whatsapp_link?: string; group_link?: string } | null, error: null };
+}
+
+export async function checkMembership(groupId: string, userId: string): Promise<ServiceResult<boolean>> {
   const client = await getSupabase();
   const { data, error } = await client
     .from('group_members')
     .select('id')
+    .eq('group_id', groupId)
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -199,33 +197,16 @@ export async function checkIsAdmin(userId: string): Promise<ServiceResult<boolea
   }
 }
 
-export async function leaveGroup(groupId: string, _userId: string): Promise<ServiceResult<void>> {
-  const deleteClient = await getSupabase();
-  const { error: memberError } = await deleteClient
-    .from('group_members')
-    .delete()
-    .eq('group_id', groupId);
+export async function leaveGroup(groupId: string, userId: string): Promise<ServiceResult<void>> {
+  const client = await getSupabase();
+  const { error } = await client.functions.invoke('study-groups', {
+    body: {
+      action: 'leave',
+      payload: { groupId, userId },
+    },
+  });
 
-  if (memberError) return { data: null, error: new Error(memberError.message) };
-
-  const { data: group, error: groupFetchError } = await deleteClient
-    .from('groups')
-    .select('current_members, max_members')
-    .eq('id', groupId)
-    .single();
-
-  if (groupFetchError) return { data: null, error: new Error(groupFetchError.message) };
-
-  const newCount = Math.max(0, (group?.current_members || 0) - 1);
-  const isFull = newCount >= (group?.max_members || 1);
-
-  const updateClient = await getSupabase();
-  const { error: updateError } = await updateClient
-    .from('groups')
-    .update({ current_members: newCount, is_full: isFull })
-    .eq('id', groupId);
-
-  if (updateError) return { data: null, error: new Error(updateError.message) };
+  if (error) return { data: null, error: new Error(error.message) };
   return { data: undefined, error: null };
 }
 

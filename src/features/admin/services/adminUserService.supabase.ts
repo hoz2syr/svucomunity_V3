@@ -102,7 +102,7 @@ export async function getUserDetails(
 
   const { data: extractions, error: extractionsError } = await client
     .from('raw_extractions')
-    .select('id, created_at, detected_schema')
+    .select('id, user_id, created_at, detected_schema')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
@@ -128,23 +128,22 @@ export async function getUserDetails(
   }));
 
   if (raw_extractions.length > 0) {
-    const extractionIds = raw_extractions.map((e) => e.id);
-    const { data: courses, error: countError } = await client
-      .from('extracted_courses')
-      .select('extraction_id')
-      .in('extraction_id', extractionIds);
+    const userIds = raw_extractions.map((e) => e.user_id);
+    const { data: semesters, error: countError } = await client
+      .from('student_semesters')
+      .select('user_id, course_count')
+      .in('user_id', userIds);
 
     if (countError) {
       return { data: null, error: new Error(countError.message) };
     }
 
-    const countMap = new Map<string, number>();
-    for (const course of courses || []) {
-      const id = course.extraction_id as string;
-      countMap.set(id, (countMap.get(id) || 0) + 1);
+    const userCourseCount = new Map<string, number>();
+    for (const s of semesters || [] as { user_id: string; course_count: number }[]) {
+      userCourseCount.set(s.user_id, (userCourseCount.get(s.user_id) || 0) + (s.course_count || 0));
     }
     for (const extraction of raw_extractions) {
-      extraction.course_count = countMap.get(extraction.id) || 0;
+      extraction.course_count = userCourseCount.get(extraction.user_id) || 0;
     }
   }
 

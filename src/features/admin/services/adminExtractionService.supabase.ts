@@ -1,14 +1,10 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
-import type { RawExtraction, ExtractedCourseRecord, Profile } from '@/src/types/database';
+import type { RawExtraction, Profile } from '@/src/types/database';
 import type { ServiceResult } from '@/src/types/admin';
 
 export type AdminExtraction = RawExtraction & {
   user?: Profile;
   course_count?: number;
-};
-
-export type AdminExtractedCourse = ExtractedCourseRecord & {
-  user?: Profile;
 };
 
 export async function listAllExtractions(
@@ -42,29 +38,31 @@ export async function listAllExtractions(
   })) as AdminExtraction[];
 
   if (extractions.length > 0) {
-    const extractionIds = extractions.map((e) => e.id);
-    const { data: courses, error: coursesError } = await client
-      .from('extracted_courses')
-      .select('extraction_id')
-      .in('extraction_id', extractionIds);
+    const userIds = Array.from(new Set(extractions.map((e) => e.user_id)));
+    if (userIds.length > 0) {
+      const { data: semesters, error: semestersError } = await client
+        .from('student_semesters')
+        .select('user_id, course_count')
+        .in('user_id', userIds);
 
-    if (!coursesError && courses) {
-      const counts: Record<string, number> = {};
-      for (const course of courses as { extraction_id: string }[]) {
-        counts[course.extraction_id] = (counts[course.extraction_id] || 0) + 1;
-      }
-      for (const extraction of extractions) {
-        extraction.course_count = counts[extraction.id] || 0;
+      if (!semestersError && semesters) {
+        const userCourseCount = new Map<string, number>();
+        for (const s of semesters as { user_id: string; course_count: number }[]) {
+          userCourseCount.set(s.user_id, (userCourseCount.get(s.user_id) || 0) + (s.course_count || 0));
+        }
+        for (const extraction of extractions) {
+          extraction.course_count = userCourseCount.get(extraction.user_id) || 0;
+        }
       }
     }
   }
 
-  const userIds = Array.from(new Set(extractions.map((e) => e.user_id)));
-  if (userIds.length > 0) {
+  const profileUserIds = Array.from(new Set(extractions.map((e) => e.user_id)));
+  if (profileUserIds.length > 0) {
     const { data: profiles, error: profilesError } = await client
       .from('profiles')
       .select('id, full_name, email, username, role')
-      .in('id', userIds);
+      .in('id', profileUserIds);
 
     if (!profilesError && profiles) {
       const profileMap = new Map(profiles.map((p) => [p.id, p]));
@@ -82,7 +80,7 @@ export async function listAllExtractions(
 export async function getExtractionDetails(
   extractionId: string,
   callerRole: string
-): Promise<ServiceResult<{ extraction: RawExtraction; courses: ExtractedCourseRecord[]; user?: Profile }>> {
+): Promise<ServiceResult<{ extraction: RawExtraction; courses: { course_name: string; semester_code: string; full_code: string; instructor_name: string | null; major: string }[]; user?: Profile }>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
   }
@@ -102,14 +100,35 @@ export async function getExtractionDetails(
     return { data: null, error: new Error(extractionError.message) };
   }
 
-  const { data: courses, error: coursesError } = await client
-    .from('extracted_courses')
-    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at')
-    .eq('extraction_id', extractionId)
-    .order('created_at', { ascending: true });
+  const { data: semesters, error: semestersError } = await client
+    .from('student_semesters')
+    .select('id, semester_code')
+    .eq('user_id', extraction.user_id);
 
-  if (coursesError) {
-    return { data: null, error: new Error(coursesError.message) };
+  if (semestersError) {
+    return { data: null, error: new Error(semestersError.message) };
+  }
+
+  let courses: { course_name: string; semester_code: string; full_code: string; instructor_name: string | null; major: string }[] = [];
+  if (semesters && semesters.length > 0) {
+    const semesterIds = semesters.map(s => s.id);
+    const { data: semesterCourses, error: coursesError } = await client
+      .from('student_semester_courses')
+      .select('course_name, semester_id, full_code, instructor_name, major')
+      .in('semester_id', semesterIds);
+
+    if (coursesError) {
+      return { data: null, error: new Error(coursesError.message) };
+    }
+
+    const semesterCodeMap = new Map(semesters.map(s => [s.id, s.semester_code]));
+    courses = (semesterCourses || []).map(c => ({
+      course_name: c.course_name,
+      semester_code: semesterCodeMap.get(c.semester_id) || '',
+      full_code: c.full_code,
+      instructor_name: c.instructor_name,
+      major: c.major,
+    }));
   }
 
   let user: Profile | undefined;
@@ -128,16 +147,14 @@ export async function getExtractionDetails(
   return {
     data: {
       extraction: extraction as RawExtraction,
-      courses: (courses || []) as ExtractedCourseRecord[],
+      courses,
       user,
     },
     error: null,
   };
 }
 
-export async function getPlatformStats(
-  callerRole: string
-): Promise<ServiceResult<{
+type PlatformStats = {
   total_users: number;
   total_extractions: number;
   total_courses: number;
@@ -149,7 +166,11 @@ export async function getPlatformStats(
   unverified_courses: number;
   verified_instructors: number;
   unverified_instructors: number;
-}>> {
+};
+
+export async function getPlatformStats(
+  callerRole: string
+): Promise<ServiceResult<PlatformStats>> {
   if (callerRole !== 'admin') {
     return { data: null, error: new Error('Unauthorized') };
   }
@@ -174,7 +195,7 @@ export async function getPlatformStats(
   ] = await Promise.all([
     client.from('profiles').select('id', { count: 'exact', head: true }),
     client.from('raw_extractions').select('id', { count: 'exact', head: true }),
-    client.from('extracted_courses').select('id', { count: 'exact', head: true }),
+    client.from('student_semester_courses').select('id', { count: 'exact', head: true }),
     client.from('discovered_instructors').select('id', { count: 'exact', head: true }),
     client.from('discovered_majors').select('id', { count: 'exact', head: true }),
     client.from('tests').select('id', { count: 'exact', head: true }),

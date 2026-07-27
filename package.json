@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "version:bump": "tsx scripts/bump-version.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

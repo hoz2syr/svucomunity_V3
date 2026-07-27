@@ -10,6 +10,7 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export type RawExtractionDetail = {
   id: string;
+  user_id: string;
   created_at: string;
   detected_schema: Record<string, unknown>;
   course_count: number;

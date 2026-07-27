@@ -30,14 +30,14 @@ interface BackButtonProps {
 
 const BackButton = ({ label, icon = true, backPath, showBackIcon }: BackButtonProps) => {
   const navigate = useNavigate();
-  return (
-    <button
-      onClick={() => navigate(backPath)}
-      className={cn(
-        'flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition min-h-[44px]',
-        !showBackIcon && 'gap-0'
-      )}
-    >
+    return (
+      <button
+        onClick={() => navigate(backPath)}
+        className={cn(
+          'flex items-center gap-2 px-3 py-2.5 rounded-xl bg-stone-800/50 border border-amber-700/30 text-stone-400 hover:text-stone-100 hover:border-amber-600/50 transition min-h-[44px] shadow-[2px_2px_0px_0px_rgba(180,130,50,0.2)]',
+          !showBackIcon && 'gap-0'
+        )}
+      >
       {showBackIcon && icon && <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
       <span className="text-sm sm:text-base">{label}</span>
     </button>
@@ -241,10 +241,10 @@ export function PlayTestShell({
     <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 pb-24">
       <BackButton label="العودة" backPath={backPath} showBackIcon={showBackIcon} />
 
-      <div className="flex items-center justify-between font-medium text-secondary-300 px-2 lg:px-0">
+      <div className="flex items-center justify-between font-medium text-stone-400 px-2 lg:px-0">
         <span className="text-xs sm:text-sm md:text-base">السؤال {currentIdx + 1} من {test.questions.length}</span>
         {timeLeft !== null && (
-                  <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-rose-400 animate-pulse' : 'text-white')}>
+                  <span className={cn('font-mono text-base sm:text-lg flex items-center gap-1.5 sm:gap-2', timeLeft <= 60 ? 'text-rose-400 animate-pulse' : 'text-stone-100')}>
             <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
             {formatTime(timeLeft)}
           </span>
@@ -255,7 +255,7 @@ export function PlayTestShell({
         <button
           onClick={() => { if (currentIdx > 0) setCurrentIdx(currentIdx - 1); }}
           disabled={currentIdx === 0}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] text-sm sm:text-base"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-stone-800/50 border border-amber-700/30 text-stone-400 hover:text-stone-100 hover:border-amber-600/50 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] text-sm sm:text-base shadow-[2px_2px_0px_0px_rgba(180,130,50,0.2)]"
         >
           {showBackIcon && <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />}
           <span>السؤال السابق</span>
@@ -263,7 +263,7 @@ export function PlayTestShell({
         <button
           onClick={() => { if (currentIdx < test.questions.length - 1) setCurrentIdx(currentIdx + 1); }}
           disabled={currentIdx === test.questions.length - 1}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] text-sm sm:text-base"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-stone-800/50 border border-amber-700/30 text-stone-400 hover:text-stone-100 hover:border-amber-600/50 transition disabled:opacity-30 disabled:cursor-not-allowed min-h-[44px] text-sm sm:text-base shadow-[2px_2px_0px_0px_rgba(180,130,50,0.2)]"
         >
           <span>السؤال التالي</span>
           {showBackIcon && <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -317,7 +317,7 @@ export function PlayTestShell({
             <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
               {['true', 'false'].map((val) => {
                 const isSelected = selectedAnswers[currentQ.id] === val;
-                let btnStateClass = 'bg-secondary-800 border-secondary-700 hover:border-secondary-500';
+                 let btnStateClass = 'bg-stone-800 border-stone-700 hover:border-stone-500';
 
                 if (isAnswerRevealed) {
                   const isCorrectOption = val === currentQ.correctAnswer?.toLowerCase();
@@ -326,44 +326,44 @@ export function PlayTestShell({
                   } else if (isSelected) {
                     btnStateClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
                   } else {
-                    btnStateClass = 'bg-secondary-800/50 border-secondary-800 opacity-50';
+                    btnStateClass = 'bg-stone-800/50 border-stone-800 opacity-50';
                   }
                  } else if (isSelected) {
-                    btnStateClass = 'bg-cyan-500/10 border-cyan-500/30 shadow-md';
+                    btnStateClass = 'bg-amber-600/10 border-amber-600/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]';
                  }
 
                 return (
-                  <button key={val} onClick={() => handleSelect(val)} disabled={isAnswerRevealed} className={cn('w-full text-center p-3 sm:p-4 rounded-xl border transition-all text-white font-bold text-sm sm:text-lg', isAnswerRevealed && 'cursor-default', btnStateClass)}>
+                  <button key={val} onClick={() => handleSelect(val)} disabled={isAnswerRevealed} className={cn('w-full text-center p-3 sm:p-4 rounded-xl border transition-all text-stone-100 font-bold text-sm sm:text-base', isAnswerRevealed && 'cursor-default', btnStateClass)}>
                      {val === 'true' ? 'صح' : 'خطأ'}
-              </button>
+               </button>
                 );
               })}
             </div>
           )}
 
           {currentQ.type === 'essay' && (
-            <textarea className="input-field min-h-[100px] sm:min-h-[120px] text-sm sm:text-base" placeholder="اكتب إجابتك هنا..." value={typeof selectedAnswers[currentQ.id] === 'string' ? (selectedAnswers[currentQ.id] as string) : ''} onChange={(e) => handleSelect(e.target.value)} disabled={isAnswerRevealed} />
+            <textarea className="input-field min-h-[100px] sm:min-h-[120px] text-sm sm:text-base text-stone-100" placeholder="اكتب إجابتك هنا..." value={typeof selectedAnswers[currentQ.id] === 'string' ? (selectedAnswers[currentQ.id] as string) : ''} onChange={(e) => handleSelect(e.target.value)} disabled={isAnswerRevealed} />
           )}
         </div>
 
         {isAnswerRevealed && (
-          <div className={cn('mt-3 sm:mt-4 md:mt-6 p-3 sm:p-4 rounded-xl border', isCurrentCorrect ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30')}>
-            <div className="flex items-start gap-2.5 sm:gap-3">
+          <div className={cn('mt-2.5 sm:mt-3 md:mt-4 p-3 sm:p-3.5 rounded-xl border', isCurrentCorrect ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30')}>
+            <div className="flex items-start gap-2 sm:gap-3">
               <div className={cn('w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0', isCurrentCorrect ? 'text-emerald-400' : 'text-rose-400')}>
                 {isCurrentCorrect ? '✓' : '✗'}
               </div>
               <div>
-                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-sm sm:text-base', isCurrentCorrect ? 'text-emerald-400' : 'text-rose-400')}>
+                <h4 className={cn('font-bold mb-0.5 sm:mb-1 text-xs sm:text-sm', isCurrentCorrect ? 'text-emerald-400' : 'text-rose-400')}>
                   {isCurrentCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
                 </h4>
                 {!isCurrentCorrect && currentQ.type !== 'essay' && (
-                  <p className="text-xs sm:text-sm text-secondary-300 mb-1.5 sm:mb-2">الإجابة الصحيحة: <span className="text-white font-bold">
+                  <p className="text-xs sm:text-sm text-stone-300 mb-1 sm:mb-1.5">الإجابة الصحيحة: <span className="text-stone-100 font-bold">
                     {currentQ.correctAnswers && currentQ.correctAnswers.length > 0 ? currentQ.correctAnswers.join(' / ') : currentQ.correctAnswer}
                   </span></p>
                 )}
                 {test.settings.showExplanations && currentQ.explanation && (
-                  <div className="text-secondary-300 text-xs sm:text-sm leading-relaxed mt-1.5 sm:mt-2 p-2.5 sm:p-3 bg-secondary-900/50 rounded-lg">
-                    <strong className="text-secondary-400 ml-1 text-xs sm:text-sm">الشرح:</strong>
+                  <div className="text-stone-300 text-xs sm:text-sm leading-relaxed mt-1 sm:mt-1.5 p-2 sm:p-2.5 bg-stone-800/50 rounded-lg">
+                    <strong className="text-stone-400 ml-1 text-xs sm:text-sm">الشرح:</strong>
                     <RichText>{currentQ.explanation}</RichText>
                   </div>
                 )}
@@ -372,7 +372,7 @@ export function PlayTestShell({
           </div>
         )}
 
-        <div className="mt-5 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex justify-end">
+        <div className="mt-4 sm:mt-5 md:mt-6 pt-3 sm:pt-4 border-t border-white/10 flex justify-end">
             <Button
               onClick={handleNext}
               disabled={(() => { const ans = selectedAnswers[currentQ.id]; if (currentQ.type === 'essay') return false; if (Array.isArray(ans)) return ans.length === 0; return !ans; })()}

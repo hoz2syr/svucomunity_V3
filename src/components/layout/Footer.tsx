@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { APP_VERSION } from '../../lib/version';
 
 export const Footer = () => {
   return (
@@ -17,6 +18,7 @@ export const Footer = () => {
           </div>
           <div className="text-center md:text-left w-full md:w-1/3 text-sm text-slate-600" dir="rtl">
              © {new Date().getFullYear()} SVU Community. جميع الحقوق محفوظة.
+             <div className="mt-1 text-xs text-slate-500" dir="ltr">الإصدار {APP_VERSION}</div>
           </div>
        </div>
     </footer>

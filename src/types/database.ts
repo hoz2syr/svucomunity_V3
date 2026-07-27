@@ -137,23 +137,6 @@ export type RawExtraction = {
   created_at: Timestamp;
 };
 
-export type ExtractedCourseRecord = {
-  id: string;
-  extraction_id: string;
-  course_name: string;
-  semester_code: string;
-  full_code: string;
-  instructor_name: string | null;
-  instructor_username: string | null;
-  major: string;
-  course_key: string;
-  section: string | null;
-  semester_year: string;
-  discovered_course_code: string | null;
-  discovered_instructor_username: string | null;
-  created_at: Timestamp;
-};
-
 export type DiscoveredCourse = {
   course_code: string;
   major: string;
@@ -186,6 +169,28 @@ export type DiscoveredMajor = {
   major_name_en: string | null;
   seen_count: number;
   first_seen_at: Timestamp;
+};
+
+export type StudentSemester = {
+  id: string;
+  user_id: string;
+  semester_code: string;
+  semester_year: string;
+  course_count: number;
+  created_at: Timestamp;
+};
+
+export type StudentSemesterCourse = {
+  id: string;
+  semester_id: string;
+  course_name: string;
+  full_code: string;
+  instructor_name: string | null;
+  instructor_username: string | null;
+  major: string;
+  course_key: string;
+  section: string | null;
+  created_at: Timestamp;
 };
 
 export type Database = {
@@ -246,13 +251,6 @@ export type Database = {
         Insert: Omit<RawExtraction, 'id' | 'created_at'> & { user_id: string };
         Update: Partial<Omit<RawExtraction, 'id' | 'user_id' | 'created_at'>>;
       };
-      extracted_courses: {
-        Row: ExtractedCourseRecord;
-        Insert: Omit<ExtractedCourseRecord, 'id' | 'created_at'> & {
-          extraction_id: string;
-        };
-        Update: Partial<Omit<ExtractedCourseRecord, 'id' | 'extraction_id' | 'created_at'>>;
-      };
       discovered_courses: {
         Row: DiscoveredCourse;
         Insert: Omit<DiscoveredCourse, 'first_seen_at' | 'last_seen_at'> & {
@@ -271,6 +269,16 @@ export type Database = {
         Row: DiscoveredMajor;
         Insert: Omit<DiscoveredMajor, 'first_seen_at'> & { major_code: string };
         Update: Partial<Omit<DiscoveredMajor, 'major_code'>>;
+      };
+      student_semesters: {
+        Row: StudentSemester;
+        Insert: Omit<StudentSemester, 'id' | 'created_at'>;
+        Update: Partial<Omit<StudentSemester, 'id' | 'created_at'>>;
+      };
+      student_semester_courses: {
+        Row: StudentSemesterCourse;
+        Insert: Omit<StudentSemesterCourse, 'id' | 'created_at'>;
+        Update: Partial<Omit<StudentSemesterCourse, 'id' | 'created_at'>>;
       };
     };
   };

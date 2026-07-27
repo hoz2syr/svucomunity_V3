@@ -26,20 +26,20 @@ export function ReviewsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="space-y-2 pt-4">
-        <h1 className="text-3xl font-bold text-white tracking-tight">التقييمات</h1>
-        <p className="text-slate-400 text-sm max-w-xl">شاركنا رأيك بالمنصة أو اطلع على تقييماتك السابقة</p>
-      </div>
+     <div className="max-w-4xl mx-auto space-y-5">
+       <div className="space-y-1.5 pt-3">
+         <h1 className="text-2xl font-bold text-stone-100 tracking-tight">التقييمات</h1>
+         <p className="text-stone-400 text-sm max-w-xl">شاركنا رأيك بالمنصة أو اطلع على تقييماتك السابقة</p>
+       </div>
 
       <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl w-fit">
         <button
           onClick={() => setActiveTab('submit')}
           className={cn(
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
-            activeTab === 'submit'
-              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-              : 'text-slate-400 hover:text-white border border-transparent'
+             activeTab === 'submit'
+               ? 'bg-amber-600/10 text-amber-600 border border-amber-600/20'
+               : 'text-stone-400 hover:text-stone-100 border border-transparent'
           )}
         >
           <Icon icon={Star} size="sm" />
@@ -49,9 +49,9 @@ export function ReviewsPage() {
           onClick={() => setActiveTab('my-reviews')}
           className={cn(
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
-            activeTab === 'my-reviews'
-              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-              : 'text-slate-400 hover:text-white border border-transparent'
+             activeTab === 'my-reviews'
+               ? 'bg-amber-600/10 text-amber-600 border border-amber-600/20'
+               : 'text-stone-400 hover:text-stone-100 border border-transparent'
           )}
         >
           <Icon icon={MessageSquare} size="sm" />
@@ -69,15 +69,15 @@ export function ReviewsPage() {
       {activeTab === 'my-reviews' && (
         <div className="space-y-4">
           {reviewsLoading ? (
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {Array.from({ length: 2 }).map((_, i) => (
-                <GlassCard key={i} className="p-5">
+                <GlassCard key={i} className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
                   <Skeleton className="w-full h-24" />
                 </GlassCard>
               ))}
             </div>
           ) : reviewsError ? (
-            <GlassCard className="p-6 border-rose-500/30">
+            <GlassCard className="p-4 border-rose-500/30">
               <div className="flex items-center gap-2 text-rose-400">
                 <Icon icon={AlertTriangle} size="sm" />
                 <span className="text-sm">{reviewsError instanceof Error ? reviewsError.message : 'حدث خطأ'}</span>
@@ -86,9 +86,9 @@ export function ReviewsPage() {
           ) : myReviews && myReviews.length > 0 ? (
             <ReviewsList isAdmin={false} />
           ) : (
-            <GlassCard className="p-8 text-center">
-              <Icon icon={CheckCircle2} size="xl" className="text-slate-500 mb-3 mx-auto" />
-              <p className="text-slate-400 text-sm">لم تقم بإضافة أي تقييم بعد</p>
+            <GlassCard className="p-6 text-center border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+              <Icon icon={CheckCircle2} size="xl" className="text-stone-500 mb-3 mx-auto" />
+              <p className="text-stone-400 text-sm">لم تقم بإضافة أي تقييم بعد</p>
             </GlassCard>
           )}
         </div>

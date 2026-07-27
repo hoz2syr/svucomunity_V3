@@ -2,7 +2,7 @@ export { extractScheduleFromImage, type OCRResult, type ValidationResult } from 
 export { matchCoursesToGroups, type MatchResult } from './matchingService';
 export {
   saveRawExtraction,
-  saveExtractedCourses,
+  saveStudentSemesterCourses,
   upsertDiscoveredCourses,
   upsertDiscoveredInstructors,
   upsertDiscoveredMajors,

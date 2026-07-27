@@ -156,7 +156,7 @@ async function handleGetAll(supabaseUrl: string, serviceKey: string, userId: str
   const response = await supabaseRest(
     supabaseUrl,
     serviceKey,
-    `groups?select=id,name,course_name,course_code,class_number,doctor_name,major,max_members,current_members,whatsapp_link,group_link,is_full,creator_id,creator_name,created_at&order=created_at.desc`,
+    `groups?select=id,name,course_name,course_code,class_number,doctor_name,major,max_members,current_members,is_full,creator_id,creator_name,created_at&order=created_at.desc`,
   );
   const data = await response.json();
   if (!response.ok) throw new Error(data?.message || "Failed to fetch groups");
@@ -242,7 +242,17 @@ async function handleCreate(supabaseUrl: string, serviceKey: string, body: any, 
 }
 
 async function handleJoin(supabaseUrl: string, serviceKey: string, groupId: string, userId: string) {
-  await supabaseRest(
+  const memberCheckResponse = await supabaseRest(
+    supabaseUrl,
+    serviceKey,
+    `group_members?select=id&group_id=eq.${encodeURIComponent(groupId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
+  const existingMembers = await memberCheckResponse.json();
+  if (memberCheckResponse.ok && existingMembers && existingMembers.length > 0) {
+    throw new Error("أنت عضو في هذه المجموعة بالفعل");
+  }
+
+  const insertResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
     `group_members`,
@@ -252,6 +262,11 @@ async function handleJoin(supabaseUrl: string, serviceKey: string, groupId: stri
     },
   );
 
+  if (!insertResponse.ok) {
+    const errorData = await insertResponse.json().catch(() => ({}));
+    throw new Error(errorData?.message || "فشل الانضمام للمجموعة");
+  }
+
   const groupResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
@@ -259,13 +274,13 @@ async function handleJoin(supabaseUrl: string, serviceKey: string, groupId: stri
   );
   const group = await groupResponse.json();
   if (!groupResponse.ok || !group || group.length === 0) {
-    throw new Error("Failed to fetch group");
+    throw new Error("فشل جلب بيانات المجموعة");
   }
 
   const newCount = (group[0]?.current_members || 0) + 1;
   const isFull = newCount >= (group[0]?.max_members || 1);
 
-  await supabaseRest(
+  const updateResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
     `groups?id=eq.${encodeURIComponent(groupId)}`,
@@ -274,10 +289,25 @@ async function handleJoin(supabaseUrl: string, serviceKey: string, groupId: stri
       body: JSON.stringify({ current_members: newCount, is_full: isFull }),
     },
   );
+
+  if (!updateResponse.ok) {
+    const errorData = await updateResponse.json().catch(() => ({}));
+    throw new Error(errorData?.message || "فشل تحديث عدد الأعضاء");
+  }
 }
 
 async function handleLeave(supabaseUrl: string, serviceKey: string, groupId: string, userId: string) {
-  await supabaseRest(
+  const memberCheckResponse = await supabaseRest(
+    supabaseUrl,
+    serviceKey,
+    `group_members?select=id&group_id=eq.${encodeURIComponent(groupId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
+  const existingMembers = await memberCheckResponse.json();
+  if (!memberCheckResponse.ok || !existingMembers || existingMembers.length === 0) {
+    throw new Error("أنت لست عضواً في هذه المجموعة");
+  }
+
+  const deleteResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
     `group_members?group_id=eq.${encodeURIComponent(groupId)}&user_id=eq.${encodeURIComponent(userId)}`,
@@ -286,6 +316,11 @@ async function handleLeave(supabaseUrl: string, serviceKey: string, groupId: str
     },
   );
 
+  if (!deleteResponse.ok) {
+    const errorData = await deleteResponse.json().catch(() => ({}));
+    throw new Error(errorData?.message || "فشل مغادرة المجموعة");
+  }
+
   const groupResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
@@ -293,13 +328,13 @@ async function handleLeave(supabaseUrl: string, serviceKey: string, groupId: str
   );
   const group = await groupResponse.json();
   if (!groupResponse.ok || !group || group.length === 0) {
-    throw new Error("Failed to fetch group");
+    throw new Error("فشل جلب بيانات المجموعة");
   }
 
   const newCount = Math.max(0, (group[0]?.current_members || 0) - 1);
   const isFull = newCount >= (group[0]?.max_members || 1);
 
-  await supabaseRest(
+  const updateResponse = await supabaseRest(
     supabaseUrl,
     serviceKey,
     `groups?id=eq.${encodeURIComponent(groupId)}`,
@@ -308,6 +343,11 @@ async function handleLeave(supabaseUrl: string, serviceKey: string, groupId: str
       body: JSON.stringify({ current_members: newCount, is_full: isFull }),
     },
   );
+
+  if (!updateResponse.ok) {
+    const errorData = await updateResponse.json().catch(() => ({}));
+    throw new Error(errorData?.message || "فشل تحديث عدد الأعضاء");
+  }
 }
 
 async function handleUpdate(supabaseUrl: string, serviceKey: string, groupId: string, updates: any, userId: string, isAdmin: boolean) {
@@ -442,6 +482,33 @@ async function handleCheckIsAdmin(supabaseUrl: string, serviceKey: string, userI
   }
 }
 
+async function handleGetGroupLinks(supabaseUrl: string, serviceKey: string, groupId: string, userId: string) {
+  const memberCheckResponse = await supabaseRest(
+    supabaseUrl,
+    serviceKey,
+    `group_members?select=id&group_id=eq.${encodeURIComponent(groupId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
+  const existingMembers = await memberCheckResponse.json();
+  if (!memberCheckResponse.ok || !existingMembers || existingMembers.length === 0) {
+    throw new Error("غير مخول للوصول لهذه الروابط");
+  }
+
+  const groupResponse = await supabaseRest(
+    supabaseUrl,
+    serviceKey,
+    `groups?select=whatsapp_link,group_link&id=eq.${encodeURIComponent(groupId)}&limit=1`,
+  );
+  const group = await groupResponse.json();
+  if (!groupResponse.ok || !group || group.length === 0) {
+    throw new Error("المجموعة غير موجودة");
+  }
+
+  return {
+    whatsapp_link: group[0]?.whatsapp_link || '',
+    group_link: group[0]?.group_link || '',
+  };
+}
+
 async function handleGetCoursesByMajor(supabaseUrl: string, serviceKey: string, major: string): Promise<Course[]> {
   try {
     const res = await fetch("https://raw.githubusercontent.com/svu-community/svu-courses/main/svu_courses.json");
@@ -562,6 +629,10 @@ serve(async (req) => {
       case "checkIsAdmin":
         if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
         result = await handleCheckIsAdmin(supabaseAdmin.url, supabaseAdmin.key, userId);
+        break;
+      case "getGroupLinks":
+        if (!userId) return jsonResponse({ error: "Unauthorized" }, 401, origin);
+        result = await handleGetGroupLinks(supabaseAdmin.url, supabaseAdmin.key, payload.groupId, userId);
         break;
       case "getCoursesByMajor":
         result = await handleGetCoursesByMajor(supabaseAdmin.url, supabaseAdmin.key, payload.major);

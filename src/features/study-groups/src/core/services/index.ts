@@ -13,6 +13,7 @@
   updateGroup as updateGroupRaw,
   getMyGroups as getMyGroupsRaw,
   reactivateGroup as reactivateGroupRaw,
+  getGroupLinks as getGroupLinksRaw,
   type ServiceResult,
   type StudyGroup,
   type Course,
@@ -80,6 +81,10 @@ export async function reactivateGroup(groupId: string): Promise<void> {
   return throwOnError(await reactivateGroupRaw(groupId));
 }
 
+export async function getGroupLinks(groupId: string, userId: string): Promise<{ whatsapp_link?: string; group_link?: string }> {
+  return throwOnError(await getGroupLinksRaw(groupId, userId));
+}
+
 export const studyGroupService = {
   getAllWithCreators,
   getMyGroups,
@@ -94,4 +99,5 @@ export const studyGroupService = {
   getCoursesByMajor,
   getAvailableMajors,
   reactivateGroup,
+  getGroupLinks,
 };

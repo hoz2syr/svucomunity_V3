@@ -484,14 +484,6 @@ ${rawExtractionsBlock}
 ON CONFLICT DO NOTHING;
 
 -- ============================================================
--- 15. ADDITIONAL EXTRACTED COURSES
--- ============================================================
-INSERT INTO public.extracted_courses (id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at)
-VALUES
-${extractedCoursesBlock}
-ON CONFLICT DO NOTHING;
-
--- ============================================================
 -- 16. ADDITIONAL ADMIN AUDIT LOG
 -- ============================================================
 INSERT INTO public.admin_audit_log (id, caller_id, action, payload, ip_address, user_agent, created_at)

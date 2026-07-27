@@ -2,7 +2,7 @@ import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import { TableSchema } from '../utils/schemaDetection';
 import { normalizeSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse } from '../types';
-import type { Json, RawExtraction, ExtractedCourseRecord, DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/src/types/database';
+import type { Json, RawExtraction, DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor, StudentSemesterCourse } from '@/src/types/database';
 
 export type ServiceResult<T> = { data: T | null; error: Error | null };
 
@@ -32,39 +32,72 @@ export async function saveRawExtraction(
   return { data: data as RawExtraction, error: null };
 }
 
-export async function saveExtractedCourses(
-  extractionId: string,
+export async function saveStudentSemesterCourses(
+  userId: string,
   courses: ExtractedCourse[]
-): Promise<ServiceResult<ExtractedCourseRecord[]>> {
+): Promise<ServiceResult<StudentSemesterCourse[]>> {
   if (!hasSupabaseEnv()) {
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
+  if (!courses.length) {
+    return { data: [], error: null };
+  }
+
+  const normalizedSemester = normalizeSemesterCode(courses[0].semester || '');
+  const semesterYear = normalizedSemester.slice(-2);
+
+  const { data: semester, error: semesterError } = await client
+    .from('student_semesters')
+    .upsert(
+      {
+        user_id: userId,
+        semester_code: normalizedSemester,
+        semester_year: semesterYear,
+      },
+      { onConflict: 'user_id,semester_code' }
+    )
+    .select('id')
+    .single();
+
+  if (semesterError || !semester) {
+    return { data: null, error: new Error(semesterError?.message ?? 'Failed to save semester') };
+  }
+
+  const semesterId = semester.id as string;
+
+  await client
+    .from('student_semester_courses')
+    .delete()
+    .eq('semester_id', semesterId);
+
   const rows = courses.map(course => ({
-    extraction_id: extractionId,
+    semester_id: semesterId,
     course_name: course.name,
-    semester_code: normalizeSemesterCode(course.semester),
     full_code: course.code,
     instructor_name: course.instructor,
     instructor_username: course.instructor_username,
     major: course.major || '',
     course_key: course.course_key || course.code,
     section: course.section,
-    semester_year: normalizeSemesterCode(course.semester),
-    discovered_course_code: course.code,
-    discovered_instructor_username: course.instructor_username || undefined,
   }));
 
   const { data, error } = await client
-    .from('extracted_courses')
+    .from('student_semester_courses')
     .insert(rows)
-    .select('id, extraction_id, course_name, semester_code, full_code, instructor_name, instructor_username, major, course_key, section, semester_year, discovered_course_code, discovered_instructor_username, created_at');
+    .select('id, semester_id, course_name, full_code, instructor_name, instructor_username, major, course_key, section, created_at');
 
   if (error) {
     return { data: null, error: new Error(error.message) };
   }
 
-  return { data: data as ExtractedCourseRecord[], error: null };
+  const courseCount = data?.length ?? 0;
+  await client
+    .from('student_semesters')
+    .update({ course_count: courseCount })
+    .eq('id', semesterId);
+
+  return { data: (data as StudentSemesterCourse[]) ?? null, error: null };
 }
 
 export async function upsertDiscoveredCourses(
@@ -201,47 +234,35 @@ export async function upsertDiscoveredMajors(
 export async function loadCurrentSemesterCourses(
   userId: string,
   semesterCode: string
-): Promise<ServiceResult<ExtractedCourseRecord[]>> {
+): Promise<ServiceResult<StudentSemesterCourse[]>> {
   if (!hasSupabaseEnv()) {
     return { data: null, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
   const normalizedSemester = normalizeSemesterCode(semesterCode);
-  const { data, error } = await client
-    .from('extracted_courses')
-    .select(`
-      id,
-      extraction_id,
-      course_name,
-      semester_code,
-      full_code,
-      instructor_name,
-      instructor_username,
-      major,
-      course_key,
-      section,
-      semester_year,
-      discovered_course_code,
-      discovered_instructor_username,
-      created_at,
-      raw_extractions!inner(user_id)
-    `)
-    .eq('raw_extractions.user_id', userId)
+
+  const { data: semester, error: semesterError } = await client
+    .from('student_semesters')
+    .select('id')
+    .eq('user_id', userId)
     .eq('semester_code', normalizedSemester)
+    .single();
+
+  if (semesterError || !semester) {
+    return { data: [], error: null };
+  }
+
+  const { data, error } = await client
+    .from('student_semester_courses')
+    .select('id, semester_id, course_name, full_code, instructor_name, instructor_username, major, course_key, section, created_at')
+    .eq('semester_id', semester.id)
     .order('created_at', { ascending: false });
 
   if (error) {
     return { data: null, error: new Error(error.message) };
   }
 
-  const seen = new Set<string>();
-  const deduped = (data ?? []).filter((course) => {
-    if (seen.has(course.full_code)) return false;
-    seen.add(course.full_code);
-    return true;
-  });
-
-  return { data: deduped as ExtractedCourseRecord[], error: null };
+  return { data: (data as StudentSemesterCourse[]) ?? [], error: null };
 }
 
 export async function loadDiscoveredCourses(

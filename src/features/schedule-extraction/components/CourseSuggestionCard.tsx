@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
 import { Link } from 'react-router-dom';
-import type { ExtractedCourseRecord, UserCourseProgress } from '@/src/types/database';
+import type { StudentSemesterCourse, UserCourseProgress } from '@/src/types/database';
 import {
   BookMarked,
   ChevronDown,
@@ -51,7 +51,7 @@ export function CourseSuggestionCard({
   defaultExpanded = false,
   userProgress,
 }: {
-  course: ExtractedCourseRecord;
+  course: StudentSemesterCourse;
   defaultExpanded?: boolean;
   userProgress?: UserCourseProgress | undefined;
 }) {
@@ -62,19 +62,19 @@ export function CourseSuggestionCard({
   const progressColor = getProgressColor(progressStatus);
 
   return (
-    <GlassCard className="overflow-hidden">
-      <div
-        className="p-5 cursor-pointer hover:bg-white/5 transition-colors"
-        onClick={() => setIsExpanded(prev => !prev)}
-      >
+     <GlassCard className="overflow-hidden border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
+       <div
+         className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
+         onClick={() => setIsExpanded(prev => !prev)}
+       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="mt-0.5 flex-shrink-0 text-orange-400">
               <BookMarked size={20} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h3 className="text-base font-bold text-white leading-tight">{course.course_name}</h3>
+               <div className="flex items-center gap-2 mb-1 flex-wrap">
+                 <h3 className="text-base font-bold text-stone-100 leading-tight line-clamp-2">{course.course_name}</h3>
                 {progressStatus !== 'none' && (
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${progressColor}`}>
                     {progressLabel}
@@ -84,12 +84,12 @@ export function CourseSuggestionCard({
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="font-mono bg-white/5 px-2 py-0.5 rounded border border-white/8">{course.full_code}</span>
                 {course.section && (
-                  <span className="text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                  <span className="text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                     {course.section}
                   </span>
                 )}
                 {course.instructor_name && (
-                  <span className="text-slate-400">الدكتور: {course.instructor_name}</span>
+                  <span className="text-stone-400 truncate max-w-[180px]">الدكتور: {course.instructor_name}</span>
                 )}
               </div>
             </div>
@@ -103,8 +103,8 @@ export function CourseSuggestionCard({
       </div>
 
       {isExpanded && (
-        <div className="px-5 pb-5 border-t border-white/5">
-          <div className="pt-4 flex flex-wrap gap-2">
+        <div className="px-4 pb-4 border-t border-white/5">
+          <div className="pt-3 flex flex-wrap gap-2">
             <Link to={`/dashboard/study-groups?course_code=${encodeURIComponent(course.full_code)}`}>
               <Button variant="secondary" className="text-xs flex items-center gap-1.5">
                 <Users size={14} />

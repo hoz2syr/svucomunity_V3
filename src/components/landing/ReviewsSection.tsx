@@ -18,9 +18,9 @@ export const ReviewsSection = () => {
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">آراء المستخدمين</h2>
             <p className="text-xl text-slate-400 font-light">نعمل باستمرار على تحسين تجربتك</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {[1, 2, 3].map((i) => (
-              <GlassCard key={i} className="p-6">
+              <GlassCard key={i} className="p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
                 <div className="animate-pulse space-y-3">
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((s) => (
@@ -58,36 +58,36 @@ export const ReviewsSection = () => {
           <p className="text-xl text-slate-400 font-light max-w-2xl mx-auto">نعمل باستمرار على تحسين تجربتك بناءً على ملاحظاتك</p>
         </FadeIn>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-5 mb-6">
           {visibleReviews.map((review, idx) => (
             <FadeIn key={review.id} delay={idx * 100} direction="up" className="h-full">
-              <GlassCard className="p-6 h-full flex flex-col">
+              <GlassCard className="p-4 h-full flex flex-col border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
                 <div className="flex items-center gap-1 mb-3">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={16}
-                      className={star <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-600'}
-                    />
-                  ))}
+                   {[1, 2, 3, 4, 5].map((star) => (
+                     <Star
+                       key={star}
+                       size={16}
+                       className={star <= review.rating ? 'fill-amber-600 text-amber-600' : 'text-stone-600'}
+                     />
+                   ))}
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed flex-grow mb-4 line-clamp-4">
+                <p className="text-stone-300 text-sm leading-relaxed flex-grow mb-3 line-clamp-4">
                   {review.comment}
                 </p>
                 {review.admin_response && (
-                  <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-3 mb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <MessageSquare size={12} className="text-cyan-400" />
-                      <span className="text-xs text-cyan-400">رد الإدارة</span>
-                    </div>
-                    <p className="text-xs text-slate-400 line-clamp-2">{review.admin_response}</p>
-                  </div>
+                 <div className="bg-amber-900/10 border border-amber-700/20 rounded-xl p-3 mb-3">
+                   <div className="flex items-center gap-2 mb-1">
+                     <MessageSquare size={12} className="text-amber-600" />
+                     <span className="text-xs text-amber-600">رد الإدارة</span>
+                   </div>
+                   <p className="text-xs text-stone-400 line-clamp-2">{review.admin_response}</p>
+                 </div>
                 )}
-                <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                  <span className="text-xs text-slate-500">
-                    {review.profiles?.full_name || review.profiles?.email || 'طالب'}
-                  </span>
-                  <time className="text-xs text-slate-500">
+                 <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
+                   <span className="text-xs text-stone-500 truncate max-w-[70%]">
+                     {review.profiles?.full_name || review.profiles?.email || 'طالب'}
+                   </span>
+                   <time className="text-xs text-stone-500">
                     {new Date(review.created_at).toLocaleDateString('ar-SA')}
                   </time>
                 </div>

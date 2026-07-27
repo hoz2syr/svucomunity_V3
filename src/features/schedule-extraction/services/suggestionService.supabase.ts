@@ -26,7 +26,7 @@ export interface CourseSuggestion {
     doctor_name?: string;
     current_members: number;
     max_members: number;
-    whatsapp_link: string;
+    whatsapp_link?: string;
     group_link?: string;
     creator_name: string;
     _creatorFullName?: string;
