@@ -199,11 +199,33 @@ export async function fetchAllReferences(): Promise<ServiceResult<SubjectReferen
     const client = await getSupabaseClient();
     const { data, error } = await client
       .from('subject_references')
-      .select('id, course_code, user_id, type, title, url, description, created_at, likes, is_approved')
+      .select('id, course_code, user_id, type, title, url, description, created_at, likes, is_approved, profiles:profiles!left(full_name, email, username)')
       .order('created_at', { ascending: false });
 
     if (error) return { data: null, error: new Error(error.message) };
-    return { data: (data || []) as SubjectReference[], error: null };
+    const rows = (data || []) as unknown as (Record<string, unknown> & { profiles?: Record<string, unknown> | null })[];
+    return {
+      data: rows.map((row) => ({
+        id: String(row.id),
+        course_code: String(row.course_code),
+        user_id: String(row.user_id),
+        type: String(row.type),
+        title: String(row.title),
+        url: String(row.url),
+        description: row.description ? String(row.description) : undefined,
+        created_at: String(row.created_at),
+        likes: typeof row.likes === 'number' ? row.likes : 0,
+        is_approved: typeof row.is_approved === 'boolean' ? row.is_approved : undefined,
+        profiles: row.profiles
+          ? {
+              full_name: row.profiles.full_name != null ? String(row.profiles.full_name) : null,
+              email: row.profiles.email != null ? String(row.profiles.email) : null,
+              username: row.profiles.username != null ? String(row.profiles.username) : null,
+            }
+          : null,
+      })) as SubjectReference[],
+      error: null,
+    };
   } catch (error) {
     return { data: null, error: error instanceof Error ? error : new Error('Failed to fetch all references') };
   }

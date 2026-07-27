@@ -57,7 +57,9 @@ export function ExtractionTracking() {
   const [page, setPage] = useState(1);
   const limit = 50;
 
-  const { data: extractions, isLoading: extractionsLoading, error: extractionsError, refetch } = useAdminExtractions(page, limit);
+  const { data: extractionsData, isLoading: extractionsLoading, error: extractionsError, refetch } = useAdminExtractions(page, limit);
+  const extractions = extractionsData?.items;
+  const totalCount = extractionsData?.totalCount;
   const { data: detail, isLoading: detailLoading } = useAdminExtractionDetail(
     isModalOpen && selectedExtraction ? selectedExtraction.extraction.id : null
   );
@@ -123,7 +125,7 @@ export function ExtractionTracking() {
             type="text"
             placeholder="بحث بالمستخدم أو محتوى الاستخراج..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
             className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
           />
         </div>
@@ -214,7 +216,7 @@ export function ExtractionTracking() {
           <Button
             variant="secondary"
             onClick={() => setPage((p) => p + 1)}
-            disabled={filteredExtractions.length < limit}
+            disabled={totalCount == null ? (extractions?.length ?? 0) <= limit : page * limit >= totalCount}
           >
             التالي
           </Button>

@@ -11,21 +11,23 @@ import {
   getNotificationStats,
   type AdminNotification,
 } from '../services/adminNotificationService.supabase';
+import { ADMIN_NOTIFICATION_PAGE_LIMIT } from '@/src/lib/constants';
 
-export function useAdminNotifications(page = 1, limit = 50, filters?: { type?: string; priority?: string; read?: boolean; search?: string }) {
+export function useAdminNotifications(page = 1, limit = ADMIN_NOTIFICATION_PAGE_LIMIT, filters?: { type?: string; priority?: string; read?: boolean; search?: string }) {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
+  const callerId = profile?.id || '';
   const callerRole = profile?.role || '';
 
   return useQuery({
     queryKey: ['admin', 'notifications', page, limit, filters],
-    queryFn: async (): Promise<AdminNotification[]> => {
+    queryFn: async (): Promise<{ items: AdminNotification[]; totalCount: number }> => {
       if (!isAdmin) {
         throw new Error('Unauthorized');
       }
-      const result = await listAllNotifications(callerRole, page, limit, filters);
+      const result = await listAllNotifications(callerId, callerRole, page, limit, filters);
       if (result.error) throw result.error;
-      return result.data as AdminNotification[];
+      return { items: result.data as AdminNotification[], totalCount: result.totalCount };
     },
     enabled: isAdmin,
   });
@@ -42,7 +44,7 @@ export function useCreateAdminNotification() {
       if (profile?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      const result = await createAdminNotification(callerRole, callerId, input);
+      const result = await createAdminNotification(callerId, callerRole, input);
       if (result.error) throw result.error;
       return result.data as AdminNotification;
     },
@@ -63,7 +65,7 @@ export function useBroadcastNotification() {
       if (profile?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      const result = await broadcastToAllUsers(callerRole, callerId, input);
+      const result = await broadcastToAllUsers(callerId, callerRole, input);
       if (result.error) throw result.error;
       return result.data as AdminNotification[];
     },
@@ -76,6 +78,7 @@ export function useBroadcastNotification() {
 export function useDeleteAdminNotification() {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const callerId = profile?.id || '';
   const callerRole = profile?.role || '';
 
   return useMutation({
@@ -83,7 +86,7 @@ export function useDeleteAdminNotification() {
       if (profile?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      const result = await deleteAnyNotificationAdmin(callerRole, notificationId);
+      const result = await deleteAnyNotificationAdmin(callerId, callerRole, notificationId);
       if (result.error) throw result.error;
       return result.data as null;
     },
@@ -96,6 +99,7 @@ export function useDeleteAdminNotification() {
 export function useMarkNotificationAsReadAdmin() {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const callerId = profile?.id || '';
   const callerRole = profile?.role || '';
 
   return useMutation({
@@ -103,7 +107,7 @@ export function useMarkNotificationAsReadAdmin() {
       if (profile?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      const result = await markNotificationAsReadAdmin(callerRole, notificationId);
+      const result = await markNotificationAsReadAdmin(callerId, callerRole, notificationId);
       if (result.error) throw result.error;
       return result.data as AdminNotification;
     },
@@ -116,6 +120,7 @@ export function useMarkNotificationAsReadAdmin() {
 export function useNotificationStats() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
+  const callerId = profile?.id || '';
   const callerRole = profile?.role || '';
 
   return useQuery({
@@ -124,7 +129,7 @@ export function useNotificationStats() {
       if (!isAdmin) {
         throw new Error('Unauthorized');
       }
-      const result = await getNotificationStats(callerRole);
+      const result = await getNotificationStats(callerId, callerRole);
       if (result.error) throw result.error;
       return result.data as { total: number; unread: number; broadcasts: number; userNotifications: number };
     },

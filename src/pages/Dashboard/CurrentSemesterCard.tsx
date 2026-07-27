@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loadCurrentSemesterCourses } from '../../features/schedule-extraction/services';
-import { getCurrentSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
+import { getActiveSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Button } from '../../components/ui/Button';
@@ -18,7 +18,7 @@ const COURSE_SKELETON_COUNT = 3;
 export const CurrentSemesterCard = React.memo(function CurrentSemesterCard() {
   const { session, profile } = useAuth();
   const userId = session?.user?.id;
-  const semesterCode = profile?.current_semester || getCurrentSemesterCode();
+  const semesterCode = profile?.current_semester || getActiveSemesterCode();
   const studentMajor = profile?.major || '';
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({

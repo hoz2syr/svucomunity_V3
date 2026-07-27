@@ -7,9 +7,10 @@ import { profileSchema, type ProfileInput } from '../../schemas/auth.schema';
 import { InputField } from '../ui/InputField';
 import { Dropdown } from '../ui/Dropdown';
 import { useProfileSettings } from '@/src/hooks/useProfileSettings';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { getAllMajorsStatic, getAllLevelsStatic } from '@/src/features/study-groups/services/courseCatalog';
 import { Button } from '../ui/Button';
-import { getCurrentSemesterCode, getNextSemesterCode, convertSemesterCodeToLabel } from '@/src/features/schedule-extraction/utils/semesterUtils';
+import { getNextSemesterCode, convertSemesterCodeToLabel } from '@/src/features/schedule-extraction/utils/semesterUtils';
 
 type ProfileSettingsFormProps = {
   userId: string;
@@ -19,11 +20,11 @@ type ProfileSettingsFormProps = {
 };
 
 const generateSemesterOptions = () => {
-  const current = getCurrentSemesterCode();
+  const baseSemester = 'S25';
   const options = [{ value: '', label: 'بدون تحديد' }];
 
   for (let i = -2; i <= 4; i++) {
-    let code = current;
+    let code = baseSemester;
     for (let j = 0; j < i; j++) {
       code = getNextSemesterCode(code);
     }
@@ -36,6 +37,8 @@ const generateSemesterOptions = () => {
 const SEMESTER_OPTIONS = generateSemesterOptions();
 
 export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTakeSpecializationTest }: ProfileSettingsFormProps) => {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
   const { isLoading, successMsg, errorMsg, submit } = useProfileSettings(onSubmit);
   const [majors, setMajors] = useState<string[]>([]);
   const [loadingMajors, setLoadingMajors] = useState(true);
@@ -139,7 +142,11 @@ export const ProfileSettingsForm = ({ userId: _userId, initial, onSubmit, onTake
           options={SEMESTER_OPTIONS}
           placeholder="اختر الفصل الحالي..."
           error={form.formState.errors.current_semester?.message}
+          disabled={!isAdmin}
         />
+        {!isAdmin && (
+          <p className="text-xs text-slate-500 mt-1">لا يمكنك تغيير الفصل الدراسي. يحدد المشرف الفصل النشط.</p>
+        )}
       </div>
       {successMsg && (
         <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-emerald-400 text-sm font-medium flex items-center gap-1">

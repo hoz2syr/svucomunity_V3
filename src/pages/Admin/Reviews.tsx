@@ -69,11 +69,13 @@ export function Reviews() {
 
   const limit = 20;
 
-  const { data: reviews, isLoading: reviewsLoading, error: reviewsError, refetch } = useAdminReviews(page, limit, {
+  const { data: reviewsData, isLoading: reviewsLoading, error: reviewsError, refetch } = useAdminReviews(page, limit, {
     status: statusFilter === 'all' ? undefined : statusFilter,
     category: categoryFilter === 'all' ? undefined : categoryFilter,
     search: searchQuery || undefined,
   });
+  const reviews = reviewsData?.items;
+  const totalCount = reviewsData?.totalCount;
 
   const { data: stats } = useReviewStats();
   const respondMutation = useRespondToReview();
@@ -122,8 +124,8 @@ export function Reviews() {
   return (
      <div className="space-y-5">
        <div className="space-y-1.5 pt-3">
-         <h1 className="text-2xl font-bold text-stone-100 tracking-tight">التقييمات</h1>
-         <p className="text-stone-400 text-sm max-w-xl">إدارة تقييمات المستخدمين والرد عليها</p>
+         <h1 className="text-2xl font-bold text-slate-100 tracking-tight">التقييمات</h1>
+         <p className="text-slate-400 text-sm max-w-xl">إدارة تقييمات المستخدمين والرد عليها</p>
        </div>
 
       {stats && (
@@ -134,8 +136,8 @@ export function Reviews() {
                 <Icon icon={Star} size="sm" className="text-amber-600" />
               </div>
               <div>
-                <p className="text-xl font-bold text-stone-100">{stats.total}</p>
-                <p className="text-[10px] text-stone-400">إجمالي التقييمات</p>
+                <p className="text-xl font-bold text-slate-100">{stats.total}</p>
+                <p className="text-[10px] text-slate-400">إجمالي التقييمات</p>
               </div>
             </div>
           </GlassCard>
@@ -145,8 +147,8 @@ export function Reviews() {
                 <Icon icon={Inbox} size="sm" className="text-amber-600" />
               </div>
               <div>
-                <p className="text-xl font-bold text-stone-100">{stats.pending}</p>
-                <p className="text-[10px] text-stone-400">قيد المراجعة</p>
+                <p className="text-xl font-bold text-slate-100">{stats.pending}</p>
+                <p className="text-[10px] text-slate-400">قيد المراجعة</p>
               </div>
             </div>
           </GlassCard>
@@ -156,8 +158,8 @@ export function Reviews() {
                 <Icon icon={CheckCircle2} size="sm" className="text-emerald-400" />
               </div>
               <div>
-                <p className="text-xl font-bold text-stone-100">{stats.responded}</p>
-                <p className="text-[10px] text-stone-400">تم الرد</p>
+                <p className="text-xl font-bold text-slate-100">{stats.responded}</p>
+                <p className="text-[10px] text-slate-400">تم الرد</p>
               </div>
             </div>
           </GlassCard>
@@ -167,8 +169,8 @@ export function Reviews() {
                 <Icon icon={Star} size="sm" className="text-blue-400" />
               </div>
               <div>
-                <p className="text-xl font-bold text-stone-100">{stats.avgRating}</p>
-                <p className="text-[10px] text-stone-400">متوسط التقييم</p>
+                <p className="text-xl font-bold text-slate-100">{stats.avgRating}</p>
+                <p className="text-[10px] text-slate-400">متوسط التقييم</p>
               </div>
             </div>
           </GlassCard>
@@ -177,19 +179,19 @@ export function Reviews() {
 
       <div className="flex flex-col sm:flex-row gap-2.5">
         <div className="relative flex-1">
-          <Icon icon={Search} size="sm" className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+          <Icon icon={Search} size="sm" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
             placeholder="بحث في التقييمات..."
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-             className="w-full pr-10 pl-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-amber-600/50"
+             className="w-full pr-10 pl-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-amber-600/50"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(isStatusFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-stone-100 focus:outline-none focus:border-amber-600/50"
+          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-600/50"
         >
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
             <option key={value} value={value}>{label}</option>
@@ -198,7 +200,7 @@ export function Reviews() {
         <select
           value={categoryFilter}
           onChange={(e) => { setCategoryFilter(isCategoryFilter(e.target.value) ? e.target.value : 'all'); setPage(1); }}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-stone-100 focus:outline-none focus:border-amber-600/50"
+          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-600/50"
         >
           {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
             <option key={value} value={value}>{label}</option>
@@ -241,11 +243,11 @@ export function Reviews() {
                        <Star
                          key={star}
                          size={16}
-                         className={star <= review.rating ? 'fill-amber-600 text-amber-600' : 'text-stone-600'}
+                         className={star <= review.rating ? 'fill-amber-600 text-amber-600' : 'text-slate-600'}
                        />
                      ))}
-                      <span className="text-xs text-stone-400 mr-1">{review.rating}/5</span>
-                     <span className="text-xs px-2.5 py-1 bg-white/5 rounded-lg text-stone-400">
+                      <span className="text-xs text-slate-400 mr-1">{review.rating}/5</span>
+                     <span className="text-xs px-2.5 py-1 bg-white/5 rounded-lg text-slate-400">
                        {isCategoryFilter(review.category) ? CATEGORY_LABELS[review.category] : review.category}
                      </span>
                      <span className={cn(
@@ -257,14 +259,14 @@ export function Reviews() {
                        {isStatusFilter(review.status) ? STATUS_LABELS[review.status] : review.status}
                      </span>
                    </div>
-                   <p className="text-sm text-stone-300 leading-relaxed mb-2.5">{review.comment}</p>
+                   <p className="text-sm text-slate-300 leading-relaxed mb-2.5">{review.comment}</p>
                    {review.admin_response && (
                      <div className="bg-amber-900/10 border border-amber-700/20 rounded-xl p-3 mb-2.5">
                        <p className="text-xs text-amber-600 mb-1">رد الإدارة:</p>
-                       <p className="text-sm text-stone-300">{review.admin_response}</p>
+                       <p className="text-sm text-slate-300">{review.admin_response}</p>
                      </div>
                    )}
-                   <div className="flex items-center gap-3 text-xs text-stone-500">
+                   <div className="flex items-center gap-3 text-xs text-slate-500">
                      <span>{review.profiles?.full_name || review.profiles?.email || review.user_id}</span>
                      <span>|</span>
                      <time>{new Date(review.created_at).toLocaleString('ar-SA')}</time>
@@ -287,8 +289,8 @@ export function Reviews() {
         </div>
       ) : (
         <GlassCard className="p-6 text-center border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
-          <Icon icon={CheckCircle2} size="xl" className="text-stone-500 mb-3 mx-auto" />
-          <p className="text-stone-400 text-sm">لا يوجد تقييمات</p>
+          <Icon icon={CheckCircle2} size="xl" className="text-slate-500 mb-3 mx-auto" />
+          <p className="text-slate-400 text-sm">لا يوجد تقييمات</p>
         </GlassCard>
       )}
 
@@ -301,11 +303,11 @@ export function Reviews() {
           >
             السابق
           </Button>
-          <span className="text-sm text-stone-400">صفحة {page}</span>
+          <span className="text-sm text-slate-400">صفحة {page}</span>
           <Button
             variant="secondary"
             onClick={() => setPage((p) => p + 1)}
-            disabled={reviews.length < limit}
+            disabled={totalCount == null ? reviews.length <= limit : page * limit >= totalCount}
           >
             التالي
           </Button>
@@ -317,32 +319,32 @@ export function Reviews() {
            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsResponseModalOpen(false)} />
            <GlassCard className="relative z-10 w-full max-w-md p-4 border-amber-700/30 shadow-[4px_4px_0px_0px_rgba(180,130,50,0.25)]">
              <div className="flex items-center justify-between mb-3">
-               <h2 className="text-base font-bold text-stone-100">الرد على التقييم</h2>
-               <button onClick={() => setIsResponseModalOpen(false)} className="text-stone-400 hover:text-stone-100">
+               <h2 className="text-base font-bold text-slate-100">الرد على التقييم</h2>
+               <button onClick={() => setIsResponseModalOpen(false)} className="text-slate-400 hover:text-slate-100">
                  <X size={20} />
                </button>
              </div>
              <div className="space-y-3">
                <div className="bg-white/5 rounded-xl p-3 border border-amber-700/20">
-                 <p className="text-sm text-stone-300 mb-1.5">{selectedReview.comment}</p>
+                 <p className="text-sm text-slate-300 mb-1.5">{selectedReview.comment}</p>
                  <div className="flex items-center gap-1">
                    {[1, 2, 3, 4, 5].map((star) => (
                      <Star
                        key={star}
                        size={14}
-                       className={star <= selectedReview.rating ? 'fill-amber-600 text-amber-600' : 'text-stone-600'}
+                       className={star <= selectedReview.rating ? 'fill-amber-600 text-amber-600' : 'text-slate-600'}
                      />
                    ))}
                  </div>
                </div>
                <div>
-                 <label className="block text-sm text-stone-400 mb-1.5">الرد</label>
+                 <label className="block text-sm text-slate-400 mb-1.5">الرد</label>
                  <textarea
                    value={responseText}
                    onChange={(e) => setResponseText(e.target.value)}
                    placeholder="اكتب ردك هنا..."
                    rows={4}
-                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-amber-600/50 resize-none"
+                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-amber-600/50 resize-none"
                  />
                </div>
               {respondMutation.isError && (

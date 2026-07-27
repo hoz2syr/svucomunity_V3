@@ -18,6 +18,7 @@ interface DropdownProps {
   searchPlaceholder?: string;
   error?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function Dropdown({
@@ -29,6 +30,7 @@ export function Dropdown({
   searchPlaceholder = 'ابحث...',
   error,
   className = '',
+  disabled = false,
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -65,10 +67,12 @@ export function Dropdown({
     <div ref={containerRef} className={`relative ${className}`}>
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => { if (!disabled) setOpen((prev) => !prev); }}
+        disabled={disabled}
         className={`
           input-field w-full px-4 py-3 rounded-xl text-white text-sm text-right
           flex items-center justify-between
+          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           ${error ? 'border-rose-500/50' : ''}
         `}
       >

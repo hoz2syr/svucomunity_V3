@@ -6,7 +6,7 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
 import { Skeleton } from '@/src/components/ui/Skeleton';
 import { Icon } from '@/src/components/ui/Icon';
-import { useAdminUsers, useUpdateUserRole } from '../../features/admin/hooks/useAdminUsers';
+import { useAdminUsers, useUpdateUserRole, useAdminUserRoleCounts } from '../../features/admin/hooks/useAdminUsers';
 import {
   Search,
   Shield,
@@ -33,7 +33,10 @@ export function UserManagement() {
   const [page, setPage] = useState(1);
   const limit = 50;
 
-  const { data: users, isLoading: usersLoading, error: usersError, refetch } = useAdminUsers(page, limit);
+  const { data: usersData, isLoading: usersLoading, error: usersError, refetch } = useAdminUsers(page, limit);
+  const users = usersData?.items;
+  const totalCount = usersData?.totalCount;
+  const { data: roleCountsData } = useAdminUserRoleCounts();
   const updateRoleMutation = useUpdateUserRole();
 
   const filteredUsers = useMemo(() => {
@@ -48,19 +51,7 @@ export function UserManagement() {
     });
   }, [users, searchQuery, selectedRole]);
 
-  const roleCounts = useMemo(() => {
-    if (!users) return { admin: 0, user: 0, student: 0 };
-    return users.reduce(
-      (acc: { admin: number; user: number; student: number }, u: AdminUser) => {
-        const role = u.role || 'user';
-        if (role === 'admin') acc.admin++;
-        else if (role === 'student') acc.student++;
-        else acc.user++;
-        return acc;
-      },
-      { admin: 0, user: 0, student: 0 }
-    );
-  }, [users]);
+  const roleCounts = roleCountsData ?? { admin: 0, user: 0, student: 0 };
 
   if (authLoading) {
     return (
@@ -134,13 +125,13 @@ export function UserManagement() {
             type="text"
             placeholder="بحث بالاسم، البريد، أو اسم المستخدم..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
             className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
           />
         </div>
         <select
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
+          onChange={(e) => { setSelectedRole(e.target.value); setPage(1); }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           <option value="all">كل الأدوار</option>
@@ -216,7 +207,7 @@ export function UserManagement() {
           <Button
             variant="secondary"
             onClick={() => setPage((p) => p + 1)}
-            disabled={filteredUsers.length < limit}
+            disabled={totalCount == null ? (users?.length ?? 0) <= limit : page * limit >= totalCount}
           >
             التالي
           </Button>

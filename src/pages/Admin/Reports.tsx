@@ -6,7 +6,7 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
 import { Skeleton } from '@/src/components/ui/Skeleton';
 import { Icon } from '@/src/components/ui/Icon';
-import { usePlatformStats, useRefreshAdminData } from '../../features/admin/hooks/useAdminExtractions';
+import { usePlatformStats, useRefreshAdminData } from '../../features/admin/hooks/useAdminReports';
 import {
   Users,
   FileText,
@@ -88,6 +88,8 @@ export function Reports() {
             setIsRefreshing(true);
             try {
               await Promise.all([refetch(), refresh()]);
+            } catch (error) {
+              console.error('Refresh failed:', error);
             } finally {
               setIsRefreshing(false);
             }
@@ -140,6 +142,7 @@ export function Reports() {
                     <span className="text-sm text-slate-400">المواد المحققة</span>
                     <span className="text-sm text-white font-medium">
                       {stats.verified_courses} / {stats.verified_courses + stats.unverified_courses}
+                      <span className="text-xs text-slate-400 mr-1">({Math.round(coursesVerificationRate)}%)</span>
                     </span>
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-2">
@@ -154,6 +157,7 @@ export function Reports() {
                     <span className="text-sm text-slate-400">المحاضرين المحققين</span>
                     <span className="text-sm text-white font-medium">
                       {stats.verified_instructors} / {stats.verified_instructors + stats.unverified_instructors}
+                      <span className="text-xs text-slate-400 mr-1">({Math.round(instructorsVerificationRate)}%)</span>
                     </span>
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-2">

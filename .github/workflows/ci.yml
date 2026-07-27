@@ -14,8 +14,8 @@ jobs:
       - name: Guard against client-exposed secrets
         run: |
           if grep -R --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' --include='*.env*' \
-            -nE 'VITE_SUPABASE_SERVICE_ROLE_KEY|VITE_GEMINI_API_KEY|VITE_RESEND_API_KEY' .; then
-            echo '::error::Client-exposed secret detected!'
+            -nE 'VITE_SUPABASE_SERVICE_ROLE_KEY|VITE_GEMINI_API_KEY|VITE_RESEND_API_KEY|VITE_OCR_API_KEY' .; then
+            echo '::error::Client-exposed secret detected in source code!'
             exit 1
           fi
 

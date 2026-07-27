@@ -1,5 +1,5 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
-import { logAdminAction } from '@/src/features/admin/services/adminExtractionService.supabase';
+import { logAdminAction } from '@/src/features/admin/services/adminAudit';
 import type { DiscoveredCourse, DiscoveredInstructor, DiscoveredMajor } from '@/src/types/database';
 import type { ServiceResult } from './extractionService.supabase';
 

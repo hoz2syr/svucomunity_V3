@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Icon } from '@/src/components/ui/Icon';
 import {
@@ -8,7 +8,6 @@ import {
   FileText,
   BarChart3,
   ShieldCheck,
-  TrendingUp,
   Bell,
   Star,
   ChevronRight,
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
-type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'notifications' | 'reviews' | 'analytics' | 'semester' | 'sources';
+type Tab = 'users' | 'extractions' | 'reports' | 'verification' | 'notifications' | 'reviews' | 'semester' | 'sources';
 
 const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
@@ -29,27 +28,6 @@ const tabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
   { id: 'notifications', label: 'الإشعارات', icon: Bell, path: '/admin/notifications' },
   { id: 'reviews', label: 'التقييمات', icon: Star, path: '/admin/reviews' },
   { id: 'sources', label: 'المصادر', icon: BookOpen, path: '/admin/sources' },
-  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
-  { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays, path: '/admin/semester' },
-];
-
-const mobileBottomTabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
-  { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
-  { id: 'extractions', label: 'الاستخراجات', icon: FileText, path: '/admin/extractions' },
-  { id: 'reports', label: 'التقارير', icon: BarChart3, path: '/admin/reports' },
-  { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
-  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
-];
-
-const mobileMenuTabs: { id: Tab; label: string; icon: typeof Users; path: string }[] = [
-  { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
-  { id: 'extractions', label: 'الاستخراجات', icon: FileText, path: '/admin/extractions' },
-  { id: 'reports', label: 'التقارير', icon: BarChart3, path: '/admin/reports' },
-  { id: 'verification', label: 'التحقق', icon: ShieldCheck, path: '/admin/verification' },
-  { id: 'notifications', label: 'الإشعارات', icon: Bell, path: '/admin/notifications' },
-  { id: 'reviews', label: 'التقييمات', icon: Star, path: '/admin/reviews' },
-  { id: 'sources', label: 'المصادر', icon: BookOpen, path: '/admin/sources' },
-  { id: 'analytics', label: 'الإحصائيات', icon: TrendingUp, path: '/admin/analytics' },
   { id: 'semester', label: 'الفصل الدراسي', icon: CalendarDays, path: '/admin/semester' },
 ];
 
@@ -63,9 +41,9 @@ export function AdminLayout() {
     return match?.id ?? 'users';
   };
 
-  if (location.pathname !== '/admin' && activeTab === 'users' && tabFromPath(location.pathname) !== 'users') {
+  useEffect(() => {
     setActiveTab(tabFromPath(location.pathname));
-  }
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen text-slate-200 font-sans flex relative" dir="rtl">
@@ -164,7 +142,7 @@ export function AdminLayout() {
               </button>
             </div>
             <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-              {mobileMenuTabs.map((tab) => (
+              {tabs.map((tab) => (
                 <NavLink
                   key={tab.id}
                   to={tab.path}
@@ -203,7 +181,7 @@ export function AdminLayout() {
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-black/70 backdrop-blur-xl border-t border-white/10" aria-label="التنقل السفلي">
         <div className="flex items-center justify-around">
-          {mobileBottomTabs.map((tab) => (
+          {tabs.map((tab) => (
             <NavLink
               key={tab.id}
               to={tab.path}

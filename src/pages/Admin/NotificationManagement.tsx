@@ -32,6 +32,7 @@ import type { AdminNotification } from '../../features/admin/services/adminNotif
 import { CreateNotificationModal } from './CreateNotificationModal';
 import { BroadcastModal } from './BroadcastModal';
 import { NotificationDetailModal } from './NotificationDetailModal';
+import { ADMIN_NOTIFICATION_PAGE_LIMIT } from '@/src/lib/constants';
 
 export type PriorityOption = 'low' | 'normal' | 'high' | 'urgent';
 export type TypeFilter = 'all' | 'user' | 'admin_broadcast' | 'system';
@@ -79,15 +80,18 @@ export function NotificationManagement() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
+  const [notificationToDelete, setNotificationToDelete] = useState<AdminNotification | null>(null);
 
-  const limit = 20;
+  const limit = ADMIN_NOTIFICATION_PAGE_LIMIT;
 
-  const { data: notifications, isLoading: notificationsLoading, error: notificationsError, refetch } = useAdminNotifications(page, limit, {
+  const { data: notificationsData, isLoading: notificationsLoading, error: notificationsError, refetch } = useAdminNotifications(page, limit, {
     type: typeFilter === 'all' ? undefined : typeFilter,
     priority: priorityFilter === 'all' ? undefined : priorityFilter,
     read: readFilter === 'all' ? undefined : readFilter === 'read',
     search: searchQuery || undefined,
   });
+  const notifications = notificationsData?.items;
+  const totalCount = notificationsData?.totalCount;
 
   const { data: stats } = useNotificationStats();
   const createMutation = useCreateAdminNotification();
@@ -148,7 +152,9 @@ export function NotificationManagement() {
               <Icon icon={Bell} size="sm" className="text-cyan-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats?.total ?? '-'}</p>
+              <p className="text-2xl font-bold text-white">
+                {stats ? (stats.total ?? 0) : <Skeleton className="w-8 h-6" />}
+              </p>
               <p className="text-xs text-slate-400">إجمالي الإشعارات</p>
             </div>
           </div>
@@ -159,7 +165,9 @@ export function NotificationManagement() {
               <Icon icon={Inbox} size="sm" className="text-amber-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats?.unread ?? '-'}</p>
+              <p className="text-2xl font-bold text-white">
+                {stats ? (stats.unread ?? 0) : <Skeleton className="w-8 h-6" />}
+              </p>
               <p className="text-xs text-slate-400">غير مقروءة</p>
             </div>
           </div>
@@ -170,7 +178,9 @@ export function NotificationManagement() {
               <Icon icon={Send} size="sm" className="text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats?.broadcasts ?? '-'}</p>
+              <p className="text-2xl font-bold text-white">
+                {stats ? (stats.broadcasts ?? 0) : <Skeleton className="w-8 h-6" />}
+              </p>
               <p className="text-xs text-slate-400">إذاعات إدارية</p>
             </div>
           </div>
@@ -181,7 +191,9 @@ export function NotificationManagement() {
               <Icon icon={Users} size="sm" className="text-emerald-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats?.userNotifications ?? '-'}</p>
+              <p className="text-2xl font-bold text-white">
+                {stats ? (stats.userNotifications ?? 0) : <Skeleton className="w-8 h-6" />}
+              </p>
               <p className="text-xs text-slate-400">إشعارات المستخدمين</p>
             </div>
           </div>
@@ -372,11 +384,7 @@ export function NotificationManagement() {
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => {
-                      if (confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
-                        deleteMutation.mutate(notification.id);
-                      }
-                    }}
+                    onClick={() => setNotificationToDelete(notification)}
                     disabled={deleteMutation.isPending}
                     icon={<Icon icon={Trash2} size="xs" />}
                     className="text-rose-400 hover:text-rose-300"
@@ -408,7 +416,7 @@ export function NotificationManagement() {
           <Button
             variant="secondary"
             onClick={() => setPage((p) => p + 1)}
-            disabled={notifications.length < limit}
+            disabled={totalCount == null ? (notifications?.length ?? 0) <= limit : page * limit >= totalCount}
           >
             التالي
           </Button>
@@ -440,6 +448,39 @@ export function NotificationManagement() {
           isMarkingRead={markReadMutation.isPending}
           isDeleting={deleteMutation.isPending}
         />
+      )}
+
+      {notificationToDelete && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <GlassCard className="relative z-10 w-full max-w-md p-6">
+            <h2 className="text-lg font-bold text-white mb-2">تأكيد الحذف</h2>
+            <p className="text-sm text-slate-400 mb-6">
+              هل أنت متأكد من حذف الإشعار{' '}
+              <span className="text-white font-medium">{notificationToDelete.title}</span>؟
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setNotificationToDelete(null)}
+                disabled={deleteMutation.isPending}
+                className="flex-1"
+              >
+                إلغاء
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  deleteMutation.mutate(notificationToDelete.id);
+                  setNotificationToDelete(null);
+                }}
+                disabled={deleteMutation.isPending}
+                className="flex-1"
+              >
+                {deleteMutation.isPending ? 'جاري الحذف...' : 'حذف'}
+              </Button>
+            </div>
+          </GlassCard>
+        </div>
       )}
     </div>
   );

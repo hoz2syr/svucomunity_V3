@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Button } from '@/src/components/ui/Button';
@@ -10,8 +11,8 @@ import {
   fetchAllReferences,
   updateReference,
   removeReference,
+  getSubjectByCode,
 } from '@/src/features/subjects/src/services/subjects.service';
-import { getSubjectByCode } from '@/src/features/subjects/src/services/subjects.service';
 import type { SubjectReference, SubjectReferenceUpdate } from '@/src/features/subjects/src/types';
 import {
   Search,
@@ -24,87 +25,111 @@ import {
 } from 'lucide-react';
 import { EditReferenceModal } from '@/src/features/subjects/components/EditReferenceModal';
 import { BulkImportModal } from '@/src/features/subjects/components/BulkImportModal';
+import { ConfirmActionModal } from '@/src/components/ui/ConfirmActionModal';
 import { cn } from '@/src/lib/utils';
 import { useToast } from '@/src/components/ui/Toast';
+
+const SOURCES_QUERY_KEY = ['admin', 'sources'];
 
 export function SourcesManagement() {
   const { profile, loading: authLoading } = useAuth();
   const isAdmin = profile?.role === 'admin';
+  const callerId = profile?.id || '';
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const [references, setReferences] = useState<SubjectReference[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [editingReference, setEditingReference] = useState<{ id: string; title: string; url: string; description?: string; type: 'video' | 'reference' | 'link' } | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'list' | 'bulk-import'>('list');
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const limit = 50;
 
-  const loadReferences = async () => {
-    setIsLoading(true);
-    setError(null);
-    const result = await fetchAllReferences();
-    if (result.error) {
-      setError(result.error.message);
-    } else if (result.data) {
-      setReferences(result.data);
+  const { data: references = [], isLoading, error, refetch } = useQuery({
+    queryKey: SOURCES_QUERY_KEY,
+    queryFn: async () => {
+      const result = await fetchAllReferences();
+      if (result.error) throw result.error;
+      return result.data as SubjectReference[];
+    },
+    enabled: isAdmin,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: SubjectReferenceUpdate }) => {
+      const result = await updateReference(id, updates);
+      if (result.error) throw result.error;
+      return result.data as SubjectReference;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SOURCES_QUERY_KEY });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const result = await removeReference(id);
+      if (result.error) throw result.error;
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SOURCES_QUERY_KEY });
+      toast('تم حذف المصدر بنجاح', 'success');
+      setDeleteTargetId(null);
+    },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: async (ref: SubjectReference) => {
+      const result = await updateReference(ref.id, { is_approved: !ref.is_approved });
+      if (result.error) throw result.error;
+      return result.data as SubjectReference;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: SOURCES_QUERY_KEY });
+      toast(data.is_approved ? 'تم الموافقة على المصدر' : 'تم إخفاء المصدر', 'success');
+    },
+  });
+
+  const handleEdit = useCallback(async (updates: SubjectReferenceUpdate) => {
+    if (!editingReference) return;
+    try {
+      await updateMutation.mutateAsync({ id: editingReference.id, updates });
+      toast('تم تعديل المصدر بنجاح', 'success');
+      setEditingReference(null);
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'حدث خطأ', 'error');
     }
-    setIsLoading(false);
-  };
+  }, [editingReference, updateMutation, toast]);
 
-  useEffect(() => {
-    loadReferences();
-  }, []);
+  const handleDelete = useCallback(() => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
+    }
+  }, [deleteTargetId, deleteMutation]);
 
-  const subjects = Array.from(new Set(references.map((r) => r.course_code))).sort();
+  const handleToggleApproval = useCallback(async (ref: SubjectReference) => {
+    try {
+      await toggleMutation.mutateAsync(ref);
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'حدث خطأ', 'error');
+    }
+  }, [toggleMutation, toast]);
 
-  const filteredReferences = references.filter((ref) => {
+  const subjects = useMemo(() => Array.from(new Set(references.map((r) => r.course_code))).sort(), [references]);
+
+  const filteredReferences = useMemo(() => references.filter((ref) => {
     const matchesSearch = !searchQuery ||
       ref.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ref.url.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSubject = !subjectFilter || ref.course_code === subjectFilter;
     return matchesSearch && matchesSubject;
-  });
+  }), [references, searchQuery, subjectFilter]);
 
-  const handleEdit = async (updates: SubjectReferenceUpdate) => {
-    if (!editingReference) return;
-    setIsSaving(true);
-    const result = await updateReference(editingReference.id, updates);
-    setIsSaving(false);
-    if (result.error) {
-      toast(result.error.message, 'error');
-    } else {
-      toast('تم تعديل المصدر بنجاح', 'success');
-      setEditingReference(null);
-      loadReferences();
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المصدر؟')) return;
-    setIsDeleting(id);
-    const result = await removeReference(id);
-    setIsDeleting(null);
-    if (result.error) {
-      toast(result.error.message, 'error');
-    } else {
-      toast('تم حذف المصدر بنجاح', 'success');
-      loadReferences();
-    }
-  };
-
-  const handleToggleApproval = async (ref: SubjectReference) => {
-    const result = await updateReference(ref.id, { is_approved: !ref.is_approved });
-    if (result.error) {
-      toast(result.error.message, 'error');
-    } else {
-      toast(ref.is_approved ? 'تم إخفاء المصدر' : 'تم الموافقة على المصدر', 'success');
-      loadReferences();
-    }
-  };
+  const totalFilteredCount = filteredReferences.length;
+  const paginatedReferences = filteredReferences.slice((page - 1) * limit, page * limit);
 
   if (authLoading) {
     return (
@@ -166,13 +191,13 @@ export function SourcesManagement() {
                 type="text"
                 placeholder="بحث في المصادر..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
               />
             </div>
             <select
               value={subjectFilter}
-              onChange={(e) => setSubjectFilter(e.target.value)}
+              onChange={(e) => { setSubjectFilter(e.target.value); setPage(1); }}
               className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
             >
               <option value="">كل المواد</option>
@@ -182,7 +207,7 @@ export function SourcesManagement() {
             </select>
             <Button
               variant="secondary"
-              onClick={loadReferences}
+              onClick={() => refetch()}
               icon={<Icon icon={RefreshCw} size="xs" />}
             >
               تحديث
@@ -193,7 +218,7 @@ export function SourcesManagement() {
             <GlassCard className="p-4 border-rose-500/30">
               <div className="flex items-center gap-2 text-rose-400">
                 <Icon icon={AlertTriangle} size="sm" />
-                <span className="text-sm">{error}</span>
+                <span className="text-sm">{error instanceof Error ? error.message : 'حدث خطأ'}</span>
               </div>
             </GlassCard>
           )}
@@ -206,14 +231,14 @@ export function SourcesManagement() {
                 </GlassCard>
               ))}
             </div>
-          ) : filteredReferences.length === 0 ? (
+          ) : totalFilteredCount === 0 ? (
             <GlassCard className="p-8 text-center">
               <Icon icon={CheckCircle2} size="xl" className="text-slate-500 mb-3 mx-auto" />
               <p className="text-slate-400 text-sm">لا يوجد مصادر</p>
             </GlassCard>
           ) : (
             <div className="grid gap-4">
-              {filteredReferences.map((ref) => (
+              {paginatedReferences.map((ref) => (
                 <GlassCard key={ref.id} className="p-5">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -250,7 +275,7 @@ export function SourcesManagement() {
                         <ExternalLink className="w-3 h-3 shrink-0" />
                       </a>
                       <div className="flex items-center gap-3 text-xs text-slate-500 mt-2">
-                        <span>{ref.user_id}</span>
+                        <span>{ref.profiles?.full_name || ref.profiles?.email || ref.user_id}</span>
                         <span>|</span>
                         <span>{ref.likes || 0} إعجاب</span>
                         <span>|</span>
@@ -261,21 +286,21 @@ export function SourcesManagement() {
                       <Button
                         variant="secondary"
                         onClick={() => setEditingReference({ id: ref.id, title: ref.title, url: ref.url, description: ref.description, type: ref.type })}
-                        disabled={isSaving}
+                        disabled={updateMutation.isPending || deleteMutation.isPending || toggleMutation.isPending}
                       >
                         تعديل
                       </Button>
                       <Button
                         variant={ref.is_approved ? 'secondary' : 'primary'}
                         onClick={() => handleToggleApproval(ref)}
-                        disabled={isSaving}
+                        disabled={updateMutation.isPending || deleteMutation.isPending || toggleMutation.isPending}
                       >
                         {ref.is_approved ? 'إخفاء' : 'موافقة'}
                       </Button>
                       <Button
                         variant="danger"
-                        onClick={() => handleDelete(ref.id)}
-                        disabled={isDeleting === ref.id}
+                        onClick={() => setDeleteTargetId(ref.id)}
+                        disabled={updateMutation.isPending || deleteMutation.isPending || toggleMutation.isPending}
                       >
                         <Icon icon={Trash2} size="xs" />
                       </Button>
@@ -288,21 +313,51 @@ export function SourcesManagement() {
         </>
       )}
 
+      {!isLoading && totalFilteredCount > 0 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-slate-400">صفحة {page}</span>
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page * limit >= totalFilteredCount}
+          >
+            التالي
+          </Button>
+        </div>
+      )}
+
       {editingReference && (
         <EditReferenceModal
           isOpen={Boolean(editingReference)}
           onClose={() => setEditingReference(null)}
           initialData={editingReference}
           onSave={handleEdit}
-          isSaving={isSaving}
+          isSaving={updateMutation.isPending}
         />
       )}
 
       <BulkImportModal
         isOpen={isBulkImportOpen}
         onClose={() => setIsBulkImportOpen(false)}
-        adminId={profile?.id || ''}
-        onImported={loadReferences}
+        adminId={callerId}
+        onImported={() => queryClient.invalidateQueries({ queryKey: SOURCES_QUERY_KEY })}
+      />
+
+      <ConfirmActionModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="حذف المصدر"
+        description="هل أنت متأكد من حذف هذا المصدر؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmLabel="حذف"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

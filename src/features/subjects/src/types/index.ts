@@ -12,6 +12,11 @@ export interface SubjectReference {
   likes: number;
   isLiked?: boolean;
   is_approved?: boolean;
+  profiles?: {
+    full_name: string | null;
+    email: string | null;
+    username: string | null;
+  } | null;
 }
 
 export interface SubjectReferenceInsert {

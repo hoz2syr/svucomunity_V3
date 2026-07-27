@@ -32,6 +32,8 @@ type CourseVerificationListProps = {
   verifyCourseMutation: { mutate: (params: { courseCode: string; isVerified: boolean }) => void; isPending: boolean };
   setConfirmAction: (action: ConfirmAction | null) => void;
   limit: number;
+  coursesTotalCount?: number;
+  courses?: DiscoveredCourse[];
 };
 
 type InstructorVerificationListProps = {
@@ -42,6 +44,7 @@ type InstructorVerificationListProps = {
   verifyInstructorMutation: { mutate: (params: { instructorUsername: string; isVerified: boolean }) => void; isPending: boolean };
   setConfirmAction: (action: ConfirmAction | null) => void;
   limit: number;
+  instructorsTotalCount?: number;
 };
 
 function CourseVerificationList({
@@ -57,6 +60,8 @@ function CourseVerificationList({
   verifyCourseMutation,
   setConfirmAction,
   limit,
+  coursesTotalCount,
+  courses,
 }: CourseVerificationListProps) {
   return (
     <div className="space-y-4">
@@ -67,13 +72,19 @@ function CourseVerificationList({
             type="text"
             placeholder="بحث عن مادة..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCoursesPage(1);
+            }}
             className="w-full pr-10 pl-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50"
           />
         </div>
         <select
           value={selectedMajor}
-          onChange={(e) => setSelectedMajor(e.target.value)}
+          onChange={(e) => {
+            setSelectedMajor(e.target.value);
+            setCoursesPage(1);
+          }}
           className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500/50"
         >
           <option value="all">كل التخصصات</option>
@@ -154,7 +165,7 @@ function CourseVerificationList({
           <Button
             variant="secondary"
             onClick={() => setCoursesPage((p: number) => p + 1)}
-            disabled={filteredCourses.length < limit}
+            disabled={coursesTotalCount == null ? (courses?.length ?? 0) <= limit : coursesPage * limit >= coursesTotalCount}
           >
             التالي
           </Button>
@@ -243,7 +254,7 @@ function InstructorVerificationList({
           <Button
             variant="secondary"
             onClick={() => setInstructorsPage((p: number) => p + 1)}
-            disabled={instructors.length < limit}
+            disabled={instructorsTotalCount == null ? (instructors?.length ?? 0) <= limit : instructorsPage * limit >= instructorsTotalCount}
           >
             التالي
           </Button>
@@ -254,7 +265,7 @@ function InstructorVerificationList({
 }
 
 export function VerificationPanel() {
-  const { session: _session, profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('courses');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMajor, setSelectedMajor] = useState<string>('all');
@@ -265,24 +276,37 @@ export function VerificationPanel() {
 
   const isAdmin = profile?.role === 'admin';
 
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    setSelectedMajor('all');
+    setSearchQuery('');
+    setCoursesPage(1);
+    setInstructorsPage(1);
+  };
+
   const {
-    data: courses,
+    data: coursesData,
     isLoading: coursesLoading,
     error: coursesError,
     refetch: refetchCourses,
-  } = useUnverifiedCourses(activeTab === 'courses' ? coursesPage : 1, limit);
+  } = useUnverifiedCourses(activeTab === 'courses' ? coursesPage : 1, limit, activeTab === 'courses');
+
+  const courses = coursesData?.items;
+  const coursesTotalCount = coursesData?.totalCount;
 
   const {
-    data: instructors,
+    data: instructorsData,
     isLoading: instructorsLoading,
     error: instructorsError,
     refetch: refetchInstructors,
-  } = useUnverifiedInstructors(activeTab === 'instructors' ? instructorsPage : 1, limit);
+  } = useUnverifiedInstructors(activeTab === 'instructors' ? instructorsPage : 1, limit, activeTab === 'instructors');
+
+  const instructors = instructorsData?.items;
+  const instructorsTotalCount = instructorsData?.totalCount;
 
   const verifyCourseMutation = useVerifyCourse();
   const verifyInstructorMutation = useVerifyInstructor();
 
-  const _isLoading = authLoading || (activeTab === 'courses' ? coursesLoading : instructorsLoading);
   const error = activeTab === 'courses' ? coursesError : instructorsError;
 
   const filteredCourses = useMemo(() => {
@@ -351,7 +375,7 @@ export function VerificationPanel() {
       <div className="flex items-center gap-2 border-b border-white/10">
         <button
           type="button"
-          onClick={() => setActiveTab('courses')}
+          onClick={() => handleTabChange('courses')}
           className={`px-4 py-3 text-sm font-medium transition-all ${
             activeTab === 'courses'
               ? 'text-cyan-400 border-b-2 border-cyan-400'
@@ -362,7 +386,7 @@ export function VerificationPanel() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('instructors')}
+          onClick={() => handleTabChange('instructors')}
           className={`px-4 py-3 text-sm font-medium transition-all ${
             activeTab === 'instructors'
               ? 'text-cyan-400 border-b-2 border-cyan-400'
@@ -406,6 +430,8 @@ export function VerificationPanel() {
           verifyCourseMutation={verifyCourseMutation}
           setConfirmAction={setConfirmAction}
           limit={limit}
+          coursesTotalCount={coursesTotalCount}
+          courses={courses}
         />
       )}
 
@@ -418,6 +444,7 @@ export function VerificationPanel() {
           verifyInstructorMutation={verifyInstructorMutation}
           setConfirmAction={setConfirmAction}
           limit={limit}
+          instructorsTotalCount={instructorsTotalCount}
         />
       )}
 

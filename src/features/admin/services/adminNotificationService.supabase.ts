@@ -1,6 +1,7 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
-import type { ServiceResult } from '@/src/types/admin';
+import type { ServiceResult, PaginatedServiceResult } from '@/src/types/admin';
 import { ROLES } from '@/src/types/admin';
+import { logAdminAction } from './adminAudit';
 
 export type AdminNotification = {
   id: string;
@@ -71,17 +72,18 @@ const deduplicateNotifications = (notifications: NotificationRow[]): Notificatio
 };
 
 export async function listAllNotifications(
+  callerId: string,
   callerRole: string,
   page = 1,
   limit = 50,
   filters?: { type?: string; priority?: string; read?: boolean; search?: string },
-): Promise<ServiceResult<NotificationRow[]>> {
+): Promise<PaginatedServiceResult<NotificationRow[]>> {
   if (callerRole !== ROLES.ADMIN) {
-    return { data: null, error: new Error('Unauthorized') };
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
 
   const client = await getSupabaseClient();
@@ -112,19 +114,44 @@ export async function listAllNotifications(
   const { data, error } = await query;
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
   }
 
   const notifications: NotificationRow[] = deduplicateNotifications(
     ((data as unknown) as Record<string, unknown>[]).map(mapRow),
   );
 
-  return { data: notifications, error: null };
+  let countQuery = client
+    .from('notifications')
+    .select('id', { count: 'exact', head: true });
+
+  if (filters?.type) {
+    countQuery = countQuery.eq('type', filters.type);
+  }
+  if (filters?.priority) {
+    countQuery = countQuery.eq('priority', filters.priority);
+  }
+  if (filters?.read !== undefined) {
+    countQuery = countQuery.eq('read', filters.read);
+  }
+  if (filters?.search) {
+    countQuery = countQuery.or(`title.ilike.%${filters.search}%,body.ilike.%${filters.search}%`);
+  }
+
+  const { count, error: countError } = await countQuery;
+
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
+  }
+
+  await logAdminAction(callerId, 'list_all_notifications', { page, limit, filters });
+
+  return { data: notifications, totalCount: count || 0, error: null };
 }
 
 export async function createAdminNotification(
-  callerRole: string,
   callerId: string,
+  callerRole: string,
   input: {
     user_id: string;
     title: string;
@@ -149,7 +176,7 @@ export async function createAdminNotification(
       user_id: input.user_id,
       title: input.title,
       body: input.body,
-      type: input.type || 'admin_broadcast',
+      type: input.type || 'user',
       priority: input.priority || 'normal',
       created_by: callerId,
       read: false,
@@ -161,12 +188,14 @@ export async function createAdminNotification(
     return { data: null, error: new Error(error.message) };
   }
 
+  await logAdminAction(callerId, 'create_admin_notification', { user_id: input.user_id, type: input.type, priority: input.priority });
+
   return { data: mapRow(data as Record<string, unknown>), error: null };
 }
 
 export async function broadcastToAllUsers(
-  callerRole: string,
   callerId: string,
+  callerRole: string,
   input: {
     title: string;
     body: string;
@@ -203,21 +232,44 @@ export async function broadcastToAllUsers(
     read: false,
   }));
 
-  const { data, error } = await client
-    .from('notifications')
-    .insert(rows)
-    .select('id, user_id, title, body, read, type, created_by, priority, created_at, profiles:profiles!left(full_name, email, username)');
+  const BATCH_SIZE = 500;
+  const results: NotificationRow[] = [];
+  const insertedIds: string[] = [];
 
-  if (error) {
-    return { data: null, error: new Error(error.message) };
+  try {
+    for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+      const batch = rows.slice(i, i + BATCH_SIZE);
+      const { data, error } = await client
+        .from('notifications')
+        .insert(batch)
+        .select('id, user_id, title, body, read, type, created_by, priority, created_at, profiles:profiles!left(full_name, email, username)');
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data) {
+        const mapped = ((data as unknown) as Record<string, unknown>[]).map(mapRow);
+        results.push(...mapped);
+        insertedIds.push(...mapped.map((n) => n.id));
+      }
+    }
+  } catch (error) {
+    await client
+      .from('notifications')
+      .delete()
+      .in('id', insertedIds);
+
+    return { data: null, error: error instanceof Error ? error : new Error('Broadcast failed') };
   }
 
-  const notifications: NotificationRow[] = ((data as unknown) as Record<string, unknown>[]).map(mapRow);
+  await logAdminAction(callerId, 'broadcast_to_all_users', { recipientCount: results.length });
 
-  return { data: notifications, error: null };
+  return { data: results, error: null };
 }
 
 export async function deleteAnyNotificationAdmin(
+  callerId: string,
   callerRole: string,
   notificationId: string,
 ): Promise<ServiceResult<null>> {
@@ -240,10 +292,13 @@ export async function deleteAnyNotificationAdmin(
     return { data: null, error: new Error(error.message) };
   }
 
+  await logAdminAction(callerId, 'delete_notification_admin', { notificationId });
+
   return { data: null, error: null };
 }
 
 export async function markNotificationAsReadAdmin(
+  callerId: string,
   callerRole: string,
   notificationId: string,
 ): Promise<ServiceResult<NotificationRow>> {
@@ -268,10 +323,13 @@ export async function markNotificationAsReadAdmin(
     return { data: null, error: new Error(error.message) };
   }
 
+  await logAdminAction(callerId, 'mark_notification_as_read_admin', { notificationId });
+
   return { data: mapRow(data as Record<string, unknown>), error: null };
 }
 
 export async function getNotificationStats(
+  callerId: string,
   callerRole: string,
 ): Promise<ServiceResult<{ total: number; unread: number; broadcasts: number; userNotifications: number }>> {
   if (callerRole !== ROLES.ADMIN) {
@@ -318,6 +376,8 @@ export async function getNotificationStats(
   if (userNotificationsError) {
     return { data: null, error: new Error(userNotificationsError.message) };
   }
+
+  await logAdminAction(callerId, 'get_notification_stats', {});
 
   return {
     data: {

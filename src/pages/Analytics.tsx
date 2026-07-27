@@ -1,11 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen, User, GraduationCap, TrendingUp, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { BookOpen, User, GraduationCap, TrendingUp, AlertTriangle } from 'lucide-react';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Skeleton } from '@/src/components/ui/Skeleton';
-import { Button } from '@/src/components/ui/Button';
 import { Icon } from '@/src/components/ui/Icon';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { usePopularCourses, usePopularInstructors, useMajorDistribution } from '@/src/features/schedule-extraction/hooks/useAnalytics';
@@ -294,14 +292,6 @@ export function AnalyticsPage() {
   return (
     <div className="flex-1 p-6 lg:p-12 relative z-10 w-full h-full mt-20">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link to="/dashboard">
-            <Button variant="ghost" icon={<ArrowLeft size={16} />}>
-              العودة للوحة التحكم
-            </Button>
-          </Link>
-        </div>
-
         <div className="mb-10">
           <h1 className="text-3xl font-black text-white tracking-tight mb-2 flex items-center gap-3">
             <Icon icon={TrendingUp} size="lg" />

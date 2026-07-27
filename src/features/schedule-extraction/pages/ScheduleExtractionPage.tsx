@@ -12,7 +12,7 @@ import { useScheduleMatching } from '../hooks';
 import { useCourseMatching } from '../hooks/useCourseMatching';
 import { createGroup, joinGroup, getGroupMembers } from '@/src/features/study-groups/services/studyGroup.supabase';
 import { saveRawExtraction, saveStudentSemesterCourses, upsertDiscoveredCourses, upsertDiscoveredInstructors, upsertDiscoveredMajors } from '../services/extractionService.supabase';
-import { getCurrentSemesterCode } from '../utils/semesterUtils';
+import { getActiveSemesterCode } from '../utils/semesterUtils';
 import type { ExtractedCourse, MatchedGroup, DraftGroup } from '../types';
 import type { TableSchema } from '../utils/schemaDetection';
 
@@ -75,7 +75,7 @@ export function ScheduleExtractionPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const currentSemester = profile?.current_semester || getCurrentSemesterCode();
+   const currentSemester = profile?.current_semester || getActiveSemesterCode();
   const {
     matchedCourses,
     studyGroupSuggestions,
@@ -143,7 +143,7 @@ export function ScheduleExtractionPage() {
         setSaveError('فشل حفظ الاستخراج');
         return;
       }
-      const currentSemester = profile?.current_semester || getCurrentSemesterCode();
+  const currentSemester = profile?.current_semester || getActiveSemesterCode();
       const coursesWithSemester = result.courses.map((course) => ({
         ...course,
         semester: course.semester || currentSemester,

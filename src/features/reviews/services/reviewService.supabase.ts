@@ -1,6 +1,6 @@
 import { hasSupabaseEnv, getSupabaseClient, getErrorMessage } from '@/src/lib/supabase';
 import type { Review, CreateReviewInput, RespondToReviewInput, ReviewFilters } from '../types';
-import type { ServiceResult } from '@/src/types/admin';
+import type { ServiceResult, PaginatedServiceResult } from '@/src/types/admin';
 export type { Review, CreateReviewInput, RespondToReviewInput, ReviewFilters } from '../types';
 
 const mapRow = (row: Record<string, unknown>): Review => ({
@@ -63,9 +63,9 @@ export async function listAllReviews(
   page = 1,
   limit = 50,
   filters?: ReviewFilters,
-): Promise<ServiceResult<Review[]>> {
+): Promise<PaginatedServiceResult<Review>> {
   if (callerRole !== 'admin') {
-    return { data: null, error: new Error('Unauthorized') };
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
@@ -96,12 +96,32 @@ export async function listAllReviews(
   const { data, error } = await query;
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
   }
 
   const reviews: Review[] = ((data as unknown) as Record<string, unknown>[]).map(mapRow);
 
-  return { data: reviews, error: null };
+  let countQuery = client
+    .from('platform_reviews')
+    .select('id', { count: 'exact', head: true });
+
+  if (filters?.status) {
+    countQuery = countQuery.eq('status', filters.status);
+  }
+  if (filters?.category) {
+    countQuery = countQuery.eq('category', filters.category);
+  }
+  if (filters?.search) {
+    countQuery = countQuery.or(`comment.ilike.%${filters.search}%,profiles.full_name.ilike.%${filters.search}%`);
+  }
+
+  const { count, error: countError } = await countQuery;
+
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
+  }
+
+  return { data: reviews, totalCount: count || 0, error: null };
 }
 
 export async function listPublicReviews(): Promise<ServiceResult<Review[]>> {

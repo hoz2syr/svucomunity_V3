@@ -1,6 +1,8 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { RawExtraction, Profile } from '@/src/types/database';
-import type { ServiceResult } from '@/src/types/admin';
+import type { ServiceResult, PaginatedServiceResult } from '@/src/types/admin';
+import { ROLES } from '@/src/types/admin';
+import { logAdminAction } from './adminAudit';
 
 export type AdminExtraction = RawExtraction & {
   user?: Profile;
@@ -8,16 +10,17 @@ export type AdminExtraction = RawExtraction & {
 };
 
 export async function listAllExtractions(
+  callerId: string,
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<ServiceResult<AdminExtraction[]>> {
-  if (callerRole !== 'admin') {
-    return { data: null, error: new Error('Unauthorized') };
+): Promise<PaginatedServiceResult<AdminExtraction>> {
+  if (callerRole !== ROLES.ADMIN) {
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
 
@@ -29,7 +32,15 @@ export async function listAllExtractions(
     .range(from, from + limit - 1);
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
+  }
+
+  const { count, error: countError } = await client
+    .from('raw_extractions')
+    .select('id', { count: 'exact', head: true });
+
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
   }
 
   const extractions = (data as RawExtraction[]).map((e) => ({
@@ -72,16 +83,17 @@ export async function listAllExtractions(
     }
   }
 
-  await logAdminAction(callerRole, 'list_all_extractions', { page, limit });
+  await logAdminAction(callerId, 'list_all_extractions', { page, limit });
 
-  return { data: extractions as AdminExtraction[], error: null };
+  return { data: extractions as AdminExtraction[], totalCount: count || 0, error: null };
 }
 
 export async function getExtractionDetails(
   extractionId: string,
+  callerId: string,
   callerRole: string
 ): Promise<ServiceResult<{ extraction: RawExtraction; courses: { course_name: string; semester_code: string; full_code: string; instructor_name: string | null; major: string }[]; user?: Profile }>> {
-  if (callerRole !== 'admin') {
+  if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
   }
 
@@ -142,7 +154,7 @@ export async function getExtractionDetails(
     user = profile as Profile;
   }
 
-  await logAdminAction(callerRole, 'get_extraction_details', { extractionId });
+  await logAdminAction(callerId, 'get_extraction_details', { extractionId });
 
   return {
     data: {
@@ -169,9 +181,10 @@ type PlatformStats = {
 };
 
 export async function getPlatformStats(
+  callerId: string,
   callerRole: string
 ): Promise<ServiceResult<PlatformStats>> {
-  if (callerRole !== 'admin') {
+  if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
   }
 
@@ -226,7 +239,7 @@ export async function getPlatformStats(
 
   const count = (result: { count: number | null }) => result.count || 0;
 
-  await logAdminAction(callerRole, 'get_platform_stats', {});
+  await logAdminAction(callerId, 'get_platform_stats', {});
 
   return {
     data: {
@@ -244,41 +257,4 @@ export async function getPlatformStats(
     },
     error: null,
   };
-}
-
-export async function logAdminAction(
-  callerId: string,
-  action: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  if (!hasSupabaseEnv()) return;
-  const client = await getSupabaseClient();
-
-  let ipAddress = 'unknown';
-  let userAgent = 'unknown';
-
-  try {
-    if (typeof window !== 'undefined') {
-      userAgent = navigator.userAgent;
-      const ipResponse = await fetch('/api/ip');
-      if (ipResponse.ok) {
-        const ipData = (await ipResponse.json()) as { ip: string };
-        ipAddress = ipData.ip;
-      }
-    }
-  } catch {
-    // keep fallback values
-  }
-
-  try {
-    await client.from('admin_audit_log').insert({
-      caller_id: callerId,
-      action,
-      payload,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-    });
-  } catch {
-    // audit log failure must not break the original operation
-  }
 }

@@ -77,6 +77,7 @@ export const AuthCard = ({
           <ServerError error={serverError} />
 
           <form onSubmit={onSubmit} className="space-y-5" noValidate>
+            <input type="text" name="username" autoComplete="username" className="hidden" />
             {children}
 
             <Button

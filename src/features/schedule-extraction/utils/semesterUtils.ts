@@ -46,6 +46,10 @@ export function getCurrentSemesterCode(): string {
   }
 }
 
+export function getActiveSemesterCode(): string {
+  return 'S25';
+}
+
 export function normalizeSemesterCode(code: string | null | undefined): string {
   if (!code) return '';
   const trimmed = code.trim();

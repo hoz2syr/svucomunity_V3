@@ -25,13 +25,18 @@ const ensureSupabaseEnv = (): EnvConfig => {
 };
 
 let _supabase: SupabaseClient | null = null;
+let _supabasePromise: Promise<SupabaseClient> | null = null;
 
 export const getSupabaseClient = async (): Promise<SupabaseClient> => {
-  if (!_supabase) {
-    const currentEnv = ensureSupabaseEnv();
-    const { createClient } = await import('@supabase/supabase-js');
-    _supabase = createClient(currentEnv.url, currentEnv.anonKey);
+  if (_supabase) return _supabase;
+  if (!_supabasePromise) {
+    _supabasePromise = (async () => {
+      const currentEnv = ensureSupabaseEnv();
+      const { createClient } = await import('@supabase/supabase-js');
+      return createClient(currentEnv.url, currentEnv.anonKey);
+    })();
   }
+  _supabase = await _supabasePromise;
   return _supabase;
 };
 

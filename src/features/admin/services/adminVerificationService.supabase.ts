@@ -1,6 +1,8 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { DiscoveredCourse, DiscoveredInstructor } from '@/src/types/database';
-import type { ServiceResult } from '@/src/types/admin';
+import type { ServiceResult, PaginatedServiceResult } from '@/src/types/admin';
+import { ROLES } from '@/src/types/admin';
+import { logAdminAction } from './adminAudit';
 
 function validateCourseCode(code: string): boolean {
   return typeof code === 'string' && code.trim().length > 0;
@@ -16,7 +18,7 @@ export async function verifyDiscoveredCourse(
   verifiedBy: string,
   callerRole: string
 ): Promise<ServiceResult<DiscoveredCourse>> {
-  if (callerRole !== 'admin') {
+  if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
   }
 
@@ -59,7 +61,7 @@ export async function verifyDiscoveredInstructor(
   verifiedBy: string,
   callerRole: string
 ): Promise<ServiceResult<DiscoveredInstructor>> {
-  if (callerRole !== 'admin') {
+  if (callerRole !== ROLES.ADMIN) {
     return { data: null, error: new Error('Unauthorized') };
   }
 
@@ -97,16 +99,17 @@ export async function verifyDiscoveredInstructor(
 }
 
 export async function loadUnverifiedCourses(
+  callerId: string,
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<ServiceResult<DiscoveredCourse[]>> {
-  if (callerRole !== 'admin') {
-    return { data: null, error: new Error('Unauthorized') };
+): Promise<PaginatedServiceResult<DiscoveredCourse[]>> {
+  if (callerRole !== ROLES.ADMIN) {
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
   const from = (page - 1) * limit;
@@ -118,25 +121,35 @@ export async function loadUnverifiedCourses(
     .range(from, from + limit - 1);
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
   }
 
-  await logAdminAction(callerRole, 'load_unverified_courses', { page, limit });
+  const { count, error: countError } = await client
+    .from('discovered_courses')
+    .select('course_code', { count: 'exact', head: true })
+    .eq('is_verified', false);
 
-  return { data: data as DiscoveredCourse[], error: null };
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
+  }
+
+  await logAdminAction(callerId, 'load_unverified_courses', { page, limit });
+
+  return { data: data as DiscoveredCourse[], totalCount: count || 0, error: null };
 }
 
 export async function loadUnverifiedInstructors(
+  callerId: string,
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<ServiceResult<DiscoveredInstructor[]>> {
-  if (callerRole !== 'admin') {
-    return { data: null, error: new Error('Unauthorized') };
+): Promise<PaginatedServiceResult<DiscoveredInstructor[]>> {
+  if (callerRole !== ROLES.ADMIN) {
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
   const from = (page - 1) * limit;
@@ -148,43 +161,19 @@ export async function loadUnverifiedInstructors(
     .range(from, from + limit - 1);
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
   }
 
-  await logAdminAction(callerRole, 'load_unverified_instructors', { page, limit });
+  const { count, error: countError } = await client
+    .from('discovered_instructors')
+    .select('instructor_username', { count: 'exact', head: true })
+    .eq('is_verified', false);
 
-  return { data: data as DiscoveredInstructor[], error: null };
-}
-
-async function logAdminAction(
-  callerId: string,
-  action: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  if (!hasSupabaseEnv()) return;
-  const client = await getSupabaseClient();
-
-  let ipAddress = 'unknown';
-  let userAgent = 'unknown';
-
-  try {
-    if (typeof window !== 'undefined') {
-      userAgent = navigator.userAgent;
-      const ipResponse = await fetch('/api/ip');
-      if (ipResponse.ok) {
-        const ipData = (await ipResponse.json()) as { ip: string };
-        ipAddress = ipData.ip;
-      }
-    }
-  } catch {
-    // keep fallback values
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
   }
 
-  await client.from('admin_audit_log').insert({
-    caller_id: callerId,
-    action,
-    payload,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-  });
+  await logAdminAction(callerId, 'load_unverified_instructors', { page, limit });
+
+  return { data: data as DiscoveredInstructor[], totalCount: count || 0, error: null };
 }

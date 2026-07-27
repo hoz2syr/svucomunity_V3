@@ -13,12 +13,26 @@ import {
 } from 'lucide-react';
 import { confirmSemesterTransition, getCurrentSystemSemester } from '../../features/admin/services/adminSemesterTransition.supabase';
 import { convertSemesterCodeToLabel, getNextSemesterCode } from '../../features/schedule-extraction/utils/semesterUtils';
+import { Dropdown } from '@/src/components/ui/Dropdown';
+
+const generateSemesterOptions = (current: string) => {
+  const options = [{ value: '', label: 'اختر الفصل المستهدف...' }];
+  for (let i = -2; i <= 4; i++) {
+    let code = current;
+    for (let j = 0; j < i; j++) {
+      code = getNextSemesterCode(code);
+    }
+    options.push({ value: code, label: convertSemesterCodeToLabel(code) });
+  }
+  return options;
+};
 
 export function SemesterTransitionPage() {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const isAdmin = profile?.role === 'admin';
 
   const [currentSemester, setCurrentSemester] = useState<string | null>(null);
+  const [selectedTargetSemester, setSelectedTargetSemester] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +49,9 @@ export function SemesterTransitionPage() {
           if (result.error) {
             setError(result.error.message);
           } else {
-            setCurrentSemester(result.data ?? 'S25');
+            const semester = result.data ?? 'S25';
+            setCurrentSemester(semester);
+            setSelectedTargetSemester(getNextSemesterCode(semester));
           }
         }
       } catch {
@@ -54,27 +70,39 @@ export function SemesterTransitionPage() {
     };
   }, []);
 
-  const nextSemester = useMemo(() => {
-    if (!currentSemester) return '';
-    return getNextSemesterCode(currentSemester);
+  const semesterOptions = useMemo(() => {
+    if (!currentSemester) return [];
+    return generateSemesterOptions(currentSemester);
   }, [currentSemester]);
 
   const handleTransition = async () => {
-    if (!nextSemester || !profile?.id) return;
+    if (!selectedTargetSemester || !profile?.id) return;
     setTransitioning(true);
     setError(null);
     setSuccess(null);
 
-    const result = await confirmSemesterTransition(profile?.role || '', profile.id);
+    const result = await confirmSemesterTransition(profile?.role || '', profile.id, selectedTargetSemester);
 
     if (result.error) {
       setError(result.error.message);
     } else if (result.data) {
-      setSuccess(`تم الانتقال إلى ${convertSemesterCodeToLabel(result.data.nextSemester)} بنجاح`);
+      const message = result.data.warning
+        ? `${result.data.warning}، ولكن تم تحديث الفصل بنجاح`
+        : `تم الانتقال إلى ${convertSemesterCodeToLabel(result.data.nextSemester)} بنجاح`;
+      setSuccess(message);
       setCurrentSemester(result.data.nextSemester);
+      setSelectedTargetSemester(getNextSemesterCode(result.data.nextSemester));
     }
     setTransitioning(false);
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-cyan-400 text-lg">جاري التحميل...</div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
@@ -137,16 +165,19 @@ export function SemesterTransitionPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm text-slate-400">الفصل التالي</label>
-            <div className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white">
-              {nextSemester ? convertSemesterCodeToLabel(nextSemester) : 'غير محدد'}
-            </div>
-            <p className="text-xs text-slate-500">يتم احتساب الفصل التالي تلقائياً بناءً على الفصل الحالي</p>
+            <label className="block text-sm text-slate-400">الفصل المستهدف</label>
+            <Dropdown
+              value={selectedTargetSemester}
+              onChange={(value) => setSelectedTargetSemester(value)}
+              options={semesterOptions}
+              placeholder="اختر الفصل المستهدف..."
+            />
+            <p className="text-xs text-slate-500">اختر الفصل الذي تريد الانتقال إليه</p>
           </div>
 
           <Button
             onClick={handleTransition}
-            disabled={!nextSemester || transitioning || nextSemester === currentSemester}
+            disabled={!selectedTargetSemester || transitioning || selectedTargetSemester === currentSemester}
             className="w-full"
           >
             {transitioning ? (
@@ -155,7 +186,7 @@ export function SemesterTransitionPage() {
                 جاري التنفيذ...
               </>
             ) : (
-              'تأكيد الانتقال للفصل التالي'
+              'تأكيد الانتقال للفصل المحدد'
             )}
           </Button>
         </GlassCard>

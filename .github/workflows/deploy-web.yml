@@ -29,7 +29,10 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          VITE_OCR_API_KEY: ${{ secrets.VITE_OCR_API_KEY }}
+
+      # ملاحظة أمنية: VITE_OCR_API_KEY ممنوع تمريره إلى البناء لأنه
+      # سيُضمَّن في JavaScript ويصبح متاحاً لكل مُستخدم في المتصفح.
+      # المفتاح يُضبط كـ Edge Function Secret في ci.yml فقط.
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1

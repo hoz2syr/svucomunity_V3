@@ -1,4 +1,5 @@
 export type ServiceResult<T> = { data: T | null; error: Error | null };
+export type PaginatedServiceResult<T> = { data: T[]; totalCount: number; error: Error | null };
 
 export const ROLES = {
   ADMIN: 'admin',

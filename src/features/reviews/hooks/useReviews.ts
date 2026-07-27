@@ -37,10 +37,10 @@ export function useAdminReviews(page = 1, limit = 50, filters?: ReviewFilters) {
 
   return useQuery({
     queryKey: ['admin', 'reviews', page, limit, filters],
-    queryFn: async (): Promise<Review[]> => {
+    queryFn: async (): Promise<{ items: Review[]; totalCount: number }> => {
       const result = await listAllReviews(callerRole, page, limit, filters);
       if (result.error) throw result.error;
-      return result.data as Review[];
+      return { items: result.data as Review[], totalCount: result.totalCount };
     },
     enabled: isAdmin,
   });

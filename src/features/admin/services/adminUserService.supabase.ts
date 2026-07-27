@@ -2,6 +2,7 @@ import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { Profile } from '@/src/types/database';
 import type { ServiceResult, RawExtractionDetail } from '@/src/types/admin';
 import { ROLES } from '@/src/types/admin';
+import { logAdminAction } from './adminAudit';
 
 export type AdminUser = Profile & {
   extraction_count?: number;
@@ -9,16 +10,17 @@ export type AdminUser = Profile & {
 };
 
 export async function listAllUsers(
+  callerId: string,
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<ServiceResult<AdminUser[]>> {
+): Promise<PaginatedServiceResult<AdminUser>> {
   if (callerRole !== ROLES.ADMIN) {
-    return { data: null, error: new Error('Unauthorized') };
+    return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
 
   if (!hasSupabaseEnv()) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
   const client = await getSupabaseClient();
 
@@ -30,12 +32,20 @@ export async function listAllUsers(
     .range(from, from + limit - 1);
 
   if (error) {
-    return { data: null, error: new Error(error.message) };
+    return { data: null, totalCount: 0, error: new Error(error.message) };
   }
 
-  await logAdminAction(callerRole, 'list_all_users', { page, limit });
+  const { count, error: countError } = await client
+    .from('profiles')
+    .select('id', { count: 'exact', head: true });
 
-  return { data: data as AdminUser[], error: null };
+  if (countError) {
+    return { data: null, totalCount: 0, error: new Error(countError.message) };
+  }
+
+  await logAdminAction(callerId, 'list_all_users', { page, limit });
+
+  return { data: data as AdminUser[], totalCount: count || 0, error: null };
 }
 
 export async function updateUserRole(
@@ -158,35 +168,36 @@ export async function getUserDetails(
   };
 }
 
-async function logAdminAction(
+export async function getUserRoleCounts(
   callerId: string,
-  action: string,
-  payload: Record<string, unknown>
-): Promise<void> {
-  if (!hasSupabaseEnv()) return;
-  const client = await getSupabaseClient();
-
-  let ipAddress = 'unknown';
-  let userAgent = 'unknown';
-
-  try {
-    if (typeof window !== 'undefined') {
-      userAgent = navigator.userAgent;
-      const ipResponse = await fetch('/api/ip');
-      if (ipResponse.ok) {
-        const ipData = (await ipResponse.json()) as { ip: string };
-        ipAddress = ipData.ip;
-      }
-    }
-  } catch {
-    // keep fallback values
+  callerRole: string
+): Promise<ServiceResult<{ admin: number; user: number; student: number }>> {
+  if (callerRole !== ROLES.ADMIN) {
+    return { data: null, error: new Error('Unauthorized') };
   }
 
-  await client.from('admin_audit_log').insert({
-    caller_id: callerId,
-    action,
-    payload,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-  });
+  if (!hasSupabaseEnv()) {
+    return { data: null, error: new Error('Supabase not configured') };
+  }
+  const client = await getSupabaseClient();
+
+  const { data, error } = await client
+    .from('profiles')
+    .select('role');
+
+  if (error) {
+    return { data: null, error: new Error(error.message) };
+  }
+
+  const counts = { admin: 0, user: 0, student: 0 };
+  for (const profile of data || []) {
+    const role = profile.role || 'user';
+    if (role === 'admin') counts.admin++;
+    else if (role === 'student') counts.student++;
+    else counts.user++;
+  }
+
+  await logAdminAction(callerId, 'get_user_role_counts', {});
+
+  return { data: counts, error: null };
 }

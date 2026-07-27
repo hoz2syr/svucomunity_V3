@@ -5,7 +5,7 @@ import {
   loadCurrentSemesterCourses,
   type ServiceResult,
 } from '../services/extractionService.supabase';
-import { getCurrentSemesterCode } from '../utils/semesterUtils';
+import { getActiveSemesterCode } from '../utils/semesterUtils';
 import type { StudentSemesterCourse } from '@/src/types/database';
 
 export const currentSemesterCoursesQueryOptions = (
@@ -27,7 +27,7 @@ export const currentSemesterCoursesQueryOptions = (
 export function useCurrentSemesterCourses(semesterCode?: string) {
   const { session } = useAuth();
   const userId = session?.user?.id;
-  const resolvedSemesterCode = semesterCode ?? getCurrentSemesterCode();
+  const resolvedSemesterCode = semesterCode ?? getActiveSemesterCode();
 
   return useQuery({
     ...currentSemesterCoursesQueryOptions(userId!, resolvedSemesterCode),

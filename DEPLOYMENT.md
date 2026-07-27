@@ -157,11 +157,15 @@ supabase functions deploy delete-account --project-ref YOUR_PROJECT_ID
 ### 4.2 في Cloudflare Pages (للـ Build كاحتياط)
 أضف في Cloudflare Dashboard → Pages → svu-community → Settings → Environment Variables:
 
-| Variable | القيمة |
-|---|---|
-| `VITE_SUPABASE_URL` | نفس القيمة في GitHub Secrets |
-| `VITE_SUPABASE_ANON_KEY` | نفس القيمة في GitHub Secrets |
-| `VITE_GOOGLE_CLIENT_ID` | نفس القيمة في GitHub Secrets |
+| Variable | القيمة | ملاحظات |
+|---|---|---|
+| `VITE_SUPABASE_URL` | نفس القيمة في GitHub Secrets | عام/عميل |
+| `VITE_SUPABASE_ANON_KEY` | نفس القيمة في GitHub Secrets | عام/عميل |
+| `VITE_GOOGLE_CLIENT_ID` | نفس القيمة في GitHub Secrets | عام/عميل |
+
+> ⚠️ **لا تضف `VITE_OCR_API_KEY` إلى Cloudflare Pages أو `.env.local` للبناء.**
+> المفتاح يُضبط فقط كـ **Edge Function Secret** عبر Supabase CLI (انظر القسم 3.1).
+> تمرير مفاتيح API المدفوعة إلى خطوة الـ build سيجعلها ظاهرة لكل مُستخدم في المتصفح.
 
 ### 4.3 محلياً (للتطوير)
 ```bash
@@ -205,6 +209,37 @@ npm run build
 5. أضف الـ Environment Variables كما في القسم 4.2
 
 > **ملاحظة:** لا تبني على Node.js 20 — استخدم Node.js 22 أو أعلى. CI معد ليعمل مع `npm install --force` لحل مشكلة Rollup native module على Linux.
+
+### 5.4 الإعدادات الموصى بها في Cloudflare Pages
+
+اذهب إلى **Cloudflare Dashboard → Pages → svu-community → Settings** وطبق التالي:
+
+**Speed → Optimization**:
+- ✅ **Auto Minify**: HTML / CSS / JavaScript
+- ✅ **Brotli Compression**: تفعيل
+- ✅ **Early Hints**: تفعيل
+- ✅ **Tiered Cache**: تفعيل
+- ✅ **Image Polish**: lossless (إذا كانت الصور تُخدَّم عبر Cloudflare)
+- ✅ **Mirage**: تفعيل (للأجهزة الضعيفة والاتصالات البطيئة)
+
+**Speed → Caching**:
+- **Browser Cache TTL**: `Respect Existing Headers`
+- **Edge Cache TTL**: `4 hours`
+
+**Security → Settings**:
+- ✅ **Always Use HTTPS**: تفعيل
+- **TLS 1.3**: تفعيل
+- ✅ **HSTS**: تفعيل (max-age 2 سنة، ``includeSubDomains``، ``preload``)
+  - ملاحظة: بعد تفعيل ``preload`` أرسل موقعك إلى [Chrome HSTS preload list](https://hstspreload.org/)
+- **Disable Email Obfuscation**: تفعيل (لحماية عناوين البريد)
+- **Security Level**: Medium (أو High للمواقع التي لا تحتوي onVrfведение خارجي)
+
+### 5.5 تدوير Cloudflare Analytics Token
+
+إذا ظهر token في كود HTML المصدر، قم بتدويره:
+1. Cloudflare Dashboard → **Web Analytics**
+2. احذف الموقع القديم وأعد إضافته
+3. أو استخدم **Dashboard → Home → Analytics & Logs → Web Analytics → Reset token**
 
 ---
 
