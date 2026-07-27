@@ -27,7 +27,7 @@ export function useAdminNotifications(page = 1, limit = ADMIN_NOTIFICATION_PAGE_
       }
       const result = await listAllNotifications(callerId, callerRole, page, limit, filters);
       if (result.error) throw result.error;
-      return { items: result.data as AdminNotification[], totalCount: result.totalCount };
+      return { items: result.data as AdminNotification[] | null ?? [], totalCount: result.totalCount };
     },
     enabled: isAdmin,
   });

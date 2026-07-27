@@ -16,13 +16,13 @@ export function useAdminExtractions(page = 1, limit = 50) {
 
   return useQuery({
     queryKey: ['admin', 'extractions', page, limit],
-    queryFn: async (): Promise<AdminExtraction[]> => {
+    queryFn: async (): Promise<{ items: AdminExtraction[]; totalCount: number }> => {
       if (!isAdmin) {
         throw new Error('Unauthorized');
       }
       const result = await listAllExtractions(callerId, callerRole, page, limit);
       if (result.error) throw result.error;
-      return result.data as AdminExtraction[];
+      return { items: result.data as AdminExtraction[], totalCount: result.totalCount };
     },
     enabled: isAdmin && callerRole !== '',
   });

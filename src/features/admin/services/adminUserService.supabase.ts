@@ -1,6 +1,6 @@
 import { hasSupabaseEnv, getSupabaseClient } from '@/src/lib/supabase';
 import type { Profile } from '@/src/types/database';
-import type { ServiceResult, RawExtractionDetail } from '@/src/types/admin';
+import type { ServiceResult, PaginatedServiceResult, RawExtractionDetail } from '@/src/types/admin';
 import { ROLES } from '@/src/types/admin';
 import { logAdminAction } from './adminAudit';
 

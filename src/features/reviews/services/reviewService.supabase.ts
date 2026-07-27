@@ -69,7 +69,7 @@ export async function listAllReviews(
   }
 
   if (!hasSupabaseEnv()) {
-    return createMissingEnvError();
+    return { data: null, totalCount: 0, error: new Error('Supabase not configured') };
   }
 
   const client = await getSupabaseClient();

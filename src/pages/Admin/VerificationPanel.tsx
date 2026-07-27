@@ -183,6 +183,7 @@ function InstructorVerificationList({
   verifyInstructorMutation,
   setConfirmAction,
   limit,
+  instructorsTotalCount,
 }: InstructorVerificationListProps) {
   return (
     <div className="space-y-4">

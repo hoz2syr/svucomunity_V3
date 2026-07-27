@@ -103,7 +103,7 @@ export async function loadUnverifiedCourses(
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<PaginatedServiceResult<DiscoveredCourse[]>> {
+): Promise<PaginatedServiceResult<DiscoveredCourse>> {
   if (callerRole !== ROLES.ADMIN) {
     return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }
@@ -143,7 +143,7 @@ export async function loadUnverifiedInstructors(
   callerRole: string,
   page = 1,
   limit = 50
-): Promise<PaginatedServiceResult<DiscoveredInstructor[]>> {
+): Promise<PaginatedServiceResult<DiscoveredInstructor>> {
   if (callerRole !== ROLES.ADMIN) {
     return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }

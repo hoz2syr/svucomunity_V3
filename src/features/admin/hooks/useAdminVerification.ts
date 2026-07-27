@@ -15,7 +15,7 @@ export const unverifiedCoursesQueryOptions = (callerId: string, callerRole: stri
   queryOptions({
     queryKey: ['admin', 'unverified-courses', page, limit],
     queryFn: async (): Promise<{ items: DiscoveredCourse[]; totalCount: number }> => {
-      const result: ServiceResult<DiscoveredCourse[]> = await loadUnverifiedCourses(callerId, callerRole, page, limit);
+      const result = await loadUnverifiedCourses(callerId, callerRole, page, limit);
       if (result.error) throw result.error;
       return { items: result.data as DiscoveredCourse[], totalCount: result.totalCount };
     },
@@ -25,7 +25,7 @@ export const unverifiedInstructorsQueryOptions = (callerId: string, callerRole: 
   queryOptions({
     queryKey: ['admin', 'unverified-instructors', page, limit],
     queryFn: async (): Promise<{ items: DiscoveredInstructor[]; totalCount: number }> => {
-      const result: ServiceResult<DiscoveredInstructor[]> = await loadUnverifiedInstructors(callerId, callerRole, page, limit);
+      const result = await loadUnverifiedInstructors(callerId, callerRole, page, limit);
       if (result.error) throw result.error;
       return { items: result.data as DiscoveredInstructor[], totalCount: result.totalCount };
     },

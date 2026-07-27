@@ -77,7 +77,7 @@ export async function listAllNotifications(
   page = 1,
   limit = 50,
   filters?: { type?: string; priority?: string; read?: boolean; search?: string },
-): Promise<PaginatedServiceResult<NotificationRow[]>> {
+): Promise<PaginatedServiceResult<NotificationRow>> {
   if (callerRole !== ROLES.ADMIN) {
     return { data: null, totalCount: 0, error: new Error('Unauthorized') };
   }

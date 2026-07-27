@@ -25,7 +25,7 @@ export function ReviewsList({ isAdmin = false, filters }: ReviewsListProps) {
   const { data: publicReviews, isLoading: publicLoading, error: publicError } = publicQuery;
   const { data: adminReviews, isLoading: adminLoading, error: adminError } = adminQuery;
 
-  const reviews = isAdmin ? adminReviews : publicReviews;
+  const reviews = isAdmin ? adminReviews?.items : publicReviews;
   const isLoading = isAdmin ? adminLoading : publicLoading;
   const error = isAdmin ? adminError : publicError;
 
