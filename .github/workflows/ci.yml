@@ -71,7 +71,7 @@ jobs:
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
 
       - name: Repair orphaned migration history
-        run: supabase migration repair --status reverted 001 002 003 004 005 006 007 008 20260727000000
+        run: supabase migration repair --status deleted 001 002 003 004 005 006 007 008 20260727000000
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
