@@ -8,7 +8,6 @@ import {
   verifyDiscoveredCourse,
   verifyDiscoveredInstructor,
 } from '../services/adminVerificationService.supabase';
-import type { ServiceResult } from '@/src/types/admin';
 import type { DiscoveredCourse, DiscoveredInstructor } from '@/src/types/database';
 
 export const unverifiedCoursesQueryOptions = (callerId: string, callerRole: string, page = 1, limit = 50) =>
